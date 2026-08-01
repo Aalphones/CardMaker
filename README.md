@@ -32,11 +32,14 @@ Backend-Änderung geht per Doppelklick auf den Server.
    Administratorrechte). Gebraucht wird die Konsolen-Fassung `WinSCP.com`.
 3. `deploy.env.example` nach `deploy.env` kopieren und ausfüllen. Die Datei landet nicht
    im Git.
-4. Nur bei SFTP: WinSCP einmal von Hand starten und verbinden. Den angezeigten
-   Fingerabdruck (Form `ssh-ed25519 256 SHA256:…`) in `deploy.env` unter `SFTP_HOSTKEY`
-   eintragen. Ein Stern als Platzhalter ist bewusst nicht vorgesehen — der würde jeden
-   Server akzeptieren, der sich für deinen ausgibt. Bietet dein Paket kein SFTP:
-   `SFTP_PROTOCOL=ftp` setzen, dann entfällt der Fingerabdruck.
+4. Nur bei SFTP: WinSCP einmal von Hand verbinden, mit `Strg+I` die Server- und
+   Protokollinformationen öffnen und den Fingerabdruck in `deploy.env` unter
+   `SFTP_HOSTKEY` eintragen — **ohne** das `SHA256:`-Präfix, also in der Form
+   `ssh-ed25519 255 1gx2w8…`. Wer den Abdruck nicht findet: einmal mit irgendeinem Wert
+   starten, WinSCP bricht ab und nennt den echten. Ein Stern als Platzhalter ist bewusst
+   nicht vorgesehen — der würde jeden Server akzeptieren, der sich für deinen ausgibt.
+   Bietet dein Paket kein SFTP: `SFTP_PROTOCOL=ftp` setzen, dann entfällt der
+   Fingerabdruck.
 
 ### Hochladen
 
