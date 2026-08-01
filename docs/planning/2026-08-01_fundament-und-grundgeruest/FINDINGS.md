@@ -53,9 +53,11 @@ ist, wandert in Phase 9 in die Folgeaufgaben der Plan-README.
       Prüfung, die einen Griff in die Tabellen braucht, geht nur über phpMyAdmin und damit
       nur von Saschas Hand — steht als Punkt 7a im Abnahme-Rundgang.
 
-- [ ] → Phase 6: Abmelden mit einem Zugriffstoken antwortet `403`, nicht `204`. Die
+- [x] → Phase 6: Abmelden mit einem Zugriffstoken antwortet `403`, nicht `204`. Die
       Oberfläche meldet sich immer mit dem Anmelde-Token an, trifft das also nie — beim
       Bauen des Fehlerpfads trotzdem nicht als „Sitzung abgelaufen" auslegen.
+      Eingearbeitet: der Abmelden-Effekt fängt jeden Fehler (403 wie Netzstörung) gleich ab
+      und räumt trotzdem lokal auf, ohne ihn als Sitzungsablauf zu interpretieren.
 
 - [ ] → Phase 5: Der Ausgabeordner des Angular-Builds steht in `deploy.env` unter
       `FRONTEND_DIST` (Vorgabe `frontend\dist\frontend\browser`). Nach dem ersten Build

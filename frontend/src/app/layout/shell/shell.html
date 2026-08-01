@@ -2,7 +2,10 @@
   <header class="shell__header">
     <span class="shell__product-name">CardMaker</span>
     <div class="shell__user">
-      <span class="shell__user-name">Angemeldet</span>
+      <span class="shell__user-name">{{ auth.user()?.email }}</span>
+      <a class="shell__nav-link" routerLink="/tokens" routerLinkActive="shell__nav-link--active"
+        >Zugriffstoken</a
+      >
       <button type="button" class="shell__logout" (click)="logout()">Abmelden</button>
     </div>
   </header>

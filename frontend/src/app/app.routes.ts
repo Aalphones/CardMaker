@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { authGuard } from './core/auth/auth-guard';
+
 export const routes: Routes = [
   {
     path: 'login',
@@ -8,6 +10,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./layout/shell/shell').then((module) => module.Shell),
+    canActivateChild: [authGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'card-groups' },
       {
@@ -15,6 +18,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/card-groups/card-groups-page/card-groups-page').then(
             (module) => module.CardGroupsPage,
+          ),
+      },
+      {
+        path: 'tokens',
+        loadComponent: () =>
+          import('./features/auth/tokens/tokens-page/tokens-page').then(
+            (module) => module.TokensPage,
           ),
       },
       {

@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
+import { Auth } from '../../core/services/auth';
 import { NotificationList } from '../../shared/components/notification-list/notification-list';
 
 @Component({
@@ -8,11 +9,12 @@ import { NotificationList } from '../../shared/components/notification-list/noti
   imports: [RouterLink, RouterLinkActive, RouterOutlet, NotificationList],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Shell {
-  private readonly router = inject(Router);
+  protected readonly auth = inject(Auth);
 
   logout(): void {
-    void this.router.navigateByUrl('/login');
+    this.auth.logout();
   }
 }

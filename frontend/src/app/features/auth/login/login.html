@@ -1,4 +1,48 @@
 <section class="login">
   <h1 class="login__title">Anmelden</h1>
-  <p class="login__text">Die Anmeldemaske entsteht in der nächsten Phase.</p>
+
+  @if (setupIncomplete()) {
+    <p class="login__hint" role="status">
+      Die Einrichtung ist noch nicht abgeschlossen. Die nötigen Schritte stehen in der README des
+      Projekts.
+    </p>
+  } @else if (sessionExpiredHint()) {
+    <p class="login__hint" role="status">Sitzung abgelaufen. Bitte melde dich erneut an.</p>
+  }
+
+  @if (auth.error(); as message) {
+    <p class="login__error" role="alert">{{ message }}</p>
+  }
+
+  <form class="login__form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="login__field">
+      <label class="login__label" for="login-email">E-Mail-Adresse</label>
+      <input
+        id="login-email"
+        class="login__input"
+        type="email"
+        formControlName="email"
+        autocomplete="username"
+      />
+    </div>
+
+    <div class="login__field">
+      <label class="login__label" for="login-password">Passwort</label>
+      <input
+        id="login-password"
+        class="login__input"
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+      />
+    </div>
+
+    <button type="submit" class="login__submit" [disabled]="auth.loading()">
+      @if (auth.loading()) {
+        Anmelden …
+      } @else {
+        Anmelden
+      }
+    </button>
+  </form>
 </section>

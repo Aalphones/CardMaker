@@ -1,11 +1,11 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-01_fundament-und-grundgeruest/`
-**Phase:** 6/9 — Login im Frontend (als Nächstes, Rating: standard → `sonnet` reicht)
-**Nächster Schritt:** Phase 6 umsetzen — siehe `phase-6-auth-frontend.md`. Frontend-Gerüst
-steht: Angular 21 (nicht 22, siehe Abweichungen in Phase 5 — NgRx/ng2-konva hatten noch keine
-Angular-22-Version), App-Rahmen mit Kopfleiste/Sidebar, Routing, Backend-Verbindung
-(Interceptoren, Fehlerbehandlung, Benachrichtigungen), NgRx eingerichtet. `npm run lint` und
-`npm run build` grün, per Screenshot geprüft. `core/auth/auth-storage.ts` liest/löscht bereits
-`localStorage['cardmaker.auth']` — Phase 6 baut darauf `core/services/auth.ts` (Schreiben,
-Ablauf-Prüfung) und den Store.
+**Phase:** 7/9 — Kartengruppen (als Nächstes, Rating: standard → `sonnet` reicht)
+**Nächster Schritt:** Phase 7 umsetzen — siehe `phase-7-kartengruppen.md`. Login-Flow steht:
+Store-Slice `store/auth/` (Classic Store, Ausnahme von der Facade-Pflicht), `core/services/auth.ts`
+mit Ablauf-Prüfung, Guard auf den Kindrouten des Rahmens, Anmeldeseite mit Einrichtungs-/
+Ablauf-Hinweis, Zugriffstoken-Verwaltung unter `/tokens` mit eigener Facade
+(`store/tokens/`). `npm run lint` und `npm run build` grün. Phase 7 ist der erste komplette
+Durchstich Datenbank → Backend → Speicher → Oberfläche — ab hier vor jeder Backend-Prüfung
+`deploy.cmd backend` laufen lassen (ADR-006, kein lokales PHP).

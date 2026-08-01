@@ -1,9 +1,14 @@
-const AUTH_STORAGE_KEY = 'cardmaker.auth';
+export const AUTH_STORAGE_KEY = 'cardmaker.auth';
+
+export interface AuthUser {
+  id: number;
+  email: string;
+}
 
 export interface StoredAuth {
   token: string;
   expiresAt: string;
-  user: { id: number; email: string };
+  user: AuthUser;
 }
 
 // Schlüssel und Lese-/Löschzugriff liegen hier, weil Phase 5 sie schon für die

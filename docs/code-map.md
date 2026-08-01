@@ -36,7 +36,7 @@ frontend/src/app/
     auth/           ← Guards, Interceptors, Token-Logik (ADR-008)
     services/        ← App-weite Services (api, http)
   features/
-    auth/            ← Login-Seite
+    auth/            ← Login-Seite, Zugriffstoken-Verwaltung
     card-groups/
     templates/
       editor/         ← Template-Editor (Layerliste, Konva-Canvas, Eigenschaften-Panel)
