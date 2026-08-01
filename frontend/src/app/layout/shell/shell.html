@@ -1,0 +1,23 @@
+<div class="shell">
+  <header class="shell__header">
+    <span class="shell__product-name">CardMaker</span>
+    <div class="shell__user">
+      <span class="shell__user-name">Angemeldet</span>
+      <button type="button" class="shell__logout" (click)="logout()">Abmelden</button>
+    </div>
+  </header>
+  <div class="shell__body">
+    <nav class="shell__sidebar" aria-label="Hauptnavigation">
+      <a
+        class="shell__nav-link"
+        routerLink="/card-groups"
+        routerLinkActive="shell__nav-link--active"
+        >Kartengruppen</a
+      >
+    </nav>
+    <main class="shell__content">
+      <router-outlet />
+    </main>
+  </div>
+  <app-notification-list />
+</div>

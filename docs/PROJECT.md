@@ -56,7 +56,7 @@ Trading Cards) zu bauen, ohne für jeden Kartentyp neue Software zu schreiben.
 |---|---|
 | Backend | PHP 8.5, MySQL 8.x, kein Composer (ADR-006) |
 | Backend libs | keine — Wegweiser, Konfigurationsleser, Prüfhelfer selbst geschrieben in `backend/src/Support/` (ADR-006) |
-| Frontend framework | Angular 22 (standalone, signals) |
+| Frontend framework | Angular 21 (standalone, signals) — NgRx/ng2-konva hatten zu Beginn von Phase 5 noch keine Angular-22-Version |
 | Frontend state | NgRx Store (server state) + NgRx Signals (UI state) — never mix, Facade-Pflicht pro Slice |
 | Styling | Semantic CSS — SCSS + BEM, CSS Custom Properties als Design-Tokens, kein Utility-Framework (ADR-010) |
 | Canvas-Rendering | Konva.js + `ng2-konva` — Scene-Graph passt direkt auf das Layer-Modell (Image/Shape/Icon/Frame/Text als Konva-Nodes), offizielles Angular-Binding, eingebautes Drag/Transform |

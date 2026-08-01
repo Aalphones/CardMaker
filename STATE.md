@@ -1,10 +1,11 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-01_fundament-und-grundgeruest/`
-**Phase:** 5/9 — Frontend-Gerüst (als Nächstes, Rating: standard → `sonnet` reicht)
-**Nächster Schritt:** Phase 5 umsetzen — siehe `phase-5-frontend-geruest.md`. Das Backend
-steht vollständig auf Strato: Anmeldung, Sitzungen, Zugriffstoken und die Sperre für alles
-dahinter sind live geprüft (28 Aufrufe, alle wie erwartet, Protokoll sauber). Das eine Konto
-ist angelegt (`sascha.mick@yahoo.de`, Kennung 1). Offen aus Phase 4 ist einzig die Probe mit
-abgelaufener Sitzung — die braucht phpMyAdmin und steht als Punkt 7a im Abnahme-Rundgang
-der Plan-README.
+**Phase:** 6/9 — Login im Frontend (als Nächstes, Rating: standard → `sonnet` reicht)
+**Nächster Schritt:** Phase 6 umsetzen — siehe `phase-6-auth-frontend.md`. Frontend-Gerüst
+steht: Angular 21 (nicht 22, siehe Abweichungen in Phase 5 — NgRx/ng2-konva hatten noch keine
+Angular-22-Version), App-Rahmen mit Kopfleiste/Sidebar, Routing, Backend-Verbindung
+(Interceptoren, Fehlerbehandlung, Benachrichtigungen), NgRx eingerichtet. `npm run lint` und
+`npm run build` grün, per Screenshot geprüft. `core/auth/auth-storage.ts` liest/löscht bereits
+`localStorage['cardmaker.auth']` — Phase 6 baut darauf `core/services/auth.ts` (Schreiben,
+Ablauf-Prüfung) und den Store.

@@ -34,93 +34,124 @@ Verbindungsschicht zum Backend. Am Ende läuft eine leere, aber vollständig ver
 
 ### Projekt anlegen
 
-- [ ] `npx @angular/cli@22 new frontend --style=scss --routing --skip-git --skip-tests` im
-      Projektstamm. Serverseitiges Rendern **ablehnen** (die App braucht es nicht und es
-      kollidiert mit dem Zugriff auf Browser-Speicher).
-- [ ] Testgerüst restlos entfernen (ADR-009): den `test`-Abschnitt aus `angular.json`
-      streichen, das `test`-Skript aus `package.json`, alle Testwerkzeug-Abhängigkeiten
-      (Karma, Jasmine, Vitest oder was die CLI-Fassung mitbringt), die Dateien
-      `src/test.ts` und `tsconfig.spec.json`, sowie jede erzeugte `.spec.ts`-Datei.
-      Anschließend `npm install` erneut laufen lassen und prüfen, dass `npm run build`
-      weiterhin durchläuft.
-- [ ] Bei jedem späteren `ng generate` die Option `--skip-tests` verwenden, sonst legt die
-      CLI wieder Testdateien an. Diesen Hinweis in `docs/conventions/angular.md` aufnehmen.
-- [ ] Zonenfreien Betrieb wählen, wenn die CLI danach fragt — die Anwendung arbeitet
-      durchgehend mit Signals.
-- [ ] Abhängigkeiten ergänzen: `@ngrx/store`, `@ngrx/effects`, `@ngrx/signals`,
-      `@ngrx/store-devtools`, `@angular/cdk`, `konva`, `ng2-konva`,
-      Entwicklungsabhängigkeit `@ngrx/eslint-plugin`. Kein Tailwind, kein PostCSS-Paket
-      (ADR-010) — Angular CLI kompiliert SCSS ohnehin ohne Zusatz-Plugin.
-      Konva und ng2-konva werden erst im Template-Editor gebraucht — jetzt schon aufnehmen,
-      damit die Versionsentscheidung an einer Stelle fällt.
-- [ ] Verzeichnisse nach `docs/code-map.md` anlegen: `core/{auth,services}`,
-      `features/{auth,card-groups}`, `shared/{components,canvas,services}`, `store/`,
+- [x] `npx @angular/cli@21 new frontend --style=scss --routing --skip-git --skip-tests` im
+      Projektstamm (Version 21 statt 22 — Begründung unten unter „Abweichungen"). Serverseitiges
+      Rendern lehnt die CLI mit `--defaults` bereits ab, kein `server.ts`/`@angular/ssr` im Baum.
+- [x] Testgerüst restlos entfernen (ADR-009): `--skip-tests` lässt die CLI 21 bereits ohne
+      Karma/Jasmine, ohne `test`-Abschnitt in `angular.json` und ohne `src/test.ts` erzeugen —
+      übrig blieben nur das `test`-Skript in `package.json` und `tsconfig.spec.json`, beide
+      entfernt. `npm run build` lief danach unverändert durch.
+- [x] Hinweis „immer mit `--skip-tests`" in `docs/conventions/angular.md` ergänzt.
+- [x] Zonenfreier Betrieb ist mit `--defaults` bereits die Vorgabe — kein `zone.js` in
+      `package.json`.
+- [x] Abhängigkeiten ergänzt: `@ngrx/store`, `@ngrx/effects`, `@ngrx/signals`,
+      `@ngrx/store-devtools` (alle `21.1.1`), `@angular/cdk`, `konva`, `ng2-konva` (`12.0.1`),
+      Entwicklungsabhängigkeit `@ngrx/eslint-plugin` (`21.1.1`). Kein Tailwind, kein
+      PostCSS-Paket. Versionsentscheidung siehe „Abweichungen" — NgRx/ng2-konva hatten zum
+      Zeitpunkt dieser Phase keine Angular-22-taugliche stabile Version.
+- [x] Verzeichnisse nach `docs/code-map.md` angelegt: `core/{auth,services}`,
+      `features/{auth,card-groups}`, `shared/{components,canvas/rendering,services}`, `store/`,
       `signal-stores/`, `layout/`.
 
 ### Gestaltungs-Token
 
-- [ ] In `src/styles.scss` einen `:root`-Block mit CSS Custom Properties anlegen, zwei
-      Schichten wie in `docs/conventions/css.md` beschrieben (kein `@theme`, kein Tailwind —
-      ADR-010):
-  - **Roh:** Farbskala (eine Markenfarbe in fünf Stufen, eine Graustufenskala in sieben
-    Stufen, je eine Farbe für Erfolg, Warnung, Fehler), Abstände `--space-xs` bis `--space-xl`,
-    Radien, Schatten, Schriftgrößen.
-  - **Semantisch:** `--color-bg-base`, `--color-bg-elevated`, `--color-bg-sunken`,
-    `--color-text-primary`, `--color-text-muted`, `--color-border`, `--color-accent`,
-    `--color-danger` — jeweils auf Roh-Token verweisend.
-- [ ] Ein dunkles Erscheinungsbild als Grundeinstellung wählen (Canvas-Werkzeug, dunkle
-      Oberfläche ist der Standard in dieser Werkzeugklasse). Nur die semantischen Token
-      belegen, keine Umschaltung bauen — die kostet jetzt nichts und lässt sich später
-      nachrüsten, solange Komponenten ausschließlich semantische Token verwenden.
-- [ ] Globale Grundlagen in `styles.scss`: Kastenmodell, Schriftfamilie, Fokus-Sichtbarkeit
-      (`:focus-visible` mit deutlichem Rahmen — Barrierefreiheit ist in
-      `docs/conventions/angular.md` festgeschrieben).
+- [x] `:root`-Block mit Raw- und Semantic-Tokens in `src/styles.scss` angelegt — Markenfarbe
+      Violett-Blau (`--color-brand-500: #6d5ef8`) in fünf Stufen, Graustufen in sieben Stufen,
+      Erfolg/Warnung/Fehler, Abstände, Radien, Schatten, Schriftgrößen. Semantic-Schicht wie im
+      Kontrakt. `docs/conventions/css.md` mit den finalen Werten nachgezogen.
+- [x] Dunkles Erscheinungsbild als Grundeinstellung (`color-scheme: dark`, keine Umschaltung
+      gebaut).
+- [x] Globale Grundlagen (Kastenmodell, Schriftfamilie, `:focus-visible`) in `styles.scss`.
 
 ### App-Rahmen
 
-- [ ] `layout/shell/` — Komponente mit Kopfleiste (Produktname, rechts der angemeldete
-      Benutzer und eine Abmelden-Schaltfläche) und Seitenleiste (Navigationspunkt
-      „Kartengruppen", später mehr). Inhaltsbereich über `<router-outlet>`.
-      BEM-Klassen, scoped SCSS, keine Utilities.
-- [ ] Navigationspunkte als `routerLink` mit `routerLinkActive`, kein Klick-Handler mit
-      manueller Navigation.
-- [ ] `app.routes.ts`: `/login` außerhalb des Rahmens, alles andere als Kindrouten des
-      Rahmens, mit `loadComponent` verzögert geladen. Vorerst eine Platzhalterseite für
-      Kartengruppen, `/` leitet auf `/card-groups` um.
-- [ ] Eine `NotFound`-Seite für unbekannte Adressen.
+- [x] `layout/shell/` — Kopfleiste (Produktname, „Angemeldet"-Platzhalter, Abmelden-Schaltfläche)
+      und Seitenleiste (Navigationspunkt „Kartengruppen"). Inhaltsbereich über
+      `<router-outlet>`. BEM-Klassen, scoped SCSS, keine Utilities. Die Abmelden-Schaltfläche
+      navigiert vorerst nur zu `/login` — den echten `POST /api/auth/logout`-Aufruf baut
+      Phase 6.
+- [x] Navigationspunkt als `routerLink` mit `routerLinkActive`.
+- [x] `app.routes.ts`: `/login` außerhalb des Rahmens (eigene Platzhalterseite,
+      `features/auth/login/` — nicht nur die Route, auch eine Platzhalterkomponente, sonst
+      hätte die App nicht gebaut), alles andere als Kindrouten des Rahmens, `loadComponent`
+      verzögert geladen. `/` leitet über die leere Kindroute auf `/card-groups` um.
+- [x] `NotFound`-Seite unter `shared/components/not-found/`, als Wildcard-Kindroute der Shell
+      (bleibt dadurch mit Kopfleiste/Sidebar sichtbar).
 
 ### Verbindung zum Backend
 
-- [ ] `src/environments/environment.ts` und `environment.development.ts` mit `apiBaseUrl`.
-      Entwicklungswert ist die Strato-Subdomain — es gibt kein lokales Backend (ADR-006).
-      Die Adresse gehört ins Repository, sie ist kein Geheimnis.
-- [ ] `core/services/api.ts` — dünne Hülle um `HttpClient`, setzt die Basisadresse davor und
-      bietet `get/post/patch/delete` mit typisierten Rückgaben. Kein Fachwissen darin.
-- [ ] `core/auth/auth-token.interceptor.ts` — hängt `Authorization: Bearer <token>` an, wenn
-      ein Token vorliegt.
-- [ ] `core/auth/error.interceptor.ts` — übersetzt Fehlerantworten in eine Klartextmeldung
-      nach dem Fehlerformat aus dem Kontrakt. Bei `401`: Token verwerfen und auf `/login`
-      leiten. Bei `0` (Backend nicht erreichbar): eigene Meldung „Server nicht erreichbar",
-      nicht die technische Rohmeldung.
-- [ ] `shared/services/notification.ts` — einfacher Meldungsdienst als Signal-Speicher, dazu
-      eine Anzeigekomponente im Rahmen. Kein fremdes Meldungspaket dafür einbinden.
-- [ ] NgRx im `app.config.ts` einrichten: `provideStore()`, `provideEffects()`,
-      `provideStoreDevtools()` nur außerhalb der Auslieferung.
+- [x] `src/environments/environment.ts` (Produktion: `apiBaseUrl: '/api'`, relativ — Frontend
+      und Backend teilen sich die Domain, ADR-013) und `environment.development.ts`
+      (`https://quantum-canvas.de/api`, absolut — Dev-Server läuft auf `localhost:4200`, braucht
+      CORS). `fileReplacements` in `angular.json` für die `development`-Konfiguration ergänzt.
+- [x] `core/services/api.ts` — dünne Hülle um `HttpClient`.
+- [x] `core/auth/auth-token-interceptor.ts` (CLI-Namensschema hängt `-interceptor` statt
+      `.interceptor` an, siehe Abweichungen) — hängt `Authorization: Bearer <token>` an.
+      Liest über `core/auth/auth-storage.ts` (neu, nicht im Plan benannt) aus `localStorage`
+      unter dem Schlüssel `cardmaker.auth` — demselben Schlüssel, den Phase 6 für
+      `core/services/auth.ts` vorsieht, damit beide Phasen zum selben Speicherformat greifen.
+- [x] `core/auth/error-interceptor.ts` — bei `401`: `auth-storage` leeren, auf `/login`
+      leiten. Bei `0`: „Server nicht erreichbar." Sonst: `message` aus dem Fehlerformat des
+      Kontrakts über die Notification anzeigen. Format gegen den echten Server geprüft
+      (`GET /api/nonexistent-path` → `401` mit `{"error":"unauthorized","message":"..."}`).
+- [x] `shared/services/notification.ts` als Signal-Speicher, Anzeige über
+      `shared/components/notification-list/`, im Rahmen eingebunden.
+- [x] NgRx im `app.config.ts`: `provideStore()`, `provideEffects()`, `provideStoreDevtools()`
+      nur wenn `!environment.production`.
 
 ### Prüfwerkzeuge
 
-- [ ] ESLint einrichten nach `docs/conventions/linting.md`, `@ngrx/eslint-plugin` aufnehmen.
-- [ ] Prettier-Einstellungen im Projektstamm prüfen: einfache Anführungszeichen, sonst
-      Standard. Die Hook-Einbindung in `package.json` verweist bereits auf `frontend/**`.
-- [ ] Erste Zeile des Rechenkerns anlegen, damit der Ordner aus ADR-005 von Anfang an steht:
-      `shared/canvas/rendering/units.ts` mit `canvasUnitsToPixels(units: number, dpi: number): number`.
-      Zur Kontrolle beim Schreiben: 630 Einheiten bei 300 DPI ergeben 744 Pixel, 880 Einheiten
-      ergeben 1039. Diese beiden Werte als Kommentar in die Datei — sie sind die
-      Rechenprobe, die es ohne Tests sonst nirgends gibt.
-- [ ] Das Skript `build` in `frontend/package.json` muss genau so heißen — das Deploy-Skript
-      ruft es unter diesem Namen auf.
-- [ ] Einmal `npm run build` ausführen und den tatsächlichen Ausgabepfad ermitteln
-      (üblicherweise `frontend/dist/frontend/browser`). Den Pfad in `deploy.cmd` aus Phase 2
-      eintragen und dort einmal prüfen — ein falscher Pfad lädt wortlos nichts hoch.
+- [x] ESLint über `ng add @angular-eslint/schematics@21` eingerichtet (Version 21 statt der
+      generischen Anleitung — Begründung unten), Selector-Prefixes `['app', 'cm']` gesetzt.
+      `@ngrx/eslint-plugin` eingebunden — dessen Config ist noch reines eslintrc-Format ohne
+      Flat-Config-Preset, deshalb von Hand als `plugins`/`rules`-Block in `eslint.config.js`
+      übernommen statt per `extends`.
+- [x] Prettier-Einstellungen geprüft (`singleQuote: true` bereits gesetzt), ganzen
+      `frontend/`-Baum einmal formatiert.
+- [x] `shared/canvas/rendering/units.ts` mit `canvasUnitsToPixels` — Rechenprobe (630/300 DPI →
+      744, 880/300 DPI → 1039) im Kommentar und per Node-Skript nachgerechnet, stimmt.
+- [x] `build`-Skript heißt `ng build`, unverändert vom CLI-Default.
+- [x] Ausgabepfad `frontend/dist/frontend/browser` bestätigt — war in `deploy.env`
+      (`FRONTEND_DIST`) aus Phase 2 bereits korrekt eingetragen, keine Änderung nötig.
 
 ## Report-Back
+
+**Stand: abgeschlossen.** `npm run lint` und `npm run build` laufen beide grün durch, kein
+Testwerkzeug im Baum. Per Headless-Chrome-Screenshot geprüft: `/card-groups` zeigt Kopfleiste
+(Markenfarbe aus Token) und Sidebar mit aktivem Navigationspunkt, `/login` rendert komplett
+ohne Rahmen, eine unbekannte Adresse zeigt die `NotFound`-Seite innerhalb der Shell. CORS von
+`localhost:4200` gegen die echte Strato-API funktioniert (Preflight liefert `204` mit den
+erwarteten Headern).
+
+### Abweichungen vom Plan
+
+1. **Angular 21 statt 22.** NgRx hatte zum Zeitpunkt dieser Phase nur eine Beta-Version für
+   Angular 22, `ng2-konva` noch gar keine (letzte Version zielt auf Angular 21). Auf Nachfrage
+   hat Sascha entschieden, das ganze Frontend auf Angular 21 zu stellen statt Beta-Pakete oder
+   `--legacy-peer-deps`-Notlösungen einzusetzen. `docs/conventions/angular.md`,
+   `docs/conventions/stack.md` und `docs/PROJECT.md` sind entsprechend nachgezogen.
+2. **`--defaults` statt interaktiver Prompts** bei `ng new` — Zonenfrei und kein SSR sind bei
+   Angular 21 bereits die Vorgabe, spart die manuelle Bestätigung.
+3. **CLI-Namensschema für Services/Interceptoren.** Angular 21 hängt kein `.service`/`.interceptor`
+   mehr an Dateinamen — `api.ts`/`notification.ts` treffen den Plan-Wortlaut exakt,
+   `auth-token-interceptor.ts`/`error-interceptor.ts` (Bindestrich statt Punkt) weichen leicht
+   vom Plan-Text ab. CLI-Standard übernommen statt von Hand umzubenennen.
+4. **`core/auth/auth-storage.ts` neu, nicht im Plan benannt.** Enthält nur Schlüssel-Konstante,
+   Lesen und Löschen (`cardmaker.auth`) — das Schreiben und die Ablauf-Prüfung bleiben bewusst
+   Phase 6 (`core/services/auth.ts`) vorbehalten, damit nichts doppelt gebaut wird.
+5. **`environment.ts` nutzt `/api` (relativ) statt der Strato-Subdomain.** Produktion liefert
+   Frontend und Backend von derselben Domain (ADR-013) — relativ vermeidet unnötiges CORS in
+   Produktion. Nur `environment.development.ts` zeigt auf die absolute Adresse.
+6. **AK 6 (sichtbare Fehlermeldung bei Backend-Fehler) nicht per Screenshot demonstriert** —
+   noch keine Seite in dieser Phase ruft die API auf (Kartengruppen-Seite ist reiner
+   Platzhalter). Verifiziert stattdessen per Code-Review plus einem echten Aufruf gegen die
+   Strato-API, der das erwartete Fehlerformat bestätigt. Das ist die unsicherste Stelle dieser
+   Phase — volle Gewissheit gibt erst Phase 6 oder 7, sobald eine Seite tatsächlich einen
+   Aufruf macht, der schiefgehen kann.
+
+### Was geprüft wurde, und wie
+
+- `npm run lint`, `npm run build` — beide grün.
+- Headless-Chrome-Screenshots von `/card-groups`, `/login`, einer unbekannten Adresse.
+- CORS-Preflight und Fehlerformat direkt gegen `https://quantum-canvas.de/api` per `curl`.
+- `canvasUnitsToPixels` per Node-Einzeiler gegen die beiden Kontrollwerte nachgerechnet.

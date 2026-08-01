@@ -31,7 +31,7 @@ Semantic-Tokens.**
 ```scss
 :root {
   /* RAW */
-  --color-brand-500: #__TBD__;
+  --color-brand-500: #6d5ef8;
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
@@ -40,16 +40,17 @@ Semantic-Tokens.**
      --font-*, --font-size-*, --touch-target-min: 2.75rem */
 
   /* SEMANTIC */
-  --color-bg-base: white;
-  --color-bg-elevated: var(--color-gray-50);
-  --color-fg-primary: var(--color-gray-900);
+  --color-bg-base: var(--color-gray-950);
+  --color-bg-elevated: var(--color-gray-900);
+  --color-fg-primary: var(--color-gray-50);
   --color-border-focus: var(--color-brand-500);
-  --color-canvas-checkerboard: #__TBD__;  /* Transparenz-Hintergrund hinter dem Konva-Stage */
 }
 ```
 
-Markenfarben/Palette sind noch nicht final (`#__TBD__`) — im Frontend-Gerüst-Schritt
-festlegen, sobald UI-Design ansteht.
+Palette in Phase 5 festgelegt: Violett-Blau als Markenfarbe (`--color-brand-500: #6d5ef8`),
+dunkel als Grundeinstellung (kein Umschalter, siehe `styles.scss`). `--color-canvas-checkerboard`
+kommt erst mit dem Template-Editor-Plan, sobald der Konva-Stage tatsächlich existiert — ein
+Token ohne Verbraucher wird nicht vorab angelegt.
 
 ## Templates: BEM, kein Utility-Framework
 

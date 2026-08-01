@@ -1,8 +1,7 @@
 # Angular / TypeScript Conventions — CardMaker
 
 > **Source-of-truth references:**
-> - Promptigofant `docs/conventions/coding-style.md` (gleicher Stack, adaptiert — Angular 22
->   statt 21, kein PrimeNG)
+> - Promptigofant `docs/conventions/coding-style.md` (gleicher Stack, adaptiert — kein PrimeNG)
 > - [angular.dev](https://angular.dev), [konvajs.org/docs/angular](https://konvajs.org)
 >
 > Projekt-Overrides unten haben Vorrang vor allgemeinen Coding-Style-Regeln.
@@ -11,7 +10,7 @@
 
 | Layer | Choice |
 |---|---|
-| Framework | Angular 22, standalone, Signals |
+| Framework | Angular 21, standalone, Signals |
 | TypeScript | strict mode, `noUncheckedIndexedAccess: true` |
 | State | NgRx Store (Server-State) + NgRx Signals (UI-State) |
 | Canvas | Konva.js + `ng2-konva` |
@@ -35,6 +34,8 @@
 - Kein `@HostBinding`/`@HostListener` — Host-Bindings ins `host`-Objekt des Decorators
 - `NgOptimizedImage` für statische Bilder (nicht für inline Base64)
 - `ng generate` für alles — nie Component-/Service-Dateien von Hand anlegen
+- **Immer mit `--skip-tests`** — sonst legt die CLI wieder Testdateien an, obwohl das Projekt
+  kein Testgerüst führt (ADR-009)
 
 ### Reactivity-Falle: Route-Snapshots
 

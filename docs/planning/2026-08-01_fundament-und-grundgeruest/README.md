@@ -40,7 +40,7 @@ Drei Festlegungen, die den ganzen Plan prägen — jede kostet etwas, jede ist b
 | 2 | [Backend-Gerüst & Deploy-Skript](phase-2-backend-geruest-und-deploy.md) | heikel | complete |
 | 3 | [Datenbank-Schema & Migrations-Runner](phase-3-datenbank-schema.md) | standard | complete |
 | 4 | [Login & Zugriffstoken im Backend](phase-4-auth-backend.md) | heikel | complete (AK 6 offen) |
-| 5 | [Frontend-Gerüst](phase-5-frontend-geruest.md) | standard | pending |
+| 5 | [Frontend-Gerüst](phase-5-frontend-geruest.md) | standard | complete |
 | 6 | [Login im Frontend](phase-6-auth-frontend.md) | standard | pending |
 | 7 | [Kartengruppen](phase-7-kartengruppen.md) | standard | pending |
 | 8 | [Doku-Abgleich & Abnahme](phase-8-abschluss.md) | mechanisch | pending |

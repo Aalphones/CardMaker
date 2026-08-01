@@ -28,7 +28,7 @@ backend/src/Validators/<Feature>Validator.php
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
 
-## Geplantes Frontend-Layout
+## Frontend-Layout (steht seit Phase 5)
 
 ```
 frontend/src/app/

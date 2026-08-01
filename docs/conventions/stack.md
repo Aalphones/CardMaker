@@ -14,7 +14,7 @@
 | Backend | PHP 8.5 (Server 8.5.7), MySQL 8.x, Composer (ADR-012) |
 | Backend libs | fast-route, phpdotenv, monolog, respect/validation; php-jwt installiert, ungenutzt |
 | Lokale Werkzeuge | PHP + Composer portabel unter `.tools/` außerhalb des Projekts |
-| Frontend framework | Angular 22 (standalone, signals) |
+| Frontend framework | Angular 21 (standalone, signals) — NgRx/ng2-konva hatten zu Beginn von Phase 5 noch keine Angular-22-Version |
 | Frontend state | NgRx Store (Server-State) + NgRx Signals (UI-State) — nie mischen |
 | Styling | Semantic CSS — SCSS + BEM, CSS Custom Properties als Tokens, kein Utility-Framework (ADR-010) |
 | Canvas-Rendering | Konva.js 10.x + `ng2-konva` 12.x |
@@ -54,7 +54,7 @@ Siehe [`docs/code-map.md`](../code-map.md) für das vollständige geplante Layou
 ├── .claude/settings.local.json     # lokale Workflow-Einstellungen, gitignored
 ├── docs/                            # Dokumentation (siehe AGENTS.md → Conventions Index)
 ├── backend/                         # PHP REST API (noch zu scaffolden)
-├── frontend/                        # Angular 22 Anwendung (noch zu scaffolden)
+├── frontend/                        # Angular 21 Anwendung
 ├── mcp/                              # lokaler MCP-Server, kein Deploy (noch zu scaffolden)
 └── .mcp.json                        # Claude Code MCP-Registrierung (kein Token-Literal)
 ```
