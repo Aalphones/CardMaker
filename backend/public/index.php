@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\HealthController;
+use App\Controllers\MigrateController;
 use App\Database\Connection;
 use App\Http\Request;
 use App\Http\Response;
@@ -96,11 +97,28 @@ try {
 
 $dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes): void {
     $routes->addRoute('GET', '/api/health', [HealthController::class, 'show']);
+    $routes->addRoute('POST', '/api/migrate', [MigrateController::class, 'run']);
 });
 
-$makeController = static function (string $controllerClass) use ($database): object {
+$migrationsDirectory = $backendRoot . '/src/Migrations';
+$migrateToken = $_ENV['MIGRATE_TOKEN'] ?? '';
+
+$makeController = static function (string $controllerClass) use (
+    $database,
+    $request,
+    $migrationsDirectory,
+    $migrateToken,
+    $logger
+): object {
     return match ($controllerClass) {
         HealthController::class => new HealthController($database),
+        MigrateController::class => new MigrateController(
+            $request,
+            $database,
+            $migrationsDirectory,
+            $migrateToken,
+            $logger
+        ),
         default => throw new RuntimeException('Kein Bauplan für Controller: ' . $controllerClass),
     };
 };

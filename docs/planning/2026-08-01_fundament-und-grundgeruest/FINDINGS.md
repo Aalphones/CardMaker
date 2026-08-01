@@ -14,7 +14,7 @@ ist, wandert in Phase 9 in die Folgeaufgaben der Plan-README.
 
 ---
 
-- [ ] → Phase 3: Die Datenbank ist verbunden (`dbConnected: true`), die Zugangsdaten in
+- [x] → Phase 3: Die Datenbank ist verbunden (`dbConnected: true`), die Zugangsdaten in
       `deploy.env` stimmen. Migrationen können direkt gebaut werden.
 
 - [ ] → Phase 4 und 7: Der Wegweiser ist jetzt `nikic/fast-route`, Prüfregeln kommen von
@@ -26,7 +26,7 @@ ist, wandert in Phase 9 in die Folgeaufgaben der Plan-README.
       ausgelieferten Bereichs, ADR-013). Entweder ein eigener Ordner im Webbereich oder
       Ausliefern durch PHP.
 
-- [ ] → Phase 3: Die Auskunft `/api/health` zählt die angewandten Schema-Schritte mit
+- [x] → Phase 3: Die Auskunft `/api/health` zählt die angewandten Schema-Schritte mit
       `SELECT COUNT(*) FROM migrations`. Die Verwaltungstabelle muss genau `migrations`
       heißen, sonst meldet die Auskunft dauerhaft 0, ohne zu meckern.
 
