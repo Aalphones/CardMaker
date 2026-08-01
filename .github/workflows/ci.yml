@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check frontend/ exists
+        id: check
+        run: echo "exists=$(test -f frontend/package.json && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.exists == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install
+        if: steps.check.outputs.exists == 'true'
+        run: npm ci
+        working-directory: frontend
+      - name: Lint
+        if: steps.check.outputs.exists == 'true'
+        run: npm run lint
+        working-directory: frontend
+      - name: Unit tests
+        if: steps.check.outputs.exists == 'true'
+        run: npm run test -- --watch=false
+        working-directory: frontend
+      - name: Build
+        if: steps.check.outputs.exists == 'true'
+        run: npm run build
+        working-directory: frontend
+
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check backend/ exists
+        id: check
+        run: echo "exists=$(test -f backend/composer.json && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - uses: shivammathur/setup-php@v2
+        if: steps.check.outputs.exists == 'true'
+        with:
+          php-version: '8.5'
+      - name: Install
+        if: steps.check.outputs.exists == 'true'
+        run: composer install --no-progress --prefer-dist
+        working-directory: backend
+      - name: PHP CS Fixer (dry-run)
+        if: steps.check.outputs.exists == 'true'
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+        working-directory: backend
+      - name: Unit tests
+        if: steps.check.outputs.exists == 'true'
+        run: vendor/bin/phpunit
+        working-directory: backend
