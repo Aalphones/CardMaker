@@ -155,7 +155,32 @@ Backend oben liegt.
   antwortet mit `201`. Der Kontrakt ließ beides offen.
 - **`DELETE /api/tokens/{id}` nimmt nur Ziffern.** Alles andere ist `404` aus dem Wegweiser.
 
-### Von Hand prüfen — offen
+### Am Server geprüft (ohne Konto)
 
-Braucht das hochgeladene Backend und ein angelegtes Konto. Die vier Fälle aus der Liste
-oben sind noch nicht gelaufen.
+Backend hochgeladen, elf Aufrufe gegen `https://quantum-canvas.de/api`:
+
+| Aufruf | Erwartet | Bekommen |
+|---|---|---|
+| `GET /health` | `200`, Datenbank verbunden | `200`, PHP 8.5.7, `dbConnected: true`, 4 Schema-Schritte |
+| `GET /auth/me` ohne Token | `401` | `401 unauthorized` |
+| `GET /tokens` ohne Token | `401` | `401 unauthorized` |
+| `GET /gibtesnicht` ohne Token | `401` (nicht `404`) | `401 unauthorized` |
+| `GET /auth/me` mit erfundenem 64-Zeichen-Token | `401` | `401 unauthorized` |
+| `GET /auth/me` mit `Basic`-Kopfzeile | `401` | `401 unauthorized` |
+| `POST /auth/login`, unbekannte E-Mail | `401`, neutrale Meldung | `401`, „E-Mail-Adresse oder Passwort stimmt nicht." |
+| `POST /auth/login`, leerer Rumpf | `422` mit Feldliste | `422`, beide Felder benannt |
+| `POST /setup`, unbrauchbare Angaben | `422`, legt nichts an | `422`, beide Felder benannt |
+| `POST /auth/logout` ohne Token | `401` | `401 unauthorized` |
+| `DELETE /health` | `405` | `405 method_not_allowed` |
+
+Damit ist auch die zuvor ungeprüfte SQL erstmals wirklich gelaufen: Das erfundene Token
+lief durch beide Abfragen (Sitzungen samt `expires_at > UTC_TIMESTAMP()`, dann Zugriffstoken,
+je mit Verknüpfung auf `users`) und kam als sauberes `401` zurück statt als `500`.
+
+### Von Hand prüfen — offen, braucht das eine Konto
+
+Die vier Fälle aus der Liste oben sind noch nicht gelaufen: Anmelden, Abrufen, Abmelden,
+abgelaufene Sitzung. Ebenso ungeprüft: `POST /setup` im Erfolgsfall (`201`, danach `410`),
+das Erzeugen und Löschen eines Zugriffstokens, und ob im Protokoll auf dem Server
+tatsächlich nichts steht. Kein Aufruf oben hat einen `500` erzeugt — geschrieben werden
+dürfte also nichts —, gelesen wurde die Datei aber nicht.
