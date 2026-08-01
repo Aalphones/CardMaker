@@ -7,14 +7,14 @@ use App\Database\Connection;
 use App\Http\Request;
 use App\Http\Response;
 use App\Middleware\Cors;
-use App\Support\Autoloader;
-use App\Support\Env;
-use App\Support\Logger;
-use App\Support\Router;
+use Dotenv\Dotenv;
+use FastRoute\Dispatcher;
+use FastRoute\RouteCollector;
+use Monolog\Handler\StreamHandler;
+use Monolog\Level;
+use Monolog\Logger;
 
-require __DIR__ . '/../src/Support/Autoloader.php';
-
-Autoloader::register(__DIR__ . '/../src');
+require __DIR__ . '/../vendor/autoload.php';
 
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
@@ -22,9 +22,12 @@ ini_set('display_startup_errors', '0');
 
 $backendRoot = dirname(__DIR__);
 
-Env::load($backendRoot . '/.env');
+Dotenv::createImmutable($backendRoot)->safeLoad();
 
-$logger = new Logger($backendRoot . '/storage/logs/app.log');
+// Was hier hineingeht, steht im Klartext in der Logdatei: niemals Passwörter,
+// Tokens, Token-Hashes oder Inhalte aus .env protokollieren.
+$logger = new Logger('cardmaker');
+$logger->pushHandler(new StreamHandler($backendRoot . '/storage/logs/app.log', Level::Warning));
 
 set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
     if ((error_reporting() & $severity) === 0) {
@@ -45,7 +48,7 @@ set_exception_handler(static function (Throwable $exception) use ($logger): void
     Response::error(Response::ERROR_SERVER_ERROR, 'Interner Serverfehler.', 500);
 });
 
-// Ohne SSH ist die Logdatei die einzige Spur: Fatale Fehler (Parse, Speicher, Zeitlimit)
+// Ohne SSH ist die Logdatei die einzige Spur: Fatale Fehler (Speicher, Zeitlimit)
 // gehen an keinem der beiden Handler oben vorbei, sondern nur hier durch.
 register_shutdown_function(static function () use ($logger): void {
     $lastError = error_get_last();
@@ -73,8 +76,15 @@ register_shutdown_function(static function () use ($logger): void {
 
 $request = new Request();
 
-$cors = new Cors(Env::asList('CORS_ORIGINS'));
-$cors->handle($request);
+$corsOrigins = array_values(array_filter(
+    array_map(
+        static fn (string $origin): string => trim($origin),
+        explode(',', $_ENV['CORS_ORIGINS'] ?? '')
+    ),
+    static fn (string $origin): bool => $origin !== ''
+));
+
+(new Cors($corsOrigins))->handle($request);
 
 $database = null;
 
@@ -84,8 +94,9 @@ try {
     $logger->error('Datenbankverbindung fehlgeschlagen', ['message' => $exception->getMessage()]);
 }
 
-$router = new Router();
-$router->add('GET', '/api/health', [HealthController::class, 'show']);
+$dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes): void {
+    $routes->addRoute('GET', '/api/health', [HealthController::class, 'show']);
+});
 
 $makeController = static function (string $controllerClass) use ($database): object {
     return match ($controllerClass) {
@@ -94,13 +105,13 @@ $makeController = static function (string $controllerClass) use ($database): obj
     };
 };
 
-$route = $router->resolve($request->method(), $request->path());
+$route = $dispatcher->dispatch($request->method(), $request->path());
 
-if ($route['status'] === Router::NOT_FOUND) {
+if ($route[0] === Dispatcher::NOT_FOUND) {
     Response::error(Response::ERROR_NOT_FOUND, 'Diesen Pfad gibt es hier nicht.', 404);
 }
 
-if ($route['status'] === Router::METHOD_NOT_ALLOWED) {
+if ($route[0] === Dispatcher::METHOD_NOT_ALLOWED) {
     Response::error(
         Response::ERROR_METHOD_NOT_ALLOWED,
         'Diese Methode ist für diesen Pfad nicht erlaubt.',
@@ -108,7 +119,7 @@ if ($route['status'] === Router::METHOD_NOT_ALLOWED) {
     );
 }
 
-[$controllerClass, $controllerMethod] = $route['handler'];
+[$controllerClass, $controllerMethod] = $route[1];
 
 $controller = $makeController($controllerClass);
-$controller->{$controllerMethod}(...array_values($route['parameters']));
+$controller->{$controllerMethod}(...array_values($route[2]));

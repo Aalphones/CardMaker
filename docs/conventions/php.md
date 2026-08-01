@@ -12,7 +12,20 @@
 |---|---|
 | PHP | 8.5, `declare(strict_types=1)` in jeder Datei |
 | DB | MySQL 8.x, ausschließlich Prepared Statements |
-| Package Manager | keiner — kein Composer, kein `vendor/` (ADR-006) |
+| Package Manager | Composer (ADR-012), `vendor/` nicht im Git, `composer.lock` schon |
+
+## Bibliotheken (ADR-012)
+
+| Aufgabe | Paket |
+|---|---|
+| Wegweiser | `nikic/fast-route` |
+| Konfiguration | `vlucas/phpdotenv` — Werte kommen in `$_ENV` |
+| Protokoll | `monolog/monolog` |
+| Prüfhelfer | `respect/validation` |
+| JWT | `firebase/php-jwt` — installiert, **nicht in Benutzung** (ADR-008) |
+
+**Falle:** phpdotenv schneidet einen unquotierten Wert am ersten `#` ab. `.env`-Werte immer
+in einfache Anführungszeichen setzen — `deploy.cmd` macht das beim Schreiben automatisch.
 
 ## Regeln
 
@@ -30,9 +43,7 @@ backend/src/
   Controllers/    ← dünn: validieren → Service aufrufen → JSON zurückgeben
   Services/       ← Business-Logik, kein HTTP-Wissen
   Repositories/   ← rohe DB-Queries, typisierte Arrays/Objekte
-  Validators/     ← eigene Prüfhelfer, eine Klasse pro Endpoint (ADR-006)
-  Support/        ← Wegweiser, Konfigurationsleser, Prüfhelfer — Ersatz für die
-                     Composer-Bibliotheken, auf die verzichtet wird (ADR-006)
+  Validators/     ← Prüfregeln pro Endpoint, gebaut auf respect/validation
   Database/       ← Connection-Singleton, MigrationRunner
   Migrations/     ← nummerierte Migrationsdateien
   Middleware/     ← CORS, Auth, RateLimit
@@ -90,4 +101,5 @@ eine subtile Invariante, ein Strato-spezifischer Workaround.
 3. **Wire-Format-Grenze nie durchbrechen** — camelCase existiert innerhalb des Backends nie,
    snake_case nie außerhalb.
 4. **Das Backend rendert nicht** — Kartenbilder entstehen im Browser (ADR-005).
-5. **Keine Composer-Abhängigkeiten** — was gebraucht wird, steht in `src/Support/` (ADR-006).
+5. **Kein selbstgebauter Ersatz für vorhandene Bibliotheken** — und nichts Kryptografisches
+   selbst schreiben (ADR-012, ADR-008).

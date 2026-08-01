@@ -1,6 +1,8 @@
 # 006 — Kein Composer, keine Bau-Automatik, Hochladen per Skript
 
-**Status:** Akzeptiert (2026-08-01)
+**Status:** Teilweise abgelöst durch [ADR-012](012-composer-und-lokale-php-umgebung.md)
+(2026-08-01) — der Composer-Verzicht ist hinfällig, seit PHP und Composer lokal verfügbar
+sind. Bestehen bleibt: keine Bau-Automatik, kein `.github/`, Hochladen per Skript.
 
 ## Kontext
 

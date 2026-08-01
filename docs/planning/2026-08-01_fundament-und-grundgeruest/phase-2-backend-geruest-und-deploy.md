@@ -1,6 +1,6 @@
 # Phase 2 — Backend-Gerüst & Deploy-Skript
 
-**Rating:** heikel · **Status:** Code steht, Hochladen blockiert
+**Rating:** heikel · **Status:** complete
 
 Das minimale PHP-Grundgerüst ohne eine einzige fremde Bibliothek, plus das Windows-Skript,
 das es per Doppelklick auf den Server schiebt. Am Ende antwortet `/api/health` auf der
@@ -124,9 +124,9 @@ Alles, was sonst Composer geliefert hätte. Klein halten, keine Rahmenwerk-Ambit
       `imagick`, `fileinfo`, `mbstring`) sowie `upload_max_filesize`, `post_max_size`,
       `memory_limit`, `max_execution_time` als JSON aus. Nur mit korrektem `X-Migrate-Token`
       abrufbar.
-- [ ] Nach dem ersten Hochladen einmal abrufen, Ergebnis **wörtlich** ins Report-Back und in
+- [x] Nach dem ersten Hochladen einmal abrufen, Ergebnis **wörtlich** ins Report-Back und in
       `FINDINGS.md` schreiben.
-- [ ] Folgerungen ziehen und notieren:
+- [x] Folgerungen ziehen und notieren:
   - PHP-Version unter 8.5 → Versionsangaben in `docs/conventions/php.md`,
     `docs/conventions/stack.md` und `docs/PROJECT.md` angleichen; unter 8.2 zusätzlich
     prüfen, ob verwendete Sprachmittel noch tragen.
@@ -196,41 +196,95 @@ Alles, was sonst Composer geliefert hätte. Klein halten, keine Rahmenwerk-Ambit
 
 ### Erster Rauchtest
 
-- [ ] Nach dem ersten erfolgreichen Hochladen `/api/health` abrufen. `dbConnected` muss `true`
+- [x] Nach dem ersten erfolgreichen Hochladen `/api/health` abrufen. `dbConnected` muss `true`
       sein — ist es das nicht, liegt es an den Datenbankwerten, nicht am Code.
-- [ ] `https://<api>/.env` und `https://<api>/src/Http/Request.php` direkt aufrufen. Beide
+- [x] `https://<api>/.env` und `https://<api>/src/Http/Request.php` direkt aufrufen. Beide
       müssen abgewiesen werden. Gelingt einer, ist die Web-Wurzel falsch gesetzt — dann greift
       `backend/.htaccess`, und das gehört ins Report-Back.
-- [ ] `deploy.cmd` ein zweites Mal laufen lassen und prüfen, dass es schnell durchläuft (nur
+- [x] `deploy.cmd` ein zweites Mal laufen lassen und prüfen, dass es schnell durchläuft (nur
       Geändertes) und nichts kaputt macht.
 
 ## Report-Back
 
-**Stand:** Der Code ist komplett, das Hochladen steht aus. Die drei Voraussetzungen oben sind
-noch nicht bestätigt, also wurde nichts übertragen und keine der Server-Fragen beantwortet.
+**Stand: abgeschlossen.** `https://quantum-canvas.de/api/health` antwortet mit
+`{"status":"ok","phpVersion":"8.5.7","dbConnected":true,"migrationsApplied":0}`.
+
+Der zweite Teil der Phase lief anders als geplant: Mitten in der Umsetzung kamen PHP und
+Composer doch auf die Entwicklungsmaschine (ADR-012), damit fiel die Grundlage für die
+handgeschriebenen Grundbausteine weg. Die Aufgabenliste oben ist trotzdem vollständig
+abgehakt — sie wurde erst so gebaut und dann ersetzt. Was heute im Code steht, steht unter
+„Nach dem Kurswechsel".
+
+### Nach dem Kurswechsel
+
+- `Support/Autoloader.php`, `Env.php`, `Router.php`, `Validator.php`, `Logger.php` sind
+  gelöscht. An ihrer Stelle: Composer-Autoloader, `vlucas/phpdotenv`, `nikic/fast-route`,
+  `respect/validation`, `monolog/monolog`. Der Ordner `src/Support/` existiert nicht mehr.
+- Serveraufbau nach ADR-013: Programmcode unter `cardMaker/backend/` neben dem
+  ausgelieferten Bereich, im Webbereich nur die drei Dateien aus `api-bridge/` unter
+  `public/api/`.
+- `deploy.cmd` hat zwei Schritte mehr: `composer install --no-dev` vor dem Hochladen und
+  einen Vorlauf, der fehlende Zielordner anlegt (WinSCP tut das beim Abgleich nicht).
+
+### Serverauskunft, wörtlich
+
+```json
+{"phpVersion":"8.5.7",
+ "extensions":{"pdo_mysql":true,"gd":true,"imagick":true,"fileinfo":true,"mbstring":true},
+ "limits":{"uploadMaxFilesize":"128M","postMaxSize":"128M","memoryLimit":"512M","maxExecutionTime":"240"},
+ "documentRoot":"/home/strato/http/premium/rid/72/15/54287215/htdocs/cardMaker/public"}
+```
+
+Folgerungen: PHP-Version wie angenommen, keine Anpassung nötig. Beide Bildbibliotheken
+vorhanden — die Ausweichlösung „Maße vom Browser" wird nicht gebraucht. Upload-Grenze 128 MB
+statt der befürchteten 2 MB.
+
+### Vier Fallen, die erst der echte Server gezeigt hat
+
+1. **Zugangsdaten in der Serveradresse.** Ein `#` oder `/` im Passwort schneidet die Adresse
+   ab, ein `|` beendet sogar die Skriptzeile. WinSCP bekommt Benutzer und Passwort jetzt als
+   eigene Angaben.
+2. **Fingerabdruck-Format.** WinSCP vergleicht buchstabengetreu und erwartet ihn **ohne**
+   `SHA256:`-Präfix. Die falsche Schreibweise meldet sich als „Host key does not match" und
+   sieht dadurch aus wie ein Angriff.
+3. **phpdotenv schneidet unquotierte Werte am `#` ab.** Das Datenbankpasswort kam als
+   Bruchstück an, `dbConnected` blieb `false`. `deploy.cmd` schreibt Werte jetzt in einfachen
+   Anführungszeichen.
+4. **WinSCP legt Zielordner nicht an.** Der Abgleich bricht ab, wenn das Ziel fehlt — daher
+   der ungeprüfte Vorlauf mit `mkdir`.
+
+### Abnahmekriterien
+
+| # | Kriterium | Ergebnis |
+|---|---|---|
+| 1 | `/api/health` mit `dbConnected: true` | erfüllt |
+| 2 | Unbekannter Pfad → `404` als JSON | erfüllt |
+| 3 | Herkunftssperre lässt `localhost:4200` durch, Fremde nicht | lokal geprüft |
+| 4 | `.env` nicht über die Adresse erreichbar | erfüllt (`404`; liegt außerhalb des Webbereichs) |
+| 5 | Doppelklick meldet Erfolg oder Fehler, Fenster bleibt offen | erfüllt |
+| 6 | Zweiter Lauf tastet den Bilder-Ordner nicht an | erfüllt (Abgleich schließt `uploads/` aus) |
+| 7 | `deploy.env` nicht im Git | erfüllt |
 
 ### Was steht
 
-- Backend-Gerüst: Autoloader, Konfigurationsleser, Wegweiser, Prüfhelfer, Protokoll,
-  Anfrage/Antwort, Herkunftssperre, Datenbankverbindung, Auskunft `/api/health`.
-- Zwei Zugriffsregel-Dateien: eine im öffentlichen Ordner (Umschreibung auf `index.php`),
-  eine als Rückfallebene darüber, falls die Web-Wurzel nicht auf `public/` gelegt werden kann.
+- Backend: Anfrage/Antwort mit der camelCase-Grenze, Herkunftssperre, Datenbankverbindung,
+  Auskunft `/api/health` — dazu Wegweiser, Konfiguration, Protokoll und Prüfhelfer aus den
+  Bibliotheken.
 - Serverauskunft `diag.php` — nur mit `X-Migrate-Token`, sonst verhält sie sich wie nicht
   vorhanden.
 - `deploy.cmd` mit Zielwahl (`backend` / `frontend` / ohne Angabe) und `deploy.env.example`.
+- Brücke `api-bridge/` (drei Dateien) für den ausgelieferten Bereich.
 
-### Trockenlauf des Hochlade-Skripts (ohne Server)
+### Was geprüft wurde, und wie
 
-Das Skript wurde gegen eine Attrappe statt gegen WinSCP laufen gelassen. Geprüft und in
-Ordnung:
-
-- Werte mit `!`, `&`, `<` und `=` im Passwort überleben das Einlesen und landen unverfälscht
-  in `backend/.env` — genau die Zeichen, an denen Batch-Skripte üblicherweise zerbrechen.
-- Die erzeugte WinSCP-Anweisung enthält den Ausschluss der Bilder korrekt
-  (`-filemask="|uploads/;.env.example;storage/logs/"`); das Sonderzeichen `|` wird nicht als
-  Befehlstrenner verschluckt.
-- Fehlerwege melden Klartext und halten das Fenster offen: unbekanntes Ziel, fehlende
-  `deploy.env`, einzeln benannte fehlende Werte.
+- **Lokal ausgeführt** (PHP-Bordserver): `200` mit JSON auf `/api/health`, `404` auf einen
+  unbekannten Pfad, `405` auf die falsche Methode, Vorabfrage von `localhost:4200` mit
+  Freigabe-Kopfzeilen, dieselbe Anfrage von fremder Herkunft ohne. `php -l` über alle Dateien.
+- **Trockenlauf des Hochlade-Skripts** gegen eine Attrappe: Werte mit `| # / : ( + - ! & <`
+  im Passwort überleben das Einlesen und landen unverfälscht in `backend/.env`; der
+  Ausschluss der Bilder (`-filemask="|uploads/;…"`) übersteht cmd; Fehlerwege melden Klartext
+  und halten das Fenster offen.
+- **Am echten Server**: siehe Tabelle oben.
 
 ### Abweichungen vom Plan
 
@@ -252,16 +306,20 @@ Ordnung:
    der Plan verlangte die Antwort, die Code-Liste kannte sie nicht.
 7. **Veraltete Pfade in `.gitignore` korrigiert** (`backend/logs/` → `backend/storage/logs/`,
    `backend/uploads/` → `backend/public/uploads/`) und `deploy.env` ausgeschlossen.
+8. **Composer statt Eigenbau** (ADR-012) und **Backend außerhalb des ausgelieferten
+   Bereichs** (ADR-013) — beides mitten in der Phase entschieden, beides mit eigener ADR.
+9. **`MIGRATE_TOKEN` neu erzeugt**, nur Buchstaben und Ziffern. Der alte enthielt einen
+   Umlaut; in einer HTTP-Kopfzeile ist das nicht verlässlich übertragbar, `diag.php` wies
+   den Aufruf still ab.
 
 ### Wo es klemmen kann
 
-- **Kein PHP auf diesem Rechner** — der Code wurde nie ausgeführt, nicht einmal auf
-  Syntaxfehler geprüft. Der erste Aufruf von `/api/health` ist die erste echte Prüfung.
-- **`Env::require()` benutzt ein reserviertes Wort als Methodennamen.** Seit PHP 7 erlaubt;
-  der Plan verlangt genau diesen Namen. Endet der erste Serverlauf mit einer weißen Seite
-  oder einem Parse-Fehler, ist das der erste Verdacht — die Umbenennung wäre dann eine
-  Minute Arbeit.
-- **Der Wegweiser erwartet die Pfade unter `/api/…` ab der Wurzel der Subdomain.** Liegt das
-  Backend stattdessen in einem Unterordner einer bestehenden Domain, kommt beim PHP
-  `/unterordner/api/health` an und nichts passt. Dann meldet sich das mit `404` auf jeden
-  Pfad — nicht mit einem Fehler.
+- **Die Brücke muss zum Backend passen.** Ändert sich der Name der Eintrittsstelle oder die
+  Tiefe der Ordner auf dem Server, zeigen die zwei `require`-Zeilen ins Leere. Das meldet
+  sich als `500` ohne Hinweis in der Antwort — der Grund steht dann in
+  `backend/storage/logs/app.log`.
+- **`backend/.env` ist zugleich die lokale und die hochgeladene Konfiguration.** Wer lokal
+  eigene Werte einträgt, verliert sie beim nächsten Doppelklick. Für lokale Arbeit mit
+  Datenbank braucht es später eine getrennte Datei.
+- **Kein `-hostkey` beim FTP-Weg.** Läuft die Verbindung über einfaches FTP, prüft nichts
+  mehr die Gegenstelle. Das ist FTP-typisch, aber es steht nirgends im Fenster.

@@ -1,9 +1,8 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-01_fundament-und-grundgeruest/`
-**Phase:** 2/9 — Backend-Gerüst & Deploy-Skript (Code steht, Hochladen blockiert)
-**Nächster Schritt:** Die drei Voraussetzungen aus der Plan-README erledigen (Strato-Subdomain
-auf `backend/public/`, MySQL-Datenbank, WinSCP portable), dann `deploy.env` ausfüllen und
-`deploy.cmd` doppelklicken. Danach `/api/health` und `/diag.php` abrufen, Werte in
-FINDINGS.md eintragen — erst dann ist Phase 2 abgeschlossen und Phase 3 (Datenbank-Schema,
-Rating: standard) dran.
+**Phase:** 3/9 — Datenbank-Schema & Migrations-Runner (als Nächstes, Rating: standard → `sonnet` reicht)
+**Nächster Schritt:** Phase 3 umsetzen — siehe `phase-3-datenbank-schema.md`. Grundlage steht:
+`https://quantum-canvas.de/api/health` antwortet live mit `dbConnected: true`, PHP 8.5.7.
+Backend läuft auch lokal (`.tools/php/php.exe -S 127.0.0.1:8123 -t backend/public backend/public/index.php`),
+Composer ist eingerichtet (ADR-012), Serveraufbau nach ADR-013.

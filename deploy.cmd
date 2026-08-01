@@ -2,7 +2,7 @@
 rem ==========================================================================
 rem  CardMaker - hochladen per Doppelklick.
 rem    deploy.cmd            Backend und Frontend
-rem    deploy.cmd backend    nur das Backend
+rem    deploy.cmd backend    nur das Backend (samt Bruecke im Webbereich)
 rem    deploy.cmd frontend   nur das Frontend
 rem ==========================================================================
 setlocal
@@ -36,6 +36,7 @@ for /f "usebackq eol=# tokens=1,* delims==" %%A in ("deploy.env") do set "%%A=%%
 setlocal enabledelayedexpansion
 
 if not defined FRONTEND_DIST set "FRONTEND_DIST=frontend\dist\frontend\browser"
+if not defined API_URL_SEGMENT set "API_URL_SEGMENT=api"
 
 set "MISSING="
 call :needValue WINSCP_PATH
@@ -43,8 +44,8 @@ call :needValue SFTP_PROTOCOL
 call :needValue SFTP_HOST
 call :needValue SFTP_USER
 call :needValue SFTP_PASSWORD
-call :needValue REMOTE_API_PATH
-call :needValue REMOTE_APP_PATH
+call :needValue REMOTE_BACKEND_PATH
+call :needValue REMOTE_WEB_PATH
 call :needValue DB_HOST
 call :needValue DB_NAME
 call :needValue DB_USER
@@ -54,6 +55,8 @@ call :needValue CORS_ORIGINS
 call :needValue PUBLIC_BASE_URL
 call :needValue UPLOAD_MAX_BYTES
 if defined MISSING goto :fail
+
+set "BRIDGE_PATH=!REMOTE_WEB_PATH!!API_URL_SEGMENT!/"
 
 if exist "!WINSCP_PATH!" goto :winscpFound
 echo [FEHLER] WinSCP wurde nicht gefunden:
@@ -77,14 +80,34 @@ if /i "!TARGET!"=="all" set "DO_FRONTEND=1"
 if /i "!TARGET!"=="backend" set "DO_BACKEND=1"
 if /i "!TARGET!"=="frontend" set "DO_FRONTEND=1"
 
+if not defined DO_BACKEND goto :composerDone
+if not defined COMPOSER_PATH goto :composerMissing
+if not exist "!COMPOSER_PATH!" goto :composerMissing
+echo [1/5] Abhaengigkeiten fuer den Server installieren ...
+call "!COMPOSER_PATH!" install --no-dev --optimize-autoloader --no-interaction --working-dir=backend
+if errorlevel 1 (
+    echo [FEHLER] composer install ist fehlgeschlagen. Es wird nichts hochgeladen.
+    goto :fail
+)
+goto :composerDone
+
+:composerMissing
+if not exist "backend\vendor\autoload.php" (
+    echo [FEHLER] Es gibt kein backend\vendor und keinen brauchbaren COMPOSER_PATH.
+    echo          Ohne die Bibliotheken startet das Backend auf dem Server nicht.
+    goto :fail
+)
+echo [1/5] COMPOSER_PATH nicht gesetzt - vorhandenes backend\vendor wird verwendet.
+
+:composerDone
 if not defined DO_FRONTEND goto :frontendReady
 if exist "frontend\package.json" goto :buildFrontend
-echo [HINWEIS] Es gibt noch kein Frontend - dieser Teil wird ausgelassen.
+echo [2/5] Es gibt noch kein Frontend - dieser Teil wird ausgelassen.
 set "DO_FRONTEND="
 goto :frontendReady
 
 :buildFrontend
-echo [1/4] Frontend bauen ...
+echo [2/5] Frontend bauen ...
 call npm --prefix frontend run build
 if errorlevel 1 (
     echo [FEHLER] Der Frontend-Build ist fehlgeschlagen. Es wird nichts hochgeladen.
@@ -103,40 +126,44 @@ echo [FEHLER] Es bleibt nichts zu tun.
 goto :fail
 
 :writeEnv
-echo [2/4] backend\.env schreiben ...
-> "backend\.env" echo DB_HOST=!DB_HOST!
->>"backend\.env" echo DB_NAME=!DB_NAME!
->>"backend\.env" echo DB_USER=!DB_USER!
->>"backend\.env" echo DB_PASSWORD=!DB_PASSWORD!
->>"backend\.env" echo MIGRATE_TOKEN=!MIGRATE_TOKEN!
->>"backend\.env" echo CORS_ORIGINS=!CORS_ORIGINS!
->>"backend\.env" echo PUBLIC_BASE_URL=!PUBLIC_BASE_URL!
->>"backend\.env" echo UPLOAD_MAX_BYTES=!UPLOAD_MAX_BYTES!
+rem Werte in einfache Anfuehrungszeichen: phpdotenv schneidet einen unquotierten
+rem Wert am ersten Rautezeichen ab - ein Passwort mit # kaeme verstuemmelt an.
+echo [3/5] backend\.env schreiben ...
+> "backend\.env" echo DB_HOST='!DB_HOST!'
+>>"backend\.env" echo DB_NAME='!DB_NAME!'
+>>"backend\.env" echo DB_USER='!DB_USER!'
+>>"backend\.env" echo DB_PASSWORD='!DB_PASSWORD!'
+>>"backend\.env" echo MIGRATE_TOKEN='!MIGRATE_TOKEN!'
+>>"backend\.env" echo CORS_ORIGINS='!CORS_ORIGINS!'
+>>"backend\.env" echo PUBLIC_BASE_URL='!PUBLIC_BASE_URL!'
+>>"backend\.env" echo UPLOAD_MAX_BYTES='!UPLOAD_MAX_BYTES!'
 
 :writeScript
+rem Vorlauf: WinSCP legt Zielordner beim Abgleich nicht selbst an. Existieren sie
+rem schon, meldet mkdir einen Fehler - deshalb laeuft das getrennt und ungeprueft.
+set "PREP_SCRIPT=%TEMP%\cardmaker-prep-%RANDOM%%RANDOM%.txt"
+call :writeSession "!PREP_SCRIPT!"
+>>"!PREP_SCRIPT!" echo option batch continue
+if defined DO_BACKEND >>"!PREP_SCRIPT!" echo mkdir !REMOTE_BACKEND_PATH!
+if defined DO_BACKEND >>"!PREP_SCRIPT!" echo mkdir !BRIDGE_PATH!
+>>"!PREP_SCRIPT!" echo exit
+"!WINSCP_PATH!" /ini=nul /script="!PREP_SCRIPT!" >nul 2>&1
+del "!PREP_SCRIPT!" >nul 2>&1
+
 set "WINSCP_SCRIPT=%TEMP%\cardmaker-deploy-%RANDOM%%RANDOM%.txt"
-> "!WINSCP_SCRIPT!" echo option batch abort
->>"!WINSCP_SCRIPT!" echo option confirm off
->>"!WINSCP_SCRIPT!" echo option transfer binary
-rem Zugangsdaten bewusst als eigene Schalter, nicht in der Adresse: ein # oder /
-rem im Passwort wuerde die Adresse zerschneiden, ein | sogar die Skriptzeile.
-if /i "!SFTP_PROTOCOL!"=="sftp" goto :openSftp
->>"!WINSCP_SCRIPT!" echo open !SFTP_PROTOCOL!://!SFTP_HOST!/ -username="!SFTP_USER!" -password="!SFTP_PASSWORD!"
-goto :openWritten
-:openSftp
->>"!WINSCP_SCRIPT!" echo open sftp://!SFTP_HOST!/ -username="!SFTP_USER!" -password="!SFTP_PASSWORD!" -hostkey="!SFTP_HOSTKEY!"
-:openWritten
+call :writeSession "!WINSCP_SCRIPT!"
 
 if defined DO_BACKEND (
-    >>"!WINSCP_SCRIPT!" echo synchronize remote -delete -filemask="|uploads/;.env.example;storage/logs/" "backend" "!REMOTE_API_PATH!"
+    >>"!WINSCP_SCRIPT!" echo synchronize remote -delete -filemask="|uploads/;.env.example;storage/logs/" "backend" "!REMOTE_BACKEND_PATH!"
+    >>"!WINSCP_SCRIPT!" echo synchronize remote -delete "api-bridge" "!BRIDGE_PATH!"
 )
 if defined DO_FRONTEND (
-    >>"!WINSCP_SCRIPT!" echo synchronize remote -delete "!FRONTEND_DIST!" "!REMOTE_APP_PATH!"
+    >>"!WINSCP_SCRIPT!" echo synchronize remote -delete -filemask="|!API_URL_SEGMENT!/" "!FRONTEND_DIST!" "!REMOTE_WEB_PATH!"
 )
 >>"!WINSCP_SCRIPT!" echo close
 >>"!WINSCP_SCRIPT!" echo exit
 
-echo [3/4] Verbinden und hochladen ...
+echo [4/5] Verbinden und hochladen ...
 "!WINSCP_PATH!" /ini=nul /script="!WINSCP_SCRIPT!"
 set "WINSCP_EXIT=!ERRORLEVEL!"
 del "!WINSCP_SCRIPT!" >nul 2>&1
@@ -151,9 +178,10 @@ goto :fail
 
 :done
 echo.
-echo [4/4] Fertig, alles ist oben.
-if defined DO_BACKEND echo          Backend  nach !REMOTE_API_PATH!
-if defined DO_FRONTEND echo          Frontend nach !REMOTE_APP_PATH!
+echo [5/5] Fertig, alles ist oben.
+if defined DO_BACKEND echo          Programmcode nach !REMOTE_BACKEND_PATH!
+if defined DO_BACKEND echo          Bruecke      nach !BRIDGE_PATH!
+if defined DO_FRONTEND echo          Oberflaeche  nach !REMOTE_WEB_PATH!
 echo.
 pause
 exit /b 0
@@ -162,6 +190,19 @@ exit /b 0
 echo.
 pause
 exit /b 1
+
+rem Zugangsdaten bewusst als eigene Schalter, nicht in der Adresse: ein # oder /
+rem im Passwort wuerde die Adresse zerschneiden, ein | sogar die Skriptzeile.
+:writeSession
+> "%~1" echo option batch abort
+>>"%~1" echo option confirm off
+>>"%~1" echo option transfer binary
+if /i "!SFTP_PROTOCOL!"=="sftp" goto :writeSessionSftp
+>>"%~1" echo open !SFTP_PROTOCOL!://!SFTP_HOST!/ -username="!SFTP_USER!" -password="!SFTP_PASSWORD!"
+exit /b 0
+:writeSessionSftp
+>>"%~1" echo open sftp://!SFTP_HOST!/ -username="!SFTP_USER!" -password="!SFTP_PASSWORD!" -hostkey="!SFTP_HOSTKEY!"
+exit /b 0
 
 :needValue
 if not defined %~1 (

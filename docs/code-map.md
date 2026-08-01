@@ -59,27 +59,32 @@ frontend/src/app/
 
 ```
 backend/
-  public/         ← einzige Eintrittsstelle: index.php, diag.php, .htaccess
+  public/         ← Eintrittsstelle: index.php, diag.php
+  vendor/         ← Composer, nicht im Git (ADR-012)
   storage/logs/   ← app.log (nicht im Git)
   .env            ← von deploy.cmd geschrieben, nicht im Git
   src/
     Controllers/    ← dünn: validieren → Service aufrufen → JSON zurückgeben
     Services/       ← Business-Logik, kein HTTP-Wissen
     Repositories/   ← rohe DB-Queries, typisierte Arrays/Objekte
-    Validators/     ← eigene Prüfhelfer, eine Klasse pro Endpoint (ADR-006)
-    Support/        ← Autoloader, Env, Router, Validator, Logger — Composer-Ersatz (ADR-006)
+    Validators/     ← Prüfregeln pro Endpoint (respect/validation)
     Database/       ← Connection-Singleton, MigrationRunner
     Migrations/     ← nummerierte Migrationsdateien
     Middleware/     ← CORS, Auth, RateLimit
     Http/           ← Request (Wire-Format-Grenze), Response
+api-bridge/       ← drei Dateien, die im ausgelieferten Bereich landen und das
+                     Backend von nebenan einbinden (ADR-013)
 ```
 
 ## Hochladen
 
 | Datei | Zweck |
 |---|---|
-| `deploy.cmd` | Doppelklick lädt Backend und gebautes Frontend per WinSCP hoch, schreibt vorher `backend/.env` |
+| `deploy.cmd` | Doppelklick: Composer, Frontend-Build, `backend/.env` schreiben, drei Abgleiche per WinSCP |
 | `deploy.env` | Zugangsdaten und Zielpfade, nicht im Git — Vorlage: `deploy.env.example` |
+
+Zielaufbau auf dem Server (ADR-013): `backend/` neben dem ausgelieferten Bereich,
+`api-bridge/` landet darin unter `public/api/`, das Frontend direkt in `public/`.
 
 Sync-Pflicht: diese Datei bei jedem neuen Feature-Ordner nachziehen — grob halten
 (Ordner-Ebene, keine Zeilennummern), damit sie Refactorings übersteht.

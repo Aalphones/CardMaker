@@ -11,8 +11,9 @@
 
 | Layer | Choice |
 |---|---|
-| Backend | PHP 8.5, MySQL 8.x, kein Composer (ADR-006) |
-| Backend libs | keine — Eigenbau in `backend/src/Support/` (ADR-006) |
+| Backend | PHP 8.5 (Server 8.5.7), MySQL 8.x, Composer (ADR-012) |
+| Backend libs | fast-route, phpdotenv, monolog, respect/validation; php-jwt installiert, ungenutzt |
+| Lokale Werkzeuge | PHP + Composer portabel unter `.tools/` außerhalb des Projekts |
 | Frontend framework | Angular 22 (standalone, signals) |
 | Frontend state | NgRx Store (Server-State) + NgRx Signals (UI-State) — nie mischen |
 | Styling | Semantic CSS — SCSS + BEM, CSS Custom Properties als Tokens, kein Utility-Framework (ADR-010) |
@@ -38,8 +39,7 @@ Konva-Nodes, Konva-Layer als Rendering-Gruppen).
 - **Kein `ngx-image-cropper`** — Bildausschnitt/Zoom läuft über Konva-Image-Transform direkt,
   kein separates Crop-Widget nötig
 - **Kein PrimeNG** — Angular Aria + CDK von Anfang an, kein Migrations-Zwischenschritt
-- **Kein Testwerkzeug** — kein PHPUnit, kein Vitest/Karma, keine Bau-Automatik (ADR-006, ADR-009)
-- **Keine Composer-Abhängigkeiten** — Backend-Grundbausteine sind Eigenbau (ADR-006)
+- **Kein Testwerkzeug** — kein PHPUnit, kein Vitest/Karma, keine Bau-Automatik (ADR-009)
 - **Kein Tailwind/PostCSS** — Semantic CSS direkt in `:root`, kein Utility-Framework (ADR-010)
 
 ## Project Layout

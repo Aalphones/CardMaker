@@ -25,10 +25,10 @@ Drei Festlegungen, die den ganzen Plan prägen — jede kostet etwas, jede ist b
   gebautes Frontend per SFTP auf den Server, Zugangsdaten aus einer lokalen
   Konfigurationsdatei.
 
-Daraus folgt eine vierte, weniger offensichtliche: **Das Backend kommt ohne Composer aus.**
-Ohne Bau-Automatik und ohne lokales PHP könnte niemand ein `vendor/`-Verzeichnis erzeugen.
-Statt fünf Bibliotheken einzubinden, die dann per Hand gepflegt werden müssten, schreibt das
-Backend die knapp 200 Zeilen selbst, die es davon wirklich braucht. Details in ADR-006.
+> **Korrektur während Phase 2:** Der ursprüngliche vierte Punkt — „das Backend kommt ohne
+> Composer aus" — ist hinfällig. PHP und Composer liegen jetzt lokal, das Backend nutzt
+> fast-route, phpdotenv, monolog und respect/validation (ADR-012). Der wichtigere Gewinn
+> ist nicht die Bibliothek, sondern dass der Code vor dem Hochladen ausgeführt werden kann.
 
 ---
 
@@ -37,7 +37,7 @@ Backend die knapp 200 Zeilen selbst, die es davon wirklich braucht. Details in A
 | # | Phase | Rating | Status |
 |---|---|---|---|
 | 1 | [Entscheidungen festhalten & Doku begradigen](phase-1-entscheidungen-und-doku.md) | mechanisch | complete |
-| 2 | [Backend-Gerüst & Deploy-Skript](phase-2-backend-geruest-und-deploy.md) | heikel | Code steht, Hochladen blockiert |
+| 2 | [Backend-Gerüst & Deploy-Skript](phase-2-backend-geruest-und-deploy.md) | heikel | complete |
 | 3 | [Datenbank-Schema & Migrations-Runner](phase-3-datenbank-schema.md) | standard | pending |
 | 4 | [Login & Zugriffstoken im Backend](phase-4-auth-backend.md) | heikel | pending |
 | 5 | [Frontend-Gerüst](phase-5-frontend-geruest.md) | standard | pending |
@@ -52,7 +52,10 @@ Reihenfolge ist bindend: 2 vor 3 vor 4, und 5 vor 6 vor 7. Phase 5 darf parallel
 
 ## Voraussetzungen, die nur du erledigen kannst
 
-Diese drei Punkte blockieren Phase 2.
+> **Erledigt am 2026-08-01.** Datenbank steht, WinSCP liegt bereit, der Server antwortet.
+> Statt einer eigenen Subdomain liefert `quantum-canvas.de` die Oberfläche aus und die API
+> läuft darunter unter `/api` — der Programmcode liegt daneben, außerhalb des
+> ausgelieferten Bereichs (ADR-013). Punkt 1 unten ist damit gegenstandslos.
 
 1. **Auf Strato eine Subdomain für die API einrichten** (Vorschlag: `api.<deine-domain>`),
    mit eigenem Verzeichnis, dessen Web-Wurzel auf `public/` zeigt. Geht das bei deinem Paket
@@ -205,14 +208,14 @@ Projekt kennt. Oben stehen die Stellen, an denen ich selbst am unsichersten bin.
   die nicht im Git landet. Auf einem Einzelplatzrechner vertretbar; wenn die Platte nicht
   verschlüsselt ist, ist das dein Abwägungspunkt, nicht meiner.
 
-### Wo ich mir am wenigsten sicher bin
+### Wo ich mir am wenigsten sicher war — beantwortet in Phase 2
 
-| Stelle | Warum wacklig | Was es klärt |
-|---|---|---|
-| Bietet Strato für dein Paket SFTP an — und mit Passwort? | `docs/PROJECT.md` sagt „kein SSH", was meist auch Schlüsselauthentifizierung ausschließt. SFTP mit Passwort ist trotzdem oft möglich, aber nicht sicher | Erster Lauf des Deploy-Skripts in Phase 2. Falls nur FTP: eine Zeile in der Konfiguration ändern, der Rest bleibt |
-| PHP-Version und verfügbare Erweiterungen auf Strato | Nie geprüft, hängt am Paket | Phase 2 lädt eine Auskunftsseite hoch und liest sie einmal aus |
-| Upload-Grenzen auf Strato | Geteiltes Hosting deckelt das, Werte unbekannt und nicht überschreibbar | Dieselbe Auskunftsseite meldet sie mit |
-| Web-Wurzel auf `public/` legbar? | Wenn nicht, liegen Konfigurationsdatei und Programmcode im öffentlich erreichbaren Bereich | Phase 2 prüft es und hat Zugriffsregeln als Rückfallebene |
+| Stelle | Ergebnis |
+|---|---|
+| Bietet Strato SFTP mit Passwort? | Ja, SFTP läuft, Fingerabdruck geprüft |
+| PHP-Version und Erweiterungen | PHP 8.5.7; `pdo_mysql`, `gd`, `imagick`, `fileinfo`, `mbstring` alle vorhanden |
+| Upload-Grenzen | 128 MB, Speicher 512 MB, Laufzeit 240 s — deutlich mehr als angenommen |
+| Web-Wurzel auf `public/` legbar? | Nicht nötig: Programmcode liegt **neben** dem ausgelieferten Bereich, im Webbereich steht nur eine Brücke (ADR-013) |
 
 ---
 

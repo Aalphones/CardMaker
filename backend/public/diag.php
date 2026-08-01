@@ -3,24 +3,21 @@
 declare(strict_types=1);
 
 use App\Http\Response;
-use App\Support\Autoloader;
-use App\Support\Env;
+use Dotenv\Dotenv;
 
-require __DIR__ . '/../src/Support/Autoloader.php';
-
-Autoloader::register(__DIR__ . '/../src');
+require __DIR__ . '/../vendor/autoload.php';
 
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
 
-Env::load(dirname(__DIR__) . '/.env');
+Dotenv::createImmutable(dirname(__DIR__))->safeLoad();
 
-$expectedToken = Env::get('MIGRATE_TOKEN');
+$expectedToken = $_ENV['MIGRATE_TOKEN'] ?? '';
 $providedToken = $_SERVER['HTTP_X_MIGRATE_TOKEN'] ?? '';
 
 // Ohne gültiges Token verhält sich die Seite wie nicht vorhanden — sie soll nicht
 // verraten, dass es hier etwas zu holen gibt.
-if ($expectedToken === null || !is_string($providedToken) || !hash_equals($expectedToken, $providedToken)) {
+if ($expectedToken === '' || !is_string($providedToken) || !hash_equals($expectedToken, $providedToken)) {
     Response::error(Response::ERROR_NOT_FOUND, 'Diesen Pfad gibt es hier nicht.', 404);
 }
 
