@@ -1,6 +1,6 @@
 # Phase 4 — Login & Zugriffstoken im Backend
 
-**Rating:** heikel · **Status:** gebaut, Prüfung am Server offen
+**Rating:** heikel · **Status:** complete (bis auf AK 6 — siehe Report-Back unten)
 
 Anmeldung, Absicherung aller Innen-Pfade und dauerhafte Zugriffstoken für Skripte. Heikel,
 weil ein Fehler hier nicht auffällt, sondern die Tür offen lässt.
@@ -107,11 +107,11 @@ eine Tabelle und ein Ablaufdatum, sonst nichts.
 
 Diese vier Fälle sind der Ersatz für die Testsuite. Ergebnisse ins Report-Back.
 
-- [ ] Anmelden, dann mit demselben Token `/api/auth/me` abrufen → `200`.
-- [ ] Abmelden, denselben Aufruf wiederholen → `401`.
+- [x] Anmelden, dann mit demselben Token `/api/auth/me` abrufen → `200`.
+- [x] Abmelden, denselben Aufruf wiederholen → `401`.
 - [ ] In phpMyAdmin `expires_at` der Sitzung in die Vergangenheit setzen, Aufruf wiederholen →
-      `401`.
-- [ ] Ein zufällig zusammengetipptes Token verwenden → `401`, und im Protokoll steht kein
+      `401`. **Offen** — geht nur von Saschas Hand, siehe unten.
+- [x] Ein zufällig zusammengetipptes Token verwenden → `401`, und im Protokoll steht kein
       Fehler (ein ungültiges Token ist ein normaler Vorgang, kein Zwischenfall).
 
 ## Report-Back
@@ -177,10 +177,43 @@ Damit ist auch die zuvor ungeprüfte SQL erstmals wirklich gelaufen: Das erfunde
 lief durch beide Abfragen (Sitzungen samt `expires_at > UTC_TIMESTAMP()`, dann Zugriffstoken,
 je mit Verknüpfung auf `users`) und kam als sauberes `401` zurück statt als `500`.
 
-### Von Hand prüfen — offen, braucht das eine Konto
+### Am Server geprüft (mit Konto)
 
-Die vier Fälle aus der Liste oben sind noch nicht gelaufen: Anmelden, Abrufen, Abmelden,
-abgelaufene Sitzung. Ebenso ungeprüft: `POST /setup` im Erfolgsfall (`201`, danach `410`),
-das Erzeugen und Löschen eines Zugriffstokens, und ob im Protokoll auf dem Server
-tatsächlich nichts steht. Kein Aufruf oben hat einen `500` erzeugt — geschrieben werden
-dürfte also nichts —, gelesen wurde die Datei aber nicht.
+Konto angelegt (Kennung 1), danach siebzehn Aufrufe:
+
+| Aufruf | Erwartet | Bekommen |
+|---|---|---|
+| `POST /setup` | `201` mit Kennung | `201`, `{ user: { id: 1, email } }` |
+| `POST /setup` erneut | `410`, legt nichts an | `410 already_initialized` |
+| `POST /auth/login` richtig | `200` mit Token, 30 Tage | `200`, Token, `expiresAt` genau 30 Tage später |
+| `POST /auth/login` falsches Passwort | `401`, gleiche Meldung wie bei unbekannter E-Mail | wortgleich |
+| `GET /auth/me` mit Anmelde-Token | `200` | `200` mit Nutzer |
+| `POST /tokens` | `201`, Klartext genau einmal | `201` mit `token` im Klartext |
+| `GET /tokens` | Liste **ohne** Klartext | `id`, `name`, `createdAt`, `lastUsedAt: null` |
+| `POST /tokens` mit leerem Namen | `422` | `422` mit Feldangabe |
+| `GET /auth/me` mit Zugriffstoken | `200` | `200` mit Nutzer |
+| `POST /auth/logout` mit Zugriffstoken | `403` (bewusste Abweichung) | `403 forbidden` |
+| `GET /tokens` danach | `lastUsedAt` gesetzt | gesetzt, 13 Sekunden nach dem Anlegen |
+| `DELETE /tokens/999` | `404`, kein Hinweis auf fremde Kennungen | `404 not_found` |
+| `DELETE /tokens/1` | `204` | `204` |
+| `GET /auth/me` mit gelöschtem Zugriffstoken | `401` | `401 unauthorized` |
+| `POST /auth/logout` mit Anmelde-Token | `204` | `204` |
+| `POST /auth/logout` erneut | `401` | `401 unauthorized` |
+| `GET /auth/me` nach dem Abmelden | `401` | `401 unauthorized` |
+
+**Protokolldatei vom Server geholt und angesehen:** letzter Eintrag von 13:11 Uhr, aus den
+Datenbank-Nöten früherer Phasen. Die Anmeldeproben liefen ab 14:25 — kein einziger neuer
+Eintrag. Ungültige Token sind damit belegt das, was sie sein sollen: ein normaler Vorgang.
+
+Aufgeräumt: Das Probe-Zugriffstoken ist gelöscht, die Sitzung abgemeldet, die
+Zwischendateien mit den Zugangsdaten entfernt. Es bleibt genau das Konto.
+
+### Einziger offener Punkt: abgelaufene Sitzung (AK 6)
+
+Braucht einen Griff in die Datenbank, den nur Sascha tun kann — Strato lässt keine
+Datenbankverbindung von außen zu (nachgemessen: Zeitüberschreitung). Anleitung:
+
+1. In phpMyAdmin anmelden, `POST /api/auth/login` einmal ausführen, Token merken.
+2. In Tabelle `sessions` bei der neuen Zeile `expires_at` auf ein Datum in der
+   Vergangenheit setzen (die Spalte ist UTC).
+3. `GET /api/auth/me` mit diesem Token → muss `401` liefern.

@@ -48,6 +48,11 @@ ist, wandert in Phase 9 in die Folgeaufgaben der Plan-README.
       offener Pfade in `backend/public/index.php` bekommt keine Kartengruppen-Einträge —
       der angemeldete Nutzer steht über `$request->user()` bereit.
 
+- [ ] → Phase 8: Die Datenbank ist von außen nicht erreichbar (Strato lässt keine
+      Verbindung von einer fremden Adresse zu, nachgemessen: Zeitüberschreitung). Jede
+      Prüfung, die einen Griff in die Tabellen braucht, geht nur über phpMyAdmin und damit
+      nur von Saschas Hand — steht als Punkt 7a im Abnahme-Rundgang.
+
 - [ ] → Phase 6: Abmelden mit einem Zugriffstoken antwortet `403`, nicht `204`. Die
       Oberfläche meldet sich immer mit dem Anmelde-Token an, trifft das also nie — beim
       Bauen des Fehlerpfads trotzdem nicht als „Sitzung abgelaufen" auslegen.
