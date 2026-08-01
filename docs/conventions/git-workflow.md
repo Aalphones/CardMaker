@@ -28,7 +28,7 @@ Am Repo-Root konfiguriert, läuft automatisch bei jedem `git commit`:
 
 - `lint-staged` auf gestagte Dateien:
   - `frontend/**/*.{ts,html,scss}` → `prettier --write`
-  - `backend/**/*.php` → `php-cs-fixer fix`
+  - Kein Backend-Formatter — kein Composer, kein `vendor/bin/php-cs-fixer` (ADR-006)
 
 Der Hook handhabt **nur Formatierung** — kein ESLint, kein Commitlint. Linting ist ein
 separates Gate (`npx ng lint`, siehe [`linting.md`](linting.md)).

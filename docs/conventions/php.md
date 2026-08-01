@@ -12,7 +12,7 @@
 |---|---|
 | PHP | 8.5, `declare(strict_types=1)` in jeder Datei |
 | DB | MySQL 8.x, ausschließlich Prepared Statements |
-| Package Manager | Composer |
+| Package Manager | keiner — kein Composer, kein `vendor/` (ADR-006) |
 
 ## Regeln
 
@@ -30,8 +30,9 @@ backend/src/
   Controllers/    ← dünn: validieren → Service aufrufen → JSON zurückgeben
   Services/       ← Business-Logik, kein HTTP-Wissen
   Repositories/   ← rohe DB-Queries, typisierte Arrays/Objekte
-  Validators/     ← respect/validation-Ketten, eine Klasse pro Endpoint
-  Rendering/       ← Karten-/Druckbogen-Rendering (Layer-Kompositing)
+  Validators/     ← eigene Prüfhelfer, eine Klasse pro Endpoint (ADR-006)
+  Support/        ← Wegweiser, Konfigurationsleser, Prüfhelfer — Ersatz für die
+                     Composer-Bibliotheken, auf die verzichtet wird (ADR-006)
   Database/       ← Connection-Singleton, MigrationRunner
   Migrations/     ← nummerierte Migrationsdateien
   Middleware/     ← CORS, Auth, RateLimit
@@ -76,13 +77,6 @@ Backend speichert: $body['image_ids'] = [1, 2, 3]
 Backend liefert:   { "imageIds": [1, 2, 3] }
 ```
 
-## Rendering-Layer (`Rendering/`)
-
-Karten- und Druckbogen-Rendering ist reine Business-Logik ohne HTTP-Wissen — testbar wie
-jeder andere Service (siehe [`testing.md`](testing.md)). Layer-Kompositing folgt der
-Render-Reihenfolge ImageLayer → ShapeLayer → IconLayer → FrameLayer → TextLayer, immer
-bezogen auf das interne 630×880-Canvas, skaliert erst am Ende auf Zielauflösung.
-
 ## Comments
 
 Default: **keine Kommentare**. Nur wenn das WARUM nicht offensichtlich ist: eine Constraint,
@@ -95,5 +89,5 @@ eine subtile Invariante, ein Strato-spezifischer Workaround.
 2. **Prepared Statements ausnahmslos** — auch für interne/Admin-Queries.
 3. **Wire-Format-Grenze nie durchbrechen** — camelCase existiert innerhalb des Backends nie,
    snake_case nie außerhalb.
-4. **Rendering-Logik bleibt HTTP-frei** — `Rendering/`-Klassen kennen kein `$_SERVER`, keine
-   Response-Objekte, damit sie ohne Webserver-Kontext unit-testbar bleiben.
+4. **Das Backend rendert nicht** — Kartenbilder entstehen im Browser (ADR-005).
+5. **Keine Composer-Abhängigkeiten** — was gebraucht wird, steht in `src/Support/` (ADR-006).

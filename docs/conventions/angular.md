@@ -15,7 +15,7 @@
 | TypeScript | strict mode, `noUncheckedIndexedAccess: true` |
 | State | NgRx Store (Server-State) + NgRx Signals (UI-State) |
 | Canvas | Konva.js + `ng2-konva` |
-| Styling | Tailwind v4 |
+| Styling | Semantic CSS (BEM + Custom Properties) |
 | A11y | Angular Aria + `@angular/cdk` |
 
 ## TypeScript
@@ -129,7 +129,7 @@ Siehe [`state-management.md`](state-management.md) für Facade-Pattern und Pitfa
 
 ## CSS / Styling
 
-Siehe [`tailwind.md`](tailwind.md).
+Siehe [`css.md`](css.md).
 
 ## Comments
 

@@ -2,7 +2,7 @@
 
 > Wird jede Session automatisch geladen. Kurz halten — Detail lebt in `docs/`.
 
-🚧 Aktive Arbeit → STATE.md (entsteht mit dem ersten Plan)
+🚧 Aktive Arbeit → STATE.md
 
 ---
 
@@ -26,8 +26,9 @@ Vollständiger Kontext: [`docs/PROJECT.md`](docs/PROJECT.md). Domänenbegriffe:
 
 ## Tech Stack (Kurzfassung)
 
-Angular 22 + NgRx + Konva.js/ng2-konva + Tailwind v4 (Frontend) · PHP 8.5 + MySQL auf Strato
-Shared Hosting (Backend) · Python + MCP SDK (`mcp/`, lokaler Assistant-Tool-Server, kein Deploy).
+Angular 22 + NgRx + Konva.js/ng2-konva + Semantic CSS (Frontend) · PHP 8.5 + MySQL auf Strato
+Shared Hosting, kein Composer (Backend) · Python + MCP SDK (`mcp/`, lokaler
+Assistant-Tool-Server, kein Deploy).
 
 Vollständige Tabelle + Begründungen: [`docs/PROJECT.md`](docs/PROJECT.md) → Stack.
 Projekt-Layout: [`docs/code-map.md`](docs/code-map.md).
@@ -42,8 +43,7 @@ Projekt-Layout: [`docs/code-map.md`](docs/code-map.md).
 | PHP | [`docs/conventions/php.md`](docs/conventions/php.md) |
 | Angular / TypeScript | [`docs/conventions/angular.md`](docs/conventions/angular.md) |
 | State Management (NgRx) | [`docs/conventions/state-management.md`](docs/conventions/state-management.md) |
-| Tailwind | [`docs/conventions/tailwind.md`](docs/conventions/tailwind.md) |
-| Testing | [`docs/conventions/testing.md`](docs/conventions/testing.md) |
+| CSS / Styling | [`docs/conventions/css.md`](docs/conventions/css.md) |
 | Linting | [`docs/conventions/linting.md`](docs/conventions/linting.md) |
 | Commits | [`docs/conventions/commits.md`](docs/conventions/commits.md) |
 | Git-Workflow | [`docs/conventions/git-workflow.md`](docs/conventions/git-workflow.md) |

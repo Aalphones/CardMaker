@@ -33,7 +33,7 @@ Backend die knapp 200 Zeilen selbst, die es davon wirklich braucht. Details in A
 
 | # | Phase | Rating | Status |
 |---|---|---|---|
-| 1 | [Entscheidungen festhalten & Doku begradigen](phase-1-entscheidungen-und-doku.md) | mechanisch | pending |
+| 1 | [Entscheidungen festhalten & Doku begradigen](phase-1-entscheidungen-und-doku.md) | mechanisch | complete |
 | 2 | [Backend-Gerüst & Deploy-Skript](phase-2-backend-geruest-und-deploy.md) | heikel | pending |
 | 3 | [Datenbank-Schema & Migrations-Runner](phase-3-datenbank-schema.md) | standard | pending |
 | 4 | [Login & Zugriffstoken im Backend](phase-4-auth-backend.md) | heikel | pending |

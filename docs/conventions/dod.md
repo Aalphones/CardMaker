@@ -4,22 +4,19 @@
 
 Tasks in Plänen tragen eine `**DoD**`-Checkliste. Nicht nach Bauchgefühl abhaken. Jeden
 DoD-Punkt einzeln durchgehen und im Abschlussbericht sagen, was konkret geprüft wurde —
-Dateipfad kontrolliert, Seite im Browser geöffnet, Testlauf beobachtet, Konsolen-Output
-geprüft.
+Dateipfad kontrolliert, Seite im Browser geöffnet, Konsolen-Output geprüft.
 
 Steht ein Punkt „Seite rendert mit Header und Sidebar" — einzig akzeptabler Beleg ist, dass
 die Seite tatsächlich geöffnet wurde. „Der Build war grün" ist kein Beleg dafür.
 
-## Zwei Ebenen: automatisiert + manuell
+## Nur eine Ebene: manuell
 
-Anders als bei Promptigofant (keine automatisierten Tests) hat CardMaker eine
-Unit-Test-Pflicht für Business-Logik (siehe [`testing.md`](testing.md)). DoD-Verifikation
-ergänzt das um die manuelle Ebene — beides gehört zusammen:
-
-1. **Automatisiert:** relevante Unit-Tests laufen lassen, grün bestätigen.
-2. **Manuell:** DoD-Punkte einzeln smoke-testen — besonders alles, was ein grüner Testlauf
-   nicht sieht (Component tatsächlich eingebunden, Route tatsächlich verlinkt, Canvas
-   tatsächlich interaktiv).
+CardMaker hat keine automatisierten Tests (siehe
+[ADR-009](../decisions/009-keine-automatisierten-tests.md)). DoD-Verifikation ist damit die
+**einzige** Prüfebene dieses Projekts — kein automatisierter Testlauf ergänzt sie. DoD-Punkte
+werden einzeln smoke-getestet, besonders alles, was ein grüner Build/Type-Check nicht sieht
+(Component tatsächlich eingebunden, Route tatsächlich verlinkt, Canvas tatsächlich
+interaktiv, Endpoint tatsächlich erreichbar).
 
 ## Warum das wichtig ist
 
@@ -39,5 +36,5 @@ Erfordert ein DoD-Punkt einen echten Strato-Deploy oder Daten, die nur der User 
 - User bitten, diesen Punkt vor der Archivierung zu bestätigen.
 - Task nicht im Namen des Users als erledigt markieren.
 
-Bei Unsicherheit, ob ein Feature korrekt funktioniert: **User um Smoke-Test bitten**, statt
-einen Test zu schreiben, nur um es zu „beweisen".
+Bei Unsicherheit, ob ein Feature korrekt funktioniert: **User um Smoke-Test bitten** — es
+gibt kein automatisiertes Mittel, es „zu beweisen".

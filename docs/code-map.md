@@ -34,7 +34,7 @@ backend/src/Validators/<Feature>Validator.php
 ```
 frontend/src/app/
   core/
-    auth/           ← Guards, Interceptors, JWT-Logik
+    auth/           ← Guards, Interceptors, Token-Logik (ADR-008)
     services/        ← App-weite Services (api, http)
   features/
     auth/            ← Login-Seite
@@ -49,6 +49,8 @@ frontend/src/app/
   shared/
     components/       ← wiederverwendbare Komponenten
     canvas/            ← Konva-Wrapper-Komponenten/Direktiven (Layer-Renderer)
+      rendering/        ← reine Zeichenregeln ohne Konva-Abhängigkeit (Einheiten-Umrechnung,
+                           Auto-Shrink, Layer-Reihenfolge) — ADR-005
     services/
   store/               ← NgRx Classic Store Slices
   signal-stores/        ← NgRx Signal Stores (Editor-UI-State, Canvas-Selektion)
@@ -62,8 +64,8 @@ backend/src/
   Controllers/    ← dünn: validieren → Service aufrufen → JSON zurückgeben
   Services/       ← Business-Logik, kein HTTP-Wissen
   Repositories/   ← rohe DB-Queries, typisierte Arrays/Objekte
-  Validators/     ← respect/validation-Ketten, eine Klasse pro Endpoint
-  Rendering/       ← Karten-/Druckbogen-Rendering (Layer-Kompositing, Zielauflösung)
+  Validators/     ← eigene Prüfhelfer, eine Klasse pro Endpoint (ADR-006)
+  Support/        ← Wegweiser, Konfigurationsleser, Prüfhelfer — Composer-Ersatz (ADR-006)
   Database/       ← Connection-Singleton, MigrationRunner
   Migrations/     ← nummerierte Migrationsdateien
   Middleware/     ← CORS, Auth, RateLimit

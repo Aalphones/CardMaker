@@ -1,6 +1,8 @@
 # 004 — JWT + Personal Access Tokens für Auth
 
-**Status:** Akzeptiert (2026-08-01)
+**Status:** Abgelöst durch ADR-008 (2026-08-01) — der Wegfall von Composer (ADR-006) ließ
+keine geprüfte JWT-Bibliothek mehr zu, und eine selbstgeschriebene Signaturprüfung war keine
+Option (siehe ADR-006). Ursprünglich: Akzeptiert (2026-08-01)
 
 ## Kontext
 

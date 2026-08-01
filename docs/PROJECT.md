@@ -19,7 +19,8 @@ Trading Cards) zu bauen, ohne für jeden Kartentyp neue Software zu schreiben.
   überschreiben
 - Internes Canvas fest auf 630×880 Einheiten (10 Einheiten = 1 mm bei 63×88 mm Kartengröße),
   DPI-unabhängig
-- Rendering-Engine: serverseitiges Rendern einer Karte in Zielauflösung (Standard 300 DPI)
+- Rendering-Engine: Rendern einer Karte in Zielauflösung (Standard 300 DPI) im Browser über
+  Konva (ADR-005)
 - Druckprojekte: Sammlung beliebig vieler Karten, Export als Druckbogen (DIN A4, 3×3 Karten),
   optional Schnittmarken/Beschnitt, Export als PDF/PNG
 - Login/Auth (JWT-Sessions + Personal Access Tokens für skripteten Zugriff)
@@ -43,15 +44,15 @@ Trading Cards) zu bauen, ohne für jeden Kartentyp neue Software zu schreiben.
 
 | Layer | Choice |
 |---|---|
-| Backend | PHP 8.5, MySQL 8.x, Composer |
-| Backend libs | `firebase/php-jwt`, `vlucas/phpdotenv`, `nikic/fast-route`, `monolog/monolog`, `respect/validation` |
+| Backend | PHP 8.5, MySQL 8.x, kein Composer (ADR-006) |
+| Backend libs | keine — Wegweiser, Konfigurationsleser, Prüfhelfer selbst geschrieben in `backend/src/Support/` (ADR-006) |
 | Frontend framework | Angular 22 (standalone, signals) |
 | Frontend state | NgRx Store (server state) + NgRx Signals (UI state) — never mix, Facade-Pflicht pro Slice |
-| Styling | Tailwind CSS v4.3 — utility-first, `@theme`-Tokens in `styles.scss` |
+| Styling | Semantic CSS — SCSS + BEM, CSS Custom Properties als Design-Tokens, kein Utility-Framework (ADR-010) |
 | Canvas-Rendering | Konva.js + `ng2-konva` — Scene-Graph passt direkt auf das Layer-Modell (Image/Shape/Icon/Frame/Text als Konva-Nodes), offizielles Angular-Binding, eingebautes Drag/Transform |
 | A11y / Overlays | Angular Aria (headless Primitives) + `@angular/cdk` (Drag-and-Drop für Layerliste, Overlays) |
-| Auth | JWT-Sessions (`firebase/php-jwt`) + Personal Access Tokens, wie Promptigofant |
-| Tooling | Husky + lint-staged (Formatierung), ESLint + `@ngrx/eslint-plugin`, Prettier, PHP CS Fixer |
+| Auth | Zufallstoken in der Datenbank, Sitzungen und Zugriffstoken (ADR-008) |
+| Tooling | Husky + lint-staged (Formatierung), ESLint + `@ngrx/eslint-plugin`, Prettier |
 | Hosting | Strato shared — kein SSH, kein CLI auf dem Server, phpMyAdmin only |
 | Assistant-Tool-Zugriff | `mcp/` — Python 3.12+, offizielles `mcp`-SDK (FastMCP), läuft nur lokal |
 
@@ -68,11 +69,8 @@ Begründung nicht-offensichtlicher Wahlen:
   Entscheidung trotz konzeptioneller Nähe (siehe ADR-002) — getrennte Repos, getrennte
   Datenbanken, kein Kopplungsrisiko zwischen den Projekten.
 
-Offene Stack-Frage (kein Blocker für den Start, aber vor der Export-Phase zu klären):
-Export-Mechanismus für Druckbögen — client-seitig (jsPDF/pdf-lib, Kompositing im Browser)
-vs. server-seitig (PHP GD/Imagick + TCPDF/mPDF, DPI-genaues Kompositing serverseitig).
-Hängt an der Imagick-Verfügbarkeit auf Strato Shared Hosting — vor der Rendering-Phase
-prüfen, siehe „Offene Fragen".
+Rendering und Export sind client-seitig entschieden (ADR-005) — kein serverseitiges
+Kompositing, kein Imagick-Verfügbarkeitscheck auf Strato nötig.
 
 ## Constraints
 
@@ -90,7 +88,7 @@ prüfen, siehe „Offene Fragen".
    Live-Vorschau, Layerliste (erstellen/löschen/duplizieren/umbenennen/Reihenfolge)
 3. **Karteneditor** — Karteninstanz erstellen/bearbeiten: Bild verschieben/zoomen/zuschneiden,
    Benutzertexte, Schriftgröße/-farbe überschreiben, Auto-Shrink
-4. **Rendering-Engine** — serverseitiges Rendern einer Karte in Zielauflösung (300 DPI),
+4. **Rendering-Engine** — Rendern einer Karte in Zielauflösung (300 DPI) im Browser (ADR-005),
    Render-Reihenfolge Image→Shape→Icon→Frame→Text
 5. **Druckprojekt & Export** — Druckbögen (A4, 3×3), Schnittmarken/Beschnitt, PDF/PNG-Export
 6. **MCP-Server** — lokaler Assistant-Tool-Zugriff auf die CardMaker-API
@@ -99,9 +97,8 @@ Detail-Phasen entstehen im ersten Plan (`/plan`), nicht hier.
 
 ## Offene Fragen
 
-- Export-Mechanismus für Druckbögen: client- vs. server-seitig (siehe Stack-Abschnitt) —
-  vor Meilenstein 5 klären, inkl. Imagick-Verfügbarkeitscheck auf Strato.
 - Bild-Crop/Zoom-Interaktion im Karteneditor: direkt über Konva-Image-Transform lösen oder
   zusätzliche Crop-UI nötig? — vor Meilenstein 3 klären.
-- Genaues DB-Schema (Charakter-Felder, Template-JSON-Struktur, Datenquellen-Mapping) —
-  Teil des ersten Plans, nicht des Bootstraps.
+- Genaues DB-Schema für Templates und Karten (Template-JSON-Struktur,
+  Datenquellen-Mapping) — bleibt offen, bis der Template-Editor-Plan die nötigen
+  Entscheidungen trifft (siehe „Nicht Teil dieses Plans" im Fundament-Plan).

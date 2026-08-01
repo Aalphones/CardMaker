@@ -4,23 +4,22 @@
 > - Schwesterprojekt auf gleichem Stack: Promptigofant (`docs/conventions/*.md` dort als
 >   Ausgangspunkt, hier auf CardMakers Bedarf angepasst)
 > - Offizielle Docs: [angular.dev](https://angular.dev), [ngrx.io](https://ngrx.io),
->   [tailwindcss.com](https://tailwindcss.com), [konvajs.org](https://konvajs.org),
->   [php.net](https://php.net)
+>   [konvajs.org](https://konvajs.org), [php.net](https://php.net)
 >
 > Versionen zum Bootstrap-Zeitpunkt (2026-08-01) — bei Zweifeln `npm view <pkg> version`
 > gegen die Registry prüfen, nicht diese Tabelle blind fortschreiben.
 
 | Layer | Choice |
 |---|---|
-| Backend | PHP 8.5, MySQL 8.x, Composer |
-| Backend libs | `firebase/php-jwt`, `vlucas/phpdotenv`, `nikic/fast-route`, `monolog/monolog`, `respect/validation` |
+| Backend | PHP 8.5, MySQL 8.x, kein Composer (ADR-006) |
+| Backend libs | keine — Eigenbau in `backend/src/Support/` (ADR-006) |
 | Frontend framework | Angular 22 (standalone, signals) |
 | Frontend state | NgRx Store (Server-State) + NgRx Signals (UI-State) — nie mischen |
-| Styling | Tailwind CSS v4.3 — utility-first, `@theme`-Tokens in `styles.scss` |
+| Styling | Semantic CSS — SCSS + BEM, CSS Custom Properties als Tokens, kein Utility-Framework (ADR-010) |
 | Canvas-Rendering | Konva.js 10.x + `ng2-konva` 12.x |
 | A11y / Overlays | Angular Aria (headless Primitives) + `@angular/cdk` (Drag-and-Drop, Overlays) |
-| Auth | JWT (`firebase/php-jwt`) + Personal Access Tokens |
-| Tooling | Husky + lint-staged, ESLint + `@ngrx/eslint-plugin`, Prettier, PHP CS Fixer |
+| Auth | Zufallstoken in der Datenbank — Sitzungen + Personal Access Tokens (ADR-008) |
+| Tooling | Husky + lint-staged, ESLint + `@ngrx/eslint-plugin`, Prettier |
 | Hosting | Strato shared — kein SSH, kein CLI auf dem Server, phpMyAdmin only |
 | Assistant-Tool-Zugriff | `mcp/` — Python 3.12+, offizielles `mcp`-SDK (FastMCP), läuft nur lokal |
 
@@ -39,6 +38,9 @@ Konva-Nodes, Konva-Layer als Rendering-Gruppen).
 - **Kein `ngx-image-cropper`** — Bildausschnitt/Zoom läuft über Konva-Image-Transform direkt,
   kein separates Crop-Widget nötig
 - **Kein PrimeNG** — Angular Aria + CDK von Anfang an, kein Migrations-Zwischenschritt
+- **Kein Testwerkzeug** — kein PHPUnit, kein Vitest/Karma, keine Bau-Automatik (ADR-006, ADR-009)
+- **Keine Composer-Abhängigkeiten** — Backend-Grundbausteine sind Eigenbau (ADR-006)
+- **Kein Tailwind/PostCSS** — Semantic CSS direkt in `:root`, kein Utility-Framework (ADR-010)
 
 ## Project Layout
 

@@ -13,8 +13,8 @@ Vollständiger Projekt-Kontext, Scope und Architektur: [`AGENTS.md`](AGENTS.md) 
 
 ## Stack
 
-Angular 22 + NgRx + Konva.js + Tailwind v4 (Frontend) · PHP 8.5 + MySQL (Backend, Strato
-Shared Hosting) · Python + MCP SDK (lokaler Assistant-Tool-Server).
+Angular 22 + NgRx + Konva.js + Semantic CSS (Frontend) · PHP 8.5 + MySQL, kein Composer
+(Backend, Strato Shared Hosting) · Python + MCP SDK (lokaler Assistant-Tool-Server).
 
 ## Quickstart
 
