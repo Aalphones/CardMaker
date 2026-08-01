@@ -1,0 +1,19 @@
+# Rückfallebene: greift nur, wenn die Web-Wurzel NICHT auf public/ gelegt werden kann
+# und damit .env, src/ und storage/ im öffentlich erreichbaren Bereich liegen.
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(src|storage|Migrations)/ - [F,L]
+</IfModule>
+
+<FilesMatch "^\.env">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

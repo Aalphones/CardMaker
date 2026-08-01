@@ -12,19 +12,17 @@ frontend/.angular/
 .env
 .env.*
 !.env.example
-!.env.deploy.example
+deploy.env
 
 # ── Scratch ──────────────────────────────────────────────────────────────────
 .commit_msg.tmp
 
 # ── PHP ──────────────────────────────────────────────────────────────────────
-backend/logs/*
-!backend/logs/.gitkeep
+backend/storage/logs/*
+!backend/storage/logs/.gitkeep
 *.log
-backend/uploads/originals/*
-backend/uploads/thumbnails/*
-!backend/uploads/originals/.gitkeep
-!backend/uploads/thumbnails/.gitkeep
+backend/public/uploads/*
+!backend/public/uploads/.gitkeep
 
 # ── Claude Code (local/personal settings only) ───────────────────────────────
 .claude/settings.local.json

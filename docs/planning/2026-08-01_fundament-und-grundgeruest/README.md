@@ -37,7 +37,7 @@ Backend die knapp 200 Zeilen selbst, die es davon wirklich braucht. Details in A
 | # | Phase | Rating | Status |
 |---|---|---|---|
 | 1 | [Entscheidungen festhalten & Doku begradigen](phase-1-entscheidungen-und-doku.md) | mechanisch | complete |
-| 2 | [Backend-Gerüst & Deploy-Skript](phase-2-backend-geruest-und-deploy.md) | heikel | pending |
+| 2 | [Backend-Gerüst & Deploy-Skript](phase-2-backend-geruest-und-deploy.md) | heikel | Code steht, Hochladen blockiert |
 | 3 | [Datenbank-Schema & Migrations-Runner](phase-3-datenbank-schema.md) | standard | pending |
 | 4 | [Login & Zugriffstoken im Backend](phase-4-auth-backend.md) | heikel | pending |
 | 5 | [Frontend-Gerüst](phase-5-frontend-geruest.md) | standard | pending |
@@ -82,6 +82,7 @@ Antworten immer JSON, Feldnamen nach außen in camelCase (Regel aus `docs/conven
 | `GET` | `/api/health` | `{ status, phpVersion, dbConnected, migrationsApplied }` — ohne Anmeldung erreichbar |
 | `POST` | `/api/migrate` | Führt offene Schema-Schritte aus. Header `X-Migrate-Token` muss dem Wert aus der Serverkonfiguration entsprechen. Antwort `{ applied: string[] }` |
 | `POST` | `/api/setup` | Legt den ersten und einzigen Account an: `{ email, password }` → `201`. Existiert schon ein Account: `410` |
+| `GET` | `/diag.php` | Serverauskunft: PHP-Version, Erweiterungen, Upload-Grenzen. Header `X-Migrate-Token` nötig, sonst `404`. Liegt bewusst neben dem Wegweiser — sie muss auch dann antworten, wenn das Gerüst klemmt |
 
 ### Anmeldung
 
@@ -127,8 +128,8 @@ Einheitlich, immer JSON:
 { "error": "<maschinenlesbarer_code>", "message": "<Klartext>", "fields"?: { "<feld>": "<grund>" } }
 ```
 
-Codes: `unauthorized` (401), `forbidden` (403), `not_found` (404), `validation_failed` (422),
-`payload_too_large` (413), `server_error` (500).
+Codes: `unauthorized` (401), `forbidden` (403), `not_found` (404), `method_not_allowed` (405),
+`validation_failed` (422), `payload_too_large` (413), `server_error` (500).
 
 ---
 

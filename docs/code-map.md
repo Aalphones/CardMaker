@@ -55,19 +55,31 @@ frontend/src/app/
   layout/               ← App-Shell, Topbar, Navigation
 ```
 
-## Geplantes Backend-Layout
+## Backend-Layout (steht)
 
 ```
-backend/src/
-  Controllers/    ← dünn: validieren → Service aufrufen → JSON zurückgeben
-  Services/       ← Business-Logik, kein HTTP-Wissen
-  Repositories/   ← rohe DB-Queries, typisierte Arrays/Objekte
-  Validators/     ← eigene Prüfhelfer, eine Klasse pro Endpoint (ADR-006)
-  Support/        ← Wegweiser, Konfigurationsleser, Prüfhelfer — Composer-Ersatz (ADR-006)
-  Database/       ← Connection-Singleton, MigrationRunner
-  Migrations/     ← nummerierte Migrationsdateien
-  Middleware/     ← CORS, Auth, RateLimit
+backend/
+  public/         ← einzige Eintrittsstelle: index.php, diag.php, .htaccess
+  storage/logs/   ← app.log (nicht im Git)
+  .env            ← von deploy.cmd geschrieben, nicht im Git
+  src/
+    Controllers/    ← dünn: validieren → Service aufrufen → JSON zurückgeben
+    Services/       ← Business-Logik, kein HTTP-Wissen
+    Repositories/   ← rohe DB-Queries, typisierte Arrays/Objekte
+    Validators/     ← eigene Prüfhelfer, eine Klasse pro Endpoint (ADR-006)
+    Support/        ← Autoloader, Env, Router, Validator, Logger — Composer-Ersatz (ADR-006)
+    Database/       ← Connection-Singleton, MigrationRunner
+    Migrations/     ← nummerierte Migrationsdateien
+    Middleware/     ← CORS, Auth, RateLimit
+    Http/           ← Request (Wire-Format-Grenze), Response
 ```
+
+## Hochladen
+
+| Datei | Zweck |
+|---|---|
+| `deploy.cmd` | Doppelklick lädt Backend und gebautes Frontend per WinSCP hoch, schreibt vorher `backend/.env` |
+| `deploy.env` | Zugangsdaten und Zielpfade, nicht im Git — Vorlage: `deploy.env.example` |
 
 Sync-Pflicht: diese Datei bei jedem neuen Feature-Ordner nachziehen — grob halten
 (Ordner-Ebene, keine Zeilennummern), damit sie Refactorings übersteht.
