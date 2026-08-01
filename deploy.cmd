@@ -118,11 +118,13 @@ set "WINSCP_SCRIPT=%TEMP%\cardmaker-deploy-%RANDOM%%RANDOM%.txt"
 > "!WINSCP_SCRIPT!" echo option batch abort
 >>"!WINSCP_SCRIPT!" echo option confirm off
 >>"!WINSCP_SCRIPT!" echo option transfer binary
+rem Zugangsdaten bewusst als eigene Schalter, nicht in der Adresse: ein # oder /
+rem im Passwort wuerde die Adresse zerschneiden, ein | sogar die Skriptzeile.
 if /i "!SFTP_PROTOCOL!"=="sftp" goto :openSftp
->>"!WINSCP_SCRIPT!" echo open !SFTP_PROTOCOL!://!SFTP_USER!:!SFTP_PASSWORD!@!SFTP_HOST!/
+>>"!WINSCP_SCRIPT!" echo open !SFTP_PROTOCOL!://!SFTP_HOST!/ -username="!SFTP_USER!" -password="!SFTP_PASSWORD!"
 goto :openWritten
 :openSftp
->>"!WINSCP_SCRIPT!" echo open sftp://!SFTP_USER!:!SFTP_PASSWORD!@!SFTP_HOST!/ -hostkey="!SFTP_HOSTKEY!"
+>>"!WINSCP_SCRIPT!" echo open sftp://!SFTP_HOST!/ -username="!SFTP_USER!" -password="!SFTP_PASSWORD!" -hostkey="!SFTP_HOSTKEY!"
 :openWritten
 
 if defined DO_BACKEND (
