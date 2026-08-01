@@ -15,9 +15,10 @@ dort als Referenzmuster) — noch nicht gescaffoldet, entsteht in Meilenstein 6
 - **Tool-Schemas aus `GET /api/meta` zur Laufzeit ableiten**, nicht aus einer
   hand-kopierten Feldliste — ein Backend-Änderung an Enum/Required-Feld muss dann nicht im
   MCP-Code nachgezogen werden
-- **Tools grob nach Domäne**: Read (`get_state`, `get_meta`), Search (`find_character`,
-  `find_template`), Write (`create_character`/`update_character`, `create_template`,
-  `create_card`, `upload_image`)
+- **Tools grob nach Domäne**: Read (`get_state`, `get_meta`), Search (`find_template`,
+  `find_card`, `find_card_group`), Write (`create_card_group`/`update_card_group`,
+  `create_template`, `create_card`/`update_card` — befüllt die Textfelder eines Templates
+  mit Text, gleichwertig zum Formular im Frontend (ADR-011) —, `upload_image`)
 
 ## Drift-Regeln (was still veralten kann)
 

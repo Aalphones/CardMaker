@@ -23,10 +23,9 @@ backend/src/Validators/<Feature>Validator.php
 | Feature | Kurzbeschreibung |
 |---|---|
 | `auth` | Login, JWT-Sessions, Personal Access Tokens |
-| `characters` | Charakter-Verwaltung (eigenständig, nicht geteilt mit anderen Projekten) |
-| `images` | Bild-Verwaltung/-Bibliothek |
+| `card-groups` | Kartengruppen — Organisationseinheit für gespeicherte Karten (z. B. „Spiderman-Serie"), keine Charakterverwaltung (ADR-011) |
 | `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau |
-| `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten |
+| `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
 
 ## Geplantes Frontend-Layout
@@ -38,12 +37,11 @@ frontend/src/app/
     services/        ← App-weite Services (api, http)
   features/
     auth/            ← Login-Seite
-    characters/
-    images/
+    card-groups/
     templates/
       editor/         ← Template-Editor (Layerliste, Konva-Canvas, Eigenschaften-Panel)
     cards/
-      editor/         ← Karteneditor
+      editor/         ← Karteneditor (inkl. Bild-Upload pro Karte)
     print-projects/
     admin/
   shared/

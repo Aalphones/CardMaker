@@ -11,7 +11,8 @@ Kurskorrektur bekommt eine neue ADR, die auf die alte verweist, statt die alte z
 | 004 | [JWT + Personal Access Tokens für Auth](004-jwt-plus-pat-auth.md) | Abgelöst durch ADR-008 |
 | 005 | [Client-seitiges Rendering statt Server-Rendering](005-client-side-rendering.md) | Akzeptiert |
 | 006 | [Kein Composer, keine Bau-Automatik, Deploy per Skript](006-deployment-und-abhaengigkeiten.md) | Akzeptiert |
-| 007 | [Charaktere: feste Kernfelder plus frei benannte Attribute](007-character-attributes.md) | Akzeptiert |
+| 007 | [Charaktere: feste Kernfelder plus frei benannte Attribute](007-character-attributes.md) | Abgelöst durch ADR-011 |
 | 008 | [Zufallstoken in der Datenbank statt JWT](008-opaque-tokens.md) | Akzeptiert |
 | 009 | [Keine automatisierten Tests](009-keine-automatisierten-tests.md) | Akzeptiert |
 | 010 | [Semantic CSS statt Tailwind](010-semantic-css-statt-tailwind.md) | Akzeptiert |
+| 011 | [Keine Charakterverwaltung: Karten speichern ausgefüllte Templatefelder direkt](011-keine-charakterverwaltung.md) | Akzeptiert |

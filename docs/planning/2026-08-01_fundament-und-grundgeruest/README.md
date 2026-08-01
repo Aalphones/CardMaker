@@ -1,11 +1,14 @@
 # Fundament & Grundgerüst (Meilenstein 1)
 
 Erster Umsetzungsplan für CardMaker. Bringt das Projekt von „nur Dokumentation" auf
-„eingeloggt, Charaktere mit Bildern angelegt". Template-Editor, Karteneditor, Rendering und
-Druckprojekte bekommen eigene Pläne, sobald dieses Fundament steht.
+„eingeloggt, erste Kartengruppe angelegt". Template-Editor, Karteneditor (inkl. Bild-Upload
+pro Karte), Rendering und Druckprojekte bekommen eigene Pläne, sobald dieses Fundament
+steht. Kartengruppen übernehmen hier die Rolle, die ursprünglich Charaktere hatten — ADR-011
+hat die Charakterverwaltung ersatzlos gestrichen, Kartengruppen sind der einfachste Baustein,
+der ohne ein Template auskommt und trotzdem den vollen Durchstich beweist.
 
-**Ergebnis am Ende:** Du öffnest die App lokal, loggst dich ein, legst einen Charakter mit
-Attributen an, lädst ein Bild dazu hoch und siehst beides in einer Liste wieder. Das Backend
+**Ergebnis am Ende:** Du öffnest die App lokal, loggst dich ein, legst eine Kartengruppe an
+(z. B. „Spiderman-Serie"), benennst sie um und siehst sie in einer Liste wieder. Das Backend
 läuft dabei echt auf Strato, hochgeladen per Doppelklick auf ein Skript.
 
 ---
@@ -39,11 +42,10 @@ Backend die knapp 200 Zeilen selbst, die es davon wirklich braucht. Details in A
 | 4 | [Login & Zugriffstoken im Backend](phase-4-auth-backend.md) | heikel | pending |
 | 5 | [Frontend-Gerüst](phase-5-frontend-geruest.md) | standard | pending |
 | 6 | [Login im Frontend](phase-6-auth-frontend.md) | standard | pending |
-| 7 | [Charakterverwaltung](phase-7-charaktere.md) | standard | pending |
-| 8 | [Bildverwaltung & Upload](phase-8-bilder.md) | heikel | pending |
-| 9 | [Doku-Abgleich & Abnahme](phase-9-abschluss.md) | mechanisch | pending |
+| 7 | [Kartengruppen](phase-7-kartengruppen.md) | standard | pending |
+| 8 | [Doku-Abgleich & Abnahme](phase-8-abschluss.md) | mechanisch | pending |
 
-Reihenfolge ist bindend: 2 vor 3 vor 4, und 5 vor 6 vor 7 vor 8. Phase 5 darf parallel zu
+Reihenfolge ist bindend: 2 vor 3 vor 4, und 5 vor 6 vor 7. Phase 5 darf parallel zu
 2–4 laufen — sie hängt an nichts aus dem Backend außer der API-Adresse.
 
 ---
@@ -70,7 +72,7 @@ ist in Phase 2 vorgesehen.
 
 ## Schnittstelle Frontend ↔ Backend (verbindlich)
 
-Der Kontrakt steht hier und nirgends sonst. Phasen 4/6/7/8 bauen gegen genau diese Liste.
+Der Kontrakt steht hier und nirgends sonst. Phasen 4/6/7 bauen gegen genau diese Liste.
 Antworten immer JSON, Feldnamen nach außen in camelCase (Regel aus `docs/conventions/php.md`).
 
 ### Systempfade
@@ -92,51 +94,30 @@ Antworten immer JSON, Feldnamen nach außen in camelCase (Regel aus `docs/conven
 | `POST` | `/api/tokens` | `{ name }` → `{ id, name, token }` — `token` wird **nur hier einmalig** im Klartext geliefert |
 | `DELETE` | `/api/tokens/{id}` | → `204` |
 
-### Charaktere
+### Kartengruppen
 
 | Methode | Pfad | Zweck |
 |---|---|---|
-| `GET` | `/api/characters` | `{ items: [Character] }` |
-| `POST` | `/api/characters` | `{ name, description?, attributes? }` → `201` + `Character` |
-| `GET` | `/api/characters/{id}` | → `Character` |
-| `PATCH` | `/api/characters/{id}` | Teilaktualisierung → `Character` |
-| `DELETE` | `/api/characters/{id}` | → `204`, zugehörige Bilder werden mitgelöscht |
-| `GET` | `/api/characters/attribute-keys` | `{ keys: string[] }` — alle im Bestand vorkommenden Attributnamen, Vorschlagsliste für die Eingabe und später für den Template-Editor |
+| `GET` | `/api/card-groups` | `{ items: [CardGroup] }` |
+| `POST` | `/api/card-groups` | `{ name, description? }` → `201` + `CardGroup` |
+| `GET` | `/api/card-groups/{id}` | → `CardGroup` |
+| `PATCH` | `/api/card-groups/{id}` | Teilaktualisierung → `CardGroup` |
+| `DELETE` | `/api/card-groups/{id}` | → `204` |
 
 ```
-Character = {
+CardGroup = {
   id: number,
   name: string,
   description: string | null,
-  attributes: Record<string, string>,   // frei wählbare Schlüssel, siehe ADR-007
-  imageCount: number,
   createdAt: string,                    // ISO-8601
   updatedAt: string
 }
 ```
 
-### Bilder
-
-| Methode | Pfad | Zweck |
-|---|---|---|
-| `GET` | `/api/images` | Optional `?characterId=<id>` → `{ items: [Image] }` |
-| `POST` | `/api/images` | `multipart/form-data`: `file`, optional `characterId`, `label`, `width`, `height` → `201` + `Image` |
-| `PATCH` | `/api/images/{id}` | `{ characterId?, label? }` → `Image` |
-| `DELETE` | `/api/images/{id}` | → `204`, Datei wird mitgelöscht |
-
-```
-Image = {
-  id: number,
-  characterId: number | null,
-  label: string | null,
-  url: string,        // absolute Adresse, direkt im <img> verwendbar
-  width: number,
-  height: number,
-  bytes: number,
-  mimeType: string,
-  createdAt: string
-}
-```
+Kartengruppen sind reine Organisation (siehe ADR-011) — sie enthalten in diesem Plan noch
+keine Karten, das Feld dafür entsteht erst mit dem Karteneditor-Plan (Meilenstein 3). Bilder
+gehören dort direkt zur Karteninstanz, nicht zu einer eigenen Verwaltung — deshalb taucht in
+diesem Fundament-Plan kein `/api/images`-Pfad auf.
 
 ### Fehler
 
@@ -161,13 +142,11 @@ Codes: `unauthorized` (401), `forbidden` (403), `not_found` (404), `validation_f
 4. Anmeldung funktioniert: falsches Passwort wird abgewiesen, richtiges führt in die App, und
    nach einem Browser-Neustart bist du noch angemeldet.
 5. Ohne Anmeldung landet jeder Aufruf einer Innenseite auf der Anmeldeseite.
-6. Charakter anlegen, umbenennen, Attribute setzen und löschen funktioniert, Änderungen
-   überleben ein Neuladen.
-7. Bild hochladen funktioniert, das Bild erscheint in der Liste, lässt sich einem Charakter
-   zuordnen und wieder löschen — die Datei verschwindet dabei auch vom Server.
-8. Ein selbst erzeugtes Zugriffstoken funktioniert als Alternative zur Anmeldung, geprüft mit
-   einem einzelnen Aufruf gegen `/api/characters`.
-9. Im Projekt existiert kein Testgerüst und kein `.github/`-Verzeichnis mehr.
+6. Kartengruppe anlegen, umbenennen und löschen funktioniert, Änderungen überleben ein
+   Neuladen.
+7. Ein selbst erzeugtes Zugriffstoken funktioniert als Alternative zur Anmeldung, geprüft mit
+   einem einzelnen Aufruf gegen `/api/card-groups`.
+8. Im Projekt existiert kein Testgerüst und kein `.github/`-Verzeichnis mehr.
 
 ---
 
@@ -191,16 +170,12 @@ Projekt kennt. Oben stehen die Stellen, an denen ich selbst am unsichersten bin.
 6. Angemeldet Seite neu laden → du bleibst drin.
 7. Abmelden → zurück zur Anmeldeseite; danach dasselbe Token noch einmal von Hand verwenden
    → muss abgewiesen werden.
-8. Charakter mit zwei eigenen Attributen anlegen (`element: Feuer`, `faction: Rebellen`),
-   speichern, neu laden, Werte prüfen.
-9. Zweiten Charakter anlegen — beim dritten muss `element` als Vorschlag auftauchen.
-10. Bild hochladen, einem Charakter zuordnen, Liste nach Charakter filtern.
-11. Bild löschen, danach die Bildadresse direkt im Browser aufrufen → muss ins Leere laufen.
-12. Charakter mit Bildern löschen → Bilder weg, keine verwaisten Dateien (per FTP-Programm im
-    Upload-Ordner nachsehen).
-13. Zugriffstoken erzeugen, damit `/api/characters` abrufen, Token löschen, Aufruf wiederholen
-    → jetzt abgewiesen.
-14. Deploy-Skript ein zweites Mal laufen lassen → die hochgeladenen Bilder sind noch da.
+8. Kartengruppe anlegen (z. B. „Spiderman-Serie"), speichern, neu laden, Name prüfen.
+9. Kartengruppe umbenennen — Änderung übersteht ein Neuladen.
+10. Kartengruppe löschen mit Rückfrage → verschwindet aus der Liste.
+11. Zugriffstoken erzeugen, damit `/api/card-groups` abrufen, Token löschen, Aufruf
+    wiederholen → jetzt abgewiesen.
+12. Deploy-Skript ein zweites Mal laufen lassen → die angelegten Kartengruppen sind noch da.
 
 ---
 
@@ -245,6 +220,10 @@ Projekt kennt. Oben stehen die Stellen, an denen ich selbst am unsichersten bin.
 Template-Editor, Karteneditor, Rendering in Druckauflösung, Druckbögen, Assistenten-Zugriff.
 Auch das Datenbankschema für Templates und Karten bleibt bewusst offen — es hängt an
 Entscheidungen, die erst der Template-Editor-Plan trifft.
+
+Bildverwaltung ist ebenfalls nicht Teil dieses Plans: Ein Bild gehört ab jetzt direkt zu
+einer Karteninstanz (ADR-011) und wird erst im Karteneditor-Plan (Meilenstein 3) gebaut,
+zusammen mit dem Upload-Mechanismus. Es entsteht hier keine eigenständige Bild-Bibliothek.
 
 ---
 

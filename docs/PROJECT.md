@@ -2,33 +2,44 @@
 
 ## Ziel & Vision
 
-CardMaker ist ein generischer Sammelkarten-Generator: Templates (Layout) definieren
-Kartenrahmen, Layer und Datenquellen; Karteninstanzen (Inhalt) füllen ein Template mit
-konkretem Charakter, Bild und Texten; Druckprojekte sammeln Karten und exportieren sie
-als Druckbögen. Die Trennung Template/Instanz/Druckprojekt ist das tragende Prinzip —
+CardMaker ist ein reines Werkzeug zum Erstellen von Sammelkarten: Templates (Layout)
+definieren Kartenrahmen, Layer und Datenquellen; Karteninstanzen (Inhalt) füllen ein
+Template mit einem Bild und direkt eingegebenen Texten — per Formular oder über den
+lokalen MCP-Server durch Claude; Kartengruppen organisieren gespeicherte Karten thematisch
+(z. B. eine „Spiderman-Serie"); Druckprojekte sammeln Karten und exportieren sie als
+Druckbögen. Die Trennung Template/Instanz/Druckprojekt ist das tragende Prinzip —
 Templates bleiben unverändert, Karten sind jederzeit neu renderbar.
+
+Es gibt **keine Charakterverwaltung**: CardMaker zieht beim Erstellen einer Karte nie
+automatisch Daten aus einer Datenbank (ADR-011). Gespeichert werden ausschließlich die
+fertig erstellten Karten selbst — damit sich Schreibfehler nachträglich korrigieren lassen,
+nicht damit Inhalte wiederverwendet werden.
 
 Zielgruppe: du selbst — ein Solo-Tool, um beliebige Sammelkartensysteme (Charakterkarten,
 Trading Cards) zu bauen, ohne für jeden Kartentyp neue Software zu schreiben.
 
 ## Scope
 
-- Charakter- und Bildverwaltung (eigenständig, nicht geteilt mit anderen Projekten)
+- Kartengruppen-Verwaltung: gespeicherte Karten thematisch organisieren (z. B. eine
+  „Spiderman-Serie" — alle mit demselben Template, aber unterschiedlichen Bildern/Texten)
 - Template-Editor: Layer erstellen/anordnen (Image, Shape, Icon, Frame, Text), Live-Vorschau
-- Karteneditor: Bild verschieben/zoomen/zuschneiden, Texte + Schriftgröße/-farbe pro Karte
-  überschreiben
+- Karteneditor: Template-Textfelder per Formular oder über MCP befüllen, Bild hochladen,
+  verschieben/zoomen/zuschneiden, Schriftgröße/-farbe pro Karte überschreiben
 - Internes Canvas fest auf 630×880 Einheiten (10 Einheiten = 1 mm bei 63×88 mm Kartengröße),
   DPI-unabhängig
 - Rendering-Engine: Rendern einer Karte in Zielauflösung (Standard 300 DPI) im Browser über
   Konva (ADR-005)
-- Druckprojekte: Sammlung beliebig vieler Karten, Export als Druckbogen (DIN A4, 3×3 Karten),
-  optional Schnittmarken/Beschnitt, Export als PDF/PNG
+- Druckprojekte: Sammlung beliebig vieler Karten (unabhängig von deren Kartengruppe), Export
+  als Druckbogen (DIN A4, 3×3 Karten), optional Schnittmarken/Beschnitt, Export als PDF/PNG
 - Login/Auth (JWT-Sessions + Personal Access Tokens für skripteten Zugriff)
 - Lokaler MCP-Server (`mcp/`) für Assistant-Tool-Zugriff auf die API — läuft nur lokal, nie
-  deployed
+  deployed. Darüber befüllt Claude Template-Textfelder mit Text, genau wie über das Formular.
 
 ## Nicht-Ziele
 
+- **Keine Charakterverwaltung** — keine Datenbank mit wiederverwendbaren Charakteren/Figuren,
+  keine automatische Datenübernahme beim Kartenerstellen. Jede Karte wird einzeln befüllt
+  (ADR-011, löst ADR-007 ab).
 - Kein Multi-User-Betrieb / keine gleichzeitige Bearbeitung, kein Sharing zwischen Accounts
 - Kein i18n — Oberfläche fix in einer Sprache
 - Keine native Mobile-App (kein Capacitor/Cordova-Wrapper)
@@ -36,9 +47,8 @@ Trading Cards) zu bauen, ohne für jeden Kartentyp neue Software zu schreiben.
   manueller externer Schritt (Prompt-Vorlagen dafür:
   [`docs/design/master-prompt-sammelkarten-design.md`](design/master-prompt-sammelkarten-design.md))
 - Kein Offline-Modus / keine PWA — CardMaker ist ein Online-Tool, kein Sync-Layer nötig
-- Keine geteilte Datenbank oder API mit Promptigofant — eigenständige App, eigene
-  Charakter-/Bildverwaltung von Grund auf (spätere Import-Option nicht ausgeschlossen, aber
-  nicht Teil des Starts)
+- Keine geteilte Datenbank oder API mit Promptigofant — eigenständige App, eigene Datenhaltung
+  von Grund auf (ADR-002)
 
 ## Stack
 
@@ -65,9 +75,10 @@ Begründung nicht-offensichtlicher Wahlen:
 - **Kein Offline-Modus**: anders als Promptigofant ist CardMaker ein kreatives Desktop-Tool,
   kein Nachschlagewerk für unterwegs — Online-only hält die Architektur ohne Sync-Layer
   einfach.
-- **Eigenständige Charakter-/Bildverwaltung statt Promptigofant-Integration**: bewusste
-  Entscheidung trotz konzeptioneller Nähe (siehe ADR-002) — getrennte Repos, getrennte
-  Datenbanken, kein Kopplungsrisiko zwischen den Projekten.
+- **Eigenständige App statt Promptigofant-Integration**: bewusste Entscheidung trotz
+  konzeptioneller Nähe (siehe ADR-002) — getrennte Repos, getrennte Datenbanken, kein
+  Kopplungsrisiko zwischen den Projekten. Eine Charakterverwaltung wie bei Promptigofant
+  gibt es in CardMaker gar nicht erst (ADR-011).
 
 Rendering und Export sind client-seitig entschieden (ADR-005) — kein serverseitiges
 Kompositing, kein Imagick-Verfügbarkeitscheck auf Strato nötig.
@@ -83,15 +94,18 @@ Kompositing, kein Imagick-Verfügbarkeitscheck auf Strato nötig.
 
 ## Meilensteine
 
-1. **Grundgerüst** — Auth (JWT + PAT), Charakter- und Bildverwaltung (Backend-CRUD + Frontend)
+1. **Grundgerüst** — Auth (JWT + PAT), Kartengruppen-Verwaltung als erster kompletter
+   Durchstich DB→Backend→Store→UI (Backend-CRUD + Frontend)
 2. **Template-Editor** — Layer-System (Image/Shape/Icon/Frame/Text), Konva-Canvas mit
    Live-Vorschau, Layerliste (erstellen/löschen/duplizieren/umbenennen/Reihenfolge)
-3. **Karteneditor** — Karteninstanz erstellen/bearbeiten: Bild verschieben/zoomen/zuschneiden,
-   Benutzertexte, Schriftgröße/-farbe überschreiben, Auto-Shrink
+3. **Karteneditor** — Karteninstanz erstellen/bearbeiten: Template-Textfelder per Formular
+   befüllen, Bild hochladen/verschieben/zoomen/zuschneiden, Schriftgröße/-farbe überschreiben,
+   Auto-Shrink, Zuordnung zu einer Kartengruppe
 4. **Rendering-Engine** — Rendern einer Karte in Zielauflösung (300 DPI) im Browser (ADR-005),
    Render-Reihenfolge Image→Shape→Icon→Frame→Text
 5. **Druckprojekt & Export** — Druckbögen (A4, 3×3), Schnittmarken/Beschnitt, PDF/PNG-Export
-6. **MCP-Server** — lokaler Assistant-Tool-Zugriff auf die CardMaker-API
+6. **MCP-Server** — lokaler Assistant-Tool-Zugriff auf die CardMaker-API, darüber befüllt
+   Claude Template-Textfelder einer Karte mit Text (zweiter Weg neben dem Formular)
 
 Detail-Phasen entstehen im ersten Plan (`/plan`), nicht hier.
 

@@ -8,10 +8,12 @@
 
 ## Was ist CardMaker
 
-Ein generischer Sammelkarten-Generator: **Template** (Layout) + **Karteninstanz** (Inhalt,
-referenziert ein Template) + **Druckprojekt** (sammelt Karten, exportiert Druckbögen).
-Templates bleiben unverändert, Karten sind jederzeit neu renderbar. Eigenständige App mit
-eigener Charakter-/Bildverwaltung — kein geteiltes Backend mit anderen Projekten.
+Ein reines Werkzeug zum Erstellen von Sammelkarten — **keine Charakterverwaltung**
+(ADR-011): **Template** (Layout) + **Karteninstanz** (Inhalt, referenziert ein Template,
+Textfelder per Formular oder MCP befüllt) + **Kartengruppe** (Organisation gespeicherter
+Karten) + **Druckprojekt** (sammelt Karten, exportiert Druckbögen). Templates bleiben
+unverändert, Karten sind jederzeit neu renderbar. Eigenständige App, kein geteiltes Backend
+mit anderen Projekten (ADR-002).
 
 - Internes Canvas fest auf 630×880 Einheiten (10 Einheiten = 1 mm, Kartengröße 63×88 mm),
   DPI-unabhängig

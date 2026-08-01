@@ -1,6 +1,8 @@
 # 007 — Charaktere haben feste Kernfelder plus frei benannte Attribute
 
-**Status:** Akzeptiert (2026-08-01)
+**Status:** Abgelöst durch ADR-011 (2026-08-01) — CardMaker verwaltet keine Charaktere mehr;
+Karten speichern ausgefüllte Templatefelder direkt, ohne Datenbank-Zwischenschritt.
+Ursprünglich: Akzeptiert (2026-08-01)
 
 ## Kontext
 

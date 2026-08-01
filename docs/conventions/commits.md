@@ -25,7 +25,7 @@ berührt (Backend vs. Frontend) und jede Seite für sich landen kann.
 ```
 
 - Types: `feat`, `fix`, `refactor`, `perf`, `docs`, `chore`, `build`, `style`, `ci`, `test`
-- Scope-Beispiele: `auth`, `characters`, `images`, `templates`, `cards`, `print-projects`,
+- Scope-Beispiele: `auth`, `card-groups`, `templates`, `cards`, `print-projects`,
   `rendering`, `canvas`, `db`, `build`
 - Subject: Imperativ, kleingeschrieben, kein Punkt am Ende, ≤72 Zeichen — beschreibt das
   Ergebnis

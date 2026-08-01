@@ -50,8 +50,7 @@ return actions$.pipe(
 | Slice | Store-Typ | Grund |
 |---|---|---|
 | `auth` | Classic Store (außerhalb Facade-Pflicht) | Server-State, aber auth-spezifische Sonderrolle |
-| `characters` | Classic Store + Facade | Server-State |
-| `images` | Classic Store + Facade | Server-State |
+| `card-groups` | Classic Store + Facade | Server-State |
 | `templates` | Classic Store + Facade | Server-State — Layer-Struktur lebt hier |
 | `cards` | Classic Store + Facade | Server-State — Karteninstanzen |
 | `print-projects` | Classic Store + Facade | Server-State |

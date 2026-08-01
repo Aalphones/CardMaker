@@ -103,7 +103,7 @@ Flows (Redirects nach Save, Guards, 401-Interceptor).
 **Naming:**
 - Dateien: `kebab-case.component.ts`, `kebab-case.service.ts`, `kebab-case.store.ts`
 - Klassen: `PascalCase`
-- Signals: Substantivform (`characters()`, `isLoading()`)
+- Signals: Substantivform (`cardGroups()`, `isLoading()`)
 - Mutierende Methoden: Verbform (`setSearchTerm()`, `clearAll()`)
 
 ## NgRx

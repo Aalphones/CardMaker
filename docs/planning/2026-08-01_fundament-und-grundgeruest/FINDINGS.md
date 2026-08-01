@@ -14,5 +14,8 @@ ist, wandert in Phase 9 in die Folgeaufgaben der Plan-README.
 
 ---
 
-- [ ] → Phase 8: Serverwerte aus der Auskunftsseite von Phase 2 hier festhalten, sobald
-      bekannt (Dateigrößen-Grenze, verfügbare Bildbibliothek).
+- [ ] → Künftiger Karteneditor-Plan (Meilenstein 3): Serverwerte aus der Auskunftsseite von
+      Phase 2 dort festhalten, sobald bekannt (Dateigrößen-Grenze, verfügbare
+      Bildbibliothek) — Bildverwaltung ist seit ADR-011 nicht mehr Teil dieses
+      Fundament-Plans, die Erkenntnis bleibt aber für den Bild-Upload am Karteninstanz
+      relevant.

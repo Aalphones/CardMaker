@@ -1,8 +1,10 @@
 # CardMaker
 
-Ein generischer Sammelkarten-Generator: Templates definieren das Layout einer Karte
-(Rahmen, Layer, Positionen, Datenquellen), Karteninstanzen füllen ein Template mit
-konkretem Inhalt (Charakter, Bild, Texte), Druckprojekte sammeln Karten und exportieren sie
+Ein reines Werkzeug zum Erstellen von Sammelkarten — keine Charakterverwaltung: Templates
+definieren das Layout einer Karte (Rahmen, Layer, Positionen, Datenquellen),
+Karteninstanzen füllen ein Template mit einem Bild und direkt eingegebenen Texten (per
+Formular oder über Claude via MCP), Kartengruppen organisieren gespeicherte Karten
+thematisch (z. B. eine „Spiderman-Serie"), Druckprojekte sammeln Karten und exportieren sie
 als druckfertige Bögen (DIN A4, 3×3 Karten, PDF/PNG).
 
 Die Trennung von Layout und Inhalt bedeutet: Templates bleiben unverändert, Karten sind

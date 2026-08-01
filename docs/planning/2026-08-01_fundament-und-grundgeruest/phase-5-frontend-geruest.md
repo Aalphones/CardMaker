@@ -54,7 +54,7 @@ Verbindungsschicht zum Backend. Am Ende läuft eine leere, aber vollständig ver
       Konva und ng2-konva werden erst im Template-Editor gebraucht — jetzt schon aufnehmen,
       damit die Versionsentscheidung an einer Stelle fällt.
 - [ ] Verzeichnisse nach `docs/code-map.md` anlegen: `core/{auth,services}`,
-      `features/{auth,characters,images}`, `shared/{components,canvas,services}`, `store/`,
+      `features/{auth,card-groups}`, `shared/{components,canvas,services}`, `store/`,
       `signal-stores/`, `layout/`.
 
 ### Gestaltungs-Token
@@ -79,14 +79,14 @@ Verbindungsschicht zum Backend. Am Ende läuft eine leere, aber vollständig ver
 ### App-Rahmen
 
 - [ ] `layout/shell/` — Komponente mit Kopfleiste (Produktname, rechts der angemeldete
-      Benutzer und eine Abmelden-Schaltfläche) und Seitenleiste (Navigationspunkte
-      „Charaktere", „Bilder", später mehr). Inhaltsbereich über `<router-outlet>`.
+      Benutzer und eine Abmelden-Schaltfläche) und Seitenleiste (Navigationspunkt
+      „Kartengruppen", später mehr). Inhaltsbereich über `<router-outlet>`.
       BEM-Klassen, scoped SCSS, keine Utilities.
 - [ ] Navigationspunkte als `routerLink` mit `routerLinkActive`, kein Klick-Handler mit
       manueller Navigation.
 - [ ] `app.routes.ts`: `/login` außerhalb des Rahmens, alles andere als Kindrouten des
-      Rahmens, mit `loadComponent` verzögert geladen. Vorerst zwei Platzhalterseiten für
-      Charaktere und Bilder, `/` leitet auf `/characters` um.
+      Rahmens, mit `loadComponent` verzögert geladen. Vorerst eine Platzhalterseite für
+      Kartengruppen, `/` leitet auf `/card-groups` um.
 - [ ] Eine `NotFound`-Seite für unbekannte Adressen.
 
 ### Verbindung zum Backend

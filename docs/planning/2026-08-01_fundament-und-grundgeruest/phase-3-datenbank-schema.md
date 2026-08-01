@@ -8,7 +8,8 @@ baut den Mechanismus und die sechs Tabellen, die Meilenstein 1 braucht.
 ## Kontext lesen
 
 - `docs/conventions/php.md` — besonders „Prepared Statements ausnahmslos"
-- ADR-007 (frei benannte Charakter-Attribute) und ADR-008 (Zufallstoken statt JWT) aus Phase 1
+- ADR-011 (keine Charakterverwaltung, Kartengruppen als reine Organisationseinheit) und
+  ADR-008 (Zufallstoken statt JWT) aus Phase 1
 - `src/Database/Connection.php`, `src/Support/Env.php` und `backend/public/index.php` aus
   Phase 2
 - README dieses Plans → Kontrakt-Abschnitt
@@ -20,7 +21,7 @@ baut den Mechanismus und die sechs Tabellen, die Meilenstein 1 braucht.
 2. Ein zweiter Aufruf ändert nichts und antwortet mit einer leeren Liste.
 3. Ohne oder mit falschem Token: `403`, kein Hinweis darauf, ob der Pfad überhaupt existiert.
 4. `GET /api/health` meldet nach dem Durchlauf die Anzahl angewandter Schritte.
-5. In phpMyAdmin sind alle sechs Tabellen mit `utf8mb4_unicode_ci` sichtbar.
+5. In phpMyAdmin sind alle vier Tabellen mit `utf8mb4_unicode_ci` sichtbar.
 
 ## Aufgaben
 
@@ -67,34 +68,24 @@ baut den Mechanismus und die sechs Tabellen, die Meilenstein 1 braucht.
       `token_hash CHAR(64) NOT NULL UNIQUE` (SHA-256 in Hexform),
       `created_at DATETIME NOT NULL`,
       `last_used_at DATETIME NULL`.
-- [ ] `M004CreateCharacters` — Tabelle `characters`:
+- [ ] `M004CreateCardGroups` — Tabelle `card_groups`:
       `id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY`,
       `name VARCHAR(191) NOT NULL`,
       `description TEXT NULL`,
-      `attributes JSON NOT NULL` (Vorgabe `{}`),
       `created_at DATETIME NOT NULL`, `updated_at DATETIME NOT NULL`,
       Index auf `name`.
-- [ ] `M005CreateImages` — Tabelle `images`:
-      `id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY`,
-      `character_id INT UNSIGNED NULL` mit Fremdschlüssel auf `characters(id)`,
-      `ON DELETE CASCADE`,
-      `label VARCHAR(191) NULL`,
-      `filename VARCHAR(191) NOT NULL UNIQUE` (Dateiname auf der Platte, nicht der
-      Originalname),
-      `original_name VARCHAR(255) NULL`,
-      `mime_type VARCHAR(64) NOT NULL`,
-      `width INT UNSIGNED NOT NULL`, `height INT UNSIGNED NOT NULL`,
-      `bytes INT UNSIGNED NOT NULL`,
-      `created_at DATETIME NOT NULL`,
-      Index auf `character_id`.
 - [ ] Alle Tabellen mit `ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`.
 
 ### Bewusst weggelassen
 
-- [ ] Keine Spalte `user_id` auf `characters` und `images`. Mehrbenutzerbetrieb ist erklärtes
-      Nicht-Ziel (`docs/PROJECT.md`); eine Zuordnungsspalte, die überall mitgeschleppt und nie
-      ausgewertet wird, ist Ballast. Diesen Satz als Kommentar in `M004CreateCharacters`
+- [ ] Keine Spalte `user_id` auf `card_groups`. Mehrbenutzerbetrieb ist erklärtes Nicht-Ziel
+      (`docs/PROJECT.md`); eine Zuordnungsspalte, die überall mitgeschleppt und nie
+      ausgewertet wird, ist Ballast. Diesen Satz als Kommentar in `M004CreateCardGroups`
       hinterlegen, damit später niemand rätselt, ob sie vergessen wurde.
+- [ ] Keine Tabelle `characters` — ADR-011 hat die Charakterverwaltung ersatzlos gestrichen,
+      Karten speichern ihre Textfeldwerte später direkt.
+- [ ] Keine Tabelle `images` — ein Bild gehört ab dem Karteneditor-Plan (Meilenstein 3) direkt
+      zur Karteninstanz, es gibt keine eigenständige Bild-Bibliothek (ADR-011).
 - [ ] Keine Tabellen für Templates, Karteninstanzen oder Druckprojekte. Deren Aufbau hängt an
       Entscheidungen, die erst der Template-Editor-Plan trifft.
 

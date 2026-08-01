@@ -1,4 +1,4 @@
-# Phase 9 — Doku-Abgleich & Abnahme
+# Phase 8 — Doku-Abgleich & Abnahme
 
 **Rating:** mechanisch · **Status:** pending
 
@@ -8,7 +8,7 @@ Aufräumen, damit die nächste Session ohne Rekonstruktion weiterarbeiten kann.
 
 - README dieses Plans → Abnahmekriterien und Abnahme-Rundgang
 - `FINDINGS.md` dieses Plans
-- Alle Report-Back-Abschnitte der Phasen 1–8
+- Alle Report-Back-Abschnitte der Phasen 1–7
 
 ## Abnahmekriterien
 
@@ -27,14 +27,13 @@ Aufräumen, damit die nächste Session ohne Rekonstruktion weiterarbeiten kann.
       Serverwerte stehen unter Constraints; die Liste offener Fragen enthält nur noch das,
       was wirklich offen ist.
 - [ ] `docs/glossary.md`: Begriffe ergänzen, die in diesem Plan entstanden sind —
-      „Attribut" (frei benannte Charaktereigenschaft), „Zugriffstoken", „Einrichtungsaufruf".
+      „Zugriffstoken", „Einrichtungsaufruf". „Kartengruppe" steht dort bereits (ADR-011).
 - [ ] `README.md` im Projektstamm: Abschnitt „Loslegen" mit den tatsächlichen Schritten —
       Abhängigkeiten holen, App starten, wo die API liegt, wie die Ersteinrichtung läuft.
       Aktuell steht dort nichts Ausführbares.
 - [ ] `README.md` zusätzlich um einen Abschnitt „Hochladen" ergänzen: `deploy.env` aus der
       Vorlage anlegen, WinSCP-Pfad eintragen, Fingerabdruck einmalig ermitteln, die drei
-      Aufrufvarianten des Skripts, und der einmalige Handgriff mit der Schutzdatei im
-      Upload-Ordner aus Phase 8. Das ist die Betriebsanleitung des Projekts — sie muss ohne
+      Aufrufvarianten des Skripts. Das ist die Betriebsanleitung des Projekts — sie muss ohne
       Rückfrage befolgbar sein, auch in einem Jahr.
 - [ ] Prüfen, dass wirklich nichts mehr auf ein Testwerkzeug oder eine Bau-Automatik
       verweist: über die Doku nach „test", „CI", „workflow", „PHPUnit", „Vitest", „Karma"
