@@ -2,12 +2,22 @@
 
 declare(strict_types=1);
 
+use App\Controllers\AuthController;
 use App\Controllers\HealthController;
 use App\Controllers\MigrateController;
+use App\Controllers\SetupController;
+use App\Controllers\TokenController;
 use App\Database\Connection;
 use App\Http\Request;
 use App\Http\Response;
+use App\Middleware\Auth;
 use App\Middleware\Cors;
+use App\Repositories\AccessTokenRepository;
+use App\Repositories\SessionRepository;
+use App\Repositories\UserRepository;
+use App\Services\AccessTokenService;
+use App\Services\AuthService;
+use App\Services\TokenService;
 use Dotenv\Dotenv;
 use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
@@ -95,9 +105,54 @@ try {
     $logger->error('Datenbankverbindung fehlgeschlagen', ['message' => $exception->getMessage()]);
 }
 
+// Alles außer der Auskunft braucht die Datenbank — ohne sie hätte keine Antwort Bestand.
+if ($request->path() !== '/api/health' && !$database instanceof PDO) {
+    Response::error(Response::ERROR_SERVER_ERROR, 'Keine Datenbankverbindung.', 500);
+}
+
+$authService = null;
+$accessTokenService = null;
+
+if ($database instanceof PDO) {
+    $tokenService = new TokenService();
+
+    $authService = new AuthService(
+        new UserRepository($database),
+        new SessionRepository($database),
+        $tokenService
+    );
+    $accessTokenService = new AccessTokenService(
+        new AccessTokenRepository($database),
+        $tokenService
+    );
+}
+
+// Positivliste der offenen Pfade. Die Sperre ist die Vorgabe, nicht die Ausnahme: Ein
+// neuer Pfad, den jemand hier einzutragen vergisst, ist damit geschlossen, nicht offen.
+// Vorabanfragen (OPTIONS) sind schon in der Herkunftssperre oben beendet worden.
+$openPaths = [
+    '/api/health',
+    '/api/setup',
+    '/api/auth/login',
+    '/api/migrate',
+];
+
+if (!in_array($request->path(), $openPaths, true)) {
+    // Die Dienste können hier nicht fehlen — die Datenbank-Sperre oben hat schon
+    // abgebrochen. Wäre es doch so, endet das im 500 des Ausnahme-Handlers, also zu.
+    (new Auth($authService, $accessTokenService))->handle($request);
+}
+
 $dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes): void {
     $routes->addRoute('GET', '/api/health', [HealthController::class, 'show']);
     $routes->addRoute('POST', '/api/migrate', [MigrateController::class, 'run']);
+    $routes->addRoute('POST', '/api/setup', [SetupController::class, 'create']);
+    $routes->addRoute('POST', '/api/auth/login', [AuthController::class, 'login']);
+    $routes->addRoute('POST', '/api/auth/logout', [AuthController::class, 'logout']);
+    $routes->addRoute('GET', '/api/auth/me', [AuthController::class, 'me']);
+    $routes->addRoute('GET', '/api/tokens', [TokenController::class, 'index']);
+    $routes->addRoute('POST', '/api/tokens', [TokenController::class, 'create']);
+    $routes->addRoute('DELETE', '/api/tokens/{id:\d+}', [TokenController::class, 'destroy']);
 });
 
 $migrationsDirectory = $backendRoot . '/src/Migrations';
@@ -108,7 +163,9 @@ $makeController = static function (string $controllerClass) use (
     $request,
     $migrationsDirectory,
     $migrateToken,
-    $logger
+    $logger,
+    $authService,
+    $accessTokenService
 ): object {
     return match ($controllerClass) {
         HealthController::class => new HealthController($database),
@@ -119,6 +176,9 @@ $makeController = static function (string $controllerClass) use (
             $migrateToken,
             $logger
         ),
+        SetupController::class => new SetupController($request, $authService),
+        AuthController::class => new AuthController($request, $authService),
+        TokenController::class => new TokenController($request, $accessTokenService),
         default => throw new RuntimeException('Kein Bauplan für Controller: ' . $controllerClass),
     };
 };

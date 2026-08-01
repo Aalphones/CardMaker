@@ -47,7 +47,15 @@ backend/src/
   Database/       ← Connection-Singleton, MigrationRunner
   Migrations/     ← nummerierte Migrationsdateien
   Middleware/     ← CORS, Auth, RateLimit
+  Support/        ← schichtfreie Helfer ohne HTTP- und DB-Wissen (Timestamps)
 ```
+
+## Zeitstempel
+
+Jeder Zeitstempel wird mit `UTC_TIMESTAMP()` geschrieben und **in der Abfrage** verglichen
+(`expires_at > UTC_TIMESTAMP()`), nie in PHP. Sonst hinge jeder Ablaufvergleich an der
+Zeitzone des PHP-Prozesses, und die stimmt auf geteiltem Hosting selten mit der der
+Datenbank überein. Nach außen geht ISO-8601 mit `Z`, erzeugt von `Support\Timestamps`.
 
 ## Fehlerantworten immer JSON
 

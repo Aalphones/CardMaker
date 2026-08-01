@@ -6,6 +6,9 @@ namespace App\Http;
 
 final class Request
 {
+    public const AUTH_SESSION = 'session';
+    public const AUTH_ACCESS_TOKEN = 'access_token';
+
     private string $method;
     private string $path;
     /** @var array<string, string> */
@@ -18,6 +21,8 @@ final class Request
     private array $files;
     /** @var array<string, mixed>|null */
     private ?array $user = null;
+    private ?string $authToken = null;
+    private ?string $authKind = null;
 
     public function __construct()
     {
@@ -87,6 +92,23 @@ final class Request
     public function user(): ?array
     {
         return $this->user;
+    }
+
+    /** Das verwendete Token wird fürs Abmelden gebraucht — deshalb hier und nicht global. */
+    public function setAuthToken(string $token, string $kind): void
+    {
+        $this->authToken = $token;
+        $this->authKind = $kind;
+    }
+
+    public function authToken(): ?string
+    {
+        return $this->authToken;
+    }
+
+    public function authKind(): ?string
+    {
+        return $this->authKind;
     }
 
     /** @return array<string, mixed> */

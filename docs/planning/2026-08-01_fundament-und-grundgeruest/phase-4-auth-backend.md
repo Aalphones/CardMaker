@@ -1,6 +1,6 @@
 # Phase 4 — Login & Zugriffstoken im Backend
 
-**Rating:** heikel · **Status:** pending
+**Rating:** heikel · **Status:** gebaut, Prüfung am Server offen
 
 Anmeldung, Absicherung aller Innen-Pfade und dauerhafte Zugriffstoken für Skripte. Heikel,
 weil ein Fehler hier nicht auffällt, sondern die Tür offen lässt.
@@ -40,7 +40,7 @@ eine Tabelle und ein Ablaufdatum, sonst nichts.
 
 ### Ein Mechanismus für beide Tokenarten
 
-- [ ] `src/Services/TokenService.php` — die gemeinsame Grundlage, damit Anmeldung und
+- [x] `src/Services/TokenService.php` — die gemeinsame Grundlage, damit Anmeldung und
       Zugriffstoken nicht zwei getrennte Wege durch den Code nehmen:
   - `generate(): string` — 32 Zufallsbytes über `random_bytes()`, als Hexzeichenkette.
     **Nicht** `rand()`, `mt_rand()` oder `uniqid()` — die sind vorhersagbar.
@@ -49,7 +49,7 @@ eine Tabelle und ein Ablaufdatum, sonst nichts.
     dass ein Datenbankleck nicht sofort gültige Token liefert.
   - Nachschlagen passiert **immer** über den Hashwert in der Abfrage — nie alle Zeilen holen
     und in PHP vergleichen.
-- [ ] `src/Services/AuthService.php`:
+- [x] `src/Services/AuthService.php`:
   - `createInitialUser(string $email, string $password): array` — wirft, wenn schon ein Konto
     existiert. Passwort mit `password_hash($password, PASSWORD_DEFAULT)`.
   - `login(string $email, string $password): ?array` — prüft mit `password_verify()`. Bei
@@ -65,41 +65,42 @@ eine Tabelle und ein Ablaufdatum, sonst nichts.
     Die Ablaufprüfung gehört in die Abfrage und nicht in PHP: sonst hängt sie an der
     Zeitzone des PHP-Prozesses, und die stimmt auf geteiltem Hosting selten mit der
     Datenbank überein.
-- [ ] `src/Services/AccessTokenService.php` — `create(int $userId, string $name): array`
+- [x] `src/Services/AccessTokenService.php` — `create(int $userId, string $name): array`
       (Klartext genau einmal zurückgeben), `resolve(string $token): ?array` (ohne
       Ablaufprüfung), `list(int $userId): array`, `delete(int $userId, int $tokenId): bool`.
 
 ### Absicherung
 
-- [ ] `src/Middleware/Auth.php`: liest die `Authorization`-Kopfzeile im Format
+- [x] `src/Middleware/Auth.php`: liest die `Authorization`-Kopfzeile im Format
       `Bearer <token>`. Fragt **erst** die Sitzungen, **dann** die Zugriffstoken — beide sind
       64-stellige Hexzeichenketten und äußerlich nicht unterscheidbar, deshalb wird
       nacheinander nachgesehen statt geraten. Kein Treffer: Anfrage mit `401` und
       `{"error":"unauthorized"}` beenden, ohne Hinweis darauf, welche Prüfung fehlschlug.
-- [ ] Im Einstiegspunkt eine **Positivliste** offener Pfade führen: `/api/health`,
+- [x] Im Einstiegspunkt eine **Positivliste** offener Pfade führen: `/api/health`,
       `/api/setup`, `/api/auth/login`, `/api/migrate` (eigener Token-Schutz),
       `OPTIONS`-Vorabanfragen. **Alles andere wird geprüft** — die Sperre ist die Vorgabe,
       nicht die Ausnahme. Ein neuer Pfad, den jemand einzutragen vergisst, ist damit
       geschlossen und nicht offen.
-- [ ] Den ermittelten Nutzer und das verwendete Token über den Request zugänglich machen
+- [x] Den ermittelten Nutzer und das verwendete Token über den Request zugänglich machen
       (`Request::setUser()`), nicht über eine globale Variable. Das Token wird für das
       Abmelden gebraucht.
 
 ### Controller
 
-- [ ] `src/Controllers/SetupController.php` — `POST /api/setup`. Prüft zuerst, ob die
+- [x] `src/Controllers/SetupController.php` — `POST /api/setup`. Prüft zuerst, ob die
       Nutzertabelle leer ist; wenn nicht, `410` mit Code `already_initialized`. Prüfregeln:
       E-Mail formal gültig, Passwort mindestens 12 Zeichen.
-- [ ] `src/Controllers/AuthController.php` — `POST /api/auth/login`, `POST /api/auth/logout`,
+- [x] `src/Controllers/AuthController.php` — `POST /api/auth/login`, `POST /api/auth/logout`,
       `GET /api/auth/me`.
-- [ ] `src/Controllers/TokenController.php` — `GET /api/tokens`, `POST /api/tokens`,
+- [x] `src/Controllers/TokenController.php` — `GET /api/tokens`, `POST /api/tokens`,
       `DELETE /api/tokens/{id}`. Beim Löschen prüfen, dass das Token dem angemeldeten Nutzer
       gehört, sonst `404` (nicht `403` — kein Hinweis auf fremde Kennungen).
-- [ ] Prüfregeln über `Support/Validator.php` aus Phase 2, Fehlerantwort `422` mit Feldliste
-      im Format aus dem Kontrakt.
-- [ ] `src/Repositories/UserRepository.php`, `SessionRepository.php`,
+- [x] Prüfregeln über `respect/validation` (nicht das gestrichene `Support/Validator.php`,
+      siehe ADR-012) in `src/Validators/`, Fehlerantwort `422` mit Feldliste im Format aus
+      dem Kontrakt.
+- [x] `src/Repositories/UserRepository.php`, `SessionRepository.php`,
       `AccessTokenRepository.php` — nur Abfragen, ausschließlich vorbereitete Anweisungen.
-- [ ] Alle Pfade im Einstiegspunkt registrieren, Dienste an einer Stelle erzeugen und teilen
+- [x] Alle Pfade im Einstiegspunkt registrieren, Dienste an einer Stelle erzeugen und teilen
       (Regel „Composition Root").
 
 ### Von Hand prüfen (es gibt keine Tests)
@@ -114,3 +115,47 @@ Diese vier Fälle sind der Ersatz für die Testsuite. Ergebnisse ins Report-Back
       Fehler (ein ungültiges Token ist ein normaler Vorgang, kein Zwischenfall).
 
 ## Report-Back
+
+### Was gebaut wurde
+
+Anmeldung, Sperre und Zugriffstoken stehen im Code. Neu: `Services/TokenService.php`,
+`AuthService.php`, `AccessTokenService.php`, `AccountAlreadyExistsException.php`,
+`Repositories/UserRepository.php`, `SessionRepository.php`, `AccessTokenRepository.php`,
+`Middleware/Auth.php`, `Controllers/SetupController.php`, `AuthController.php`,
+`TokenController.php`, `Validators/SetupValidator.php`, `LoginValidator.php`,
+`AccessTokenValidator.php`, `Support/Timestamps.php`. Geändert: `Http/Request.php`
+(verwendetes Token merken), `Http/Response.php` (Code `already_initialized`),
+`public/index.php` (Pfade, Dienste, Sperre).
+
+### Vor Ort geprüft (lokales PHP 8.5.9, ohne Datenbank)
+
+`php -l` über alle Dateien sauber. Eine Probe hat geprüft: alle Klassen laden, Token sind
+64 Hexzeichen und bei jedem Aufruf verschieden, der Hashwert ist stabil, Zeitstempel werden
+korrekt zu ISO-8601, die drei Prüfregelsätze liefern getrimmte Werte, und das Lesen der
+`Authorization`-Kopfzeile trifft alle Fälle (Groß-/Kleinschreibung, fehlend, falsches
+Schema, leer, umgeleitet über `REDIRECT_HTTP_AUTHORIZATION`).
+
+**Was damit ausdrücklich nicht geprüft ist:** jede Zeile SQL. Lokal gibt es keine
+Datenbank — `UTC_TIMESTAMP()`, die Verknüpfungen und `DATE_ADD` sind ungetestet, bis das
+Backend oben liegt.
+
+### Abweichungen vom Plan
+
+- **Abmelden mit einem Zugriffstoken wird abgewiesen (`403`)**, statt das Token zu löschen.
+  Sonst nähme ein Klick in der Oberfläche einem laufenden Skript den Zugang. Widerruf eines
+  Zugriffstokens geht über `DELETE /api/tokens/{id}`.
+- **Alle Zeitstempel laufen über `UTC_TIMESTAMP()`** statt `NOW()`, Ausgabe als ISO-8601 mit
+  `Z`. Grund und Regel stehen jetzt in `docs/conventions/php.md`. Betrifft Phase 7.
+- **Die Sitzungslaufzeit steht als ganze Zahl im SQL**, nicht als Platzhalter: MySQL nimmt
+  für `INTERVAL <n> DAY` je nach Version keinen Platzhalter an. Der Wert kommt aus einer
+  Konstante, nie aus einer Anfrage.
+- **Die Sperre greift vor dem Wegweiser.** Ein unbekannter Pfad ohne Token antwortet
+  deshalb `401` und nicht `404` — er verrät nicht mehr, ob es ihn gibt.
+- **`POST /api/setup` liefert `{ user: { id, email } }`** zu seiner `201`, `POST /api/tokens`
+  antwortet mit `201`. Der Kontrakt ließ beides offen.
+- **`DELETE /api/tokens/{id}` nimmt nur Ziffern.** Alles andere ist `404` aus dem Wegweiser.
+
+### Von Hand prüfen — offen
+
+Braucht das hochgeladene Backend und ein angelegtes Konto. Die vier Fälle aus der Liste
+oben sind noch nicht gelaufen.

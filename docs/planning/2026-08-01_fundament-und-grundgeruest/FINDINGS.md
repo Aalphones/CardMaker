@@ -30,14 +30,27 @@ ist, wandert in Phase 9 in die Folgeaufgaben der Plan-README.
       `SELECT COUNT(*) FROM migrations`. Die Verwaltungstabelle muss genau `migrations`
       heißen, sonst meldet die Auskunft dauerhaft 0, ohne zu meckern.
 
-- [ ] → Phase 4: Controller, die den Anfrage-Inhalt brauchen, bekommen ihn im
+- [x] → Phase 4: Controller, die den Anfrage-Inhalt brauchen, bekommen ihn im
       Zusammenbau (`backend/public/index.php`) über den Konstruktor gereicht. Der Wegweiser
       übergibt an die Methode nur die Platzhalter aus dem Pfad (`{id}`), nicht die Anfrage.
 
-- [ ] → Phase 4: Der `Authorization`-Header überlebt geteiltes Hosting nur, weil
+- [x] → Phase 4: Der `Authorization`-Header überlebt geteiltes Hosting nur, weil
       `backend/public/.htaccess` ihn ausdrücklich durchreicht und `Request::header()` auf
       `REDIRECT_HTTP_AUTHORIZATION` zurückfällt. Beides sieht überflüssig aus, ist es aber
       nicht — ohne das kommt die Anmeldung nie im PHP an.
+
+- [ ] → Phase 7: Zeitstempel werden mit `UTC_TIMESTAMP()` geschrieben und verglichen,
+      nach außen wandelt `Support\Timestamps::toIso()` sie in ISO-8601 mit `Z`. Die
+      `createdAt`/`updatedAt` der Kartengruppen genauso bauen — sonst stehen in einer
+      Tabelle zwei Zeitzonen nebeneinander. Regel steht in `docs/conventions/php.md`.
+
+- [ ] → Phase 7: Neue Pfade sind ab Phase 4 **automatisch gesperrt**. Die Positivliste
+      offener Pfade in `backend/public/index.php` bekommt keine Kartengruppen-Einträge —
+      der angemeldete Nutzer steht über `$request->user()` bereit.
+
+- [ ] → Phase 6: Abmelden mit einem Zugriffstoken antwortet `403`, nicht `204`. Die
+      Oberfläche meldet sich immer mit dem Anmelde-Token an, trifft das also nie — beim
+      Bauen des Fehlerpfads trotzdem nicht als „Sitzung abgelaufen" auslegen.
 
 - [ ] → Phase 5: Der Ausgabeordner des Angular-Builds steht in `deploy.env` unter
       `FRONTEND_DIST` (Vorgabe `frontend\dist\frontend\browser`). Nach dem ersten Build

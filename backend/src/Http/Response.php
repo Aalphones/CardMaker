@@ -13,6 +13,7 @@ final class Response
     public const ERROR_VALIDATION_FAILED = 'validation_failed';
     public const ERROR_PAYLOAD_TOO_LARGE = 'payload_too_large';
     public const ERROR_SERVER_ERROR = 'server_error';
+    public const ERROR_ALREADY_INITIALIZED = 'already_initialized';
 
     /** @param array<string, mixed> $data */
     public static function json(array $data, int $status = 200): void

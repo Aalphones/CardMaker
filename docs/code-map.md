@@ -22,7 +22,7 @@ backend/src/Validators/<Feature>Validator.php
 
 | Feature | Kurzbeschreibung |
 |---|---|
-| `auth` | Login, JWT-Sessions, Personal Access Tokens |
+| `auth` | Login, Sitzungen und Zugriffstoken — beide als Zufallswerte in der Datenbank, kein JWT (ADR-008) |
 | `card-groups` | Kartengruppen — Organisationseinheit für gespeicherte Karten (z. B. „Spiderman-Serie"), keine Charakterverwaltung (ADR-011) |
 | `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden |
@@ -72,6 +72,7 @@ backend/
     Migrations/     ← nummerierte Migrationsdateien
     Middleware/     ← CORS, Auth, RateLimit
     Http/           ← Request (Wire-Format-Grenze), Response
+    Support/        ← schichtfreie Helfer (Timestamps)
 api-bridge/       ← drei Dateien, die im ausgelieferten Bereich landen und das
                      Backend von nebenan einbinden (ADR-013)
 ```
