@@ -164,19 +164,51 @@ Kantenlänge ≥ 1, sonst läge im Editor eine unsichtbare Fläche.
   Codezeile läuft — die Brücke sieht `$_FILES` nur fertig. Damit ist die Sorge aus dem
   Konfidenz-Ausweis („eher die Brücke als das Limit") gegenstandslos.
 
-**Was diese Proben NICHT zeigen:** Alle Pfade unter `/api/` antworten ohne Anmeldung `401`,
-auch erfundene — die Anmeldesperre greift vor dem Wegweiser. Ein `401` auf `/api/assets`
-belegt also **nicht**, dass die vier Routen eingetragen sind. Das und die echte Hochladung
-brauchen ein gültiges Zugriffstoken.
+### Durchgespielt am Server (2026-08-03, mit Zugriffstoken)
 
-### Offen — braucht ein Zugriffstoken
+Alle Abnahmekriterien dieser Phase gegen die echte Serveradresse geprüft. Testbilder aus
+Rauschen erzeugt, damit sie sich nicht zusammenpressen lassen und die Zielgröße treffen.
 
-Offen bleibt die echte Hochladung: ein 4–5-MB-PNG an `POST /api/assets`
-(`multipart/form-data`, Felder `file`, `kind=frame`, `name=Testrahmen`) mit gültigem
-Zugriffstoken im `Authorization`-Kopf. Erwartet `201` samt Datensatz. Damit fällt zugleich
-der Nachweis ab, dass die vier Routen eingetragen sind.
+| Versuch | Erwartet | Ergebnis |
+|---|---|---|
+| PNG mit 4,84 MB hochladen | `201` + Datensatz | **`201`**, 5,07 MB in 2,7 s, Maße 1300 × 1300 richtig erkannt |
+| PNG mit 8,77 MB (über der eigenen Grenze) | `413` | **`413`** mit Klartext |
+| Textdatei mit `.png`-Endung | `422` | **`422`**, `fields.file` = „Nur PNG-Bilder sind erlaubt." |
+| Unbekannte Art (`kind=banner`) | `422` | **`422`**, `fields.kind` |
+| Liste, ungefiltert / `?kind=frame` | beide Einträge / nur Rahmen | **richtig**, nach Namen sortiert |
+| Liste mit unsinnigem Filter | `422` | **`422`** statt stiller leerer Liste |
+| Datei abrufen | `image/png`, `nosniff`, private Zwischenspeicherung | **alle Kopfzeilen gesetzt**, Länge = `byteSize` |
+| Datei ohne Anmeldung | `401` | **`401`** |
+| Unbekannte Kennung | `404` | **`404`** |
+| Löschen, danach Datei abrufen | `204`, dann `404` | **`204`/`404`**, zweites Löschen `404` |
+| **Rundlauf:** hochgeladene gegen heruntergeladene Datei | bitgleich | **identische Prüfsumme** |
 
-Nach den Proben oben ist das Risiko klein: die Serverumgebung ist großzügiger als die eigene
-Grenze, `fileinfo` ist da, die Brücke ist durchsichtig. Die Sonderbehandlung in
-`AssetController::missingFileReason()` (verworfene Anfrage → `413` statt leerer Bildschirm)
-bleibt trotzdem ungetestet — sie greift erst oberhalb von `post_max_size`, also ab 128 MB.
+Damit ist auch belegt, dass die vier Routen eingetragen sind — das zeigten die `401`-Proben
+ohne Token ausdrücklich **nicht**, weil die Anmeldesperre vor dem Wegweiser greift und jeder
+erfundene Pfad genauso `401` liefert.
+
+Die Testdatensätze wurden nach der Prüfung wieder gelöscht, die Liste ist leer.
+
+### Dabei gefunden und behoben: falscher Fehlercode ohne Datei
+
+Eine Hochladung **ohne** Datei, aber mit Textfeldern, antwortete `413` („Das Bild ist zu
+groß") statt `422` („Bitte eine PNG-Datei auswählen"). Ursache: `missingFileReason()` schloss
+allein aus einer angekündigten Anfragelänge, dass PHP den Rumpf verworfen habe — die Länge
+ist aber auch dann größer als null, wenn nur die Textfelder ankamen.
+
+Richtig ist: PHP verwirft bei Überschreitung von `post_max_size` `$_POST` **und** `$_FILES`
+zusammen. Die Prüfung verlangt jetzt beides — angekündigte Länge **und** keine Textfelder.
+Dafür hat `Request` eine Methode `form()` bekommen; `formField()` greift darauf zurück.
+
+Genau diese Stelle war im Lesepfad als unsicherste markiert. Ohne die Probe wäre der Fehler
+erst dem Nutzer aufgefallen, mit einer Meldung, die in die Irre führt.
+
+### Offen
+
+- **Der Fix von oben ist noch nicht auf dem Server.** Er braucht einen weiteren Lauf von
+  `deploy.cmd`; danach ist die eine Zeile nachzuprüfen: Hochladung ohne Datei muss `422`
+  liefern, nicht `413`.
+- **Ungetestet bleibt der Fall, für den `missingFileReason()` überhaupt gebaut ist:** eine
+  Anfrage oberhalb von `post_max_size`. Das wären hier über 128 MB — mit einem Bild dieser
+  Größe hat niemand vor zu arbeiten, und der Weg dorthin führt über die eigene 8-MB-Grenze,
+  die vorher greift. Bewusst nicht provoziert.

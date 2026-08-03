@@ -23,7 +23,7 @@ final class AssetValidator
         $name = is_string($body['name'] ?? null) ? trim($body['name']) : '';
 
         if (!in_array($kind, self::KINDS, true)) {
-            $fields['kind'] = 'Bitte „frame" oder „icon" angeben.';
+            $fields['kind'] = 'Bitte „frame“ oder „icon“ angeben.';
         }
 
         if (!v::stringType()->length(v::between(1, 191))->isValid($name)) {
@@ -45,7 +45,7 @@ final class AssetValidator
         }
 
         if (!is_string($kind) || !in_array($kind, self::KINDS, true)) {
-            self::fail(['kind' => 'Bitte „frame" oder „icon" angeben.']);
+            self::fail(['kind' => 'Bitte „frame“ oder „icon“ angeben.']);
         }
 
         return $kind;

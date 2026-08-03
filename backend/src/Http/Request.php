@@ -16,7 +16,7 @@ final class Request
     /** @var array<string, mixed>|null */
     private ?array $body = null;
     /** @var array<string, mixed>|null */
-    private ?array $form = null;
+    private ?array $formFields = null;
     /** @var array<string, mixed> */
     private array $query;
     /** @var array<string, mixed> */
@@ -83,12 +83,19 @@ final class Request
      * `body()` liefert also nichts — die Felder stehen dann in `$_POST`. Die Schlüssel
      * werden wie beim JSON-Rumpf nach snake_case gewandelt, damit die Wire-Format-Grenze
      * an derselben Stelle liegt.
+     *
+     * @return array<string, mixed>
      */
+    public function form(): array
+    {
+        $this->formFields ??= self::snakeCaseKeys($_POST);
+
+        return $this->formFields;
+    }
+
     public function formField(string $key): ?string
     {
-        $this->form ??= self::snakeCaseKeys($_POST);
-
-        $value = $this->form[$key] ?? null;
+        $value = $this->form()[$key] ?? null;
 
         return is_string($value) ? $value : null;
     }

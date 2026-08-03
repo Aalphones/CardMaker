@@ -76,15 +76,16 @@ final class AssetController
     }
 
     /**
-     * Überschreitet die Anfrage `post_max_size`, verwirft PHP `$_POST` und `$_FILES`
-     * ersatzlos und meldet keinen Fehlercode — die angekündigte Länge ist dann der
-     * einzige Hinweis darauf, dass überhaupt etwas gesendet wurde.
+     * Überschreitet die Anfrage `post_max_size`, verwirft PHP `$_POST` **und** `$_FILES`
+     * ersatzlos und meldet keinen Fehlercode. Erkennbar ist das nur daran, dass beide
+     * leer sind, obwohl eine Länge angekündigt wurde. Kamen dagegen Textfelder an, wurde
+     * der Rumpf gelesen — dann fehlt schlicht die Datei, und das ist ein anderer Fehler.
      */
     private function missingFileReason(): string
     {
         $contentLength = (int) ($this->request->header('content-length') ?? '0');
 
-        if ($contentLength > 0) {
+        if ($contentLength > 0 && $this->request->form() === []) {
             return AssetUploadException::REASON_TOO_LARGE;
         }
 
