@@ -1,6 +1,6 @@
 # Phase 5 — Kartenvorschau auf Konva
 
-**Rating:** heikel · **Status:** pending
+**Rating:** heikel · **Status:** complete (Code steht, Sichtprüfung im Browser offen)
 
 Aus einer Ebenenliste wird ein Bild. Das Herzstück — und der Teil, den Meilenstein 4
 (Drucken in 300 DPI) unverändert wiederverwenden soll. Deshalb liegt alles, was rechnet,
@@ -43,21 +43,21 @@ darunterliegenden Konva-Knoten. Importiert werden nur `StageComponent` und
 
 ## Checkliste
 
-- [ ] **Reine Rechenfunktion `frontend/src/app/shared/canvas/rendering/auto-shrink.ts`** —
+- [x] **Reine Rechenfunktion `frontend/src/app/shared/canvas/rendering/auto-shrink.ts`** —
       `fitFontSize(options): number`. Bekommt Text, Boxbreite/-höhe, Start- und
       Mindestschriftgröße, Schriftart, Zeilenabstand und eine Messfunktion als Parameter,
       liefert die größte passende Schriftgröße. Absteigend in Einer-Schritten von der
       Startgröße bis zur Mindestgröße, erste passende gewinnt. **Keine Konva-Abhängigkeit** —
       die Messfunktion wird hineingereicht. Grund als Kommentar: Meilenstein 4 misst anders
       (Zielauflösung), soll aber dieselbe Regel benutzen.
-- [ ] **Messbrücke `frontend/src/app/shared/canvas/rendering/measure-text.ts`** — kapselt
+- [x] **Messbrücke `frontend/src/app/shared/canvas/rendering/measure-text.ts`** — kapselt
       das Messen mit `Konva.Text` (Knoten mit fester `width` und `wrap: 'word'` bauen,
       `getClientRect().height` lesen, Knoten wieder verwerfen).
       **Das ist der unsicherste Punkt dieser Phase.** Vor dem Weiterbauen prüfen: Textknoten
       anlegen, Text schrittweise verlängern, gemessene Höhe protokollieren. Liefert Konva
       keine brauchbare Höhe, den Ausweg nehmen: Zeilenzahl aus dem Umbruch (`textArr` am
       Konva-Textknoten) mal Schriftgröße mal Zeilenabstand. Ergebnis unten festhalten.
-- [ ] **Bildlader `frontend/src/app/shared/canvas/asset-image-loader.ts`** — Dienst, der zu
+- [x] **Bildlader `frontend/src/app/shared/canvas/asset-image-loader.ts`** — Dienst, der zu
       einer Bildnummer ein `HTMLImageElement` liefert. Ruft `/assets/{id}/file` über den
       vorhandenen `Api`-Dienst als `blob` ab (damit der Anmelde-Abfänger greift), erzeugt
       eine Objekt-Adresse, setzt sie am Bildelement und hält beides in einer Karte im
@@ -65,7 +65,7 @@ darunterliegenden Konva-Knoten. Importiert werden nur `StageComponent` und
       die Objekt-Adressen wieder freigeben.
       Nach außen ein Signal je Bildnummer, damit die Vorschau von selbst neu zeichnet,
       sobald ein Bild da ist.
-- [ ] **Komponente `frontend/src/app/shared/canvas/card-canvas/`** — zeichnet eine
+- [x] **Komponente `frontend/src/app/shared/canvas/card-canvas/`** — zeichnet eine
       Ebenenliste. Eingaben: `layers` (Pflicht), `selectedLayerId` (optional),
       `interactive` (Standard `false`). Ausgaben: `layerClicked`.
       - Äußerer Behälter hält das Verhältnis 630:880 (`aspect-ratio`), misst seine Breite
@@ -91,15 +91,60 @@ darunterliegenden Konva-Knoten. Importiert werden nur `StageComponent` und
       - Platzhalter ohne Bild: gestricheltes Rechteck in der Fläche der Ebene plus
         Beschriftung („Bildfläche", „Icon", „Rahmen fehlt").
       - `visible: false` → Ebene gar nicht erst zeichnen.
-- [ ] **Vorschauseite verdrahten** — die Platzhalterseite aus Phase 4 zeigt jetzt die
+- [x] **Vorschauseite verdrahten** — die Platzhalterseite aus Phase 4 zeigt jetzt die
       Vorschau des geladenen Templates. Damit ist der Fortschritt sichtbar, bevor Phase 6
       die Bedienung baut.
-- [ ] **Doc-Update `docs/code-map.md`** — `shared/canvas/` ist nicht mehr leer: Eintrag für
+- [x] **Doc-Update `docs/code-map.md`** — `shared/canvas/` ist nicht mehr leer: Eintrag für
       `card-canvas/`, `asset-image-loader.ts` und die drei Dateien unter `rendering/`.
-- [ ] **Doc-Update `docs/conventions/state-management.md`** — falls sich beim Bauen zeigt,
-      dass der dort notierte Konva-Fallstrick anders aussieht als beschrieben, die Stelle
-      korrigieren statt danebenzuschreiben.
-- [ ] **Prüfen** — `npm run lint`, `npm run build`, Seite im Browser öffnen und alle sieben
-      Abnahmekriterien einzeln durchgehen (DoD-Regel: „Der Build war grün" ist kein Beleg).
+- [x] **Doc-Update `docs/conventions/state-management.md`** — der notierte Konva-Fallstrick
+      stimmt unverändert (Transform-Ereignisse kommen erst in Phase 7). Stattdessen die
+      dokumentierte Ausnahme ergänzt, dass der Bildlader ohne NgRx-Effect lädt.
+- [x] **Prüfen** — `npm run lint` und `npm run build` grün. **Die Sichtprüfung im Browser
+      steht noch aus** und ist Sache des Users (private Profil: der Smoke-Test läuft beim
+      User) — Checkliste im Report-Back.
 
 ## Report-Back
+
+### Was steht
+
+- `rendering/auto-shrink.ts` — `fitFontSize()`, reine Rechenfunktion, Messfunktion wird
+  hineingereicht. Keine Konva-Abhängigkeit.
+- `rendering/measure-text.ts` — die Messbrücke zu `Konva.Text`.
+- `shared/canvas/asset-image-loader.ts` — lädt Bilder als Blob, hält sie im Speicher, gibt
+  die Objekt-Adressen beim Zerstören frei.
+- `shared/canvas/card-canvas/` — die Vorschau: `card-canvas.*` (Bühne, Maßstab, Schachbrett,
+  Größenmessung) und `draw-items.ts` (Ebene → Konva-Konfiguration).
+- `features/templates/template-editor/` — zeigt die Vorschau, dazu ein Wegwerf-Schalter
+  „Beispielebenen anzeigen" mit `example-layers.ts`.
+- `core/services/api.ts` — neue Methode für Blob-Abrufe.
+- `styles.scss` — drei neue Zweck-Tokens für das Schachbrettmuster.
+
+### Der unsichere Punkt ist geklärt
+
+Die Textmessung war als heikelste Stelle markiert. Ergebnis aus dem Konva-Quelltext
+(`Text._setTextData`): Ein Textknoten mit **fest gesetzter Höhe** bricht nur so viele Zeilen
+um, wie in die Box passen — er meldet also **nie** eine Höhe größer als die Box, und ein
+Messknoten mit fester Höhe hätte das automatische Verkleinern stillschweigend nie ausgelöst.
+Der Messknoten bekommt deshalb nur eine feste Breite; die gemeldete Höhe ist dann exakt
+Zeilenzahl × Schriftgröße × Zeilenabstand — der im Plan genannte Ausweg und der Hauptweg sind
+also derselbe Wert. Kein Ausweg nötig.
+
+### Abweichungen vom Plan
+
+1. **Bildfläche zeichnet immer einen Platzhalter**, nie ein `ko-image`. Grund: Eine
+   Bildflächen-Ebene hat laut Kontrakt gar keine Bildnummer — welches Bild dort landet,
+   entscheidet erst die Karteninstanz (Meilenstein 3).
+2. **Ein Signal für alle Bilder** statt eines pro Bildnummer. Die Vorschau leitet ihre
+   Zeichenliste aus einem einzigen `computed()` ab, das ohnehin von jedem Bild abhängt —
+   feinere Signale hätten hier nichts gespart, aber den Weg über „Signal im `computed()`
+   anlegen" erzwungen, den Angular verbietet.
+3. **Bühnengröße NICHT mit `devicePixelRatio` multipliziert.** Konva rechnet die
+   Bildschirmauflösung bereits selbst ein; eine zweite Multiplikation hätte doppelt skaliert.
+4. **Leere Textebenen bekommen einen Platzhalter.** Eine frisch angelegte Textebene hat noch
+   keinen Text und wäre sonst unsichtbar — in Phase 6 („Vorschau ändert sich sofort") wäre
+   das genau der Moment, in dem man denkt, das Anlegen sei kaputt.
+5. **Zwei kleine Zugaben**: Der Auswahl-Umriss (macht die Eingabe `selectedLayerId` schon
+   jetzt wirksam) und das Zeichnen der Beispielebenen — ohne die gäbe es in dieser Phase
+   nichts zu sehen.
+6. **Der Kartenrand ist ein Schatten, keine `border`** — eine `border` hätte das
+   Seitenverhältnis des Inhaltskastens verschoben und die Bühne unten beschnitten.

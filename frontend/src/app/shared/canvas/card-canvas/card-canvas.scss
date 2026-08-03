@@ -1,0 +1,25 @@
+:host {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  aspect-ratio: 630 / 880;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+
+  /* Rand als Schatten statt als border: eine border würde das Seitenverhältnis
+     des Inhaltskastens verschieben und die Bühne unten um eine Zeile beschneiden. */
+  box-shadow: 0 0 0 1px var(--color-border);
+  background-image: conic-gradient(
+    var(--color-canvas-checker-dark) 0deg 90deg,
+    var(--color-canvas-checker-light) 90deg 180deg,
+    var(--color-canvas-checker-dark) 180deg 270deg,
+    var(--color-canvas-checker-light) 270deg 360deg
+  );
+  background-size: var(--size-canvas-checker) var(--size-canvas-checker);
+}
+
+.card-canvas__stage {
+  position: absolute;
+  inset: 0;
+  display: block;
+}

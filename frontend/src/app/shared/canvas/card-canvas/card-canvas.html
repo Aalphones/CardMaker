@@ -1,0 +1,25 @@
+@if (stageWidth() > 0) {
+  <ko-stage class="card-canvas__stage" [config]="stageConfig()">
+    <ko-layer [config]="konvaLayerConfig()">
+      @for (item of drawItems(); track item.key) {
+        @switch (item.element) {
+          @case ('image') {
+            <ko-image [config]="item.config" (click)="selectLayer(item.layerId)" />
+          }
+          @case ('rect') {
+            <ko-rect [config]="item.config" (click)="selectLayer(item.layerId)" />
+          }
+          @case ('ellipse') {
+            <ko-ellipse [config]="item.config" (click)="selectLayer(item.layerId)" />
+          }
+          @case ('line') {
+            <ko-line [config]="item.config" (click)="selectLayer(item.layerId)" />
+          }
+          @case ('text') {
+            <ko-text [config]="item.config" (click)="selectLayer(item.layerId)" />
+          }
+        }
+      }
+    </ko-layer>
+  </ko-stage>
+}

@@ -54,6 +54,11 @@
   --color-border: var(--color-gray-700);
   --color-accent: var(--color-brand-500);
   --color-danger: var(--color-error);
+
+  /* SEMANTIC — Kartenvorschau: helles Schachbrett hinter der Karte macht Transparenz sichtbar */
+  --color-canvas-checker-light: var(--color-gray-100);
+  --color-canvas-checker-dark: var(--color-gray-300);
+  --size-canvas-checker: 1rem;
 }
 
 * {

@@ -25,7 +25,7 @@ backend/src/Validators/<Feature>Validator.php
 | `auth` | Login, Sitzungen und Zugriffstoken — beide als Zufallswerte in der Datenbank, kein JWT (ADR-008) |
 | `card-groups` | Kartengruppen — Organisationseinheit für gespeicherte Karten (z. B. „Spiderman-Serie"), keine Charakterverwaltung (ADR-011) |
 | `assets` | Bildvorrat — hochgeladene Rahmen- und Icon-Dateien, hinter der Anmeldung ausgeliefert (ADR-015). Backend und Speicher stehen, noch kein eigener UI-Screen (kommt mit dem Editor) |
-| `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste und Anlegen stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Der eigentliche Editor (Canvas, Ebenenliste) entsteht in Phase 6 |
+| `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste und Anlegen stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Die Kartenvorschau auf Konva steht; Ebenenliste und Eigenschaften entstehen in Phase 6 |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
 
@@ -45,19 +45,26 @@ frontend/src/app/
       card-groups-detail/  ← Formular Anlegen/Bearbeiten (Routen .../new, .../:id)
     templates/
       templates-list/       ← Raster, Suchfeld, Leerzustand, „Neues Template"
-      template-editor/       ← Platzhalter (Route .../:id) — der echte Editor entsteht in
-                               Phase 6 des Template-Editor-Plans
+      template-editor/       ← Route .../:id — zeigt bislang nur die Kartenvorschau plus
+                               `example-layers.ts` (Wegwerf-Beispiel, fliegt mit Phase 6 raus);
+                               Ebenenliste und Eigenschaften folgen in Phase 6
   shared/
     components/       ← wiederverwendbare Komponenten (u.a. confirm-dialog — CDK Dialog,
                          Rückfrage vor Löschungen; not-found; notification-list)
     guards/            ← wiederverwendbare Route-Guards (u.a. pending-changes-guard —
                           canDeactivate bei ungespeicherten Formularen)
-    canvas/            ← Konva-Wrapper-Komponenten/Direktiven (Layer-Renderer, noch leer —
-                          entsteht erst mit dem Template-Editor-Plan)
+    canvas/            ← alles, was mit Konva zeichnet — Feature-Komponenten binden nur Daten
+      card-canvas/      ← die Kartenvorschau: `card-canvas.*` (Bühne, Maßstab, Schachbrett,
+                           Auswahl-Umriss) und `draw-items.ts` (Ebene → Konva-Konfiguration,
+                           inkl. Platzhalter für fehlende Bilder)
+      asset-image-loader.ts ← lädt hochgeladene Bilder als Blob hinter der Anmeldung und hält
+                           sie als fertige Bildelemente im Speicher
       rendering/        ← reine Zeichenregeln ohne Konva-Abhängigkeit: `layer.ts` (die fünf
-                           Ebenentypen + Fabrikfunktionen), `fonts.ts` (feste Schriftenliste)
-                           — ADR-005, ohne Konva-Abhängigkeit, damit Meilenstein 4 (Drucken)
-                           sie wiederverwendet
+                           Ebenentypen + Fabrikfunktionen), `fonts.ts` (feste Schriftenliste),
+                           `units.ts` (Canvas-Einheiten → Pixel), `auto-shrink.ts`
+                           (automatisches Verkleinern von Text) — ADR-005, damit Meilenstein 4
+                           (Drucken) sie wiederverwendet. Einzige Ausnahme: `measure-text.ts`,
+                           die Messbrücke zu `Konva.Text`
     services/
   store/               ← NgRx Classic Store Slices (auth, card-groups, templates, assets,
                           tokens — Facade Pflicht pro Domain-Slice, `auth` bislang ohne, da

@@ -45,6 +45,15 @@ return actions$.pipe(
 - `core/services/auth.ts` (auth-spezifisch, außerhalb der Facade-Pflicht)
 - `app.config.ts` (Store-Provider-Setup)
 
+### Wo ein HTTP-Call ohne Effect erlaubt bleibt
+
+Genau ein dokumentierter Fall: `shared/canvas/asset-image-loader.ts` holt Bilddateien selbst
+über den `Api`-Dienst. Begründung: Ein `HTMLImageElement` ist kein serialisierbarer
+Server-Zustand — es gehört nicht in den Store, und ein Effect müsste es trotzdem dort
+ablegen, um es an die Vorschau zu bekommen. Der Dienst ist ein reiner Render-Cache mit
+eigener Lebensdauer (Objekt-Adressen werden beim Zerstören freigegeben). Jeder weitere Fall
+dieser Art braucht denselben Nachweis „nicht serialisierbar" — sonst gilt die Effect-Regel.
+
 ## Geplante Slices (Meilenstein 1–5)
 
 | Slice | Store-Typ | Grund |

@@ -5,7 +5,13 @@
     <p class="template-editor__status">Wird geladen …</p>
   } @else if (templates.current(); as template) {
     <h1 class="template-editor__title">{{ template.name }}</h1>
-    <p class="template-editor__status">Der Editor entsteht in Phase 6.</p>
+    <div class="template-editor__preview">
+      <app-card-canvas [layers]="previewLayers()" />
+    </div>
+    <button class="template-editor__example" type="button" (click)="toggleExample()">
+      {{ exampleButtonLabel() }}
+    </button>
+    <p class="template-editor__status">Ebenenliste und Eigenschaften folgen in Phase 6.</p>
   } @else {
     <p class="template-editor__status">Dieses Template gibt es nicht.</p>
   }

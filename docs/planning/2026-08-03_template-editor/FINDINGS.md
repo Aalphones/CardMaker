@@ -39,7 +39,7 @@ ist, wandert in Phase 8 in die Folgeaufgaben der Plan-README.
       `FormData` mit den Feldern `file`, `kind`, `name` genügt. Umgesetzt in
       `store/assets/assets.effects.ts` (`Api.postForm`, kein manueller Header).
 
-- [ ] → Phase 5: `GET /api/assets/{id}/file` liegt hinter der Anmeldung und antwortet mit
+- [x] → Phase 5: `GET /api/assets/{id}/file` liegt hinter der Anmeldung und antwortet mit
       `Cache-Control: private, max-age=86400`. Der Bildlader holt die Datei als Blob mit
       Anmelde-Kopfzeile; ein direktes `<img src="/api/assets/…">` funktioniert nicht. In
       Phase 4 gibt es noch keine Bildanzeige (keine Asset-UI) — greift erst, sobald die
@@ -59,6 +59,29 @@ ist, wandert in Phase 8 in die Folgeaufgaben der Plan-README.
       auf Lebenszeit. Zu entscheiden wäre eine Ablauffrist (Spalte `expires_at`, Vergleich
       in der Abfrage wie bei den Sitzungen). Aufgefallen beim Nachmessen von Phase 2.
 
-- [ ] → Phase 5 und 7: `ng2-konva` 12.0.1 verlangt Angular ^21 und Konva ^10 — beides
-      installiert, passt. Alle Formen laufen über eine einzige Komponente
-      (`CoreShapeComponent`) mit der Eingabe `[config]`; `ko-transformer` ist vorhanden.
+- [ ] → Phase 7: `ng2-konva` 12.0.1 verlangt Angular ^21 und Konva ^10 — beides installiert,
+      passt. Alle Formen laufen über eine einzige Komponente (`CoreShapeComponent`) mit der
+      Eingabe `[config]`; `ko-transformer` ist vorhanden. In Phase 5 bestätigt: Die
+      Zeichenreihenfolge kommt aus der DOM-Reihenfolge (`ng2-konva` beobachtet sie), `@for`
+      mit `track` reicht also.
+
+- [ ] → Phase 6: Der Editor zeigt im Moment einen Wegwerf-Schalter „Beispielebenen anzeigen"
+      (`features/templates/template-editor/example-layers.ts`). Er existiert nur, weil es
+      ohne Ebenenliste keine Ebenen zum Zeichnen gibt. Sobald Phase 6 echte Ebenen anlegen
+      kann: Schalter, Datei und die zugehörigen Felder in `template-editor.ts` entfernen.
+
+- [ ] → Phase 6: Die Vorschau nimmt schon `selectedLayerId` (zeichnet einen gestrichelten
+      Umriss) und `interactive` (schaltet die Klick-Erkennung frei) entgegen und meldet
+      `layerClicked` mit der Ebenen-ID. Die Ebenenliste muss also nur beides verdrahten,
+      nichts nachbauen.
+
+- [ ] → Phase 7: Konva rechnet die Bildschirmauflösung selbst ein (`devicePixelRatio` im
+      Canvas). Die Bühnengröße NICHT zusätzlich multiplizieren — das skaliert doppelt. Der
+      Maßstab Canvas-Einheiten → Bildschirmpunkte sitzt an genau einer Stelle: der
+      `scaleX`/`scaleY` der Konva-Ebene. Anfasser-Werte aus Phase 7 müssen entsprechend
+      durch diesen Maßstab zurückgerechnet werden, bevor sie in eine Ebene wandern.
+
+- [ ] → Phase 6 und 7: Ein Textknoten mit fest gesetzter Höhe bricht in Konva nur so viele
+      Zeilen um, wie in die Box passen — er meldet also nie eine Höhe größer als die Box.
+      Wer Text messen will, muss einen Knoten OHNE feste Höhe benutzen (macht
+      `rendering/measure-text.ts`). Sonst greift das automatische Verkleinern nie.
