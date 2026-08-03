@@ -24,6 +24,7 @@ backend/src/Validators/<Feature>Validator.php
 |---|---|
 | `auth` | Login, Sitzungen und Zugriffstoken — beide als Zufallswerte in der Datenbank, kein JWT (ADR-008) |
 | `card-groups` | Kartengruppen — Organisationseinheit für gespeicherte Karten (z. B. „Spiderman-Serie"), keine Charakterverwaltung (ADR-011) |
+| `assets` | Bildvorrat — hochgeladene Rahmen- und Icon-Dateien, hinter der Anmeldung ausgeliefert (ADR-015). Backend steht, Frontend folgt |
 | `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
@@ -71,6 +72,8 @@ backend/
   public/         ← Eintrittsstelle: index.php, diag.php
   vendor/         ← Composer, nicht im Git (ADR-012)
   storage/logs/   ← app.log (nicht im Git)
+  uploads/        ← hochgeladene Rahmen und Icons, außerhalb des ausgelieferten Bereichs
+                     (ADR-015); Inhalt nicht im Git, vom Hochlade-Skript ausgenommen
   .env            ← von deploy.cmd geschrieben, nicht im Git
   src/
     Controllers/    ← dünn: validieren → Service aufrufen → JSON zurückgeben

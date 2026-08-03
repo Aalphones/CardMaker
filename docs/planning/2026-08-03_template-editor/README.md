@@ -35,7 +35,7 @@ Vier Festlegungen, die alles Weitere prägen — jede kostet etwas, jede ist bew
 | # | Phase | Rating | Status |
 |---|---|---|---|
 | 1 | [Entscheidungen & Datenmodell festhalten](phase-1-entscheidungen-und-datenmodell.md) | mechanisch | done |
-| 2 | [Bildvorrat im Backend](phase-2-bildvorrat-backend.md) | heikel | pending |
+| 2 | [Bildvorrat im Backend](phase-2-bildvorrat-backend.md) | heikel | umgesetzt, Serverprobe offen |
 | 3 | [Templates im Backend](phase-3-templates-backend.md) | standard | pending |
 | 4 | [Templates im Frontend: Speicher, Liste, Anlegen](phase-4-templates-frontend.md) | standard | pending |
 | 5 | [Kartenvorschau auf Konva](phase-5-kartenvorschau.md) | heikel | pending |

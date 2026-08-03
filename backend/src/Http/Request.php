@@ -15,6 +15,8 @@ final class Request
     private array $headers;
     /** @var array<string, mixed>|null */
     private ?array $body = null;
+    /** @var array<string, mixed>|null */
+    private ?array $form = null;
     /** @var array<string, mixed> */
     private array $query;
     /** @var array<string, mixed> */
@@ -74,6 +76,21 @@ final class Request
         }
 
         return $this->query[$key] ?? null;
+    }
+
+    /**
+     * Textfelder einer Hochladung. Bei `multipart/form-data` ist `php://input` leer,
+     * `body()` liefert also nichts — die Felder stehen dann in `$_POST`. Die Schlüssel
+     * werden wie beim JSON-Rumpf nach snake_case gewandelt, damit die Wire-Format-Grenze
+     * an derselben Stelle liegt.
+     */
+    public function formField(string $key): ?string
+    {
+        $this->form ??= self::snakeCaseKeys($_POST);
+
+        $value = $this->form[$key] ?? null;
+
+        return is_string($value) ? $value : null;
     }
 
     /** @return array<string, mixed> */

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Controllers\AssetController;
 use App\Controllers\AuthController;
 use App\Controllers\CardGroupController;
 use App\Controllers\HealthController;
@@ -14,10 +15,12 @@ use App\Http\Response;
 use App\Middleware\Auth;
 use App\Middleware\Cors;
 use App\Repositories\AccessTokenRepository;
+use App\Repositories\AssetRepository;
 use App\Repositories\CardGroupRepository;
 use App\Repositories\SessionRepository;
 use App\Repositories\UserRepository;
 use App\Services\AccessTokenService;
+use App\Services\AssetService;
 use App\Services\AuthService;
 use App\Services\CardGroupService;
 use App\Services\TokenService;
@@ -116,6 +119,7 @@ if ($request->path() !== '/api/health' && !$database instanceof PDO) {
 $authService = null;
 $accessTokenService = null;
 $cardGroupService = null;
+$assetService = null;
 
 if ($database instanceof PDO) {
     $tokenService = new TokenService();
@@ -130,6 +134,11 @@ if ($database instanceof PDO) {
         $tokenService
     );
     $cardGroupService = new CardGroupService(new CardGroupRepository($database));
+    $assetService = new AssetService(
+        new AssetRepository($database),
+        $backendRoot . '/uploads',
+        $logger
+    );
 }
 
 // Positivliste der offenen Pfade. Die Sperre ist die Vorgabe, nicht die Ausnahme: Ein
@@ -163,6 +172,10 @@ $dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes
     $routes->addRoute('GET', '/api/card-groups/{id:\d+}', [CardGroupController::class, 'show']);
     $routes->addRoute('PATCH', '/api/card-groups/{id:\d+}', [CardGroupController::class, 'update']);
     $routes->addRoute('DELETE', '/api/card-groups/{id:\d+}', [CardGroupController::class, 'destroy']);
+    $routes->addRoute('GET', '/api/assets', [AssetController::class, 'index']);
+    $routes->addRoute('POST', '/api/assets', [AssetController::class, 'create']);
+    $routes->addRoute('GET', '/api/assets/{id:\d+}/file', [AssetController::class, 'file']);
+    $routes->addRoute('DELETE', '/api/assets/{id:\d+}', [AssetController::class, 'destroy']);
 });
 
 $migrationsDirectory = $backendRoot . '/src/Migrations';
@@ -176,7 +189,8 @@ $makeController = static function (string $controllerClass) use (
     $logger,
     $authService,
     $accessTokenService,
-    $cardGroupService
+    $cardGroupService,
+    $assetService
 ): object {
     return match ($controllerClass) {
         HealthController::class => new HealthController($database),
@@ -191,6 +205,7 @@ $makeController = static function (string $controllerClass) use (
         AuthController::class => new AuthController($request, $authService),
         TokenController::class => new TokenController($request, $accessTokenService),
         CardGroupController::class => new CardGroupController($request, $cardGroupService),
+        AssetController::class => new AssetController($request, $assetService),
         default => throw new RuntimeException('Kein Bauplan für Controller: ' . $controllerClass),
     };
 };

@@ -12,6 +12,7 @@ final class Response
     public const ERROR_METHOD_NOT_ALLOWED = 'method_not_allowed';
     public const ERROR_VALIDATION_FAILED = 'validation_failed';
     public const ERROR_PAYLOAD_TOO_LARGE = 'payload_too_large';
+    public const ERROR_CONFLICT = 'conflict';
     public const ERROR_SERVER_ERROR = 'server_error';
     public const ERROR_ALREADY_INITIALIZED = 'already_initialized';
 
@@ -26,6 +27,31 @@ final class Response
     public static function noContent(): void
     {
         self::sendHeaders(204);
+        exit;
+    }
+
+    /**
+     * Bewusst ohne `Content-Disposition`: der Anzeigename einer Hochladung kommt aus
+     * Nutzereingabe und hätte in einer Kopfzeile nichts verloren.
+     */
+    public static function file(string $absolutePath, string $mimeType): void
+    {
+        http_response_code(200);
+
+        if (!headers_sent()) {
+            $byteSize = filesize($absolutePath);
+
+            header('Content-Type: ' . $mimeType);
+
+            if ($byteSize !== false) {
+                header('Content-Length: ' . $byteSize);
+            }
+
+            header('X-Content-Type-Options: nosniff');
+            header('Cache-Control: private, max-age=86400');
+        }
+
+        readfile($absolutePath);
         exit;
     }
 
