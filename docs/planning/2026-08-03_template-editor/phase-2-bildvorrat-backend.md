@@ -149,20 +149,34 @@ Kantenlänge ≥ 1, sonst läge im Editor eine unsichtbare Fläche.
   protokolliert und der Datensatz trotzdem gelöscht. Eine verwaiste Datei ist Ballast, ein
   unlöschbarer Eintrag wäre ein Defekt.
 
-### Offen — braucht den Server
+### Am Server geprüft (2026-08-03, nach dem Deploy)
 
-Der letzte Punkt der Checkliste (Konfidenz-Ausweis: kommt ein 5-MB-PNG durch die Brücke?)
-ist **nicht** erledigt. Er braucht einen Doppelklick auf `deploy.cmd` und eine angemeldete
-Hochladung gegen die Serveradresse. Ablauf:
+- **Migration gelaufen:** `POST /api/migrate` → `{"applied":["M005CreateAssets"]}`. Die
+  Tabelle `assets` steht auf dem Server.
+- **Grenzen der Serverumgebung** (`/api/diag.php`): `upload_max_filesize` 128 M,
+  `post_max_size` 128 M, `memory_limit` 512 M, `max_execution_time` 240. Ein 5-MB-Bild liegt
+  weit darunter — bindend ist damit die **eigene** Grenze `UPLOAD_MAX_BYTES` (8 MB), nicht
+  die des Servers.
+- **`fileinfo` ist vorhanden** — die Typprüfung am Dateiinhalt funktioniert dort also
+  überhaupt. PHP läuft in 8.5.7.
+- **Die Brücke kann Hochladungen nicht stören:** `api-bridge/index.php` ist ein einzelnes
+  `require` auf das Backend. `multipart/form-data` zerlegt PHP, bevor die erste eigene
+  Codezeile läuft — die Brücke sieht `$_FILES` nur fertig. Damit ist die Sorge aus dem
+  Konfidenz-Ausweis („eher die Brücke als das Limit") gegenstandslos.
 
-1. `deploy.cmd` doppelklicken.
-2. `POST /api/migrate` auslösen (legt die Tabelle `assets` an).
-3. Anmelden, dann ein PNG von 4–5 MB an `POST /api/assets` schicken
-   (`multipart/form-data`, Felder `file`, `kind=frame`, `name=Testrahmen`).
-4. Ergebnis hier eintragen: kam `201`? Bei Abbruch: welcher Status, welche Meldung?
+**Was diese Proben NICHT zeigen:** Alle Pfade unter `/api/` antworten ohne Anmeldung `401`,
+auch erfundene — die Anmeldesperre greift vor dem Wegweiser. Ein `401` auf `/api/assets`
+belegt also **nicht**, dass die vier Routen eingetragen sind. Das und die echte Hochladung
+brauchen ein gültiges Zugriffstoken.
 
-Erwartete Stolperstelle: nicht die eigene Grenze (`UPLOAD_MAX_BYTES`, 8 MB), sondern
-`post_max_size`/`upload_max_filesize` der Serverumgebung. Liegt eine davon unter 5 MB,
-verwirft PHP die Anfrage komplett — dafür ist die Sonderbehandlung in
-`AssetController::missingFileReason()` gebaut, die daraus ein `413` mit Klartext macht
-statt eines leeren Bildschirms. Genau die will dieser Versuch sehen.
+### Offen — braucht ein Zugriffstoken
+
+Offen bleibt die echte Hochladung: ein 4–5-MB-PNG an `POST /api/assets`
+(`multipart/form-data`, Felder `file`, `kind=frame`, `name=Testrahmen`) mit gültigem
+Zugriffstoken im `Authorization`-Kopf. Erwartet `201` samt Datensatz. Damit fällt zugleich
+der Nachweis ab, dass die vier Routen eingetragen sind.
+
+Nach den Proben oben ist das Risiko klein: die Serverumgebung ist großzügiger als die eigene
+Grenze, `fileinfo` ist da, die Brücke ist durchsichtig. Die Sonderbehandlung in
+`AssetController::missingFileReason()` (verworfene Anfrage → `413` statt leerer Bildschirm)
+bleibt trotzdem ungetestet — sie greift erst oberhalb von `post_max_size`, also ab 128 MB.
