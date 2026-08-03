@@ -1,0 +1,55 @@
+<section class="templates-list">
+  <div class="templates-list__heading">
+    <h1 class="templates-list__title">Templates</h1>
+    <button type="button" class="templates-list__create" (click)="createTemplate()">Neues Template</button>
+  </div>
+
+  @if (templates.summariesLoaded() && templates.summaries().length === 0) {
+    <div class="templates-list__empty">
+      <p class="templates-list__empty-text">
+        Ein Template ist das Layout einer Kartenart — Rahmen, Bildfläche, Icons und Textfelder an
+        festen Stellen. Karten selbst entstehen später darauf. Lege dein erstes Template an, um
+        loszulegen.
+      </p>
+      <button type="button" class="templates-list__create" (click)="createTemplate()">Neues Template</button>
+    </div>
+  } @else {
+    <div class="templates-list__search">
+      <label class="templates-list__search-label" for="templates-search">Suchen</label>
+      <input
+        id="templates-search"
+        class="templates-list__search-input"
+        type="search"
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
+        placeholder="Nach Name suchen …"
+      />
+    </div>
+
+    <ul class="templates-list__grid">
+      @for (item of filteredItems(); track item.id) {
+        <li class="templates-list__card">
+          <a class="templates-list__card-link" [routerLink]="['/templates', item.id]">
+            <h2 class="templates-list__card-title">{{ item.name }}</h2>
+            @if (item.description) {
+              <p class="templates-list__card-description">{{ item.description }}</p>
+            }
+            <p class="templates-list__card-meta">
+              {{ layerCountLabel(item.layerCount) }} · geändert {{ item.updatedAt | date: 'medium' }}
+            </p>
+          </a>
+          <button
+            type="button"
+            class="templates-list__card-delete"
+            [attr.aria-label]="'Template ' + item.name + ' löschen'"
+            (click)="remove(item)"
+          >
+            Löschen
+          </button>
+        </li>
+      } @empty {
+        <li class="templates-list__no-results">Kein Template passt zur Suche.</li>
+      }
+    </ul>
+  }
+</section>

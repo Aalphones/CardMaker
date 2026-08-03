@@ -1,0 +1,12 @@
+<section class="template-editor">
+  <a class="template-editor__back" routerLink="/templates">← Zurück zu den Templates</a>
+
+  @if (templates.currentLoading()) {
+    <p class="template-editor__status">Wird geladen …</p>
+  } @else if (templates.current(); as template) {
+    <h1 class="template-editor__title">{{ template.name }}</h1>
+    <p class="template-editor__status">Der Editor entsteht in Phase 6.</p>
+  } @else {
+    <p class="template-editor__status">Dieses Template gibt es nicht.</p>
+  }
+</section>

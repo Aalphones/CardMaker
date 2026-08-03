@@ -14,11 +14,15 @@ import { authTokenInterceptor } from './core/auth/auth-token-interceptor';
 import { errorInterceptor } from './core/auth/error-interceptor';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { assetsFeature } from './store/assets/assets.feature';
+import { AssetsEffects } from './store/assets/assets.effects';
 import { AuthActions } from './store/auth/auth.actions';
 import { authFeature } from './store/auth/auth.feature';
 import { AuthEffects } from './store/auth/auth.effects';
 import { cardGroupsFeature } from './store/card-groups/card-groups.feature';
 import { CardGroupsEffects } from './store/card-groups/card-groups.effects';
+import { templatesFeature } from './store/templates/templates.feature';
+import { TemplatesEffects } from './store/templates/templates.effects';
 import { tokensFeature } from './store/tokens/tokens.feature';
 import { TokensEffects } from './store/tokens/tokens.effects';
 
@@ -31,7 +35,9 @@ export const appConfig: ApplicationConfig = {
     provideState(authFeature),
     provideState(tokensFeature),
     provideState(cardGroupsFeature),
-    provideEffects(AuthEffects, TokensEffects, CardGroupsEffects),
+    provideState(templatesFeature),
+    provideState(assetsFeature),
+    provideEffects(AuthEffects, TokensEffects, CardGroupsEffects, TemplatesEffects, AssetsEffects),
     provideAppInitializer(() => inject(Store).dispatch(AuthActions.restoreSession())),
     ...(environment.production ? [] : [provideStoreDevtools({ maxAge: 25 })]),
   ],

@@ -34,17 +34,23 @@ ist, wandert in Phase 8 in die Folgeaufgaben der Plan-README.
       `CardGroupRepository`), nicht `formatAsset()` wie im Plan-Text. Beim Templates-Backend
       denselben Namen verwenden.
 
-- [ ] → Phase 4: Hochladen läuft als `multipart/form-data`. In Angular den `Content-Type`
+- [x] → Phase 4: Hochladen läuft als `multipart/form-data`. In Angular den `Content-Type`
       **nicht** selbst setzen — sonst fehlt die Trennmarke und das Backend sieht keine Datei.
-      `FormData` mit den Feldern `file`, `kind`, `name` genügt.
+      `FormData` mit den Feldern `file`, `kind`, `name` genügt. Umgesetzt in
+      `store/assets/assets.effects.ts` (`Api.postForm`, kein manueller Header).
 
-- [ ] → Phase 4: `GET /api/assets/{id}/file` liegt hinter der Anmeldung und antwortet mit
+- [ ] → Phase 5: `GET /api/assets/{id}/file` liegt hinter der Anmeldung und antwortet mit
       `Cache-Control: private, max-age=86400`. Der Bildlader holt die Datei als Blob mit
-      Anmelde-Kopfzeile; ein direktes `<img src="/api/assets/…">` funktioniert nicht.
+      Anmelde-Kopfzeile; ein direktes `<img src="/api/assets/…">` funktioniert nicht. In
+      Phase 4 gibt es noch keine Bildanzeige (keine Asset-UI) — greift erst, sobald die
+      Vorschau ein Bild zeichnet.
 
-- [ ] → Phase 4: Fehlerformat der Hochladung, damit die Oberfläche es unterscheiden kann:
+- [ ] → Phase 6: Fehlerformat der Hochladung, damit die Oberfläche es unterscheiden kann:
       `413` (`payload_too_large`) für zu groß, `422` (`validation_failed`) mit
-      `fields.file` für „kein PNG" bzw. „keine Datei", `500` wenn das Ablegen scheitert.
+      `fields.file` für „kein PNG" bzw. „keine Datei", `500` wenn das Ablegen scheitert. Der
+      globale `errorInterceptor` zeigt die Server-Nachricht bereits als Toast — reicht so
+      lange, bis eine echte Hochlade-UI (Rahmen-/Icon-Auswahl mit Upload-Knopf) feldgenaue
+      Rückmeldung braucht.
 
 - [ ] → Phase 8 (Folgeaufgaben): Zugriffstoken laufen nicht ab und kennen keine
       Einschränkung — `personal_access_tokens` hat nur `created_at` und `last_used_at`, und

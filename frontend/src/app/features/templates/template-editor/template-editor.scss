@@ -1,0 +1,21 @@
+.template-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+
+  &__back {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    align-self: flex-start;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--font-size-xl);
+  }
+
+  &__status {
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+}

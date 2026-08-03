@@ -37,7 +37,7 @@ Vier Festlegungen, die alles Weitere prägen — jede kostet etwas, jede ist bew
 | 1 | [Entscheidungen & Datenmodell festhalten](phase-1-entscheidungen-und-datenmodell.md) | mechanisch | done |
 | 2 | [Bildvorrat im Backend](phase-2-bildvorrat-backend.md) | heikel | done |
 | 3 | [Templates im Backend](phase-3-templates-backend.md) | standard | done |
-| 4 | [Templates im Frontend: Speicher, Liste, Anlegen](phase-4-templates-frontend.md) | standard | pending |
+| 4 | [Templates im Frontend: Speicher, Liste, Anlegen](phase-4-templates-frontend.md) | standard | done |
 | 5 | [Kartenvorschau auf Konva](phase-5-kartenvorschau.md) | heikel | pending |
 | 6 | [Ebenenliste & Eigenschaften](phase-6-ebenenliste-und-eigenschaften.md) | heikel | pending |
 | 7 | [Direkt im Bild bearbeiten](phase-7-direkt-im-bild-bearbeiten.md) | heikel | pending |

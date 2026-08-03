@@ -1,6 +1,6 @@
 # Phase 4 — Templates im Frontend: Speicher, Liste, Anlegen
 
-**Rating:** standard · **Status:** pending
+**Rating:** standard · **Status:** done
 
 Der bekannte Weg: zwei Speicher-Bereiche nach dem Muster der Kartengruppen, eine
 Übersichtsseite, ein Navigationseintrag. Dazu die Typdatei für die Ebenen — die ist die
@@ -29,7 +29,7 @@ Grundlage für alles, was danach kommt.
 
 ## Checkliste
 
-- [ ] **Typdatei `frontend/src/app/shared/canvas/rendering/layer.ts`** — die Ebenentypen aus
+- [x] **Typdatei `frontend/src/app/shared/canvas/rendering/layer.ts`** — die Ebenentypen aus
       dem Plan-README als TypeScript. Liegt bewusst unter `rendering/` und nicht im Speicher:
       Meilenstein 4 (Drucken) braucht dieselben Typen ohne NgRx-Bezug.
       - Basistyp `LayerBase` mit `id`, `name`, `visible`.
@@ -42,9 +42,9 @@ Grundlage für alles, was danach kommt.
       - Fabrikfunktionen `createLayer(type, shape?)`, die eine neue Ebene mit sinnvollen
         Standardwerten und `crypto.randomUUID()` liefern — mittig auf dem Canvas, sichtbare
         Größe. Genau eine Stelle, an der Standardwerte stehen.
-- [ ] **Schriftenliste `frontend/src/app/shared/canvas/rendering/fonts.ts`** — die sieben
+- [x] **Schriftenliste `frontend/src/app/shared/canvas/rendering/fonts.ts`** — die sieben
       Namen aus dem Plan-README als const-Vereinigung plus Anzeigeliste.
-- [ ] **Speicher-Bereich `frontend/src/app/store/templates/`** — `templates.actions.ts`,
+- [x] **Speicher-Bereich `frontend/src/app/store/templates/`** — `templates.actions.ts`,
       `templates.feature.ts`, `templates.effects.ts`, `templates.facade.ts`, exakt nach dem
       Muster von `card-groups`, inklusive `concatLatestFrom`-Absicherung im Lade-Effekt und
       der pro Schlüssel zwischengespeicherten `byId`-Auswahl in der Facade.
@@ -54,30 +54,46 @@ Grundlage für alles, was danach kommt.
       Beschreibung und die vollständige Ebenenliste per `PATCH`), `Delete`/….
       **Kein optimistisches Ändern im Reduzierer** — nur die Erfolgs-Aktion bewegt den
       Zustand (Fallstrick in `docs/conventions/state-management.md`).
-- [ ] **Speicher-Bereich `frontend/src/app/store/assets/`** — dieselben vier Dateien.
+- [x] **Speicher-Bereich `frontend/src/app/store/assets/`** — dieselben vier Dateien.
       Aktionen: `Load`, `Upload` (nimmt `File`, `kind`, `name`), `Delete`. Der
       Hochlade-Effekt baut ein `FormData` und ruft es über eine neue Methode
       `Api.postForm<T>(path, formData)` auf — `HttpClient` setzt die Kopfzeile für
       `multipart` selbst, sie darf **nicht** von Hand gesetzt werden, sonst fehlt die
       Trennmarke.
-- [ ] **`frontend/src/app/core/services/api.ts` ergänzen** — Methode `postForm<T>`.
-- [ ] **Beide Effekt-Klassen in `app.config.ts` eintragen** (`provideEffects`) und die
+- [x] **`frontend/src/app/core/services/api.ts` ergänzen** — Methode `postForm<T>`.
+- [x] **Beide Effekt-Klassen in `app.config.ts` eintragen** (`provideEffects`) und die
       Feature-Reduzierer registrieren, wie es für `card-groups` schon geschieht.
-- [ ] **Seite `frontend/src/app/features/templates/templates-list/`** — Raster mit Name,
+- [x] **Seite `frontend/src/app/features/templates/templates-list/`** — Raster mit Name,
       Beschreibung, Anzahl Ebenen, Änderungsdatum; Suchfeld; Leerzustand mit einem Satz, was
       ein Template ist; Schaltfläche „Neues Template"; Löschen über den vorhandenen
       Rückfrage-Dialog. Struktur und Klassennamen analog `card-groups-list`, BEM, nur
       Zweck-Tokens.
-- [ ] **Platzhalter `frontend/src/app/features/templates/template-editor/`** — Komponente,
+- [x] **Platzhalter `frontend/src/app/features/templates/template-editor/`** — Komponente,
       die vorerst nur den Namen des geladenen Templates und den Satz „Der Editor entsteht in
       Phase 6" zeigt. Lädt das Template über die Facade. Wird in Phase 6 ersetzt, nicht
       danebengebaut.
-- [ ] **Routen in `app.routes.ts`** — `templates` (Liste) und `templates/:id` (Editor,
+- [x] **Routen in `app.routes.ts`** — `templates` (Liste) und `templates/:id` (Editor,
       mit `canDeactivate: [pendingChangesGuard]`), beide träge geladen wie die bestehenden.
-- [ ] **Navigationseintrag in `shell.html`** — „Templates" neben „Kartengruppen".
-- [ ] **Doc-Update `docs/code-map.md`** — Frontend-Layout um `features/templates/`,
+- [x] **Navigationseintrag in `shell.html`** — „Templates" neben „Kartengruppen".
+- [x] **Doc-Update `docs/code-map.md`** — Frontend-Layout um `features/templates/`,
       `store/templates/`, `store/assets/` und `shared/canvas/rendering/layer.ts` ergänzen.
-- [ ] **Prüfen** — `npm run lint`, `npm run build`, App starten, Liste öffnen, Template
+- [x] **Prüfen** — `npm run lint`, `npm run build`, App starten, Liste öffnen, Template
       anlegen und löschen.
 
 ## Report-Back
+
+`npm run lint` und `npm run build` laufen beide durch (Details unten). Manuell im Browser
+(App starten, Template anlegen/löschen) hat der User noch nicht geprüft — das ist Teil des
+Abnahme-Rundgangs am Plan-Ende, hier nur der technische Gate-Nachweis.
+
+**Abweichung vom Plantext:** „Neues Template" fragt keinen Namen ab — es legt sofort ein
+Template namens „Neues Template" an und springt in den Editor-Platzhalter (dort gibt es noch
+kein Umbenennen, das kommt erst mit dem echten Editor in Phase 6). Mehrere neu angelegte
+Templates heißen bis zur ersten Bearbeitung gleich — bewusst in Kauf genommen, weil der Plan
+für Phase 4 keine Namens-Eingabemaske vorsieht und die Kopfzeile mit bearbeitbarem Namen
+explizit Teil des Phase-6-Kontrakts ist.
+
+Zwei Findings wurden beim Einarbeiten umgetagt, weil sie erst greifen, sobald es eine
+Bildanzeige bzw. eine Hochlade-Oberfläche gibt (Details in `FINDINGS.md`): der Blob-Bildlader
+wandert zu Phase 5, die feldgenaue Upload-Fehlermeldung zu Phase 6 — bis dahin zeigt der
+globale Fehler-Interceptor die Server-Nachricht als Toast, das reicht für den aktuellen Stand.

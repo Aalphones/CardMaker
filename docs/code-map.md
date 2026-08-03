@@ -24,8 +24,8 @@ backend/src/Validators/<Feature>Validator.php
 |---|---|
 | `auth` | Login, Sitzungen und Zugriffstoken — beide als Zufallswerte in der Datenbank, kein JWT (ADR-008) |
 | `card-groups` | Kartengruppen — Organisationseinheit für gespeicherte Karten (z. B. „Spiderman-Serie"), keine Charakterverwaltung (ADR-011) |
-| `assets` | Bildvorrat — hochgeladene Rahmen- und Icon-Dateien, hinter der Anmeldung ausgeliefert (ADR-015). Backend steht, Frontend folgt |
-| `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend steht — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Frontend folgt |
+| `assets` | Bildvorrat — hochgeladene Rahmen- und Icon-Dateien, hinter der Anmeldung ausgeliefert (ADR-015). Backend und Speicher stehen, noch kein eigener UI-Screen (kommt mit dem Editor) |
+| `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste und Anlegen stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Der eigentliche Editor (Canvas, Ebenenliste) entsteht in Phase 6 |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
 
@@ -43,6 +43,10 @@ frontend/src/app/
     card-groups/
       card-groups-list/    ← Raster, Suchfeld, Leerzustand
       card-groups-detail/  ← Formular Anlegen/Bearbeiten (Routen .../new, .../:id)
+    templates/
+      templates-list/       ← Raster, Suchfeld, Leerzustand, „Neues Template"
+      template-editor/       ← Platzhalter (Route .../:id) — der echte Editor entsteht in
+                               Phase 6 des Template-Editor-Plans
   shared/
     components/       ← wiederverwendbare Komponenten (u.a. confirm-dialog — CDK Dialog,
                          Rückfrage vor Löschungen; not-found; notification-list)
@@ -50,20 +54,23 @@ frontend/src/app/
                           canDeactivate bei ungespeicherten Formularen)
     canvas/            ← Konva-Wrapper-Komponenten/Direktiven (Layer-Renderer, noch leer —
                           entsteht erst mit dem Template-Editor-Plan)
-      rendering/        ← reine Zeichenregeln ohne Konva-Abhängigkeit (Einheiten-Umrechnung,
-                           Auto-Shrink, Layer-Reihenfolge) — ADR-005, noch leer
+      rendering/        ← reine Zeichenregeln ohne Konva-Abhängigkeit: `layer.ts` (die fünf
+                           Ebenentypen + Fabrikfunktionen), `fonts.ts` (feste Schriftenliste)
+                           — ADR-005, ohne Konva-Abhängigkeit, damit Meilenstein 4 (Drucken)
+                           sie wiederverwendet
     services/
-  store/               ← NgRx Classic Store Slices (auth, card-groups, tokens — Facade
-                          Pflicht pro Domain-Slice, `auth` bislang ohne, da es keine
-                          eigene Domain-UI mit Zwischen-Zustand hat)
+  store/               ← NgRx Classic Store Slices (auth, card-groups, templates, assets,
+                          tokens — Facade Pflicht pro Domain-Slice, `auth` bislang ohne, da
+                          es keine eigene Domain-UI mit Zwischen-Zustand hat)
   signal-stores/        ← NgRx Signal Stores (noch leer — Editor-UI-State, Canvas-Selektion
                           entstehen erst mit Template-/Karteneditor)
   layout/
     shell/               ← App-Shell, Topbar, Navigation
 ```
 
-`templates/`, `cards/`, `print-projects/`, `admin/` aus der Tabelle oben existieren noch
-nicht — sie entstehen erst mit den jeweiligen Folgeplänen.
+`cards/`, `print-projects/`, `admin/` aus der Tabelle oben existieren noch nicht — sie
+entstehen erst mit den jeweiligen Folgeplänen. `templates/` existiert bereits (Liste,
+Anlegen, Editor-Platzhalter), der Konva-Editor selbst folgt in Phase 6.
 
 ## Backend-Layout (steht)
 

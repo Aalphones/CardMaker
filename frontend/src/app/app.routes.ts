@@ -38,6 +38,21 @@ export const routes: Routes = [
         canDeactivate: [pendingChangesGuard],
       },
       {
+        path: 'templates',
+        loadComponent: () =>
+          import('./features/templates/templates-list/templates-list').then(
+            (module) => module.TemplatesList,
+          ),
+      },
+      {
+        path: 'templates/:id',
+        loadComponent: () =>
+          import('./features/templates/template-editor/template-editor').then(
+            (module) => module.TemplateEditor,
+          ),
+        canDeactivate: [pendingChangesGuard],
+      },
+      {
         path: 'tokens',
         loadComponent: () =>
           import('./features/auth/tokens/tokens-page/tokens-page').then(
