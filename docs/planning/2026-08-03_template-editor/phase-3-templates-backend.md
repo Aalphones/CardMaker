@@ -1,6 +1,6 @@
 # Phase 3 — Templates im Backend
 
-**Rating:** standard · **Status:** umgesetzt, Serverprobe offen
+**Rating:** standard · **Status:** done
 
 Tabelle, fünf Pfade, und die vollständige Prüfung der Ebenenliste. Die Prüfung ist der
 eigentliche Inhalt dieser Phase: Weil das Layout als ein Datenblock in einer Spalte liegt
@@ -92,13 +92,10 @@ abfängt.
 - [x] **Doc-Update `docs/code-map.md`** — `templates` in der Feature-Tabelle präzisieren
       (bisher „Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau"), Ergänzung um
       den Hinweis, dass das Layout als ein Datenblock in `templates.layers` liegt.
-- [ ] **Hochladen und durchspielen** — `deploy.cmd`, dann `POST /api/migrate`, dann mit
+- [x] **Hochladen und durchspielen** — `deploy.cmd`, dann `POST /api/migrate`, dann mit
       einem Zugriffstoken von Hand: Template anlegen, eine Ebenenliste mit einem absichtlich
       falschen Wert schicken (erwartet `422` mit sprechendem Feldnamen), dann eine gültige
       Liste (erwartet `200`), dann ein benutztes Bild löschen wollen (erwartet `409`).
-      **Noch offen** — braucht ein Zugriffstoken vom Server, dasselbe offene Ende wie bei
-      Phase 2 (siehe dortiges Report-Back). Lokal stattdessen durch drei Wegwerf-Skripte
-      geprüft (siehe Report-Back unten).
 
 ## Report-Back
 
@@ -139,6 +136,19 @@ gezielte Läufe gegen `LayerValidator`/`TemplateRepository`, ohne Datenbank):
   blockiert den Autoloader lokal). Die Namens-/Beschreibungslogik ist aber eine wörtliche
   Kopie des bereits produktiven `CardGroupValidator`-Musters, das Risiko liegt darin gering.
   Die eigentliche Neuigkeit dieser Phase — `LayerValidator` — wurde direkt getestet.
-- **Nicht geprüft (braucht den Server):** Migration `M006` tatsächlich ausführen, Löschsperre
-  gegen echte Datenbank, 5-MB-Upload-Frage aus Phase 2. Das ist der letzte Checklistenpunkt
-  oben.
+### Durchgespielt am Server (2026-08-03, mit Zugriffstoken)
+
+Migration `POST /api/migrate` → `{"applied":["M006CreateTemplates"]}`. Danach alle
+Abnahmekriterien gegen die echte Serveradresse geprüft:
+
+| Versuch | Erwartet | Ergebnis |
+|---|---|---|
+| Template anlegen | `201` | **`201`** |
+| Ebenenliste mit unbekanntem Typ (`type: "bogus"`) | `422`, sprechendes Feld | **`422`**, `layers.0.type` |
+| Gültige Ebenenliste (Rechteck) speichern | `200` | **`200`**, Antwort camelCase, Werte unverändert |
+| Bild hochladen, als Rahmen-Ebene referenzieren, speichern | `200` | **`200`** |
+| Referenziertes Bild löschen wollen | `409` | **`409`**, `Response::ERROR_CONFLICT` mit Klartext |
+| Aufräumen: Template löschen, danach Bild löschen | `204` / `204` | **`204`/`204`** |
+
+Die snake_case→camelCase-Wandlung (auch bei den Fehlerfeldern aus dem Fund oben) ist damit
+auch am echten Server bestätigt, nicht nur im Wegwerf-Skript. Testdatensätze wieder gelöscht.

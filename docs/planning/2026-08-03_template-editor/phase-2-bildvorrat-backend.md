@@ -1,6 +1,6 @@
 # Phase 2 — Bildvorrat im Backend
 
-**Rating:** heikel · **Status:** umgesetzt — Serverprobe offen (letzter Punkt der Checkliste)
+**Rating:** heikel · **Status:** done
 
 Rahmen und Icons hochladen, ablegen, wieder ausliefern und löschen. Heikel, weil hier zum
 ersten Mal Dateien vom Browser ins System kommen — und weil auf Strato erst der echte
@@ -99,7 +99,7 @@ Versuch zeigt, ob ein mehrere Megabyte großes Bild durch die Brücke passt.
       Feature-Ordner aufnehmen (Kurzbeschreibung: „Bildvorrat — hochgeladene Rahmen- und
       Icon-Dateien, hinter der Anmeldung ausgeliefert"), und `backend/uploads/` im
       Backend-Layout ergänzen.
-- [ ] **Hochladen und am Server prüfen** — Doppelklick auf `deploy.cmd`, danach
+- [x] **Hochladen und am Server prüfen** — Doppelklick auf `deploy.cmd`, danach
       `POST /api/migrate` auslösen, dann ein echtes PNG von 4–5 MB gegen die Serveradresse
       hochladen. **Das ist der Check aus dem Konfidenz-Ausweis** — Ergebnis (Erfolg,
       Grenze, Fehlermeldung) unten in „Report-Back" festhalten.
@@ -203,12 +203,15 @@ Dafür hat `Request` eine Methode `form()` bekommen; `formField()` greift darauf
 Genau diese Stelle war im Lesepfad als unsicherste markiert. Ohne die Probe wäre der Fehler
 erst dem Nutzer aufgefallen, mit einer Meldung, die in die Irre führt.
 
-### Offen
+### Fix bestätigt (2026-08-03, nach erneutem Deploy)
 
-- **Der Fix von oben ist noch nicht auf dem Server.** Er braucht einen weiteren Lauf von
-  `deploy.cmd`; danach ist die eine Zeile nachzuprüfen: Hochladung ohne Datei muss `422`
-  liefern, nicht `413`.
-- **Ungetestet bleibt der Fall, für den `missingFileReason()` überhaupt gebaut ist:** eine
-  Anfrage oberhalb von `post_max_size`. Das wären hier über 128 MB — mit einem Bild dieser
-  Größe hat niemand vor zu arbeiten, und der Weg dorthin führt über die eigene 8-MB-Grenze,
-  die vorher greift. Bewusst nicht provoziert.
+Hochladung ohne Datei liefert jetzt **`422`** mit `fields.file` = „Bitte eine PNG-Datei
+auswählen." — nicht mehr `413`. Damit ist der Fund aus Phase 3 (siehe dortiges Report-Back)
+auf dem Server bestätigt, Phase 2 ist vollständig durchgespielt.
+
+### Weiterhin ungetestet (bewusst)
+
+- **Der Fall, für den `missingFileReason()` überhaupt gebaut ist:** eine Anfrage oberhalb
+  von `post_max_size`. Das wären hier über 128 MB — mit einem Bild dieser Größe hat niemand
+  vor zu arbeiten, und der Weg dorthin führt über die eigene 8-MB-Grenze, die vorher greift.
+  Bewusst nicht provoziert.
