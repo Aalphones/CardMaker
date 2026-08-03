@@ -91,11 +91,16 @@ Kompositing, kein Imagick-Verfügbarkeitscheck auf Strato nötig.
   (wie bei Promptigofant, siehe deren ADR-005 als Referenzmuster)
 - Kartengröße und Canvas-Einheiten sind fixe Domänenkonstanten (63×88 mm, 630×880 Einheiten,
   300 DPI Standardauflösung) — nicht konfigurierbar, ziehen sich durch das ganze System
+- Serverwerte Strato (ermittelt Phase 2, Fundament-Plan): PHP 8.5.7, Erweiterungen
+  `pdo_mysql`, `gd`, `imagick`, `fileinfo`, `mbstring` vorhanden; Upload-Grenze 128 MB,
+  Speicherlimit 512 MB, Laufzeit-Limit 240 s — relevant für den Bild-Upload im
+  Karteneditor-Plan (Meilenstein 3)
 
 ## Meilensteine
 
 1. **Grundgerüst** — Auth (JWT + PAT), Kartengruppen-Verwaltung als erster kompletter
-   Durchstich DB→Backend→Store→UI (Backend-CRUD + Frontend)
+   Durchstich DB→Backend→Store→UI (Backend-CRUD + Frontend) — **erledigt** (2026-08-03),
+   siehe `docs/archive/2026-08/2026-08-01_fundament-und-grundgeruest/`
 2. **Template-Editor** — Layer-System (Image/Shape/Icon/Frame/Text), Konva-Canvas mit
    Live-Vorschau, Layerliste (erstellen/löschen/duplizieren/umbenennen/Reihenfolge)
 3. **Karteneditor** — Karteninstanz erstellen/bearbeiten: Template-Textfelder per Formular

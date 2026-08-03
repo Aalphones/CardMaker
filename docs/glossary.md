@@ -22,3 +22,5 @@ frei erfinden.
 | **Canvas-Einheiten** | Die Maßeinheit des internen Canvas (630×880 = 63×88 mm). Nicht zu verwechseln mit Pixeln der Zielauflösung. |
 | **Schnittmarken** | Optionale Markierungen auf dem Druckbogen, die die Schnittkanten der Einzelkarten anzeigen. |
 | **Beschnitt** (Bleed) | Optionaler Rand über die Kartenkante hinaus, der beim Schneiden toleriert wird. |
+| **Zugriffstoken** (Personal Access Token, PAT) | Alternative zur Anmeldung für skripteten Zugriff (z. B. MCP). Ein Zufallswert, in der Datenbank nur als Hashwert gespeichert, im Klartext genau einmal bei der Erzeugung sichtbar. Kein Ablaufdatum, Löschen ist der einzige Widerruf (ADR-008). |
+| **Einrichtungsaufruf** (Setup) | Einmaliger API-Aufruf (`POST /api/setup`), der den ersten und einzigen Account anlegt und sich danach selbst versiegelt — jeder weitere Versuch liefert `410`. Es gibt keine Registrierung (ein Benutzerkonto insgesamt). |

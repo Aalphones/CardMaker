@@ -17,9 +17,10 @@ ist, wandert in Phase 9 in die Folgeaufgaben der Plan-README.
 - [x] → Phase 3: Die Datenbank ist verbunden (`dbConnected: true`), die Zugangsdaten in
       `deploy.env` stimmen. Migrationen können direkt gebaut werden.
 
-- [ ] → Phase 4 und 7: Der Wegweiser ist jetzt `nikic/fast-route`, Prüfregeln kommen von
+- [x] → Phase 4 und 7: Der Wegweiser ist jetzt `nikic/fast-route`, Prüfregeln kommen von
       `respect/validation`, Konfigurationswerte stehen in `$_ENV` (phpdotenv). Neue Pfade
       werden in `backend/public/index.php` im `simpleDispatcher`-Block registriert.
+      Eingearbeitet: beide Phasen registrieren ihre Routen genau dort.
 
 - [ ] → Karteneditor-Plan (Meilenstein 3): Bilder müssen über eine Adresse erreichbar sein,
       dürfen also **nicht** neben dem Programmcode liegen (der ist außerhalb des
@@ -50,10 +51,11 @@ ist, wandert in Phase 9 in die Folgeaufgaben der Plan-README.
       der angemeldete Nutzer steht über `$request->user()` bereit.
       Eingearbeitet: Die fünf `/api/card-groups`-Routen stehen nicht in `$openPaths`.
 
-- [ ] → Phase 8: Die Datenbank ist von außen nicht erreichbar (Strato lässt keine
+- [x] → Phase 8: Die Datenbank ist von außen nicht erreichbar (Strato lässt keine
       Verbindung von einer fremden Adresse zu, nachgemessen: Zeitüberschreitung). Jede
       Prüfung, die einen Griff in die Tabellen braucht, geht nur über phpMyAdmin und damit
       nur von Saschas Hand — steht als Punkt 7a im Abnahme-Rundgang.
+      Eingearbeitet: Rundgang inkl. Punkt 7a von Sascha durchgeführt.
 
 - [x] → Phase 6: Abmelden mit einem Zugriffstoken antwortet `403`, nicht `204`. Die
       Oberfläche meldet sich immer mit dem Anmelde-Token an, trifft das also nie — beim
@@ -61,17 +63,22 @@ ist, wandert in Phase 9 in die Folgeaufgaben der Plan-README.
       Eingearbeitet: der Abmelden-Effekt fängt jeden Fehler (403 wie Netzstörung) gleich ab
       und räumt trotzdem lokal auf, ohne ihn als Sitzungsablauf zu interpretieren.
 
-- [ ] → Phase 5: Der Ausgabeordner des Angular-Builds steht in `deploy.env` unter
+- [x] → Phase 5: Der Ausgabeordner des Angular-Builds steht in `deploy.env` unter
       `FRONTEND_DIST` (Vorgabe `frontend\dist\frontend\browser`). Nach dem ersten Build
       den echten Pfad prüfen und **dort** korrigieren — nicht im Skript.
+      Eingearbeitet: Vorgabewert stimmte, Deploy lief erfolgreich damit.
 
-- [ ] → Phase 2 (offen): Die Werte aus `/diag.php` (PHP-Version, Bildbibliotheken,
+- [x] → Phase 2 (offen): Die Werte aus `/diag.php` (PHP-Version, Bildbibliotheken,
       Upload-Grenzen) sind noch nicht abgerufen — das Hochladen hängt an den drei
       Voraussetzungen. Sobald sie da sind, hier wörtlich eintragen und die Folgerungen aus
       der Phasen-Datei ziehen.
+      Eingearbeitet: Werte stehen in der Plan-README (Tabelle „Wo ich mir am wenigsten
+      sicher war") und jetzt zusätzlich in `docs/PROJECT.md` → Constraints.
 
-- [ ] → Künftiger Karteneditor-Plan (Meilenstein 3): Serverwerte aus der Auskunftsseite von
+- [x] → Künftiger Karteneditor-Plan (Meilenstein 3): Serverwerte aus der Auskunftsseite von
       Phase 2 dort festhalten, sobald bekannt (Dateigrößen-Grenze, verfügbare
       Bildbibliothek) — Bildverwaltung ist seit ADR-011 nicht mehr Teil dieses
       Fundament-Plans, die Erkenntnis bleibt aber für den Bild-Upload am Karteninstanz
       relevant.
+      Eingearbeitet: in `docs/PROJECT.md` → Constraints festgehalten, der Karteneditor-Plan
+      findet sie dort.

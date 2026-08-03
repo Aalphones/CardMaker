@@ -20,6 +20,27 @@ Angular 22 + NgRx + Konva.js + Semantic CSS (Frontend) · PHP 8.5 + MySQL, kein 
 
 ## Quickstart
 
+### Loslegen (lokale Entwicklung)
+
+1. Abhängigkeiten holen: `npm install` im Projektstamm (Husky/Prettier) **und**
+   `npm install` in `frontend/`.
+2. Frontend starten: `npm start` in `frontend/` (= `ng serve`) — läuft unter
+   `http://localhost:4200`.
+3. **Wo die API liegt:** Der lokale Entwicklungs-Build redet standardmäßig direkt mit dem
+   echten Backend auf Strato (`https://quantum-canvas.de/api`,
+   `frontend/src/environments/environment.development.ts`) — es gibt keine lokale
+   Datenbank (ADR-006), ein lokaler PHP-Server liefert also nur `dbConnected: false`. Wer
+   trotzdem gegen den lokalen PHP-Server testen will: `apiBaseUrl` in der
+   Development-Environment auf `http://127.0.0.1:8123/api` umbiegen (siehe „Backend lokal
+   starten" unten) — nicht committen.
+4. **Ersteinrichtung (nur einmal, nach dem allerersten Deploy):** Es gibt keine
+   Registrierung, nur ein Benutzerkonto. `POST /api/setup` mit `{ email, password }`
+   anlegen (z. B. per `curl` oder Postman gegen die Strato-Adresse) — Antwort `201`.
+   Jeder weitere Aufruf liefert `410`, weil der Account schon existiert. Passwort
+   vergessen: Eintrag in der Tabelle `users` über phpMyAdmin ersetzen, es gibt keinen
+   Zurücksetzen-Weg über die Oberfläche.
+5. Danach normal auf der Anmeldeseite einloggen.
+
 ### Einmalig einrichten
 
 1. **PHP 8.5 und Composer** portabel bereitlegen (ADR-012). PHP-ZIP von
@@ -76,5 +97,5 @@ Server-Logs werden dabei nie gelöscht.
 
 ## Status
 
-Fundament im Bau ([`STATE.md`](STATE.md) zeigt auf den aktuellen Stand). Backend-Gerüst und
-Hochlade-Skript stehen, Datenbank, Anmeldung und Oberfläche folgen.
+Meilenstein 1 (Grundgerüst: Anmeldung, Zugriffstoken, Kartengruppen) ist abgenommen und live
+auf Strato. [`STATE.md`](STATE.md) zeigt auf die aktuell laufende Planung.

@@ -43,7 +43,7 @@ Drei Festlegungen, die den ganzen Plan prägen — jede kostet etwas, jede ist b
 | 5 | [Frontend-Gerüst](phase-5-frontend-geruest.md) | standard | complete |
 | 6 | [Login im Frontend](phase-6-auth-frontend.md) | standard | complete |
 | 7 | [Kartengruppen](phase-7-kartengruppen.md) | standard | complete (Deploy + Rundgang bei Sascha offen) |
-| 8 | [Doku-Abgleich & Abnahme](phase-8-abschluss.md) | mechanisch | pending |
+| 8 | [Doku-Abgleich & Abnahme](phase-8-abschluss.md) | mechanisch | complete |
 
 Reihenfolge ist bindend: 2 vor 3 vor 4, und 5 vor 6 vor 7. Phase 5 darf parallel zu
 2–4 laufen — sie hängt an nichts aus dem Backend außer der API-Adresse.
@@ -237,20 +237,79 @@ zusammen mit dem Upload-Mechanismus. Es entsteht hier keine eigenständige Bild-
 
 ## Summary
 
-_(beim Archivieren füllen)_
+Meilenstein 1 steht und läuft echt auf Strato: Anmeldung (Sitzungen + Zugriffstoken),
+Kartengruppen als erster kompletter Durchstich DB→Backend→Store→UI, Hochladen per
+Doppelklick. Unterwegs zwei Kurswechsel mit eigener ADR: Composer kam doch auf die
+Maschine (ADR-012, Eigenbau-Grundbausteine wieder verworfen), Programmcode liegt auf dem
+Server neben dem ausgelieferten Bereich statt darin (ADR-013). Alle 12 Punkte des
+Abnahme-Rundgangs sind von Sascha durchgegangen und bestätigt.
 
 ## Files touched
 
-_(beim Archivieren füllen)_
+- `backend/` — komplettes PHP-Backend (Controllers, Services, Repositories, Validators,
+  Migrations, Middleware, Http, Database), Composer-basiert (`nikic/fast-route`,
+  `vlucas/phpdotenv`, `respect/validation`, `monolog/monolog`)
+- `frontend/` — Angular-21-Gerüst (App-Shell, Navigation), Features `auth` (Login,
+  Zugriffstoken-Verwaltung) und `card-groups` (Liste, Anlegen/Bearbeiten), NgRx-Store-Slices
+  `auth`/`card-groups`/`tokens`, geteilte Bausteine `confirm-dialog` und
+  `pending-changes-guard`
+- `api-bridge/` — drei Dateien, die im ausgelieferten Bereich landen und das Backend von
+  nebenan einbinden (ADR-013)
+- `deploy.cmd`, `deploy.env.example` — Hochlade-Skript samt Vorlage
+- `docs/decisions/` — neun ADRs (005–013, ADR-004 durch ADR-008 abgelöst)
+- `docs/conventions/` — `testing.md`/`tailwind.md` entfernt, `css.md`/`php.md`/`angular.md`/
+  `dod.md`/`state-management.md`/`stack.md` neu bzw. überarbeitet
+- `.github/` — entfernt (ADR-006/009: keine Bau-Automatik)
+- `docs/PROJECT.md`, `docs/glossary.md`, `docs/code-map.md`, `README.md`, `AGENTS.md` — auf
+  den tatsächlichen Stand gebracht
 
 ## Commits
 
-_(beim Archivieren füllen)_
+```
+6947e35 docs(planning): Plan für Fundament und Meilenstein 1
+7b5869a docs(planning): Phase 1 — Architektur-Entscheidungen als ADR festhalten, Doku begradigen
+020f61d docs(planning): Charakterverwaltung streichen, Kartengruppen als Ersatz
+bf8b1e9 feat(backend): PHP-Grundgeruest ohne Composer plus Deploy-Skript
+fbe3b69 docs(build): richtiges Format fuer den Server-Fingerabdruck dokumentieren
+450ef18 fix(build): Zugangsdaten als eigene Schalter statt in der Serveradresse
+a9fec53 feat(backend): Composer-Bibliotheken statt Eigenbau, Backend live auf Strato
+dc456c0 feat(backend): Migrations-Runner und vier Grundtabellen
+71416af feat(backend): Anmeldung, Sperre und Zugriffstoken
+7eb060e docs(backend): Ergebnisse der Sperr-Pruefung am Server
+9cf8807 docs(backend): Phase 4 am Server abgenommen
+3911720 feat(frontend): Angular-Gerüst mit App-Rahmen und Backend-Anbindung
+56d5bc7 feat(frontend): Login, Zugangssperre und Zugriffstoken-Verwaltung
+1281c64 feat: Kartengruppen — erster voller Durchstich DB bis UI
+```
 
 ## Deviations from plan
 
-_(beim Archivieren füllen)_
+- **Composer statt Eigenbau** (ADR-012): PHP und Composer kamen mitten in Phase 2 doch auf
+  die Entwicklungsmaschine. Die handgeschriebenen Grundbausteine (Wegweiser, Konfigleser,
+  Prüfhelfer) wurden erst gebaut, dann wieder verworfen — Composer-Bibliotheken übernehmen
+  jetzt dieselbe Rolle.
+- **Backend außerhalb des Webbereichs** (ADR-013): Programmcode liegt auf dem Server neben
+  dem ausgelieferten Bereich, `api-bridge/` (drei Dateien) bindet ihn von dort ein.
+- **Angular 21 statt 22**: NgRx/`ng2-konva` hatten zum Zeitpunkt von Phase 5 keine passende
+  Angular-22-Version. Bewusste Entscheidung gegen Beta-Pakete.
+- **Abmelden mit Zugriffstoken → `403` statt Löschung** — ein Klick in der Oberfläche soll
+  einem laufenden Skript nicht den Zugang entziehen. Widerruf läuft über
+  `DELETE /api/tokens/{id}`.
+- **Alle Zeitstempel über `UTC_TIMESTAMP()`**, nach außen ISO-8601 mit `Z` — sonst stünden
+  zwei Zeitzonen nebeneinander in derselben Tabelle.
+- **Sperre greift vor dem Wegweiser**: ein unbekannter Pfad ohne Token antwortet `401`, nicht
+  `404` — verrät nicht, ob es den Pfad gibt.
+- Diverse kleinere CLI-/Namensschema-Abweichungen (`auth-guard.ts` statt `auth.guard.ts`,
+  `concatLatestFrom` statt `withLatestFrom`) — Details in den einzelnen Phasen-Dateien.
 
 ## Follow-ups
 
-_(beim Archivieren füllen)_
+- **Karteneditor-Plan (Meilenstein 3):** Bilder müssen über eine Adresse erreichbar sein,
+  dürfen also nicht neben dem Programmcode liegen (der liegt außerhalb des ausgelieferten
+  Bereichs, ADR-013) — eigener Ordner im Webbereich oder Ausliefern durch PHP.
+- **Vor dem Rendering-Plan (Meilenstein 4):** die Testfrage aus ADR-009 erneut stellen —
+  dort entsteht der Rechenkern (Einheiten-Umrechnung, Auto-Shrink, Bogenaufteilung), für den
+  das Testpflicht-Argument ursprünglich galt.
+- **Nächster Plan: Template-Editor** (Meilenstein 2). Erste zu klärende Frage darin: das
+  Datenbankschema für Templates und Karteninstanzen (Template-JSON-Struktur,
+  Datenquellen-Mapping) — bewusst offen gelassen, bis dieser Plan die Entscheidungen trifft.

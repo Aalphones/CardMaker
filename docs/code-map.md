@@ -28,7 +28,7 @@ backend/src/Validators/<Feature>Validator.php
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
 
-## Frontend-Layout (steht seit Phase 5)
+## Frontend-Layout (steht seit Phase 5, Kartengruppen seit Phase 7)
 
 ```
 frontend/src/app/
@@ -36,29 +36,33 @@ frontend/src/app/
     auth/           ← Guards, Interceptors, Token-Logik (ADR-008)
     services/        ← App-weite Services (api, http)
   features/
-    auth/            ← Login-Seite, Zugriffstoken-Verwaltung
+    auth/
+      login/               ← Anmeldeseite
+      tokens/tokens-page/  ← Zugriffstoken-Verwaltung (anlegen, auflisten, löschen)
     card-groups/
       card-groups-list/    ← Raster, Suchfeld, Leerzustand
       card-groups-detail/  ← Formular Anlegen/Bearbeiten (Routen .../new, .../:id)
-    templates/
-      editor/         ← Template-Editor (Layerliste, Konva-Canvas, Eigenschaften-Panel)
-    cards/
-      editor/         ← Karteneditor (inkl. Bild-Upload pro Karte)
-    print-projects/
-    admin/
   shared/
     components/       ← wiederverwendbare Komponenten (u.a. confirm-dialog — CDK Dialog,
-                         Rückfrage vor Löschungen)
+                         Rückfrage vor Löschungen; not-found; notification-list)
     guards/            ← wiederverwendbare Route-Guards (u.a. pending-changes-guard —
                           canDeactivate bei ungespeicherten Formularen)
-    canvas/            ← Konva-Wrapper-Komponenten/Direktiven (Layer-Renderer)
+    canvas/            ← Konva-Wrapper-Komponenten/Direktiven (Layer-Renderer, noch leer —
+                          entsteht erst mit dem Template-Editor-Plan)
       rendering/        ← reine Zeichenregeln ohne Konva-Abhängigkeit (Einheiten-Umrechnung,
-                           Auto-Shrink, Layer-Reihenfolge) — ADR-005
+                           Auto-Shrink, Layer-Reihenfolge) — ADR-005, noch leer
     services/
-  store/               ← NgRx Classic Store Slices
-  signal-stores/        ← NgRx Signal Stores (Editor-UI-State, Canvas-Selektion)
-  layout/               ← App-Shell, Topbar, Navigation
+  store/               ← NgRx Classic Store Slices (auth, card-groups, tokens — Facade
+                          Pflicht pro Domain-Slice, `auth` bislang ohne, da es keine
+                          eigene Domain-UI mit Zwischen-Zustand hat)
+  signal-stores/        ← NgRx Signal Stores (noch leer — Editor-UI-State, Canvas-Selektion
+                          entstehen erst mit Template-/Karteneditor)
+  layout/
+    shell/               ← App-Shell, Topbar, Navigation
 ```
+
+`templates/`, `cards/`, `print-projects/`, `admin/` aus der Tabelle oben existieren noch
+nicht — sie entstehen erst mit den jeweiligen Folgeplänen.
 
 ## Backend-Layout (steht)
 
