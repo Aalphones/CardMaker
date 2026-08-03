@@ -1,9 +1,8 @@
 # STATE
 
-**Aktiver Plan:** (kein aktiver Plan — ein freigegebener Plan liegt im Backlog)
-**Phase:** —
-**Nächster Schritt:** Der Template-Editor-Plan (Meilenstein 2) ist geschrieben, freigegeben
-und geparkt unter `docs/planning/2026-08-03_template-editor/` — acht Phasen, Einstieg ist
-Phase 1 (Entscheidungen als ADR-014/015 festhalten). Mit `/implement` starten, sobald es
-losgehen soll. Meilenstein 1 (Fundament & Grundgerüst) ist abgenommen und archiviert unter
-`docs/archive/2026-08/2026-08-01_fundament-und-grundgeruest/`.
+**Aktiver Plan:** `docs/planning/2026-08-03_template-editor/`
+**Phase:** 2/8 — Bildvorrat im Backend (pending, Rating: heikel)
+**Nächster Schritt:** Phase 1 (Entscheidungen & Datenmodell) ist committet. Phase 2 baut den
+Bildvorrat im Backend (`/api/assets`, Ablage in `backend/uploads/`, nur PNG — ADR-015). Vor
+dem Einstieg `phase-2-bildvorrat-backend.md` lesen. Rating heikel → `/model opusplan`
+empfohlen.

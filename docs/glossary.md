@@ -12,7 +12,7 @@ frei erfinden.
 | **Druckbogen** (Print Sheet) | Eine A4-Seite mit 3×3 (9) Karten, erzeugt beim Export eines Druckprojekts. |
 | **Internes Canvas** | Fixes Koordinatensystem 630×880 Einheiten, auf dem jedes Template arbeitet. 10 Einheiten = 1 mm. DPI- und exportgrößen-unabhängig — beim Rendern auf die Zielauflösung skaliert. |
 | **Layer** | Eine Ebene der Karte. Zeichenreihenfolge (von unten nach oben): ImageLayer → ShapeLayer → IconLayer → FrameLayer → TextLayer. Im Template-Editor umsortierbar. |
-| **ImageLayer** | Zeigt das Bild der Karteninstanz — ausgewählt oder hochgeladen beim Erstellen der Karte. Eigenschaften: Position, Größe, Rotation, Zoom, Bildausschnitt. |
+| **ImageLayer** | Zeigt das Bild der Karteninstanz. Das Template legt nur Position, Größe und Rotation der Bildfläche fest — Zoom und Bildausschnitt sind Werte der Karteninstanz (Meilenstein 3), nicht des Templates. |
 | **ShapeLayer** | Geometrische Form (Rechteck, Kreis, Linie) mit Farbe, Transparenz, Rahmenfarbe/-stärke, Eckradius. |
 | **IconLayer** | PNG/SVG-Grafik, statisch (Templatevorgabe) oder vom Benutzer aus einer im Template hinterlegten Auswahl gewählt — keine automatische Ableitung aus einer Datenbank. |
 | **FrameLayer** | Der Kartenrahmen selbst — genau einer pro Template, immer PNG, immer vollflächig, nicht positionier-/skalierbar. |
@@ -24,3 +24,6 @@ frei erfinden.
 | **Beschnitt** (Bleed) | Optionaler Rand über die Kartenkante hinaus, der beim Schneiden toleriert wird. |
 | **Zugriffstoken** (Personal Access Token, PAT) | Alternative zur Anmeldung für skripteten Zugriff (z. B. MCP). Ein Zufallswert, in der Datenbank nur als Hashwert gespeichert, im Klartext genau einmal bei der Erzeugung sichtbar. Kein Ablaufdatum, Löschen ist der einzige Widerruf (ADR-008). |
 | **Einrichtungsaufruf** (Setup) | Einmaliger API-Aufruf (`POST /api/setup`), der den ersten und einzigen Account anlegt und sich danach selbst versiegelt — jeder weitere Versuch liefert `410`. Es gibt keine Registrierung (ein Benutzerkonto insgesamt). |
+| **Bildvorrat** (Assets) | Die hochgeladenen Rahmen- und Icon-Dateien, gemeinsam verwaltet über `/api/assets`. Ausschließlich PNG, liegen außerhalb des Webbereichs, hinter der Anmeldung (ADR-015). |
+| **Feldschlüssel** (Key) | Der Name, unter dem eine Textebene ihren Text von der Karteninstanz oder von Claude über MCP erwartet. Kleinbuchstaben, Ziffern, Unterstrich; eindeutig innerhalb seines Templates. |
+| **Ebenenreihenfolge** | Im gespeicherten Datenblock (`templates.layers`) liegt Index 0 zuunterst — das ist die Zeichenreihenfolge. In der Ebenenliste der Oberfläche steht das vorderste Element oben, also genau umgekehrt zum Array. |

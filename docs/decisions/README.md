@@ -18,3 +18,5 @@ Kurskorrektur bekommt eine neue ADR, die auf die alte verweist, statt die alte z
 | 011 | [Keine Charakterverwaltung: Karten speichern ausgefüllte Templatefelder direkt](011-keine-charakterverwaltung.md) | Akzeptiert |
 | 012 | [Composer und lokale PHP-Umgebung](012-composer-und-lokale-php-umgebung.md) | Akzeptiert |
 | 013 | [Backend außerhalb des ausgelieferten Bereichs](013-backend-ausserhalb-des-webbereichs.md) | Akzeptiert |
+| 014 | [Template-Layout als Datenblock statt Ebenentabelle](014-template-layout-als-datenblock.md) | Akzeptiert |
+| 015 | [Bildablage außerhalb des Webbereichs, nur PNG](015-bildablage-und-dateiformate.md) | Akzeptiert |

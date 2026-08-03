@@ -102,7 +102,8 @@ Kompositing, kein Imagick-Verfügbarkeitscheck auf Strato nötig.
    Durchstich DB→Backend→Store→UI (Backend-CRUD + Frontend) — **erledigt** (2026-08-03),
    siehe `docs/archive/2026-08/2026-08-01_fundament-und-grundgeruest/`
 2. **Template-Editor** — Layer-System (Image/Shape/Icon/Frame/Text), Konva-Canvas mit
-   Live-Vorschau, Layerliste (erstellen/löschen/duplizieren/umbenennen/Reihenfolge)
+   Live-Vorschau, Layerliste (erstellen/löschen/duplizieren/umbenennen/Reihenfolge). Das
+   Layout liegt als ein Datenblock in einer Spalte, nicht als eigene Ebenentabelle (ADR-014).
 3. **Karteneditor** — Karteninstanz erstellen/bearbeiten: Template-Textfelder per Formular
    befüllen, Bild hochladen/verschieben/zoomen/zuschneiden, Schriftgröße/-farbe überschreiben,
    Auto-Shrink, Zuordnung zu einer Kartengruppe
@@ -118,6 +119,3 @@ Detail-Phasen entstehen im ersten Plan (`/plan`), nicht hier.
 
 - Bild-Crop/Zoom-Interaktion im Karteneditor: direkt über Konva-Image-Transform lösen oder
   zusätzliche Crop-UI nötig? — vor Meilenstein 3 klären.
-- Genaues DB-Schema für Templates und Karten (Template-JSON-Struktur,
-  Datenquellen-Mapping) — bleibt offen, bis der Template-Editor-Plan die nötigen
-  Entscheidungen trifft (siehe „Nicht Teil dieses Plans" im Fundament-Plan).
