@@ -8,6 +8,7 @@ use App\Controllers\CardGroupController;
 use App\Controllers\HealthController;
 use App\Controllers\MigrateController;
 use App\Controllers\SetupController;
+use App\Controllers\TemplateController;
 use App\Controllers\TokenController;
 use App\Database\Connection;
 use App\Http\Request;
@@ -18,11 +19,13 @@ use App\Repositories\AccessTokenRepository;
 use App\Repositories\AssetRepository;
 use App\Repositories\CardGroupRepository;
 use App\Repositories\SessionRepository;
+use App\Repositories\TemplateRepository;
 use App\Repositories\UserRepository;
 use App\Services\AccessTokenService;
 use App\Services\AssetService;
 use App\Services\AuthService;
 use App\Services\CardGroupService;
+use App\Services\TemplateService;
 use App\Services\TokenService;
 use Dotenv\Dotenv;
 use FastRoute\Dispatcher;
@@ -120,6 +123,7 @@ $authService = null;
 $accessTokenService = null;
 $cardGroupService = null;
 $assetService = null;
+$templateService = null;
 
 if ($database instanceof PDO) {
     $tokenService = new TokenService();
@@ -134,11 +138,19 @@ if ($database instanceof PDO) {
         $tokenService
     );
     $cardGroupService = new CardGroupService(new CardGroupRepository($database));
+
+    // Reihenfolge bewusst: das Repository zuerst, danach beide Dienste, die es teilen —
+    // AssetService braucht es für die Löschsperre, TemplateService für die Asset-Referenzprüfung.
+    $assetRepository = new AssetRepository($database);
+    $templateRepository = new TemplateRepository($database);
+
     $assetService = new AssetService(
-        new AssetRepository($database),
+        $assetRepository,
+        $templateRepository,
         $backendRoot . '/uploads',
         $logger
     );
+    $templateService = new TemplateService($templateRepository, $assetRepository);
 }
 
 // Positivliste der offenen Pfade. Die Sperre ist die Vorgabe, nicht die Ausnahme: Ein
@@ -176,6 +188,11 @@ $dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes
     $routes->addRoute('POST', '/api/assets', [AssetController::class, 'create']);
     $routes->addRoute('GET', '/api/assets/{id:\d+}/file', [AssetController::class, 'file']);
     $routes->addRoute('DELETE', '/api/assets/{id:\d+}', [AssetController::class, 'destroy']);
+    $routes->addRoute('GET', '/api/templates', [TemplateController::class, 'index']);
+    $routes->addRoute('POST', '/api/templates', [TemplateController::class, 'create']);
+    $routes->addRoute('GET', '/api/templates/{id:\d+}', [TemplateController::class, 'show']);
+    $routes->addRoute('PATCH', '/api/templates/{id:\d+}', [TemplateController::class, 'update']);
+    $routes->addRoute('DELETE', '/api/templates/{id:\d+}', [TemplateController::class, 'destroy']);
 });
 
 $migrationsDirectory = $backendRoot . '/src/Migrations';
@@ -190,7 +207,8 @@ $makeController = static function (string $controllerClass) use (
     $authService,
     $accessTokenService,
     $cardGroupService,
-    $assetService
+    $assetService,
+    $templateService
 ): object {
     return match ($controllerClass) {
         HealthController::class => new HealthController($database),
@@ -206,6 +224,7 @@ $makeController = static function (string $controllerClass) use (
         TokenController::class => new TokenController($request, $accessTokenService),
         CardGroupController::class => new CardGroupController($request, $cardGroupService),
         AssetController::class => new AssetController($request, $assetService),
+        TemplateController::class => new TemplateController($request, $templateService),
         default => throw new RuntimeException('Kein Bauplan für Controller: ' . $controllerClass),
     };
 };

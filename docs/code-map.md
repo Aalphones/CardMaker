@@ -25,7 +25,7 @@ backend/src/Validators/<Feature>Validator.php
 | `auth` | Login, Sitzungen und Zugriffstoken — beide als Zufallswerte in der Datenbank, kein JWT (ADR-008) |
 | `card-groups` | Kartengruppen — Organisationseinheit für gespeicherte Karten (z. B. „Spiderman-Serie"), keine Charakterverwaltung (ADR-011) |
 | `assets` | Bildvorrat — hochgeladene Rahmen- und Icon-Dateien, hinter der Anmeldung ausgeliefert (ADR-015). Backend steht, Frontend folgt |
-| `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau |
+| `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend steht — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Frontend folgt |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
 
@@ -84,7 +84,7 @@ backend/
     Migrations/     ← nummerierte Migrationsdateien
     Middleware/     ← CORS, Auth, RateLimit
     Http/           ← Request (Wire-Format-Grenze), Response
-    Support/        ← schichtfreie Helfer (Timestamps)
+    Support/        ← schichtfreie Helfer (Timestamps, WireFormat für die snake_case/camelCase-Grenze)
 api-bridge/       ← drei Dateien, die im ausgelieferten Bereich landen und das
                      Backend von nebenan einbinden (ADR-013)
 ```

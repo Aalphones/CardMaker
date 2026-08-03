@@ -26,11 +26,11 @@ ist, wandert in Phase 8 in die Folgeaufgaben der Plan-README.
       ausgenommen (`-filemask="|uploads/;…"`), hochgeladene Bilder überleben also ein
       Deploy. Geprüft am 2026-08-03, keine Änderung an `deploy.cmd` nötig.
 
-- [ ] → Phase 3: Die Löschsperre für benutzte Bilder wird in `AssetService::delete()`
+- [x] → Phase 3: Die Löschsperre für benutzte Bilder wird in `AssetService::delete()`
       eingebaut, nicht neu gebaut. `Response::ERROR_CONFLICT` liegt schon bereit; der Dienst
       braucht dafür Zugriff auf die Templates (Ebene `frame`/`icon` mit dieser `assetId`).
 
-- [ ] → Phase 3: `AssetRepository` heißt seine Formatier-Methode `format()` (Muster
+- [x] → Phase 3: `AssetRepository` heißt seine Formatier-Methode `format()` (Muster
       `CardGroupRepository`), nicht `formatAsset()` wie im Plan-Text. Beim Templates-Backend
       denselben Namen verwenden.
 

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Http\Response;
 use App\Repositories\AssetRepository;
+use App\Repositories\TemplateRepository;
 use finfo;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -15,6 +17,7 @@ final class AssetService
 
     public function __construct(
         private readonly AssetRepository $assets,
+        private readonly TemplateRepository $templates,
         private readonly string $uploadsDirectory,
         private readonly LoggerInterface $logger
     ) {
@@ -64,9 +67,52 @@ final class AssetService
             return false;
         }
 
+        if ($this->isUsedByTemplate($id)) {
+            Response::error(
+                Response::ERROR_CONFLICT,
+                'Dieses Bild wird noch in einem Template benutzt und kann deshalb nicht gelöscht werden.',
+                409
+            );
+        }
+
         $this->removeFile($this->absolutePath($row));
 
         return $this->assets->delete($id);
+    }
+
+    /**
+     * Löschsperre: alle gespeicherten Layout-Blöcke laden und in PHP durchsehen, statt per
+     * SQL im JSON zu suchen — MySQL unterscheidet Zahl und Zeichenkette in `JSON_CONTAINS`
+     * unzuverlässig, und bei der Menge an Templates eines Einzelplatz-Werkzeugs bringt eine
+     * DB-seitige Suche keinen messbaren Vorteil.
+     */
+    private function isUsedByTemplate(int $assetId): bool
+    {
+        foreach ($this->templates->allLayerBlobs() as $layersJson) {
+            $layers = json_decode($layersJson, true);
+
+            if (!is_array($layers)) {
+                continue;
+            }
+
+            foreach ($layers as $layer) {
+                if (!is_array($layer)) {
+                    continue;
+                }
+
+                if (($layer['asset_id'] ?? null) === $assetId) {
+                    return true;
+                }
+
+                $choiceAssetIds = $layer['choice_asset_ids'] ?? [];
+
+                if (is_array($choiceAssetIds) && in_array($assetId, $choiceAssetIds, true)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /** @return array{path: string, mimeType: string}|null */

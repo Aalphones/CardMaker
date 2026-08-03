@@ -91,6 +91,26 @@ final class AssetRepository
     }
 
     /**
+     * Für die Referenzprüfung beim Speichern eines Templates: welche der genannten
+     * Bild-Kennungen gibt es wirklich.
+     *
+     * @param int[] $ids
+     * @return int[]
+     */
+    public function existingIds(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($ids), '?'));
+        $statement = $this->database->prepare("SELECT id FROM assets WHERE id IN ($placeholders)");
+        $statement->execute(array_values($ids));
+
+        return array_map(static fn (mixed $id): int => (int) $id, $statement->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    /**
      * `file_name` bleibt bewusst drinnen im Backend — nach außen geht nur die Kennung,
      * über die `GET /api/assets/{id}/file` die Datei ausliefert.
      *
