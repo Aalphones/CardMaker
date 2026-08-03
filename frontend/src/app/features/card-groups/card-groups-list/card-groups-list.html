@@ -1,0 +1,52 @@
+<section class="card-groups-list">
+  <div class="card-groups-list__heading">
+    <h1 class="card-groups-list__title">Kartengruppen</h1>
+    <a class="card-groups-list__create" routerLink="/card-groups/new">Neue Kartengruppe</a>
+  </div>
+
+  @if (cardGroups.loaded() && cardGroups.all().length === 0) {
+    <div class="card-groups-list__empty">
+      <p class="card-groups-list__empty-text">
+        Eine Kartengruppe organisiert gespeicherte Karten, z. B. eine Spiderman-Serie. Karten mit
+        unterschiedlichen Bildern und Texten teilen sich dasselbe Template. Lege deine erste
+        Kartengruppe an, um loszulegen.
+      </p>
+      <a class="card-groups-list__create" routerLink="/card-groups/new">Neue Kartengruppe</a>
+    </div>
+  } @else {
+    <div class="card-groups-list__search">
+      <label class="card-groups-list__search-label" for="card-groups-search">Suchen</label>
+      <input
+        id="card-groups-search"
+        class="card-groups-list__search-input"
+        type="search"
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
+        placeholder="Nach Name suchen …"
+      />
+    </div>
+
+    <ul class="card-groups-list__grid">
+      @for (item of filteredItems(); track item.id) {
+        <li class="card-groups-list__card">
+          <a class="card-groups-list__card-link" [routerLink]="['/card-groups', item.id]">
+            <h2 class="card-groups-list__card-title">{{ item.name }}</h2>
+            @if (item.description) {
+              <p class="card-groups-list__card-description">{{ item.description }}</p>
+            }
+          </a>
+          <button
+            type="button"
+            class="card-groups-list__card-delete"
+            [attr.aria-label]="'Kartengruppe ' + item.name + ' löschen'"
+            (click)="remove(item)"
+          >
+            Löschen
+          </button>
+        </li>
+      } @empty {
+        <li class="card-groups-list__no-results">Keine Kartengruppe passt zur Suche.</li>
+      }
+    </ul>
+  }
+</section>

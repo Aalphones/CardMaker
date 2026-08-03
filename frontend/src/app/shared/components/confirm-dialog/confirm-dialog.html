@@ -1,0 +1,20 @@
+<div class="confirm-dialog" role="alertdialog" aria-labelledby="confirm-dialog-title">
+  <h2 class="confirm-dialog__title" id="confirm-dialog-title">{{ data.title }}</h2>
+  <p class="confirm-dialog__message">{{ data.message }}</p>
+  <div class="confirm-dialog__actions">
+    <button
+      type="button"
+      class="confirm-dialog__button confirm-dialog__button--ghost"
+      (click)="cancel()"
+    >
+      {{ data.cancelLabel ?? 'Abbrechen' }}
+    </button>
+    <button
+      type="button"
+      class="confirm-dialog__button confirm-dialog__button--danger"
+      (click)="confirm()"
+    >
+      {{ data.confirmLabel ?? 'Löschen' }}
+    </button>
+  </div>
+</div>

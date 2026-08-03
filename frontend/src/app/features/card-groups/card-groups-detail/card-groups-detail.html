@@ -1,0 +1,48 @@
+<section class="card-groups-detail">
+  <h1 class="card-groups-detail__title">
+    @if (isEditMode()) {
+      Kartengruppe bearbeiten
+    } @else {
+      Neue Kartengruppe
+    }
+  </h1>
+
+  <p class="card-groups-detail__hint">
+    Kartengruppen organisieren gespeicherte Karten, z. B. eine Spiderman-Serie. Karten mit
+    unterschiedlichen Bildern und Texten teilen sich dasselbe Template.
+  </p>
+
+  @if (notFound()) {
+    <p class="card-groups-detail__error" role="alert">Diese Kartengruppe gibt es nicht.</p>
+  } @else {
+    @if (cardGroups.error(); as message) {
+      <p class="card-groups-detail__error" role="alert">{{ message }}</p>
+    }
+
+    <form class="card-groups-detail__form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="card-groups-detail__field">
+        <label class="card-groups-detail__label" for="card-group-name">Name</label>
+        <input id="card-group-name" class="card-groups-detail__input" type="text" formControlName="name" />
+      </div>
+
+      <div class="card-groups-detail__field">
+        <label class="card-groups-detail__label" for="card-group-description">
+          Beschreibung (optional)
+        </label>
+        <textarea
+          id="card-group-description"
+          class="card-groups-detail__textarea"
+          formControlName="description"
+          rows="4"
+        ></textarea>
+      </div>
+
+      <div class="card-groups-detail__actions">
+        <a class="card-groups-detail__cancel" routerLink="/card-groups">Abbrechen</a>
+        <button type="submit" class="card-groups-detail__submit" [disabled]="submitting()">
+          Speichern
+        </button>
+      </div>
+    </form>
+  }
+</section>

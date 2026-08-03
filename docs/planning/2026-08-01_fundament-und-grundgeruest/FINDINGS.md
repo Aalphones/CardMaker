@@ -39,14 +39,16 @@ ist, wandert in Phase 9 in die Folgeaufgaben der Plan-README.
       `REDIRECT_HTTP_AUTHORIZATION` zurückfällt. Beides sieht überflüssig aus, ist es aber
       nicht — ohne das kommt die Anmeldung nie im PHP an.
 
-- [ ] → Phase 7: Zeitstempel werden mit `UTC_TIMESTAMP()` geschrieben und verglichen,
+- [x] → Phase 7: Zeitstempel werden mit `UTC_TIMESTAMP()` geschrieben und verglichen,
       nach außen wandelt `Support\Timestamps::toIso()` sie in ISO-8601 mit `Z`. Die
       `createdAt`/`updatedAt` der Kartengruppen genauso bauen — sonst stehen in einer
       Tabelle zwei Zeitzonen nebeneinander. Regel steht in `docs/conventions/php.md`.
+      Eingearbeitet: `CardGroupRepository` schreibt beide Spalten mit `UTC_TIMESTAMP()`.
 
-- [ ] → Phase 7: Neue Pfade sind ab Phase 4 **automatisch gesperrt**. Die Positivliste
+- [x] → Phase 7: Neue Pfade sind ab Phase 4 **automatisch gesperrt**. Die Positivliste
       offener Pfade in `backend/public/index.php` bekommt keine Kartengruppen-Einträge —
       der angemeldete Nutzer steht über `$request->user()` bereit.
+      Eingearbeitet: Die fünf `/api/card-groups`-Routen stehen nicht in `$openPaths`.
 
 - [ ] → Phase 8: Die Datenbank ist von außen nicht erreichbar (Strato lässt keine
       Verbindung von einer fremden Adresse zu, nachgemessen: Zeitüberschreitung). Jede

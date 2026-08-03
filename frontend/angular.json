@@ -55,7 +55,7 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": ["src/styles.scss", "@angular/cdk/overlay-prebuilt.css"]
           },
           "configurations": {
             "production": {

@@ -1,11 +1,11 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-01_fundament-und-grundgeruest/`
-**Phase:** 7/9 — Kartengruppen (als Nächstes, Rating: standard → `sonnet` reicht)
-**Nächster Schritt:** Phase 7 umsetzen — siehe `phase-7-kartengruppen.md`. Login-Flow steht:
-Store-Slice `store/auth/` (Classic Store, Ausnahme von der Facade-Pflicht), `core/services/auth.ts`
-mit Ablauf-Prüfung, Guard auf den Kindrouten des Rahmens, Anmeldeseite mit Einrichtungs-/
-Ablauf-Hinweis, Zugriffstoken-Verwaltung unter `/tokens` mit eigener Facade
-(`store/tokens/`). `npm run lint` und `npm run build` grün. Phase 7 ist der erste komplette
-Durchstich Datenbank → Backend → Speicher → Oberfläche — ab hier vor jeder Backend-Prüfung
-`deploy.cmd backend` laufen lassen (ADR-006, kein lokales PHP).
+**Phase:** 8/8 — Doku-Abgleich & Abnahme (als Nächstes, Rating: mechanisch → `sonnet` reicht)
+**Nächster Schritt:** Phase 7 (Kartengruppen) ist im Code fertig, `npm run lint` und
+`npm run build` grün, Commit steht. **Vor Phase 8 bist du dran:** `deploy.cmd backend`
+per Doppelklick laufen lassen (lässt sich hier nicht automatisiert auslösen — braucht
+echten Serverzugriff), danach den Abnahme-Rundgang aus der Plan-README durchgehen
+(Punkte 8–10: Kartengruppe anlegen/umbenennen/löschen, Rückfragedialog, ungespeicherte
+Änderungen beim Verlassen). Erst danach macht Phase 8 (Doku-Abgleich, Archivierung) Sinn —
+siehe `phase-8-abschluss.md`.

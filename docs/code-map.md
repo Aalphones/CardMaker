@@ -38,6 +38,8 @@ frontend/src/app/
   features/
     auth/            ← Login-Seite, Zugriffstoken-Verwaltung
     card-groups/
+      card-groups-list/    ← Raster, Suchfeld, Leerzustand
+      card-groups-detail/  ← Formular Anlegen/Bearbeiten (Routen .../new, .../:id)
     templates/
       editor/         ← Template-Editor (Layerliste, Konva-Canvas, Eigenschaften-Panel)
     cards/
@@ -45,7 +47,10 @@ frontend/src/app/
     print-projects/
     admin/
   shared/
-    components/       ← wiederverwendbare Komponenten
+    components/       ← wiederverwendbare Komponenten (u.a. confirm-dialog — CDK Dialog,
+                         Rückfrage vor Löschungen)
+    guards/            ← wiederverwendbare Route-Guards (u.a. pending-changes-guard —
+                          canDeactivate bei ungespeicherten Formularen)
     canvas/            ← Konva-Wrapper-Komponenten/Direktiven (Layer-Renderer)
       rendering/        ← reine Zeichenregeln ohne Konva-Abhängigkeit (Einheiten-Umrechnung,
                            Auto-Shrink, Layer-Reihenfolge) — ADR-005

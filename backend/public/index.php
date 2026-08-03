@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\CardGroupController;
 use App\Controllers\HealthController;
 use App\Controllers\MigrateController;
 use App\Controllers\SetupController;
@@ -13,10 +14,12 @@ use App\Http\Response;
 use App\Middleware\Auth;
 use App\Middleware\Cors;
 use App\Repositories\AccessTokenRepository;
+use App\Repositories\CardGroupRepository;
 use App\Repositories\SessionRepository;
 use App\Repositories\UserRepository;
 use App\Services\AccessTokenService;
 use App\Services\AuthService;
+use App\Services\CardGroupService;
 use App\Services\TokenService;
 use Dotenv\Dotenv;
 use FastRoute\Dispatcher;
@@ -112,6 +115,7 @@ if ($request->path() !== '/api/health' && !$database instanceof PDO) {
 
 $authService = null;
 $accessTokenService = null;
+$cardGroupService = null;
 
 if ($database instanceof PDO) {
     $tokenService = new TokenService();
@@ -125,6 +129,7 @@ if ($database instanceof PDO) {
         new AccessTokenRepository($database),
         $tokenService
     );
+    $cardGroupService = new CardGroupService(new CardGroupRepository($database));
 }
 
 // Positivliste der offenen Pfade. Die Sperre ist die Vorgabe, nicht die Ausnahme: Ein
@@ -153,6 +158,11 @@ $dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes
     $routes->addRoute('GET', '/api/tokens', [TokenController::class, 'index']);
     $routes->addRoute('POST', '/api/tokens', [TokenController::class, 'create']);
     $routes->addRoute('DELETE', '/api/tokens/{id:\d+}', [TokenController::class, 'destroy']);
+    $routes->addRoute('GET', '/api/card-groups', [CardGroupController::class, 'index']);
+    $routes->addRoute('POST', '/api/card-groups', [CardGroupController::class, 'create']);
+    $routes->addRoute('GET', '/api/card-groups/{id:\d+}', [CardGroupController::class, 'show']);
+    $routes->addRoute('PATCH', '/api/card-groups/{id:\d+}', [CardGroupController::class, 'update']);
+    $routes->addRoute('DELETE', '/api/card-groups/{id:\d+}', [CardGroupController::class, 'destroy']);
 });
 
 $migrationsDirectory = $backendRoot . '/src/Migrations';
@@ -165,7 +175,8 @@ $makeController = static function (string $controllerClass) use (
     $migrateToken,
     $logger,
     $authService,
-    $accessTokenService
+    $accessTokenService,
+    $cardGroupService
 ): object {
     return match ($controllerClass) {
         HealthController::class => new HealthController($database),
@@ -179,6 +190,7 @@ $makeController = static function (string $controllerClass) use (
         SetupController::class => new SetupController($request, $authService),
         AuthController::class => new AuthController($request, $authService),
         TokenController::class => new TokenController($request, $accessTokenService),
+        CardGroupController::class => new CardGroupController($request, $cardGroupService),
         default => throw new RuntimeException('Kein Bauplan für Controller: ' . $controllerClass),
     };
 };
