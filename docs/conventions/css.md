@@ -31,26 +31,32 @@ Semantic-Tokens.**
 ```scss
 :root {
   /* RAW */
-  --color-brand-500: #6d5ef8;
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
+  --color-organic-bg: #f5ead8;
+  --color-accent-700: #8c491a;
+  --space-2: 0.55rem;
+  --space-3: 0.825rem;
+  --space-4: 1.1rem;
   /* weitere Skalen bei Bedarf: --radius-*, --shadow-*, --z-*, --duration-*, --ease-*,
      --font-*, --font-size-*, --touch-target-min: 2.75rem */
 
   /* SEMANTIC */
-  --color-bg-base: var(--color-gray-950);
-  --color-bg-elevated: var(--color-gray-900);
-  --color-fg-primary: var(--color-gray-50);
-  --color-border-focus: var(--color-brand-500);
+  --color-bg-base: var(--color-organic-bg);
+  --color-bg-elevated: var(--color-organic-surface);
+  --color-text-primary: var(--color-organic-ink);
+  --color-accent-text: var(--color-accent-700);
 }
 ```
 
-Palette in Phase 5 festgelegt: Violett-Blau als Markenfarbe (`--color-brand-500: #6d5ef8`),
-dunkel als Grundeinstellung (kein Umschalter, siehe `styles.scss`). `--color-canvas-checkerboard`
-kommt erst mit dem Template-Editor-Plan, sobald der Konva-Stage tatsächlich existiert — ein
-Token ohne Verbraucher wird nicht vorab angelegt.
+Palette: die helle, warme **Organic**-Gestaltung aus dem Handoff
+(`docs/design/handoff-organic/`) — cremiger Grund `#f5ead8`, Flächen `#ebddc5`, Terrakotta
+als Akzent `#c67139`, Caprasimo über Figtree, `color-scheme: light`, kein Umschalter
+(siehe `styles.scss` und [ADR-016](../decisions/016-organic-design-system.md)). Die
+Zweck-Token-Namen sind dabei stabil geblieben und nur neu belegt worden — Komponenten
+mussten dafür nicht angefasst werden.
+
+Wiederkehrende Bausteine (Buttons, Eingabefelder, Tags, Karten, Segment-Umschalter) leben
+als **globale Komponentenklassen** neben dem Token-Block. Sie benennen die Sache, nicht ihr
+Aussehen, und sind damit BEM-Komponenten, keine Utilities — ADR-010 bleibt unberührt.
 
 ## Templates: BEM, kein Utility-Framework
 
@@ -66,7 +72,7 @@ Token ohne Verbraucher wird nicht vorab angelegt.
   border-radius: var(--radius-sm);
 
   &--selected {
-    background: color-mix(in srgb, var(--color-brand-500) 10%, transparent);
+    background: var(--color-accent-tint);
   }
 }
 ```

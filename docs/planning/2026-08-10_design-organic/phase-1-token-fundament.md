@@ -25,7 +25,7 @@
 
 ## Checkliste
 
-- [ ] `frontend/src/styles.scss` neu schreiben. Ziel-`:root` (Werte verbindlich, Reihenfolge
+- [x] `frontend/src/styles.scss` neu schreiben. Ziel-`:root` (Werte verbindlich, Reihenfolge
       und Kommentare übernehmen):
 
   ```scss
@@ -144,7 +144,7 @@
   }
   ```
 
-- [ ] Grundschicht unterhalb von `:root` ersetzen:
+- [x] Grundschicht unterhalb von `:root` ersetzen:
   - `body`: `font-family: var(--font-family-base)`, `font-size: var(--font-size-md)`,
     `line-height: 1.55`, Grundfläche und Textfarbe aus den Zweck-Token.
   - `h1`–`h6`: `font-family: var(--font-family-heading)`, `font-weight: 400`,
@@ -159,7 +159,7 @@
       Template-Editor einmal öffnen. Stellen, die durch die neuen Werte kaputt aussehen
       (zu enge Abstände, unlesbarer Text auf hellem Grund), **nicht hier reparieren**,
       sondern in `FINDINGS.md` der betroffenen Phase zuordnen.
-- [ ] ADR schreiben: `docs/decisions/016-organic-design-system.md` — Kontext (Design-Handoff
+- [x] ADR schreiben: `docs/decisions/016-organic-design-system.md` — Kontext (Design-Handoff
       liegt vor, bisherige Palette war eine Platzhalter-Entscheidung aus Phase 5 des
       Fundament-Plans), betrachtete Optionen (Handoff eins zu eins übernehmen /
       nur Farben tauschen und Formen behalten / Handoff ablehnen), Entscheidung
@@ -169,8 +169,25 @@
       aus Phase 2 sind Komponentenklassen im Sinne von BEM, keine Utilities;
       Schriften kommen zur Laufzeit von Google Fonts, was für ein reines Online-Werkzeug
       vertretbar ist — siehe ADR-003).
-- [ ] `docs/conventions/css.md` nachziehen: Beispielwerte im Token-Abschnitt auf die neue
+- [x] `docs/conventions/css.md` nachziehen: Beispielwerte im Token-Abschnitt auf die neue
       Palette umstellen, Satz zur violett-dunklen Palette entfernen, Verweis auf ADR-016
       und auf die Bausteinklassen (Phase 2) ergänzen.
 
 ## Report-Back
+
+**Status:** complete (2026-08-10)
+
+- Token-Schicht, Grundschrift und Fokusring sitzen wie oben festgelegt; `npm run lint` und
+  `npm run build` laufen sauber.
+- **Abweichung vom Abnahmekriterium „kein Komponenten-Stylesheet angefasst":** Sechs
+  Stylesheets griffen direkt auf das rohe Token `--color-gray-50` zu, das es nach dem
+  Palettenwechsel nicht mehr gibt. Die Referenz zeigte ins Leere, die Beschriftung auf allen
+  Akzent-Buttons wäre dunkel auf Terrakotta gelaufen. Statt den Bruch bis Phase 2 stehen zu
+  lassen, wurde in diesen sechs Dateien genau ein Token-Name getauscht
+  (`--color-gray-50` → `--color-text-on-accent`) — kein Umstyling. Notiert in `FINDINGS.md`
+  für Phase 2.
+- **Offen — Sichtprüfung im Browser:** steht noch aus, macht der User (`npm start`:
+  Anmeldeseite, Kartengruppen-Liste, Template-Editor). Auffälligkeiten nicht hier
+  reparieren, sondern in `FINDINGS.md` der passenden Phase zuordnen.
+- Bekannter Rest der alten Palette: drei feste Violett-Werte in der Konva-Zeichnung
+  (`draw-items.ts`) — getaggt für Phase 6.

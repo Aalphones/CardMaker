@@ -52,7 +52,7 @@
     border: none;
     border-radius: var(--radius-sm);
     background: var(--color-accent);
-    color: var(--color-gray-50);
+    color: var(--color-text-on-accent);
     cursor: pointer;
 
     &:disabled {
