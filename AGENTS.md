@@ -75,3 +75,8 @@ Weitere Regeln entstehen, sobald sie sich als nötig erweisen — nicht vorab er
 - **Aktive Planung:** [`docs/planning/`](docs/planning/)
 - **Archiv:** [`docs/archive/YYYY-MM/`](docs/archive/)
 - **Design-Quellen** (Konzept-Dokument, KI-Bildprompt-Vorlagen): [`docs/design/`](docs/design/)
+- **Aussehen der Oberfläche** — verbindlicher Design-Handoff „Organic" (Screens, Werte,
+  Verhalten, Prototyp zum Öffnen im Browser):
+  [`docs/design/handoff-organic/`](docs/design/handoff-organic/). Farben, Schriften,
+  Abstände und Formen kommen aus dessen `design-system/styles.css` — nichts davon im
+  Komponenten-Stylesheet neu erfinden.

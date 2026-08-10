@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="design-system/styles.css">
+  <script src="design-system/_ds_bundle.js"></script>
+  <script src="./image-slot.js"></script>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; }
+    a { color: var(--color-accent); }
+    a:hover { color: var(--color-accent-700); }
+    .cm-hit:hover { background: var(--color-neutral-200); }
+    .cm-tool:hover { background: var(--color-accent-100); }
+    .cm-row:hover { background: var(--color-neutral-200); }
+    ::placeholder { color: color-mix(in srgb, var(--color-text) 45%, transparent); }
+    .cm-scroll { overflow-y: auto; scrollbar-width: thin; }
+    [data-inputs="soft"] .input,
+    [data-inputs="soft"] input[type="color"] { border-radius: 12px; padding-left: 14px; padding-right: 14px; }
+    [data-inputs="soft"] textarea.input { border-radius: 12px; }
+    [data-inputs="crisp"] .input,
+    [data-inputs="crisp"] input[type="color"] { border-radius: 7px; padding-left: 12px; padding-right: 12px; }
+    [data-inputs="crisp"] textarea.input { border-radius: 7px; }
+    [data-inputs="crisp"] .seg, [data-inputs="crisp"] .seg-opt { border-radius: 7px; }
+    [data-inputs="line"] .input,
+    [data-inputs="line"] textarea.input { border-radius: 0; border-width: 0 0 1.5px 0; background: transparent; padding-left: 2px; padding-right: 2px; }
+    [data-inputs="line"] .input:focus-visible { outline: none; border-bottom-color: var(--color-accent); }
+    [data-inputs="line"] input[type="color"] { border-radius: 6px; }
+    select.input {
+      appearance: none; -webkit-appearance: none; color: var(--color-text);
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%23201e1d' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M1.2 1.6 6 6.4l4.8-4.8'/></svg>");
+      background-repeat: no-repeat; background-position: right 14px center; background-size: 12px 8px;
+      padding-right: 36px;
+    }
+    [data-inputs="soft"] select.input { background-position: right 14px center; padding-right: 36px; }
+    [data-inputs="crisp"] select.input { background-position: right 12px center; padding-right: 32px; }
+    [data-inputs="line"] select.input { background-position: right 2px center; padding-right: 20px; }
+    [data-inputs="pill"] select.input { background-position: right 16px center; padding-right: 38px; }
+  </style>
+</helmet>
+
+<div data-inputs="{{ inputShape }}" style="height:100vh;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden">
+
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+  <div style="height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:var(--space-6)">
+    <div class="card elev-md" style="width:min(380px,100%);padding:var(--space-8) var(--space-6);gap:var(--space-4)">
+      <div style="text-align:center;display:flex;flex-direction:column;gap:var(--space-1)">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--color-accent-200);margin:0 auto var(--space-2);display:flex;align-items:center;justify-content:center">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"></rect><path d="M3 9h18"></path><path d="M8 15h3"></path></svg>
+        </div>
+        <h1 style="font-size:30px;margin:0">CardMaker</h1>
+        <p class="text-muted" style="margin:0">Sammelkarten anlegen &amp; drucken</p>
+      </div>
+      <form onSubmit="{{ login }}" style="display:flex;flex-direction:column;gap:var(--space-3)">
+        <div class="field">
+          <label for="cm-email">E-Mail-Adresse</label>
+          <input id="cm-email" class="input" type="email" value="{{ email }}" onChange="{{ setEmail }}" autocomplete="username" />
+        </div>
+        <div class="field">
+          <label for="cm-password">Passwort</label>
+          <input id="cm-password" class="input" type="password" value="{{ password }}" onChange="{{ setPassword }}" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Anmelden</button>
+      </form>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ true }}">
+  <header class="nav" style="background:var(--color-surface);border-bottom:1px solid var(--color-divider);flex:none">
+    <span class="nav-brand" style="color:var(--color-accent)">CardMaker</span>
+    <span class="text-muted" style="font-size:13px">{{ email }}</span>
+    <button type="button" class="btn btn-secondary" onClick="{{ logout }}">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      Abmelden
+    </button>
+  </header>
+
+  <div style="display:flex;flex:1;min-height:0">
+    <nav aria-label="Hauptnavigation" style="width:216px;flex:none;padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-1);background:var(--color-surface);border-right:1px solid var(--color-divider)">
+      <a href="#" class="cm-hit" onClick="{{ goCards }}" style="{{ cardsLinkStyle }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 10h18"></path><path d="M8 16h4"></path></svg>
+        Alle Karten
+      </a>
+      <a href="#" class="cm-hit" onClick="{{ goGroups }}" style="{{ groupsLinkStyle }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Kartengruppen
+      </a>
+      <a href="#" class="cm-hit" onClick="{{ goTemplates }}" style="{{ templatesLinkStyle }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"></path><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"></path><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"></path></svg>
+        Templates
+      </a>
+      <a href="#" class="cm-hit" onClick="{{ goPrint }}" style="{{ printLinkStyle }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Druckprojekte
+        <sc-if value="{{ hasCartItems }}" hint-placeholder-val="{{ true }}">
+          <span style="margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--color-accent);color:var(--color-bg);font-size:11px;display:flex;align-items:center;justify-content:center">{{ cartTotal }}</span>
+        </sc-if>
+      </a>
+    </nav>
+
+    <main class="cm-scroll" style="flex:1;min-width:0;padding:var(--space-6)">
+
+      <sc-if value="{{ isCardsList }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:var(--space-4);max-width:1180px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap">
+            <div>
+              <h1 style="margin:0">Alle Karten</h1>
+              <p class="text-muted" style="margin:2px 0 0">{{ cardsCountLabel }}</p>
+            </div>
+            <div style="display:flex;gap:var(--space-2)">
+              <button type="button" class="btn btn-secondary" onClick="{{ toggleCardsView }}">{{ cardsViewLabel }}</button>
+              <button type="button" class="btn btn-primary" onClick="{{ newCardFromList }}">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5v14"></path></svg>
+                Neue Karte
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:flex-end">
+            <div class="field" style="width:20rem">
+              <label for="cm-card-search">Suchen</label>
+              <input id="cm-card-search" class="input" type="search" value="{{ cardSearch }}" onChange="{{ onCardSearch }}" placeholder="Kartenname …" />
+            </div>
+            <div class="field" style="width:14rem">
+              <label for="cm-card-tpl-filter">Template</label>
+              <select id="cm-card-tpl-filter" class="input" value="{{ cardTemplateFilter }}" onChange="{{ setCardTemplateFilter }}">
+                <option value="">Alle Templates</option>
+                <sc-for list="{{ templateOptions }}" as="t" hint-placeholder-count="3"><option value="{{ t.id }}">{{ t.name }}</option></sc-for>
+              </select>
+            </div>
+            <div class="field" style="width:12rem">
+              <label for="cm-card-sort">Sortierung</label>
+              <select id="cm-card-sort" class="input" value="{{ cardSort }}" onChange="{{ setCardSort }}">
+                <option value="recent">Zuletzt geändert</option>
+                <option value="name">Name A–Z</option>
+                <option value="group">Kartengruppe</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ groupFilterChips }}" as="gf" hint-placeholder-count="4">
+              <button type="button" onClick="{{ gf.pick }}" style="{{ gf.chipStyle }}">{{ gf.label }} <span style="opacity:.6">{{ gf.count }}</span></button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ cardsGridView }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:var(--space-4)">
+              <sc-for list="{{ visibleCards }}" as="c" hint-placeholder-count="8">
+                <div class="card elev-sm" style="padding:var(--space-2);gap:var(--space-2)">
+                  <div onClick="{{ c.open }}" style="position:relative;width:100%;aspect-ratio:630/880;border-radius:10px;overflow:hidden;background:var(--color-neutral-200);cursor:pointer">
+                    <div style="{{ c.thumbStyle }}">
+                      <sc-for list="{{ c.previewLayers }}" as="pl" hint-placeholder-count="5">
+                        <div style="{{ pl.previewStyle }}">{{ pl.previewContent }}</div>
+                      </sc-for>
+                    </div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:2px">
+                    <span style="font-family:var(--font-heading);font-size:15px;line-height:1.2">{{ c.name }}</span>
+                    <span class="text-muted" style="font-size:11px">{{ c.groupName }} · {{ c.templateName }}</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:4px">
+                    <span class="tag {{ c.tagClass }}">{{ c.rarity }}</span>
+                    <div style="display:flex;gap:2px">
+                      <button type="button" class="cm-hit" onClick="{{ c.addToCart }}" aria-label="Zum Druckprojekt hinzufügen" title="{{ c.cartTitle }}" style="background:transparent;border:none;cursor:pointer;padding:6px;border-radius:8px;display:flex;color:{{ c.cartColor }}">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                      </button>
+                      <button type="button" class="cm-hit" onClick="{{ c.duplicate }}" aria-label="Karte duplizieren" title="Duplizieren" style="background:transparent;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--color-text);display:flex">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      </button>
+                      <button type="button" class="cm-hit" onClick="{{ c.remove }}" aria-label="Karte löschen" title="Löschen" style="background:transparent;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--color-accent-700);display:flex">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="m19 6-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ cardsTableView }}" hint-placeholder-val="{{ false }}">
+            <table class="table">
+              <thead><tr><th>Karte</th><th>Kartengruppe</th><th>Template</th><th>Seltenheit</th><th>Geändert</th><th></th></tr></thead>
+              <tbody>
+                <sc-for list="{{ visibleCards }}" as="c" hint-placeholder-count="8">
+                  <tr>
+                    <td><a href="#" onClick="{{ c.open }}" style="text-decoration:none;font-weight:600">{{ c.name }}</a></td>
+                    <td>{{ c.groupName }}</td>
+                    <td>{{ c.templateName }}</td>
+                    <td><span class="tag {{ c.tagClass }}">{{ c.rarity }}</span></td>
+                    <td class="text-muted">{{ c.updatedAt }}</td>
+                    <td style="text-align:right">
+                      <button type="button" class="btn btn-ghost" onClick="{{ c.addToCart }}">{{ c.cartLabel }}</button>
+                      <button type="button" class="btn btn-ghost" onClick="{{ c.duplicate }}">Duplizieren</button>
+                      <button type="button" class="btn btn-ghost" style="color:var(--color-accent-700)" onClick="{{ c.remove }}">Löschen</button>
+                    </td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </sc-if>
+
+          <sc-if value="{{ noCardResults }}" hint-placeholder-val="{{ false }}">
+            <p class="text-muted">Keine Karte passt zu Suche und Filter.</p>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isGroupsList }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:var(--space-4);max-width:1100px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:var(--space-3)">
+            <div>
+              <h1 style="margin:0">Kartengruppen</h1>
+              <p class="text-muted" style="margin:2px 0 0">Gruppen sind Filter auf der Gesamtliste aller Karten.</p>
+            </div>
+            <button type="button" class="btn btn-primary" onClick="{{ openNewGroup }}">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5v14"></path></svg>
+              Neue Kartengruppe
+            </button>
+          </div>
+
+          <sc-if value="{{ groupsEmpty }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-sm" style="align-items:flex-start;padding:var(--space-8);gap:var(--space-3)">
+              <p class="text-muted" style="margin:0;max-width:36rem">Eine Kartengruppe bündelt gespeicherte Karten, z.&nbsp;B. eine „Waldläufer-Chronik". Lege deine erste Kartengruppe an, um loszulegen.</p>
+              <button type="button" class="btn btn-primary" onClick="{{ openNewGroup }}">Neue Kartengruppe</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ groupsNotEmpty }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(17rem,1fr));gap:var(--space-4)">
+              <sc-for list="{{ groupCards }}" as="g" hint-placeholder-count="3">
+                <div class="card elev-sm">
+                  <a href="#" onClick="{{ g.openCards }}" style="display:flex;flex-direction:column;gap:var(--space-1);color:inherit;text-decoration:none">
+                    <span class="card-title">{{ g.name }}</span>
+                    <p class="card-body">{{ g.description }}</p>
+                    <span class="card-meta">{{ g.cardCount }} Karten anzeigen →</span>
+                  </a>
+                  <div style="display:flex;justify-content:flex-end;gap:4px">
+                    <button type="button" class="btn btn-ghost" onClick="{{ g.openEdit }}">Bearbeiten</button>
+                    <button type="button" class="btn btn-ghost" style="color:var(--color-accent-700)" onClick="{{ g.remove }}">Löschen</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isGroupForm }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:var(--space-4);max-width:32rem">
+          <h1 style="margin:0">{{ groupFormTitle }}</h1>
+          <form onSubmit="{{ saveGroup }}" style="display:flex;flex-direction:column;gap:var(--space-3)">
+            <div class="field">
+              <label for="cm-group-name">Name</label>
+              <input id="cm-group-name" class="input" type="text" value="{{ groupNameInput }}" onChange="{{ setGroupName }}" />
+            </div>
+            <div class="field">
+              <label for="cm-group-desc">Beschreibung (optional)</label>
+              <textarea id="cm-group-desc" class="input" rows="4" value="{{ groupDescInput }}" onChange="{{ setGroupDesc }}" style="padding-top:10px;padding-bottom:10px;resize:vertical"></textarea>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:var(--space-2)">
+              <button type="button" class="btn btn-secondary" onClick="{{ cancelGroupForm }}">Abbrechen</button>
+              <button type="submit" class="btn btn-primary">Speichern</button>
+            </div>
+          </form>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isTemplatesList }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:var(--space-4);max-width:1100px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-3)">
+            <h1 style="margin:0">Templates</h1>
+            <button type="button" class="btn btn-primary" onClick="{{ createTemplate }}">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5v14"></path></svg>
+              Neues Template
+            </button>
+          </div>
+          <div class="field" style="max-width:22rem">
+            <label for="cm-tpl-search">Suchen</label>
+            <input id="cm-tpl-search" class="input" type="search" value="{{ templateSearch }}" onChange="{{ onTemplateSearch }}" placeholder="Nach Name suchen …" />
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(17rem,1fr));gap:var(--space-4)">
+            <sc-for list="{{ filteredTemplates }}" as="t" hint-placeholder-count="3">
+              <a href="#" onClick="{{ t.open }}" class="card elev-sm" style="color:inherit;text-decoration:none">
+                <span class="card-kicker">{{ t.layerCount }} Layer · {{ t.cardCount }} Karten</span>
+                <span class="card-title">{{ t.name }}</span>
+                <p class="card-body">{{ t.description }}</p>
+                <span class="card-meta">geändert {{ t.updatedAt }}</span>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCardEditor }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:var(--space-4);max-width:1080px">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <a href="#" onClick="{{ leaveCardEditor }}" class="text-muted" style="font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:4px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
+              Zurück
+            </a>
+            <h1 style="margin:0">{{ cardEditorTitle }}</h1>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 300px;gap:var(--space-6);align-items:start">
+            <form onSubmit="{{ saveCard }}" style="display:flex;flex-direction:column;gap:var(--space-4)">
+              <div class="field"><label for="cm-card-name">Kartenname</label>
+                <input id="cm-card-name" class="input" value="{{ cardNameInput }}" onChange="{{ setCardName }}" />
+              </div>
+              <div class="field"><label for="cm-card-tpl">Template</label>
+                <select id="cm-card-tpl" class="input" value="{{ activeTemplateId }}" onChange="{{ setCardTemplate }}">
+                  <sc-for list="{{ templateOptions }}" as="t" hint-placeholder-count="3"><option value="{{ t.id }}">{{ t.name }}</option></sc-for>
+                </select>
+              </div>
+
+              <sc-for list="{{ imageLayerRows }}" as="il" hint-placeholder-count="1">
+                <div class="field"><label>{{ il.name }}</label>
+                  <image-slot id="{{ il.slotId }}" shape="rounded" radius="12" style="width:100%;height:170px" placeholder="Bild ablegen"></image-slot>
+                </div>
+              </sc-for>
+
+              <sc-for list="{{ userTextRows }}" as="tf" hint-placeholder-count="2">
+                <div class="field">
+                  <label>{{ tf.name }}</label>
+                  <textarea class="input" rows="3" value="{{ tf.value }}" onChange="{{ tf.setValue }}" style="padding-top:10px;padding-bottom:10px;resize:vertical"></textarea>
+                  <div style="display:flex;gap:var(--space-3);margin-top:6px">
+                    <div style="display:flex;align-items:center;gap:4px">
+                      <span class="text-muted" style="font-size:11px">Größe</span>
+                      <input class="input" type="number" value="{{ tf.fontSize }}" onChange="{{ tf.setFontSize }}" style="width:72px" />
+                    </div>
+                    <div style="display:flex;align-items:center;gap:4px">
+                      <span class="text-muted" style="font-size:11px">Farbe</span>
+                      <input type="color" value="{{ tf.color }}" onChange="{{ tf.setColor }}" style="width:32px;height:32px;padding:2px;border-radius:6px" />
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+
+              <sc-for list="{{ userIconRows }}" as="ic" hint-placeholder-count="1">
+                <div class="field"><label>{{ ic.name }}</label>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <sc-for list="{{ ic.choices }}" as="ch" hint-placeholder-count="4">
+                      <button type="button" onClick="{{ ch.pick }}" class="tag {{ ch.tagClass }}" style="cursor:pointer;border:{{ ch.border }}">{{ ch.name }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+
+              <div class="field"><label for="cm-card-group">Kartengruppe</label>
+                <select id="cm-card-group" class="input" value="{{ selectedGroupId }}" onChange="{{ setCardGroup }}">
+                  <option value="">Keine</option>
+                  <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3"><option value="{{ g.id }}">{{ g.name }}</option></sc-for>
+                </select>
+              </div>
+
+              <div style="display:flex;justify-content:flex-end;gap:var(--space-2)">
+                <button type="button" class="btn btn-secondary" onClick="{{ leaveCardEditor }}">Abbrechen</button>
+                <button type="submit" class="btn btn-primary">Karte speichern</button>
+              </div>
+            </form>
+
+            <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-2);position:sticky;top:0">
+              <span class="text-muted" style="font-size:12px">Live-Vorschau</span>
+              <div style="width:280px;height:391px;position:relative;box-shadow:var(--shadow-lg);border-radius:8px;overflow:hidden;background:var(--color-surface)">
+                <sc-for list="{{ instancePreviewLayers }}" as="pl" hint-placeholder-count="6">
+                  <div style="{{ pl.previewStyle }}">{{ pl.previewContent }}</div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isPrint }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:var(--space-4);max-width:1100px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap">
+            <div>
+              <h1 style="margin:0">Druckprojekt</h1>
+              <p class="text-muted" style="margin:2px 0 0">{{ printSummary }}</p>
+            </div>
+            <div style="display:flex;gap:var(--space-2)">
+              <button type="button" class="btn btn-secondary" disabled="{{ cartEmpty }}">PNG exportieren</button>
+              <button type="button" class="btn btn-primary" disabled="{{ cartEmpty }}">Als PDF drucken</button>
+            </div>
+          </div>
+
+          <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-sm" style="align-items:flex-start;padding:var(--space-8);gap:var(--space-3)">
+              <p class="text-muted" style="margin:0;max-width:36rem">Noch keine Karten im Druckprojekt. Füge über <strong>Alle Karten</strong> fertige Karten hinzu — hier wird dann nur noch gedruckt.</p>
+              <button type="button" class="btn btn-primary" onClick="{{ goCards }}">Zu allen Karten</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ cartNotEmpty }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid;grid-template-columns:340px 1fr;gap:var(--space-6);align-items:start">
+              <div style="display:flex;flex-direction:column;gap:var(--space-4)">
+                <div class="card elev-sm" style="gap:var(--space-2)">
+                  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.08em;margin:0;color:var(--color-accent-700)">Im Druckprojekt</h3>
+                  <sc-for list="{{ cartRows }}" as="ci" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;gap:var(--space-2);padding:4px 0">
+                      <span style="flex:1;font-size:14px">{{ ci.name }}</span>
+                      <div style="display:flex;align-items:center;gap:2px">
+                        <button type="button" class="cm-hit" onClick="{{ ci.dec }}" aria-label="Anzahl verringern" style="width:26px;height:26px;border-radius:50%;border:1px solid var(--color-divider);background:transparent;cursor:pointer;color:var(--color-text)">−</button>
+                        <span style="min-width:24px;text-align:center;font-size:14px">{{ ci.qty }}</span>
+                        <button type="button" class="cm-hit" onClick="{{ ci.inc }}" aria-label="Anzahl erhöhen" style="width:26px;height:26px;border-radius:50%;border:1px solid var(--color-divider);background:transparent;cursor:pointer;color:var(--color-text)">+</button>
+                      </div>
+                      <button type="button" class="cm-hit" onClick="{{ ci.remove }}" aria-label="Aus Druckprojekt entfernen" style="background:transparent;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--color-accent-700);display:flex">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+                      </button>
+                    </div>
+                  </sc-for>
+                  <button type="button" class="btn btn-ghost" onClick="{{ clearCart }}" style="align-self:flex-start;color:var(--color-accent-700)">Alles entfernen</button>
+                </div>
+
+                <div class="card elev-sm" style="gap:var(--space-2)">
+                  <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:0.08em;margin:0;color:var(--color-accent-700)">Druckoptionen</h3>
+                  <label class="radio"><input type="checkbox" checked="{{ cutMarks }}" onChange="{{ toggleCutMarks }}" /><span class="dot"></span>Schnittmarken</label>
+                  <label class="radio"><input type="checkbox" checked="{{ bleed }}" onChange="{{ toggleBleed }}" /><span class="dot"></span>Beschnitt</label>
+                </div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:var(--space-4);align-items:center">
+                <sc-for list="{{ printSheets }}" as="sh" hint-placeholder-count="1">
+                  <div style="display:flex;flex-direction:column;gap:6px;align-items:center">
+                    <span class="text-muted" style="font-size:12px">{{ sh.label }}</span>
+                    <div style="width:420px;aspect-ratio:210/297;background:#fff;border-radius:4px;box-shadow:var(--shadow-lg);padding:24px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:8px">
+                      <sc-for list="{{ sh.slots }}" as="s" hint-placeholder-count="9">
+                        <div style="position:relative;border-radius:6px;overflow:hidden;background:var(--color-neutral-100);border:{{ s.border }}">
+                          <sc-if value="{{ s.hasCard }}" hint-placeholder-val="{{ false }}">
+                            <div style="{{ s.thumbStyle }}">
+                              <sc-for list="{{ s.previewLayers }}" as="pl" hint-placeholder-count="5">
+                                <div style="{{ pl.previewStyle }}">{{ pl.previewContent }}</div>
+                              </sc-for>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+    </main>
+  </div>
+</sc-if>
+</div>
+
+<sc-if value="{{ isTemplateEditor }}" hint-placeholder-val="{{ false }}">
+  <div data-inputs="{{ inputShape }}" style="position:fixed;inset:0;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden;z-index:50">
+
+    <div style="flex:none;height:56px;display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-3);background:var(--color-surface);border-bottom:1px solid var(--color-divider)">
+      <button type="button" class="btn btn-ghost" onClick="{{ backToTemplatesList }}" title="Editor schließen (Esc Esc)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
+        Templates
+      </button>
+      <input value="{{ templateNameInput }}" onChange="{{ setTemplateName }}" aria-label="Templatename" style="font-family:var(--font-heading);font-size:20px;border:1px solid transparent;background:transparent;padding:4px 8px;border-radius:10px;color:var(--color-text);width:20rem" />
+      <span class="text-muted" style="font-size:12px">{{ dirtyLabel }}</span>
+      <div style="flex:1"></div>
+      <button type="button" class="cm-hit" onClick="{{ undo }}" disabled="{{ cantUndo }}" title="Rückgängig (⌘Z)" aria-label="Rückgängig" style="background:transparent;border:none;padding:8px;border-radius:10px;cursor:pointer;color:var(--color-text);display:flex;opacity:{{ undoOpacity }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></svg>
+      </button>
+      <button type="button" class="cm-hit" onClick="{{ redo }}" disabled="{{ cantRedo }}" title="Wiederherstellen (⇧⌘Z)" aria-label="Wiederherstellen" style="background:transparent;border:none;padding:8px;border-radius:10px;cursor:pointer;color:var(--color-text);display:flex;opacity:{{ redoOpacity }}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"></path></svg>
+      </button>
+      <button type="button" class="btn btn-secondary" onClick="{{ openCardEditor }}">Karte erstellen</button>
+      <button type="button" class="btn btn-primary" disabled="{{ notDirty }}" onClick="{{ saveTemplate }}" title="Speichern (⌘S)">{{ saveLabel }}</button>
+    </div>
+
+    <div style="flex:1;min-height:0;display:flex">
+
+      <div style="flex:none;width:250px;display:flex;flex-direction:column;background:var(--color-surface);border-right:1px solid var(--color-divider);min-height:0">
+        <div style="padding:8px;border-bottom:1px solid var(--color-divider);position:relative">
+          <button type="button" class="btn btn-secondary btn-block" onClick="{{ toggleAddMenu }}">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5v14"></path></svg>
+            Element hinzufügen
+          </button>
+          <sc-if value="{{ addMenuOpen }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-lg" style="position:absolute;top:calc(100% - 2px);left:8px;right:8px;z-index:30;padding:6px;gap:0">
+              <sc-for list="{{ tools }}" as="tl" hint-placeholder-count="7">
+                <button type="button" class="cm-row" onClick="{{ tl.activate }}" disabled="{{ tl.disabled }}" style="{{ tl.style }}">
+                  <span style="width:18px;text-align:center">{{ tl.glyph }}</span>
+                  <span style="flex:1;text-align:left">{{ tl.label }}</span>
+                  <span class="text-muted" style="font-size:11px">{{ tl.hint }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+        <div class="cm-scroll" style="flex:1;min-height:0;padding:6px;display:flex;flex-direction:column;gap:2px">
+          <sc-for list="{{ layerRows }}" as="l" hint-placeholder-count="6">
+            <div class="cm-row" onClick="{{ l.select }}" onDoubleClick="{{ l.startRename }}" style="{{ l.rowStyle }}">
+              <button type="button" onClick="{{ l.toggleVisible }}" aria-label="Sichtbarkeit umschalten" title="Sichtbarkeit (H)" style="background:transparent;border:none;cursor:pointer;padding:2px;display:flex;color:{{ l.eyeColor }}">
+                <sc-if value="{{ l.visible }}" hint-placeholder-val="{{ true }}">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </sc-if>
+                <sc-if value="{{ l.hidden }}" hint-placeholder-val="{{ false }}">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.53 13.53 0 0 0 2 11s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>
+                </sc-if>
+              </button>
+              <span style="width:7px;height:7px;border-radius:50%;background:{{ l.dot }};flex:none"></span>
+              <sc-if value="{{ l.renaming }}" hint-placeholder-val="{{ false }}">
+                <input value="{{ l.renameValue }}" onChange="{{ l.setRenameValue }}" onBlur="{{ l.commitRename }}" onKeyDown="{{ l.renameKey }}" autoFocus="{{ true }}" style="flex:1;min-width:0;font-size:13px;border:1px solid var(--color-accent);border-radius:6px;padding:2px 4px;background:var(--color-bg)" />
+              </sc-if>
+              <sc-if value="{{ l.notRenaming }}" hint-placeholder-val="{{ true }}">
+                <span style="flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ l.name }}</span>
+              </sc-if>
+              <span class="text-muted" style="font-size:10px">{{ l.typeLabel }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="flex:none;display:flex;gap:2px;padding:6px 8px;border-top:1px solid var(--color-divider)">
+          <button type="button" class="btn btn-ghost" onClick="{{ moveSelectedFront }}" disabled="{{ noLayerSelected }}" title="Nach vorn (])" aria-label="Nach vorn" style="flex:1">↑</button>
+          <button type="button" class="btn btn-ghost" onClick="{{ moveSelectedBack }}" disabled="{{ noLayerSelected }}" title="Nach hinten ([)" aria-label="Nach hinten" style="flex:1">↓</button>
+          <button type="button" class="btn btn-ghost" onClick="{{ duplicateSelected }}" disabled="{{ noLayerSelected }}" title="Duplizieren (⌘D)" style="flex:1">Kopie</button>
+          <button type="button" class="btn btn-ghost" onClick="{{ removeSelected }}" disabled="{{ noLayerSelected }}" title="Löschen (Entf)" style="flex:1;color:var(--color-accent-700)">Löschen</button>
+        </div>
+      </div>
+
+      <div ref="{{ stageRef }}" onPointerDown="{{ stageDown }}" onWheel="{{ stageWheel }}" style="flex:1;min-width:0;min-height:0;position:relative;overflow:hidden;background:var(--color-neutral-800);cursor:{{ stageCursor }}">
+        <div style="{{ canvasStyle }}">
+          <sc-for list="{{ previewLayers }}" as="pl" hint-placeholder-count="6">
+            <div style="{{ pl.previewStyle }}" onPointerDown="{{ pl.onPointerDown }}">{{ pl.previewContent }}</div>
+          </sc-for>
+          <sc-if value="{{ showSelectionBox }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ selectionBoxStyle }}">
+              <sc-for list="{{ resizeHandles }}" as="h" hint-placeholder-count="4">
+                <div onPointerDown="{{ h.down }}" style="{{ h.style }}"></div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="position:absolute;left:12px;bottom:12px;display:flex;align-items:center;gap:4px;padding:4px;border-radius:999px;background:var(--color-surface);box-shadow:var(--shadow-md)">
+          <button type="button" class="cm-hit" onClick="{{ zoomOut }}" aria-label="Verkleinern" title="Verkleinern (−)" style="background:transparent;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;color:var(--color-text)">−</button>
+          <button type="button" onClick="{{ zoomFit }}" title="Einpassen (⌘0)" style="background:transparent;border:none;min-width:56px;font-size:12px;cursor:pointer;color:var(--color-text)">{{ zoomLabel }}</button>
+          <button type="button" class="cm-hit" onClick="{{ zoomIn }}" aria-label="Vergrößern" title="Vergrößern (+)" style="background:transparent;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;color:var(--color-text)">+</button>
+          <button type="button" class="cm-hit" onClick="{{ toggleShortcuts }}" aria-label="Tastenkürzel" title="Tastenkürzel (?)" style="background:transparent;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;color:var(--color-text);font-size:13px">?</button>
+        </div>
+
+        <div style="position:absolute;right:12px;bottom:12px;padding:5px 12px;border-radius:999px;background:var(--color-surface);box-shadow:var(--shadow-md);font-size:11px">{{ statusLabel }}</div>
+      </div>
+
+      <div class="cm-scroll" style="flex:none;width:308px;background:var(--color-surface);border-left:1px solid var(--color-divider);min-height:0">
+        <div style="padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--color-accent-700);border-bottom:1px solid var(--color-divider);position:sticky;top:0;background:var(--color-surface);z-index:2">Eigenschaften</div>
+        <div style="padding:var(--space-3);display:flex;flex-direction:column;gap:var(--space-3)">
+          <sc-if value="{{ noLayerSelected }}" hint-placeholder-val="{{ true }}">
+            <p class="text-muted" style="margin:0;font-size:13px">Kein Element ausgewählt. Klicke auf dem Canvas oder in der Ebenenliste — oder lege über „Element hinzufügen" ein neues Element an.</p>
+          </sc-if>
+
+          <sc-if value="{{ hasSelectedLayer }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="width:8px;height:8px;border-radius:50%;background:{{ selectedDot }}"></span>
+              <span style="font-family:var(--font-heading);font-size:16px">{{ selectedLayer.name }}</span>
+            </div>
+
+            <sc-if value="{{ showGeometry }}" hint-placeholder-val="{{ false }}">
+              <div class="field"><label>Position X / Y</label>
+                <div style="display:flex;gap:var(--space-2)"><input class="input" type="number" value="{{ selectedLayer.x }}" onChange="{{ setX }}" /><input class="input" type="number" value="{{ selectedLayer.y }}" onChange="{{ setY }}" /></div>
+              </div>
+              <div class="field"><label>Breite / Höhe</label>
+                <div style="display:flex;gap:var(--space-2)"><input class="input" type="number" value="{{ selectedLayer.width }}" onChange="{{ setWidth }}" /><input class="input" type="number" value="{{ selectedLayer.height }}" onChange="{{ setHeight }}" /></div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isTextLayer }}" hint-placeholder-val="{{ false }}">
+              <div class="field"><label>Text</label><textarea class="input" rows="3" value="{{ selectedLayer.defaultText }}" onChange="{{ setDefaultText }}" style="padding-top:10px;padding-bottom:10px;resize:vertical"></textarea></div>
+              <label class="radio"><input type="checkbox" checked="{{ isUserSource }}" onChange="{{ toggleSource }}" /><span class="dot"></span>Wird pro Karte ausgefüllt</label>
+              <div class="field"><label>Schrift</label>
+                <div style="display:flex;gap:var(--space-2)">
+                  <select class="input" value="{{ selectedLayer.fontFamily }}" onChange="{{ setFontFamily }}" style="flex:1">
+                    <sc-for list="{{ fontOptions }}" as="f" hint-placeholder-count="7"><option value="{{ f }}">{{ f }}</option></sc-for>
+                  </select>
+                  <input class="input" type="number" value="{{ selectedLayer.fontSize }}" onChange="{{ setFontSize }}" aria-label="Schriftgröße" style="width:72px" />
+                </div>
+              </div>
+              <div class="field"><label>Farbe</label>
+                <div style="display:flex;gap:var(--space-2)"><input type="color" value="{{ selectedLayer.color }}" onChange="{{ setColor }}" style="width:36px;height:36px;padding:2px;border-radius:8px" /><input class="input" value="{{ selectedLayer.color }}" onChange="{{ setColor }}" style="flex:1" /></div>
+              </div>
+              <div class="field"><label>Ausrichtung</label>
+                <div class="seg" style="width:100%">
+                  <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="halign" checked="{{ alignLeft }}" onChange="{{ setAlignLeft }}" />Links</label>
+                  <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="halign" checked="{{ alignCenter }}" onChange="{{ setAlignCenter }}" />Mitte</label>
+                  <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="halign" checked="{{ alignRight }}" onChange="{{ setAlignRight }}" />Rechts</label>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isShapeLayer }}" hint-placeholder-val="{{ false }}">
+              <div class="field"><label>Füllfarbe</label>
+                <div style="display:flex;gap:var(--space-2)"><input type="color" value="{{ fillColorValue }}" onChange="{{ setFill }}" style="width:36px;height:36px;padding:2px;border-radius:8px" /><input class="input" value="{{ selectedLayer.fill }}" onChange="{{ setFill }}" style="flex:1" placeholder="leer = transparent" /></div>
+              </div>
+              <div class="field"><label>Rahmen Farbe / Stärke</label>
+                <div style="display:flex;gap:var(--space-2)"><input type="color" value="{{ strokeColorValue }}" onChange="{{ setStroke }}" style="width:36px;height:36px;padding:2px;border-radius:8px" /><input class="input" type="number" value="{{ selectedLayer.strokeWidth }}" onChange="{{ setStrokeWidth }}" style="flex:1" /></div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isImageLayer }}" hint-placeholder-val="{{ false }}">
+              <p class="text-muted" style="font-size:12px;margin:0">Das konkrete Bild und der Ausschnitt kommen von der Karte — das Template legt nur die Fläche fest.</p>
+            </sc-if>
+
+            <sc-if value="{{ isIconLayer }}" hint-placeholder-val="{{ false }}">
+              <label class="radio"><input type="checkbox" checked="{{ isUserSource }}" onChange="{{ toggleSource }}" /><span class="dot"></span>Wird pro Karte gewählt</label>
+              <sc-if value="{{ isStaticSource }}" hint-placeholder-val="{{ true }}">
+                <button type="button" class="btn btn-secondary btn-block" onClick="{{ openSinglePicker }}">{{ singleAssetLabel }}</button>
+              </sc-if>
+              <sc-if value="{{ isUserSource }}" hint-placeholder-val="{{ false }}">
+                <button type="button" class="btn btn-secondary btn-block" onClick="{{ openMultiPicker }}">Auswahl verwalten ({{ choiceCount }})</button>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <sc-for list="{{ choiceChips }}" as="ch" hint-placeholder-count="3"><span class="tag tag-accent-2">{{ ch.name }}</span></sc-for>
+                </div>
+              </sc-if>
+            </sc-if>
+
+            <sc-if value="{{ isFrameLayer }}" hint-placeholder-val="{{ false }}">
+              <p class="text-muted" style="font-size:12px;margin:0">Der Rahmen liegt immer auf dem gesamten Canvas.</p>
+              <button type="button" class="btn btn-secondary btn-block" onClick="{{ openSinglePicker }}">{{ singleAssetLabel }}</button>
+            </sc-if>
+
+            <sc-if value="{{ hasAdvanced }}" hint-placeholder-val="{{ false }}">
+              <button type="button" onClick="{{ toggleAdvanced }}" style="display:flex;align-items:center;gap:6px;background:transparent;border:none;padding:6px 0;cursor:pointer;color:var(--color-accent-700);font-size:13px;font-family:var(--font-body)">{{ advancedLabel }}</button>
+            </sc-if>
+
+            <sc-if value="{{ advancedOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:var(--space-3);padding-top:var(--space-1);border-top:1px solid var(--color-divider)">
+                <sc-if value="{{ showOpacity }}" hint-placeholder-val="{{ false }}">
+                  <div class="field"><label>Deckkraft</label>
+                    <input type="range" min="0" max="1" step="0.05" value="{{ selectedLayer.opacity }}" onChange="{{ setOpacity }}" style="width:100%;accent-color:var(--color-accent)" />
+                  </div>
+                </sc-if>
+                <sc-if value="{{ showGeometry }}" hint-placeholder-val="{{ false }}">
+                  <div class="field"><label>Rotation (°)</label><input class="input" type="number" value="{{ selectedLayer.rotation }}" onChange="{{ setRotation }}" /></div>
+                </sc-if>
+                <sc-if value="{{ isRectShape }}" hint-placeholder-val="{{ false }}">
+                  <div class="field"><label>Eckradius</label><input class="input" type="number" value="{{ selectedLayer.cornerRadius }}" onChange="{{ setCornerRadius }}" /></div>
+                </sc-if>
+                <sc-if value="{{ isTextLayer }}" hint-placeholder-val="{{ false }}">
+                  <div class="field"><label>Feldschlüssel</label><input class="input" value="{{ selectedLayer.key }}" onChange="{{ setKey }}" /></div>
+                  <div class="field"><label>Vertikale Ausrichtung</label>
+                    <div class="seg" style="width:100%">
+                      <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="valign" checked="{{ vAlignTop }}" onChange="{{ setVAlignTop }}" />Oben</label>
+                      <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="valign" checked="{{ vAlignMiddle }}" onChange="{{ setVAlignMiddle }}" />Mitte</label>
+                      <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="valign" checked="{{ vAlignBottom }}" onChange="{{ setVAlignBottom }}" />Unten</label>
+                    </div>
+                  </div>
+                  <div class="field"><label>Mindestgröße / Zeilenabstand</label>
+                    <div style="display:flex;gap:var(--space-2)"><input class="input" type="number" value="{{ selectedLayer.minFontSize }}" onChange="{{ setMinFontSize }}" /><input class="input" type="number" step="0.05" value="{{ selectedLayer.lineHeight }}" onChange="{{ setLineHeight }}" /></div>
+                  </div>
+                  <div class="field"><label>Umrandung Farbe / Stärke</label>
+                    <div style="display:flex;gap:var(--space-2)"><input type="color" value="{{ outlineColorValue }}" onChange="{{ setOutlineColor }}" style="width:36px;height:36px;padding:2px;border-radius:8px" /><input class="input" type="number" value="{{ selectedLayer.outlineWidth }}" onChange="{{ setOutlineWidth }}" style="flex:1" /></div>
+                  </div>
+                  <div class="field"><label>Schatten Farbe / Unschärfe</label>
+                    <div style="display:flex;gap:var(--space-2)"><input type="color" value="{{ shadowColorValue }}" onChange="{{ setShadowColor }}" style="width:36px;height:36px;padding:2px;border-radius:8px" /><input class="input" type="number" value="{{ selectedLayer.shadowBlur }}" onChange="{{ setShadowBlur }}" style="flex:1" /></div>
+                  </div>
+                  <label class="radio"><input type="checkbox" checked="{{ selectedLayer.autoShrink }}" onChange="{{ setAutoShrink }}" /><span class="dot"></span>Auto-Shrink</label>
+                </sc-if>
+              </div>
+            </sc-if>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+
+    <sc-if value="{{ assetPickerOpen }}" hint-placeholder-val="{{ false }}">
+      <div class="dialog-backdrop" onClick="{{ closeAssetPicker }}">
+        <div class="dialog" onClick="{{ stopPropagation }}">
+          <span class="dialog-title">{{ assetPickerTitle }}</span>
+          <div class="dialog-body" style="display:flex;flex-direction:column;gap:var(--space-2)">
+            <sc-for list="{{ assetPickerItems }}" as="a" hint-placeholder-count="4">
+              <button type="button" onClick="{{ a.toggle }}" style="{{ a.rowStyle }}">
+                <span style="width:34px;height:34px;border-radius:8px;background:var(--color-accent-200);flex:none"></span>
+                <span style="flex:1;text-align:left">{{ a.name }}</span>
+                <sc-if value="{{ a.chosen }}" hint-placeholder-val="{{ false }}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </sc-if>
+              </button>
+            </sc-for>
+            <image-slot id="cm-asset-upload" shape="rounded" radius="12" style="width:100%;height:80px" placeholder="Neues PNG hochladen"></image-slot>
+          </div>
+          <div class="dialog-actions"><button type="button" class="btn btn-secondary" onClick="{{ closeAssetPicker }}">Fertig</button></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ shortcutsOpen }}" hint-placeholder-val="{{ false }}">
+      <div class="dialog-backdrop" onClick="{{ toggleShortcuts }}">
+        <div class="dialog" onClick="{{ stopPropagation }}" style="max-width:34rem">
+          <span class="dialog-title">Tastenkürzel</span>
+          <div class="dialog-body" style="display:grid;grid-template-columns:1fr 1fr;gap:6px var(--space-4)">
+            <sc-for list="{{ shortcutRows }}" as="sk" hint-placeholder-count="14">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);font-size:13px">
+                <span>{{ sk.what }}</span>
+                <kbd style="font-family:var(--font-body);font-size:11px;padding:2px 7px;border-radius:6px;background:var(--color-neutral-200);border:1px solid var(--color-divider)">{{ sk.keys }}</kbd>
+              </div>
+            </sc-for>
+          </div>
+          <div class="dialog-actions"><button type="button" class="btn btn-secondary" onClick="{{ toggleShortcuts }}">Schließen</button></div>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;inputShape&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;soft&quot;, &quot;crisp&quot;, &quot;line&quot;, &quot;pill&quot;], &quot;default&quot;: &quot;soft&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Formulare&quot;}, &quot;showEmptyStates&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Daten&quot;}, &quot;snapGrid&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 5, &quot;min&quot;: 1, &quot;max&quot;: 40, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Editor&quot;}}">
+class Component extends DCLogic {
+  FONTS = ['Arial', 'Verdana', 'Trebuchet MS', 'Georgia', 'Times New Roman', 'Courier New', 'Impact'];
+  FRAME_ASSETS = [{ id: 1, name: 'Waldrahmen' }, { id: 2, name: 'Klassischer Goldrahmen' }, { id: 3, name: 'Dunkler Kreatur-Rahmen' }];
+  ICON_ASSETS = [{ id: 10, name: 'Gewöhnlich-Icon' }, { id: 11, name: 'Selten-Icon' }, { id: 12, name: 'Episch-Icon' }, { id: 13, name: 'Legendär-Icon' }];
+  CARD_W = 630;
+  CARD_H = 880;
+
+  stageRef = React.createRef();
+  currentScale = 0.4;
+
+  state = {
+    loggedIn: false,
+    email: 'mira@waldlaeufer-verlag.de',
+    password: '',
+    section: 'cards',
+    view: 'list',
+    stageSize: { w: 900, h: 600 },
+    zoomMode: 'fit',
+    zoomValue: 0.5,
+    pan: { x: 0, y: 0 },
+    spaceDown: false,
+    cursorPos: null,
+    shortcutsOpen: false,
+    addMenuOpen: false,
+    advancedOpen: false,
+    history: { past: [], future: [] },
+
+    cardSearch: '',
+    cardGroupFilter: 'all',
+    cardTemplateFilter: '',
+    cardSort: 'recent',
+    cardsView: 'grid',
+
+    groupSearch: '',
+    editingGroupId: null,
+    groupNameInput: '',
+    groupDescInput: '',
+    groups: [
+      { id: 'grp-waldlaeufer', name: 'Waldläufer-Chronik', description: 'Die Späher und Bogenschützen des nördlichen Waldes.' },
+      { id: 'grp-drachenzunft', name: 'Drachenzunft', description: 'Drachenreiter und ihre Gefährten.' },
+      { id: 'grp-artefakte', name: 'Verlorene Artefakte', description: 'Magische Gegenstände aus der ersten Ära.' },
+    ],
+
+    templateSearch: '',
+    activeTemplateId: 'tpl-hero',
+    selectedLayerId: null,
+    dirty: false,
+    templateNameInput: 'Heldenkarte Klassisch',
+    renamingLayerId: null,
+    renameValue: '',
+    assetPicker: { open: false, multi: false },
+
+    editingCardId: null,
+    cardNameInput: '',
+    selectedGroupId: '',
+    cardValues: {},
+    cardFontOverrides: {},
+    cardColorOverrides: {},
+    cardIconChoices: {},
+
+    printCart: [{ cardId: 'card-1', qty: 2 }, { cardId: 'card-4', qty: 1 }],
+    cutMarks: true,
+    bleed: false,
+
+    cards: [
+      { id: 'card-1', name: 'Elyndra Sturmklinge', groupId: 'grp-waldlaeufer', templateId: 'tpl-hero', rarity: 'Episch', updatedAt: 'vor 2 Stunden', values: { name: 'Elyndra Sturmklinge', flavor: 'Ihre Klinge singt, wenn der Wind durch die Kronen fährt.' }, iconChoices: { 'rarity-icon': 12 } },
+      { id: 'card-2', name: 'Bram Eichenherz', groupId: 'grp-waldlaeufer', templateId: 'tpl-hero', rarity: 'Selten', updatedAt: 'gestern', values: { name: 'Bram Eichenherz', flavor: 'Der letzte Wächter der alten Pfade.' }, iconChoices: { 'rarity-icon': 11 } },
+      { id: 'card-3', name: 'Nachtschatten', groupId: 'grp-waldlaeufer', templateId: 'tpl-kreatur', rarity: 'Gewöhnlich', updatedAt: 'gestern', values: { name: 'Nachtschatten', attack: '3', defense: '5' }, iconChoices: { 'rarity-icon': 10 } },
+      { id: 'card-4', name: 'Fyrion, der Feuerdrache', groupId: 'grp-drachenzunft', templateId: 'tpl-kreatur', rarity: 'Legendär', updatedAt: 'vor 3 Tagen', values: { name: 'Fyrion', attack: '11', defense: '9' }, iconChoices: { 'rarity-icon': 13 } },
+      { id: 'card-5', name: 'Kalira Drachenreiterin', groupId: 'grp-drachenzunft', templateId: 'tpl-hero', rarity: 'Episch', updatedAt: 'vor 3 Tagen', values: { name: 'Kalira', flavor: 'Sie flog, bevor sie gehen konnte.' }, iconChoices: { 'rarity-icon': 12 } },
+      { id: 'card-6', name: 'Ashgrim, Aschenwyrm', groupId: 'grp-drachenzunft', templateId: 'tpl-kreatur', rarity: 'Selten', updatedAt: 'vor 4 Tagen', values: { name: 'Ashgrim', attack: '8', defense: '6' }, iconChoices: { 'rarity-icon': 11 } },
+      { id: 'card-7', name: 'Amulett der Gezeiten', groupId: 'grp-artefakte', templateId: 'tpl-item', rarity: 'Episch', updatedAt: 'vor 5 Tagen', values: { name: 'Amulett der Gezeiten', flavor: 'Zieht das Wasser an sich, wie der Mond es tut.' }, iconChoices: {} },
+      { id: 'card-8', name: 'Rostiger Kompass', groupId: 'grp-artefakte', templateId: 'tpl-item', rarity: 'Gewöhnlich', updatedAt: 'vor 1 Woche', values: { name: 'Rostiger Kompass', flavor: 'Zeigt nach Hause — irgendwann.' }, iconChoices: {} },
+      { id: 'card-9', name: 'Krone der ersten Ära', groupId: 'grp-artefakte', templateId: 'tpl-item', rarity: 'Legendär', updatedAt: 'vor 1 Woche', values: { name: 'Krone der ersten Ära', flavor: 'Sie wählt selbst, wer sie trägt.' }, iconChoices: {} },
+      { id: 'card-10', name: 'Späherin Wyn', groupId: 'grp-waldlaeufer', templateId: 'tpl-hero', rarity: 'Gewöhnlich', updatedAt: 'vor 1 Woche', values: { name: 'Späherin Wyn', flavor: 'Kennt jeden Wildwechsel im Nordwald.' }, iconChoices: { 'rarity-icon': 10 } },
+      { id: 'card-11', name: 'Moorlicht', groupId: null, templateId: 'tpl-kreatur', rarity: 'Selten', updatedAt: 'vor 2 Wochen', values: { name: 'Moorlicht', attack: '4', defense: '2' }, iconChoices: { 'rarity-icon': 11 } },
+      { id: 'card-12', name: 'Unbenannter Entwurf', groupId: null, templateId: 'tpl-item', rarity: 'Gewöhnlich', updatedAt: 'vor 2 Wochen', values: { name: 'Entwurf', flavor: '' }, iconChoices: {} },
+    ],
+
+    templatesData: [
+      {
+        id: 'tpl-hero', name: 'Heldenkarte Klassisch', description: 'Portrait, Name und Kurzbeschreibung mit Rahmen und Seltenheits-Icon.', updatedAt: 'vor 2 Tagen',
+        layers: [
+          { id: 'portrait', type: 'image', name: 'Portrait', visible: true, x: 40, y: 40, width: 550, height: 460, rotation: 0, opacity: 1 },
+          { id: 'statbox', type: 'shape', shape: 'rect', name: 'Statbox-Rahmen', visible: true, x: 40, y: 640, width: 550, height: 70, rotation: 0, fill: '#f9f4ed', opacity: 1, stroke: '#8c491a', strokeWidth: 3, cornerRadius: 14 },
+          { id: 'rarity-label', type: 'text', name: 'Seltenheit (statisch)', visible: true, x: 40, y: 610, width: 300, height: 30, rotation: 0, key: 'rarity_label', source: 'static', defaultText: 'HELD', fontFamily: 'Impact', fontSize: 20, minFontSize: 12, color: '#8c491a', align: 'left', verticalAlign: 'middle', lineHeight: 1, outlineColor: null, outlineWidth: 0, shadowColor: null, shadowBlur: 0, autoShrink: false, opacity: 1 },
+          { id: 'rarity-icon', type: 'icon', name: 'Seltenheits-Icon', visible: true, x: 500, y: 30, width: 90, height: 90, rotation: 0, opacity: 1, source: 'user', assetId: null, choiceAssetIds: [10, 11, 12, 13] },
+          { id: 'name-text', type: 'text', name: 'Namensfeld', visible: true, x: 40, y: 500, width: 550, height: 80, rotation: 0, key: 'name', source: 'user', defaultText: 'Kartenname', fontFamily: 'Georgia', fontSize: 46, minFontSize: 26, color: '#201e1d', align: 'left', verticalAlign: 'middle', lineHeight: 1.1, outlineColor: null, outlineWidth: 0, shadowColor: null, shadowBlur: 0, autoShrink: true, opacity: 1 },
+          { id: 'flavor-text', type: 'text', name: 'Beschreibungstext', visible: true, x: 40, y: 660, width: 550, height: 150, rotation: 0, key: 'flavor', source: 'user', defaultText: 'Kurze Beschreibung oder Flavor-Text der Karte.', fontFamily: 'Georgia', fontSize: 24, minFontSize: 14, color: '#474238', align: 'left', verticalAlign: 'top', lineHeight: 1.3, outlineColor: null, outlineWidth: 0, shadowColor: null, shadowBlur: 0, autoShrink: true, opacity: 0.9 },
+          { id: 'frame', type: 'frame', name: 'Kartenrahmen', visible: true, assetId: 2 },
+        ],
+      },
+      {
+        id: 'tpl-kreatur', name: 'Kreaturenkarte', description: 'Für Monster und Tiere – mit Statbox für Angriff und Verteidigung.', updatedAt: 'vor 5 Tagen',
+        layers: [
+          { id: 'portrait', type: 'image', name: 'Portrait', visible: true, x: 40, y: 40, width: 550, height: 480, rotation: 0, opacity: 1 },
+          { id: 'statbox', type: 'shape', shape: 'rect', name: 'Statbox-Rahmen', visible: true, x: 40, y: 660, width: 550, height: 60, rotation: 0, fill: '#f0fae1', opacity: 1, stroke: '#56633f', strokeWidth: 3, cornerRadius: 12 },
+          { id: 'attack-text', type: 'text', name: 'Angriff', visible: true, x: 60, y: 670, width: 120, height: 40, rotation: 0, key: 'attack', source: 'user', defaultText: '6', fontFamily: 'Impact', fontSize: 28, minFontSize: 16, color: '#3d472b', align: 'left', verticalAlign: 'middle', lineHeight: 1, outlineColor: null, outlineWidth: 0, shadowColor: null, shadowBlur: 0, autoShrink: true, opacity: 1 },
+          { id: 'defense-text', type: 'text', name: 'Verteidigung', visible: true, x: 450, y: 670, width: 120, height: 40, rotation: 0, key: 'defense', source: 'user', defaultText: '4', fontFamily: 'Impact', fontSize: 28, minFontSize: 16, color: '#3d472b', align: 'right', verticalAlign: 'middle', lineHeight: 1, outlineColor: null, outlineWidth: 0, shadowColor: null, shadowBlur: 0, autoShrink: true, opacity: 1 },
+          { id: 'rarity-icon', type: 'icon', name: 'Seltenheits-Icon', visible: true, x: 500, y: 30, width: 90, height: 90, rotation: 0, opacity: 1, source: 'user', assetId: null, choiceAssetIds: [10, 11, 12, 13] },
+          { id: 'name-text', type: 'text', name: 'Namensfeld', visible: true, x: 40, y: 520, width: 550, height: 70, rotation: 0, key: 'name', source: 'user', defaultText: 'Kreaturenname', fontFamily: 'Georgia', fontSize: 40, minFontSize: 24, color: '#201e1d', align: 'left', verticalAlign: 'middle', lineHeight: 1.1, outlineColor: null, outlineWidth: 0, shadowColor: null, shadowBlur: 0, autoShrink: true, opacity: 1 },
+          { id: 'frame', type: 'frame', name: 'Kartenrahmen', visible: true, assetId: 3 },
+        ],
+      },
+      {
+        id: 'tpl-item', name: 'Gegenstandskarte', description: 'Schlichtes Layout für Ausrüstung und Artefakte.', updatedAt: 'vor 1 Woche',
+        layers: [
+          { id: 'art', type: 'image', name: 'Gegenstandsbild', visible: true, x: 90, y: 60, width: 450, height: 420, rotation: 0, opacity: 1 },
+          { id: 'name-text', type: 'text', name: 'Namensfeld', visible: true, x: 40, y: 510, width: 550, height: 60, rotation: 0, key: 'name', source: 'user', defaultText: 'Gegenstandsname', fontFamily: 'Georgia', fontSize: 38, minFontSize: 22, color: '#201e1d', align: 'center', verticalAlign: 'middle', lineHeight: 1.1, outlineColor: null, outlineWidth: 0, shadowColor: null, shadowBlur: 0, autoShrink: true, opacity: 1 },
+          { id: 'flavor-text', type: 'text', name: 'Beschreibungstext', visible: true, x: 40, y: 590, width: 550, height: 200, rotation: 0, key: 'flavor', source: 'user', defaultText: 'Wirkung oder Herkunft des Gegenstands.', fontFamily: 'Georgia', fontSize: 22, minFontSize: 14, color: '#474238', align: 'center', verticalAlign: 'top', lineHeight: 1.3, outlineColor: null, outlineWidth: 0, shadowColor: null, shadowBlur: 0, autoShrink: true, opacity: 0.9 },
+          { id: 'frame', type: 'frame', name: 'Kartenrahmen', visible: true, assetId: 1 },
+        ],
+      },
+    ],
+  };
+
+  // ---------- lifecycle ----------
+  componentDidMount() {
+    this.onKey = (e) => this.handleKey(e);
+    this.onKeyUp = (e) => { if (e.code === 'Space' && this.state.spaceDown) this.setState({ spaceDown: false }); };
+    window.addEventListener('keydown', this.onKey);
+    window.addEventListener('keyup', this.onKeyUp);
+    this.ro = new ResizeObserver(() => this.measureStage());
+    this.observeStage();
+  }
+  componentDidUpdate() { this.observeStage(); }
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.onKey);
+    window.removeEventListener('keyup', this.onKeyUp);
+    if (this.ro) this.ro.disconnect();
+  }
+  observeStage() {
+    const el = this.stageRef.current;
+    if (el && el !== this.observed && this.ro) { if (this.observed) this.ro.unobserve(this.observed); this.ro.observe(el); this.observed = el; this.measureStage(); }
+    if (!el) this.observed = null;
+  }
+  measureStage() {
+    const el = this.stageRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const s = this.state.stageSize;
+    if (Math.abs(r.width - s.w) > 1 || Math.abs(r.height - s.h) > 1) this.setState({ stageSize: { w: r.width, h: r.height } });
+  }
+
+  inEditor() { return this.state.loggedIn && this.state.section === 'templates' && this.state.view === 'editor'; }
+
+  fitScale() {
+    const { w, h } = this.state.stageSize;
+    return Math.max(0.08, Math.min((w - 96) / this.CARD_W, (h - 96) / this.CARD_H));
+  }
+  scale() { return this.state.zoomMode === 'fit' ? this.fitScale() : this.state.zoomValue; }
+
+  // ---------- keyboard ----------
+  handleKey(e) {
+    if (!this.inEditor()) return;
+    const t = e.target;
+    const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
+    const mod = e.metaKey || e.ctrlKey;
+    if (typing && !(mod && e.key.toLowerCase() === 's')) { if (e.key === 'Escape') t.blur(); return; }
+
+    if (mod) {
+      const k = e.key.toLowerCase();
+      if (k === 's') { e.preventDefault(); this.saveTemplate(); return; }
+      if (k === 'z') { e.preventDefault(); e.shiftKey ? this.redo() : this.undo(); return; }
+      if (k === 'd') { e.preventDefault(); this.duplicateSelected(); return; }
+      if (k === '0') { e.preventDefault(); this.zoomFit(); return; }
+      if (k === '1') { e.preventDefault(); this.setZoom(1); return; }
+      if (k === '=' || k === '+') { e.preventDefault(); this.zoomIn(); return; }
+      if (k === '-') { e.preventDefault(); this.zoomOut(); return; }
+      return;
+    }
+    if (e.code === 'Space' && !this.state.spaceDown) { e.preventDefault(); this.setState({ spaceDown: true }); return; }
+
+    const sel = this.selected();
+    switch (e.key) {
+      case 'Escape': e.preventDefault(); if (this.state.shortcutsOpen) this.setState({ shortcutsOpen: false }); else if (this.state.assetPicker.open) this.closeAssetPicker(); else if (sel) this.deselectLayer(); else this.backToTemplatesList(); return;
+      case 'Delete': case 'Backspace': if (sel) { e.preventDefault(); this.removeSelected(); } return;
+      case 'ArrowUp': case 'ArrowDown': case 'ArrowLeft': case 'ArrowRight': {
+        if (!sel || sel.type === 'frame') return;
+        e.preventDefault();
+        const step = e.shiftKey ? 10 : 1;
+        const dx = e.key === 'ArrowLeft' ? -step : e.key === 'ArrowRight' ? step : 0;
+        const dy = e.key === 'ArrowUp' ? -step : e.key === 'ArrowDown' ? step : 0;
+        this.pushHistory();
+        this.patchLayer({ x: (sel.x || 0) + dx, y: (sel.y || 0) + dy }, false);
+        return;
+      }
+      case '+': this.zoomIn(); return;
+      case '-': this.zoomOut(); return;
+      case '?': this.setState({ shortcutsOpen: !this.state.shortcutsOpen }); return;
+      case '[': if (sel) this.moveSelectedBack(); return;
+      case ']': if (sel) this.moveSelectedFront(); return;
+      case 'F2': if (sel) { e.preventDefault(); this.startRename(sel.id); } return;
+    }
+    const k = e.key.toLowerCase();
+    if (k === 'h' && sel) { this.toggleVisible(sel.id); return; }
+    if (k === 'v') { this.deselectLayer(); return; }
+    if (k === 't') { this.addLayer('text'); return; }
+    if (k === 'r') { this.addLayer('shape', 'rect'); return; }
+    if (k === 'o') { this.addLayer('shape', 'circle'); return; }
+    if (k === 'l') { this.addLayer('shape', 'line'); return; }
+    if (k === 'i') { this.addLayer('image'); return; }
+    if (k === 'k') { this.addLayer('icon'); return; }
+    if (k === 'f') { if (!this.activeLayers().some((l) => l.type === 'frame')) this.addLayer('frame'); return; }
+  }
+
+  // ---------- auth / nav ----------
+  login = (e) => { e.preventDefault(); this.setState({ loggedIn: true }); };
+  logout = () => this.setState({ loggedIn: false, section: 'cards', view: 'list' });
+  setEmail = (e) => this.setState({ email: e.target.value });
+  setPassword = (e) => this.setState({ password: e.target.value });
+  goCards = (e) => { if (e) e.preventDefault(); this.setState({ section: 'cards', view: 'list' }); };
+  goGroups = (e) => { e.preventDefault(); this.setState({ section: 'groups', view: 'list' }); };
+  goTemplates = (e) => { e.preventDefault(); this.setState({ section: 'templates', view: 'list' }); };
+  goPrint = (e) => { e.preventDefault(); this.setState({ section: 'print', view: 'list' }); };
+
+  // ---------- cards list ----------
+  onCardSearch = (e) => this.setState({ cardSearch: e.target.value });
+  setCardGroupFilter = (id) => this.setState({ cardGroupFilter: id });
+  setCardTemplateFilter = (e) => this.setState({ cardTemplateFilter: e.target.value });
+  setCardSort = (e) => this.setState({ cardSort: e.target.value });
+  toggleCardsView = () => this.setState({ cardsView: this.state.cardsView === 'grid' ? 'table' : 'grid' });
+  removeCard = (id) => this.setState({ cards: this.state.cards.filter((c) => c.id !== id) });
+  duplicateCard = (id) => {
+    const c = this.state.cards.find((x) => x.id === id);
+    if (!c) return;
+    const copy = { ...c, id: 'card-' + Date.now(), name: c.name + ' (Kopie)', updatedAt: 'gerade eben' };
+    const idx = this.state.cards.findIndex((x) => x.id === id);
+    const next = [...this.state.cards];
+    next.splice(idx + 1, 0, copy);
+    this.setState({ cards: next });
+  };
+  groupName(id) { const g = this.state.groups.find((x) => x.id === id); return g ? g.name : 'Ohne Gruppe'; }
+  templateName(id) { const t = this.state.templatesData.find((x) => x.id === id); return t ? t.name : '—'; }
+
+  // ---------- groups ----------
+  openNewGroup = () => this.setState({ section: 'groups', view: 'groupForm', editingGroupId: null, groupNameInput: '', groupDescInput: '' });
+  openEditGroup = (id) => {
+    const g = this.state.groups.find((x) => x.id === id);
+    this.setState({ section: 'groups', view: 'groupForm', editingGroupId: id, groupNameInput: g ? g.name : '', groupDescInput: g ? g.description : '' });
+  };
+  cancelGroupForm = () => this.setState({ view: 'list' });
+  setGroupName = (e) => this.setState({ groupNameInput: e.target.value });
+  setGroupDesc = (e) => this.setState({ groupDescInput: e.target.value });
+  saveGroup = (e) => {
+    e.preventDefault();
+    const { editingGroupId, groupNameInput, groupDescInput, groups } = this.state;
+    if (editingGroupId) this.setState({ groups: groups.map((g) => (g.id === editingGroupId ? { ...g, name: groupNameInput, description: groupDescInput } : g)), view: 'list' });
+    else this.setState({ groups: [...groups, { id: 'grp-' + Date.now(), name: groupNameInput, description: groupDescInput }], view: 'list' });
+  };
+  removeGroup = (id) => this.setState({ groups: this.state.groups.filter((g) => g.id !== id), cards: this.state.cards.map((c) => (c.groupId === id ? { ...c, groupId: null } : c)) });
+
+  // ---------- templates ----------
+  createTemplate = () => {
+    const id = 'tpl-' + Date.now();
+    this.setState({ templatesData: [...this.state.templatesData, { id, name: 'Neues Template', description: '', updatedAt: 'gerade eben', layers: [] }] }, () => this.openTemplate(id));
+  };
+  openTemplate = (id) => {
+    const t = this.state.templatesData.find((x) => x.id === id);
+    this.setState({ section: 'templates', view: 'editor', activeTemplateId: id, selectedLayerId: null, dirty: false, templateNameInput: t ? t.name : '', history: { past: [], future: [] }, zoomMode: 'fit', pan: { x: 0, y: 0 } });
+  };
+  backToTemplatesList = (e) => { if (e) e.preventDefault(); this.setState({ section: 'templates', view: 'list', selectedLayerId: null }); };
+  onTemplateSearch = (e) => this.setState({ templateSearch: e.target.value });
+  setTemplateName = (e) => this.setState({ templateNameInput: e.target.value, dirty: true });
+  saveTemplate = () => this.setState({ templatesData: this.state.templatesData.map((t) => (t.id === this.state.activeTemplateId ? { ...t, name: this.state.templateNameInput, updatedAt: 'gerade eben' } : t)), dirty: false });
+
+  activeLayers() {
+    const t = this.state.templatesData.find((x) => x.id === this.state.activeTemplateId);
+    return t ? t.layers : [];
+  }
+  selected() { return this.activeLayers().find((l) => l.id === this.state.selectedLayerId) || null; }
+  pushHistory() {
+    const past = [...this.state.history.past, this.activeLayers()].slice(-60);
+    this.setState({ history: { past, future: [] } });
+  }
+  setLayers(layers, extra) {
+    this.setState({ templatesData: this.state.templatesData.map((t) => (t.id === this.state.activeTemplateId ? { ...t, layers } : t)), dirty: true, ...(extra || {}) });
+  }
+  updateActiveLayers(fn, history = true) {
+    if (history) this.pushHistory();
+    this.setLayers(fn(this.activeLayers()));
+  }
+  undo = () => {
+    const { past, future } = this.state.history;
+    if (!past.length) return;
+    const prev = past[past.length - 1];
+    this.setLayers(prev, { history: { past: past.slice(0, -1), future: [this.activeLayers(), ...future].slice(0, 60) } });
+  };
+  redo = () => {
+    const { past, future } = this.state.history;
+    if (!future.length) return;
+    this.setLayers(future[0], { history: { past: [...past, this.activeLayers()], future: future.slice(1) } });
+  };
+
+  selectLayer = (id) => this.setState({ selectedLayerId: id, addMenuOpen: false });
+  deselectLayer = () => this.setState({ selectedLayerId: null, renamingLayerId: null, addMenuOpen: false });
+
+  newLayerDefaults(type, shape) {
+    const id = type + '-' + Math.random().toString(36).slice(2, 8);
+    const base = { id, visible: true };
+    if (type === 'frame') return { ...base, type, name: 'Kartenrahmen', assetId: null };
+    if (type === 'image') return { ...base, type, name: 'Bildfläche', x: 115, y: 220, width: 400, height: 400, rotation: 0, opacity: 1 };
+    if (type === 'icon') return { ...base, type, name: 'Icon', x: 275, y: 400, width: 80, height: 80, rotation: 0, opacity: 1, source: 'static', assetId: null, choiceAssetIds: [] };
+    if (type === 'text') return { ...base, type, name: 'Textfeld', x: 65, y: 400, width: 500, height: 80, rotation: 0, key: 'feld_' + id.slice(-4), source: 'user', defaultText: 'Text', fontFamily: 'Georgia', fontSize: 30, minFontSize: 16, color: '#201e1d', align: 'left', verticalAlign: 'top', lineHeight: 1.2, outlineColor: null, outlineWidth: 0, shadowColor: null, shadowBlur: 0, autoShrink: true, opacity: 1 };
+    return { ...base, type: 'shape', shape, name: shape === 'circle' ? 'Kreis' : shape === 'line' ? 'Linie' : 'Rechteck', x: 215, y: 340, width: 200, height: shape === 'line' ? 4 : 200, rotation: 0, fill: shape === 'line' ? null : '#f9f4ed', opacity: 1, stroke: '#8c491a', strokeWidth: 3, cornerRadius: shape === 'rect' ? 8 : 0 };
+  }
+  addLayer = (type, shape) => {
+    const layer = this.newLayerDefaults(type, shape);
+    this.updateActiveLayers((layers) => [...layers, layer]);
+    this.setState({ selectedLayerId: layer.id, addMenuOpen: false });
+  };
+  toggleAddMenu = () => this.setState({ addMenuOpen: !this.state.addMenuOpen });
+  toggleAdvanced = () => this.setState({ advancedOpen: !this.state.advancedOpen });
+  toggleSource = (e) => this.patchLayer({ source: e.target.checked ? 'user' : 'static' });
+  startRename = (id) => this.setState({ renamingLayerId: id, selectedLayerId: id, renameValue: (this.activeLayers().find((l) => l.id === id) || {}).name || '' });
+  setRenameValue = (e) => this.setState({ renameValue: e.target.value });
+  commitRename = (id) => {
+    this.updateActiveLayers((layers) => layers.map((l) => (l.id === id ? { ...l, name: this.state.renameValue || l.name } : l)));
+    this.setState({ renamingLayerId: null });
+  };
+  toggleVisible = (id) => this.updateActiveLayers((layers) => layers.map((l) => (l.id === id ? { ...l, visible: !l.visible } : l)));
+  duplicateSelected = () => {
+    const id = this.state.selectedLayerId;
+    if (!id) return;
+    let newId = null;
+    this.updateActiveLayers((layers) => {
+      const idx = layers.findIndex((l) => l.id === id);
+      if (idx === -1) return layers;
+      newId = id + '-copy-' + Math.random().toString(36).slice(2, 6);
+      const src = layers[idx];
+      const copy = { ...src, id: newId, name: src.name + ' (Kopie)', x: (src.x || 0) + 12, y: (src.y || 0) + 12 };
+      const next = [...layers];
+      next.splice(idx + 1, 0, copy);
+      return next;
+    });
+    if (newId) this.setState({ selectedLayerId: newId });
+  };
+  removeSelected = () => {
+    const id = this.state.selectedLayerId;
+    if (!id) return;
+    this.updateActiveLayers((layers) => layers.filter((l) => l.id !== id));
+    this.setState({ selectedLayerId: null });
+  };
+  moveSelectedFront = () => this.moveLayer(this.state.selectedLayerId, 'front');
+  moveSelectedBack = () => this.moveLayer(this.state.selectedLayerId, 'back');
+  moveLayer = (id, dir) => {
+    if (!id) return;
+    this.updateActiveLayers((layers) => {
+      const idx = layers.findIndex((l) => l.id === id);
+      const swap = dir === 'front' ? idx + 1 : idx - 1;
+      if (idx === -1 || swap < 0 || swap >= layers.length) return layers;
+      const next = [...layers];
+      [next[idx], next[swap]] = [next[swap], next[idx]];
+      return next;
+    });
+  };
+  patchLayer = (changes, history = true) => {
+    const id = this.state.selectedLayerId;
+    if (!id) return;
+    if (history) this.pushHistory();
+    this.setLayers(this.activeLayers().map((l) => (l.id === id ? { ...l, ...changes } : l)));
+  };
+  patchLayerId = (id, changes) => this.setLayers(this.activeLayers().map((l) => (l.id === id ? { ...l, ...changes } : l)));
+
+  // ---------- canvas interaction ----------
+  snap(v) { const g = this.props.snapGrid ?? 1; return g > 1 ? Math.round(v / g) * g : Math.round(v); }
+  stageDown = (e) => {
+    if (this.state.spaceDown || e.button === 1) return this.startPan(e);
+    this.deselectLayer();
+  };
+  startPan = (e) => {
+    e.preventDefault();
+    const sx = e.clientX, sy = e.clientY, p = this.state.pan;
+    const move = (ev) => this.setState({ pan: { x: p.x + (ev.clientX - sx), y: p.y + (ev.clientY - sy) } });
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  startDragLayer = (id, e) => {
+    e.stopPropagation();
+    if (this.state.spaceDown) return this.startPan(e);
+    this.selectLayer(id);
+    const l = this.activeLayers().find((x) => x.id === id);
+    if (!l || l.type === 'frame') return;
+    e.preventDefault();
+    const scale = this.currentScale;
+    const sx = e.clientX, sy = e.clientY, ox = l.x || 0, oy = l.y || 0;
+    let moved = false;
+    const move = (ev) => {
+      if (!moved) { moved = true; this.pushHistory(); }
+      this.patchLayerId(id, { x: this.snap(ox + (ev.clientX - sx) / scale), y: this.snap(oy + (ev.clientY - sy) / scale) });
+      this.setState({ cursorPos: { x: this.snap(ox + (ev.clientX - sx) / scale), y: this.snap(oy + (ev.clientY - sy) / scale) } });
+    };
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  startResize = (corner, e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const l = this.selected();
+    if (!l) return;
+    const scale = this.currentScale;
+    const sx = e.clientX, sy = e.clientY;
+    const o = { x: l.x || 0, y: l.y || 0, w: l.width || 0, h: l.height || 0 };
+    let moved = false;
+    const move = (ev) => {
+      if (!moved) { moved = true; this.pushHistory(); }
+      const dx = (ev.clientX - sx) / scale, dy = (ev.clientY - sy) / scale;
+      let { x, y, w, h } = o;
+      if (corner.includes('e')) w = Math.max(12, o.w + dx);
+      if (corner.includes('s')) h = Math.max(12, o.h + dy);
+      if (corner.includes('w')) { w = Math.max(12, o.w - dx); x = o.x + (o.w - w); }
+      if (corner.includes('n')) { h = Math.max(12, o.h - dy); y = o.y + (o.h - h); }
+      this.patchLayerId(l.id, { x: this.snap(x), y: this.snap(y), width: this.snap(w), height: this.snap(h) });
+    };
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  stageWheel = (e) => {
+    if (!(e.metaKey || e.ctrlKey)) return;
+    e.preventDefault();
+    const next = Math.min(4, Math.max(0.1, this.scale() * (e.deltaY > 0 ? 0.9 : 1.1)));
+    this.setZoom(next);
+  };
+  setZoom = (v) => this.setState({ zoomMode: 'manual', zoomValue: Math.min(4, Math.max(0.1, v)) });
+  zoomIn = () => this.setZoom(this.scale() * 1.2);
+  zoomOut = () => this.setZoom(this.scale() / 1.2);
+  zoomFit = () => this.setState({ zoomMode: 'fit', pan: { x: 0, y: 0 } });
+  toggleShortcuts = () => this.setState({ shortcutsOpen: !this.state.shortcutsOpen });
+
+  // ---------- assets ----------
+  assetName(id) { const a = [...this.FRAME_ASSETS, ...this.ICON_ASSETS].find((x) => x.id === id); return a ? a.name : null; }
+  openSinglePicker = () => this.setState({ assetPicker: { open: true, multi: false } });
+  openMultiPicker = () => this.setState({ assetPicker: { open: true, multi: true } });
+  closeAssetPicker = () => this.setState({ assetPicker: { open: false, multi: false } });
+  stopPropagation = (e) => e.stopPropagation();
+  pickAsset = (assetId) => {
+    const layer = this.selected();
+    if (!layer) return;
+    if (this.state.assetPicker.multi) {
+      const cur = layer.choiceAssetIds || [];
+      this.patchLayer({ choiceAssetIds: cur.includes(assetId) ? cur.filter((x) => x !== assetId) : [...cur, assetId] });
+    } else { this.patchLayer({ assetId }); this.closeAssetPicker(); }
+  };
+
+  // ---------- card editor ----------
+  openCardEditor = (cardId) => {
+    const card = cardId ? this.state.cards.find((c) => c.id === cardId) : null;
+    const tplId = card ? card.templateId : this.state.activeTemplateId;
+    const layers = (this.state.templatesData.find((t) => t.id === tplId) || { layers: [] }).layers;
+    const cardValues = {};
+    layers.filter((l) => l.type === 'text' && l.source === 'user').forEach((l) => { cardValues[l.key] = card && card.values[l.key] !== undefined ? card.values[l.key] : l.defaultText; });
+    const cardIconChoices = {};
+    layers.filter((l) => l.type === 'icon' && l.source === 'user').forEach((l) => { cardIconChoices[l.id] = (card && card.iconChoices[l.id]) || (l.choiceAssetIds || [])[0] || null; });
+    this.setState({
+      section: 'templates', view: 'card', activeTemplateId: tplId, editingCardId: cardId || null,
+      cardNameInput: card ? card.name : 'Neue Karte', selectedGroupId: card && card.groupId ? card.groupId : '',
+      cardValues, cardIconChoices, cardFontOverrides: {}, cardColorOverrides: {},
+    });
+  };
+  newCardFromList = () => this.openCardEditor(null);
+  leaveCardEditor = (e) => {
+    if (e) e.preventDefault();
+    if (this.state.editingCardId) this.setState({ section: 'cards', view: 'list' });
+    else this.setState({ section: 'cards', view: 'list' });
+  };
+  setCardName = (e) => this.setState({ cardNameInput: e.target.value });
+  setCardTemplate = (e) => { const id = e.target.value; this.setState({ activeTemplateId: id }, () => this.openCardEditor(this.state.editingCardId)); };
+  setCardValue = (key, e) => this.setState({ cardValues: { ...this.state.cardValues, [key]: e.target.value } });
+  setCardFontOverride = (key, e) => this.setState({ cardFontOverrides: { ...this.state.cardFontOverrides, [key]: Number(e.target.value) } });
+  setCardColorOverride = (key, e) => this.setState({ cardColorOverrides: { ...this.state.cardColorOverrides, [key]: e.target.value } });
+  setIconChoice = (layerId, assetId) => this.setState({ cardIconChoices: { ...this.state.cardIconChoices, [layerId]: assetId } });
+  setCardGroup = (e) => this.setState({ selectedGroupId: e.target.value });
+  saveCard = (e) => {
+    e.preventDefault();
+    const s = this.state;
+    const payload = { name: s.cardNameInput || 'Unbenannte Karte', groupId: s.selectedGroupId || null, templateId: s.activeTemplateId, values: { ...s.cardValues }, iconChoices: { ...s.cardIconChoices }, updatedAt: 'gerade eben' };
+    if (s.editingCardId) this.setState({ cards: s.cards.map((c) => (c.id === s.editingCardId ? { ...c, ...payload } : c)), section: 'cards', view: 'list' });
+    else this.setState({ cards: [{ id: 'card-' + Date.now(), rarity: 'Gewöhnlich', ...payload }, ...s.cards], section: 'cards', view: 'list' });
+  };
+
+  addToCart = (id) => {
+    const cart = this.state.printCart;
+    const hit = cart.find((i) => i.cardId === id);
+    this.setState({ printCart: hit ? cart.map((i) => (i.cardId === id ? { ...i, qty: i.qty + 1 } : i)) : [...cart, { cardId: id, qty: 1 }] });
+  };
+  setCartQty = (id, delta) => this.setState({ printCart: this.state.printCart.map((i) => (i.cardId === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i)) });
+  removeFromCart = (id) => this.setState({ printCart: this.state.printCart.filter((i) => i.cardId !== id) });
+  clearCart = () => this.setState({ printCart: [] });
+  toggleCutMarks = () => this.setState({ cutMarks: !this.state.cutMarks });
+  toggleBleed = () => this.setState({ bleed: !this.state.bleed });
+  rarityTag(r) { return r === 'Gewöhnlich' ? 'tag-neutral' : r === 'Selten' ? 'tag-accent-2' : r === 'Legendär' ? 'tag-outline' : 'tag-accent'; }
+
+  // ---------- preview builder ----------
+  buildPreviewLayers(layers, selectedId, scale, interactive) {
+    return layers.filter((l) => l.visible !== false).map((l) => {
+      const isFrame = l.type === 'frame';
+      const x = isFrame ? 0 : l.x || 0, y = isFrame ? 0 : l.y || 0;
+      const w = isFrame ? this.CARD_W : l.width || 0, h = isFrame ? this.CARD_H : l.height || 0;
+      const rot = isFrame ? 0 : l.rotation || 0;
+      let base = `position:absolute;left:${x * scale}px;top:${y * scale}px;width:${w * scale}px;height:${h * scale}px;transform:rotate(${rot}deg);transform-origin:top left;opacity:${l.opacity ?? 1};box-sizing:border-box;font-size:12px;${interactive ? 'cursor:move;' : ''}`;
+      let content = '';
+      if (l.type === 'image') {
+        base += 'border:2px dashed var(--color-neutral-500);display:flex;align-items:center;justify-content:center;background:var(--color-neutral-300);color:var(--color-neutral-700);overflow:hidden;';
+        content = interactive ? l.name : '';
+      } else if (l.type === 'shape') {
+        if (l.shape === 'circle') base += 'border-radius:50%;';
+        else if (l.shape === 'rect') base += `border-radius:${(l.cornerRadius || 0) * scale}px;`;
+        else base += `height:${Math.max(2, 3 * scale)}px;`;
+        base += `background:${l.fill || 'transparent'};border:${(l.strokeWidth || 0) * scale}px solid ${l.stroke || 'transparent'};`;
+      } else if (l.type === 'icon') {
+        base += 'border-radius:50%;background:var(--color-accent-300);display:flex;align-items:center;justify-content:center;color:var(--color-accent-800);text-align:center;padding:2px;overflow:hidden;font-size:8px;line-height:1.1;';
+        content = interactive ? (l.assetId ? this.assetName(l.assetId) : l.source === 'user' ? 'Auswahl' : 'Icon') : '';
+      } else if (l.type === 'frame') {
+        base += `border:${Math.max(2, 8 * scale)}px solid ${l.assetId ? 'var(--color-accent-700)' : 'var(--color-neutral-400)'};border-radius:${10 * scale}px;pointer-events:none;`;
+      } else if (l.type === 'text') {
+        const va = l.verticalAlign === 'top' ? 'flex-start' : l.verticalAlign === 'bottom' ? 'flex-end' : 'center';
+        const ha = l.align === 'center' ? 'center' : l.align === 'right' ? 'flex-end' : 'flex-start';
+        base += `display:flex;align-items:${va};justify-content:${ha};font-family:'${l.fontFamily || 'Georgia'}';font-size:${Math.max(5, (l.fontSize || 24) * scale)}px;color:${l.color || '#201e1d'};line-height:${l.lineHeight || 1.2};text-align:${l.align || 'left'};overflow:hidden;`;
+        content = l.defaultText || '';
+      }
+      const sel = l.id === selectedId ? 'outline:1px solid var(--color-accent);' : '';
+      return { ...l, previewStyle: base + sel, previewContent: content, onPointerDown: interactive ? (e) => this.startDragLayer(l.id, e) : undefined };
+    });
+  }
+  instanceLayers(templateId, values, iconChoices, fontOv, colorOv) {
+    const t = this.state.templatesData.find((x) => x.id === templateId);
+    if (!t) return [];
+    return t.layers.map((l) => {
+      if (l.type === 'text' && l.source === 'user') {
+        const v = values[l.key];
+        return { ...l, defaultText: v !== undefined && v !== '' ? v : l.defaultText, fontSize: (fontOv && fontOv[l.key]) || l.fontSize, color: (colorOv && colorOv[l.key]) || l.color };
+      }
+      if (l.type === 'icon' && l.source === 'user') return { ...l, assetId: (iconChoices && iconChoices[l.id]) || l.assetId };
+      return l;
+    });
+  }
+
+  renderVals() {
+    const s = this.state;
+    const showEmpty = this.props.showEmptyStates ?? false;
+    const groups = showEmpty ? [] : s.groups;
+    const allCards = showEmpty ? [] : s.cards;
+    const templatesData = s.templatesData;
+
+    // --- all-cards list ---
+    const q = s.cardSearch.toLowerCase();
+    let filtered = allCards.filter((c) => {
+      if (q && !c.name.toLowerCase().includes(q)) return false;
+      if (s.cardTemplateFilter && c.templateId !== s.cardTemplateFilter) return false;
+      if (s.cardGroupFilter === 'all') return true;
+      if (s.cardGroupFilter === 'none') return !c.groupId;
+      return c.groupId === s.cardGroupFilter;
+    });
+    if (s.cardSort === 'name') filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name, 'de'));
+    if (s.cardSort === 'group') filtered = [...filtered].sort((a, b) => this.groupName(a.groupId).localeCompare(this.groupName(b.groupId), 'de') || a.name.localeCompare(b.name, 'de'));
+
+    const thumbW = 176;
+    const thumbScale = thumbW / this.CARD_W;
+    const visibleCards = filtered.map((c) => ({
+      ...c,
+      groupName: this.groupName(c.groupId),
+      templateName: this.templateName(c.templateId),
+      tagClass: this.rarityTag(c.rarity),
+      thumbStyle: `position:absolute;inset:0;transform-origin:top left;width:${thumbW}px;height:${thumbW * (this.CARD_H / this.CARD_W)}px;background:#fff`,
+      previewLayers: this.buildPreviewLayers(this.instanceLayers(c.templateId, c.values, c.iconChoices), null, thumbScale, false),
+      open: (e) => { if (e) e.preventDefault(); this.openCardEditor(c.id); },
+      duplicate: (e) => { e.stopPropagation(); this.duplicateCard(c.id); },
+      remove: (e) => { e.stopPropagation(); this.removeCard(c.id); },
+      addToCart: (e) => { e.stopPropagation(); this.addToCart(c.id); },
+      cartColor: s.printCart.some((i) => i.cardId === c.id) ? 'var(--color-accent)' : 'var(--color-text)',
+      cartTitle: s.printCart.some((i) => i.cardId === c.id) ? 'Im Druckprojekt — noch ein Exemplar' : 'Zum Druckprojekt hinzufügen',
+      cartLabel: s.printCart.some((i) => i.cardId === c.id) ? 'Im Druckprojekt +1' : 'Drucken',
+    }));
+
+    const chip = (active) => `display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;cursor:pointer;font-size:13px;font-family:var(--font-body);border:1px solid ${active ? 'var(--color-accent)' : 'var(--color-divider)'};background:${active ? 'var(--color-accent-200)' : 'var(--color-surface)'};color:${active ? 'var(--color-accent-800)' : 'var(--color-text)'}`;
+    const groupFilterChips = [
+      { id: 'all', label: 'Alle Karten', count: allCards.length },
+      ...groups.map((g) => ({ id: g.id, label: g.name, count: allCards.filter((c) => c.groupId === g.id).length })),
+      { id: 'none', label: 'Ohne Gruppe', count: allCards.filter((c) => !c.groupId).length },
+    ].map((g) => ({ ...g, chipStyle: chip(s.cardGroupFilter === g.id), pick: () => this.setCardGroupFilter(g.id) }));
+
+    const groupCards = groups.map((g) => ({
+      ...g,
+      cardCount: allCards.filter((c) => c.groupId === g.id).length,
+      openCards: (e) => { e.preventDefault(); this.setState({ section: 'cards', view: 'list', cardGroupFilter: g.id }); },
+      openEdit: (e) => { e.stopPropagation(); this.openEditGroup(g.id); },
+      remove: (e) => { e.stopPropagation(); this.removeGroup(g.id); },
+    }));
+
+    const filteredTemplates = templatesData
+      .filter((t) => t.name.toLowerCase().includes(s.templateSearch.toLowerCase()))
+      .map((t) => ({ ...t, layerCount: t.layers.length, cardCount: allCards.filter((c) => c.templateId === t.id).length, open: (e) => { e.preventDefault(); this.openTemplate(t.id); } }));
+
+    // --- editor ---
+    const layers = this.activeLayers();
+    const selectedLayer = layers.find((l) => l.id === s.selectedLayerId) || null;
+    const hasFrame = layers.some((l) => l.type === 'frame');
+    const scale = this.scale();
+    this.currentScale = scale;
+
+    const menuRow = (disabled) => `display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:10px;border:none;background:transparent;color:var(--color-text);cursor:pointer;font-size:14px;font-family:var(--font-body);opacity:${disabled ? 0.4 : 1}`;
+    const tools = [
+      { key: 'text', glyph: 'T', hint: 'T', label: 'Text', activate: () => this.addLayer('text'), disabled: false },
+      { key: 'image', glyph: '▣', hint: 'I', label: 'Bildfläche', activate: () => this.addLayer('image'), disabled: false },
+      { key: 'rect', glyph: '▭', hint: 'R', label: 'Rechteck', activate: () => this.addLayer('shape', 'rect'), disabled: false },
+      { key: 'circle', glyph: '◯', hint: 'O', label: 'Kreis', activate: () => this.addLayer('shape', 'circle'), disabled: false },
+      { key: 'line', glyph: '─', hint: 'L', label: 'Linie', activate: () => this.addLayer('shape', 'line'), disabled: false },
+      { key: 'icon', glyph: '★', hint: 'K', label: 'Icon', activate: () => this.addLayer('icon'), disabled: false },
+      { key: 'frame', glyph: '◫', hint: 'F', label: hasFrame ? 'Rahmen (vorhanden)' : 'Rahmen', activate: hasFrame ? () => {} : () => this.addLayer('frame'), disabled: hasFrame },
+    ].map((t) => ({ ...t, style: menuRow(t.disabled) }));
+
+    const typeLabel = (l) => (l.type === 'text' ? 'Text' : l.type === 'image' ? 'Bild' : l.type === 'icon' ? 'Icon' : l.type === 'frame' ? 'Rahmen' : l.shape === 'circle' ? 'Kreis' : l.shape === 'line' ? 'Linie' : 'Rechteck');
+    const dotFor = (l) => (l.type === 'image' ? 'var(--color-accent-500)' : l.type === 'icon' ? 'var(--color-accent-2-500)' : l.type === 'text' ? 'var(--color-accent-700)' : 'var(--color-neutral-500)');
+    const layerRows = [...layers].reverse().map((l) => {
+      const sel = l.id === s.selectedLayerId;
+      return {
+        ...l,
+        typeLabel: typeLabel(l),
+        dot: dotFor(l),
+        hidden: !l.visible,
+        eyeColor: l.visible ? 'var(--color-text)' : 'var(--color-neutral-500)',
+        select: () => this.selectLayer(l.id),
+        toggleVisible: (e) => { e.stopPropagation(); this.toggleVisible(l.id); },
+        startRename: (e) => { e.stopPropagation(); this.startRename(l.id); },
+        renaming: s.renamingLayerId === l.id,
+        notRenaming: s.renamingLayerId !== l.id,
+        renameValue: s.renameValue,
+        setRenameValue: this.setRenameValue,
+        commitRename: () => this.commitRename(l.id),
+        renameKey: (e) => { if (e.key === 'Enter') this.commitRename(l.id); if (e.key === 'Escape') this.setState({ renamingLayerId: null }); },
+        rowStyle: `display:flex;align-items:center;gap:6px;padding:6px;border-radius:10px;cursor:pointer;background:${sel ? 'var(--color-accent-200)' : 'transparent'};color:${sel ? 'var(--color-accent-800)' : 'var(--color-text)'}`,
+      };
+    });
+
+    const previewLayers = this.buildPreviewLayers(layers, s.selectedLayerId, scale, true);
+    const canvasStyle = `position:absolute;left:50%;top:50%;width:${this.CARD_W * scale}px;height:${this.CARD_H * scale}px;transform:translate(-50%,-50%) translate(${s.pan.x}px,${s.pan.y}px);border-radius:${10 * scale}px;background:#fff;box-shadow:var(--shadow-lg)`;
+
+    const geoSel = selectedLayer && selectedLayer.type !== 'frame' ? selectedLayer : null;
+    const selectionBoxStyle = geoSel
+      ? `position:absolute;left:${(geoSel.x || 0) * scale}px;top:${(geoSel.y || 0) * scale}px;width:${(geoSel.width || 0) * scale}px;height:${(geoSel.height || 0) * scale}px;transform:rotate(${geoSel.rotation || 0}deg);transform-origin:top left;outline:1.5px solid var(--color-accent);pointer-events:none;z-index:10`
+      : 'display:none';
+    const handleStyle = (pos, cur) => `position:absolute;${pos};width:10px;height:10px;border-radius:50%;background:var(--color-surface);border:1.5px solid var(--color-accent);pointer-events:auto;cursor:${cur}`;
+    const resizeHandles = [
+      { key: 'nw', style: handleStyle('left:-5px;top:-5px', 'nwse-resize'), down: (e) => this.startResize('nw', e) },
+      { key: 'ne', style: handleStyle('right:-5px;top:-5px', 'nesw-resize'), down: (e) => this.startResize('ne', e) },
+      { key: 'se', style: handleStyle('right:-5px;bottom:-5px', 'nwse-resize'), down: (e) => this.startResize('se', e) },
+      { key: 'sw', style: handleStyle('left:-5px;bottom:-5px', 'nesw-resize'), down: (e) => this.startResize('sw', e) },
+    ];
+
+    const shapeKind = selectedLayer && selectedLayer.type === 'shape' ? selectedLayer.shape : null;
+    const mk = (field, parse) => (e) => this.patchLayer({ [field]: parse ? parse(e.target.value) : e.target.value });
+
+    const pickerKind = selectedLayer && selectedLayer.type === 'frame' ? 'frame' : 'icon';
+    const assetPool = pickerKind === 'frame' ? this.FRAME_ASSETS : this.ICON_ASSETS;
+    const assetPickerItems = assetPool.map((a) => {
+      const chosen = s.assetPicker.multi ? ((selectedLayer && selectedLayer.choiceAssetIds) || []).includes(a.id) : !!selectedLayer && selectedLayer.assetId === a.id;
+      return { ...a, chosen, toggle: () => this.pickAsset(a.id), rowStyle: `display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px;border-radius:12px;border:1px solid var(--color-divider);background:${chosen ? 'var(--color-accent-100)' : 'transparent'};cursor:pointer` };
+    });
+    const choiceChips = selectedLayer ? (selectedLayer.choiceAssetIds || []).map((id) => ({ id, name: this.assetName(id) })) : [];
+
+    // --- card editor rows ---
+    const cardTplLayers = (templatesData.find((t) => t.id === s.activeTemplateId) || { layers: [] }).layers;
+    const imageLayerRows = cardTplLayers.filter((l) => l.type === 'image').map((l) => ({ ...l, slotId: 'cm-card-img-' + s.activeTemplateId + '-' + l.id }));
+    const userTextRows = cardTplLayers.filter((l) => l.type === 'text' && l.source === 'user').map((l) => ({
+      ...l,
+      value: s.cardValues[l.key] ?? l.defaultText,
+      setValue: (e) => this.setCardValue(l.key, e),
+      fontSize: s.cardFontOverrides[l.key] ?? l.fontSize,
+      setFontSize: (e) => this.setCardFontOverride(l.key, e),
+      color: s.cardColorOverrides[l.key] ?? l.color,
+      setColor: (e) => this.setCardColorOverride(l.key, e),
+    }));
+    const userIconRows = cardTplLayers.filter((l) => l.type === 'icon' && l.source === 'user').map((l) => ({
+      ...l,
+      choices: (l.choiceAssetIds || []).map((aid) => {
+        const chosen = s.cardIconChoices[l.id] === aid;
+        return { id: aid, name: this.assetName(aid), pick: () => this.setIconChoice(l.id, aid), tagClass: chosen ? 'tag-accent' : 'tag-neutral', border: chosen ? '2px solid var(--color-accent-700)' : '1px solid transparent' };
+      }),
+    }));
+    const instancePreviewLayers = this.buildPreviewLayers(this.instanceLayers(s.activeTemplateId, s.cardValues, s.cardIconChoices, s.cardFontOverrides, s.cardColorOverrides), null, 280 / this.CARD_W, false);
+
+    const cartRows = s.printCart.map((i) => {
+      const card = allCards.find((c) => c.id === i.cardId);
+      return {
+        cardId: i.cardId, qty: i.qty, name: card ? card.name : 'Gelöschte Karte',
+        inc: () => this.setCartQty(i.cardId, 1), dec: () => this.setCartQty(i.cardId, -1), remove: () => this.removeFromCart(i.cardId),
+      };
+    }).filter((r) => r.name !== 'Gelöschte Karte');
+    const cartTotal = cartRows.reduce((n, r) => n + r.qty, 0);
+    const slotW = 116;
+    const slotScale = slotW / this.CARD_W;
+    const expanded = [];
+    s.printCart.forEach((i) => {
+      const card = allCards.find((c) => c.id === i.cardId);
+      if (card) for (let n = 0; n < i.qty; n++) expanded.push(card);
+    });
+    const sheetCount = Math.max(1, Math.ceil(expanded.length / 9));
+    const border = s.cutMarks ? '1px dashed var(--color-neutral-400)' : '1px solid var(--color-neutral-200)';
+    const printSheets = Array.from({ length: sheetCount }, (_, p) => ({
+      key: 'sheet' + p,
+      label: 'Bogen ' + (p + 1) + ' von ' + sheetCount,
+      slots: Array.from({ length: 9 }, (_, i) => {
+        const card = expanded[p * 9 + i];
+        return {
+          key: 'slot' + p + '-' + i, hasCard: !!card, border,
+          thumbStyle: `position:absolute;inset:0;width:${slotW}px;height:${slotW * (this.CARD_H / this.CARD_W)}px;transform-origin:top left;background:#fff`,
+          previewLayers: card ? this.buildPreviewLayers(this.instanceLayers(card.templateId, card.values, card.iconChoices), null, slotScale, false) : [],
+        };
+      }),
+    }));
+
+    const linkStyle = (active) => `display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;text-decoration:none;font-size:14px;color:${active ? 'var(--color-accent-800)' : 'var(--color-text)'};background:${active ? 'var(--color-accent-100)' : 'transparent'};font-weight:${active ? '600' : '400'}`;
+
+    const shortcutRows = [
+      { what: 'Auswahl aufheben', keys: 'V / Esc' },
+      { what: 'Text / Bild', keys: 'T / I' },
+      { what: 'Rechteck / Kreis / Linie', keys: 'R / O / L' },
+      { what: 'Icon / Rahmen', keys: 'K / F' },
+      { what: 'Verschieben', keys: '↑ ↓ ← →' },
+      { what: 'Verschieben ×10', keys: '⇧ + Pfeil' },
+      { what: 'Duplizieren', keys: '⌘D' },
+      { what: 'Löschen', keys: 'Entf' },
+      { what: 'Umbenennen', keys: 'F2 / Doppelklick' },
+      { what: 'Sichtbarkeit', keys: 'H' },
+      { what: 'Ebene vor / zurück', keys: '] / [' },
+      { what: 'Rückgängig / Wiederherstellen', keys: '⌘Z / ⇧⌘Z' },
+      { what: 'Speichern', keys: '⌘S' },
+      { what: 'Einpassen / 100 %', keys: '⌘0 / ⌘1' },
+      { what: 'Zoomen', keys: '+ / − / ⌘Rad' },
+      { what: 'Ansicht schieben', keys: 'Space + Ziehen' },
+    ];
+
+    return {
+      inputShape: this.props.inputShape ?? 'soft',
+      isLogin: !s.loggedIn,
+      isApp: s.loggedIn && !(s.section === 'templates' && s.view === 'editor'),
+      email: s.email, password: s.password, login: this.login, logout: this.logout, setEmail: this.setEmail, setPassword: this.setPassword,
+
+      cardsLinkStyle: linkStyle(s.section === 'cards'),
+      groupsLinkStyle: linkStyle(s.section === 'groups'),
+      templatesLinkStyle: linkStyle(s.section === 'templates'),
+      printLinkStyle: linkStyle(s.section === 'print'),
+      goCards: this.goCards, goGroups: this.goGroups, goTemplates: this.goTemplates, goPrint: this.goPrint,
+
+      isCardsList: s.section === 'cards' && s.view === 'list',
+      cardsCountLabel: filtered.length === allCards.length ? allCards.length + ' Karten insgesamt' : filtered.length + ' von ' + allCards.length + ' Karten',
+      cardSearch: s.cardSearch, onCardSearch: this.onCardSearch,
+      cardTemplateFilter: s.cardTemplateFilter, setCardTemplateFilter: this.setCardTemplateFilter,
+      cardSort: s.cardSort, setCardSort: this.setCardSort,
+      templateOptions: templatesData.map((t) => ({ id: t.id, name: t.name })),
+      groupFilterChips, visibleCards,
+      cardsGridView: s.cardsView === 'grid', cardsTableView: s.cardsView === 'table',
+      cardsViewLabel: s.cardsView === 'grid' ? 'Als Liste' : 'Als Raster',
+      toggleCardsView: this.toggleCardsView,
+      noCardResults: allCards.length > 0 && filtered.length === 0,
+      newCardFromList: this.newCardFromList,
+
+      isGroupsList: s.section === 'groups' && s.view === 'list',
+      isGroupForm: s.section === 'groups' && s.view === 'groupForm',
+      groupsEmpty: groups.length === 0, groupsNotEmpty: groups.length > 0,
+      groupCards, openNewGroup: this.openNewGroup,
+      groupFormTitle: s.editingGroupId ? 'Kartengruppe bearbeiten' : 'Neue Kartengruppe',
+      groupNameInput: s.groupNameInput, groupDescInput: s.groupDescInput,
+      setGroupName: this.setGroupName, setGroupDesc: this.setGroupDesc, saveGroup: this.saveGroup, cancelGroupForm: this.cancelGroupForm,
+
+      isTemplatesList: s.section === 'templates' && s.view === 'list',
+      isTemplateEditor: s.loggedIn && s.section === 'templates' && s.view === 'editor',
+      isCardEditor: s.section === 'templates' && s.view === 'card',
+      templateSearch: s.templateSearch, onTemplateSearch: this.onTemplateSearch, filteredTemplates,
+      createTemplate: this.createTemplate, backToTemplatesList: this.backToTemplatesList,
+      templateNameInput: s.templateNameInput, setTemplateName: this.setTemplateName, saveTemplate: this.saveTemplate,
+      notDirty: !s.dirty, saveLabel: s.dirty ? 'Speichern' : 'Gespeichert',
+      dirtyLabel: s.dirty ? 'Ungespeicherte Änderungen' : 'Alle Änderungen gespeichert',
+      undo: this.undo, redo: this.redo,
+      cantUndo: s.history.past.length === 0, cantRedo: s.history.future.length === 0,
+      undoOpacity: s.history.past.length ? 1 : 0.35, redoOpacity: s.history.future.length ? 1 : 0.35,
+      shortcutsOpen: s.shortcutsOpen, toggleShortcuts: this.toggleShortcuts, shortcutRows,
+
+      tools, layerRows,
+      addMenuOpen: s.addMenuOpen, toggleAddMenu: this.toggleAddMenu,
+      advancedOpen: s.advancedOpen && !!selectedLayer, toggleAdvanced: this.toggleAdvanced,
+      advancedLabel: s.advancedOpen ? '− Weitere Optionen' : '+ Weitere Optionen',
+      hasAdvanced: !!selectedLayer && selectedLayer.type !== 'image',
+      toggleSource: this.toggleSource,
+      duplicateSelected: this.duplicateSelected, removeSelected: this.removeSelected,
+      moveSelectedFront: this.moveSelectedFront, moveSelectedBack: this.moveSelectedBack,
+
+      stageRef: this.stageRef, stageDown: this.stageDown, stageWheel: this.stageWheel,
+      stageCursor: s.spaceDown ? 'grab' : 'default',
+      canvasStyle, previewLayers,
+      showSelectionBox: !!geoSel, selectionBoxStyle, resizeHandles,
+      zoomLabel: Math.round(scale * 100) + ' %',
+      zoomIn: this.zoomIn, zoomOut: this.zoomOut, zoomFit: this.zoomFit,
+      statusLabel: selectedLayer ? typeLabel(selectedLayer) + ' · ' + (geoSel ? Math.round(geoSel.x || 0) + ', ' + Math.round(geoSel.y || 0) + ' · ' + Math.round(geoSel.width || 0) + '×' + Math.round(geoSel.height || 0) : 'ganzes Canvas') : this.CARD_W + ' × ' + this.CARD_H + ' Einheiten',
+
+      noLayerSelected: !selectedLayer, hasSelectedLayer: !!selectedLayer,
+      selectedLayer: selectedLayer || {}, selectedDot: selectedLayer ? dotFor(selectedLayer) : 'transparent',
+      showGeometry: !!geoSel, showOpacity: !!selectedLayer && selectedLayer.type !== 'frame',
+      isTextLayer: !!selectedLayer && selectedLayer.type === 'text',
+      isImageLayer: !!selectedLayer && selectedLayer.type === 'image',
+      isIconLayer: !!selectedLayer && selectedLayer.type === 'icon',
+      isShapeLayer: !!selectedLayer && selectedLayer.type === 'shape',
+      isFrameLayer: !!selectedLayer && selectedLayer.type === 'frame',
+      isRectShape: shapeKind === 'rect',
+      shapeKindLabel: shapeKind === 'circle' ? 'Kreis' : shapeKind === 'line' ? 'Linie' : 'Rechteck',
+
+      setX: mk('x', Number), setY: mk('y', Number), setWidth: mk('width', Number), setHeight: mk('height', Number),
+      setRotation: mk('rotation', Number), setOpacity: mk('opacity', Number),
+      setKey: mk('key'), setDefaultText: mk('defaultText'), setFontFamily: mk('fontFamily'),
+      setFontSize: mk('fontSize', Number), setMinFontSize: mk('minFontSize', Number), setColor: mk('color'),
+      setLineHeight: mk('lineHeight', Number), setOutlineWidth: mk('outlineWidth', Number), setShadowBlur: mk('shadowBlur', Number),
+      setAutoShrink: (e) => this.patchLayer({ autoShrink: e.target.checked }),
+      setOutlineColor: (e) => this.patchLayer({ outlineColor: e.target.value }),
+      setShadowColor: (e) => this.patchLayer({ shadowColor: e.target.value }),
+      outlineColorValue: (selectedLayer && selectedLayer.outlineColor) || '#000000',
+      shadowColorValue: (selectedLayer && selectedLayer.shadowColor) || '#000000',
+      fillColorValue: (selectedLayer && selectedLayer.fill) || '#ffffff',
+      strokeColorValue: (selectedLayer && selectedLayer.stroke) || '#000000',
+      setFill: mk('fill'), setStroke: mk('stroke'), setStrokeWidth: mk('strokeWidth', Number), setCornerRadius: mk('cornerRadius', Number),
+      isStaticSource: !!selectedLayer && selectedLayer.source === 'static',
+      isUserSource: !!selectedLayer && selectedLayer.source === 'user',
+      setSourceStatic: () => this.patchLayer({ source: 'static' }), setSourceUser: () => this.patchLayer({ source: 'user' }),
+      alignLeft: !!selectedLayer && selectedLayer.align === 'left', alignCenter: !!selectedLayer && selectedLayer.align === 'center', alignRight: !!selectedLayer && selectedLayer.align === 'right',
+      setAlignLeft: () => this.patchLayer({ align: 'left' }), setAlignCenter: () => this.patchLayer({ align: 'center' }), setAlignRight: () => this.patchLayer({ align: 'right' }),
+      vAlignTop: !!selectedLayer && selectedLayer.verticalAlign === 'top', vAlignMiddle: !!selectedLayer && selectedLayer.verticalAlign === 'middle', vAlignBottom: !!selectedLayer && selectedLayer.verticalAlign === 'bottom',
+      setVAlignTop: () => this.patchLayer({ verticalAlign: 'top' }), setVAlignMiddle: () => this.patchLayer({ verticalAlign: 'middle' }), setVAlignBottom: () => this.patchLayer({ verticalAlign: 'bottom' }),
+      fontOptions: this.FONTS,
+      singleAssetLabel: selectedLayer && selectedLayer.assetId ? this.assetName(selectedLayer.assetId) + ' ändern' : 'Bild wählen',
+      choiceCount: choiceChips.length, choiceChips,
+      openSinglePicker: this.openSinglePicker, openMultiPicker: this.openMultiPicker,
+      assetPickerOpen: s.assetPicker.open,
+      assetPickerTitle: pickerKind === 'frame' ? 'Rahmenbild wählen' : s.assetPicker.multi ? 'Icon-Auswahl verwalten' : 'Icon wählen',
+      assetPickerItems, closeAssetPicker: this.closeAssetPicker, stopPropagation: this.stopPropagation,
+
+      cardEditorTitle: (s.editingCardId ? 'Karte bearbeiten' : 'Neue Karte') + ' — ' + this.templateName(s.activeTemplateId),
+      activeTemplateId: s.activeTemplateId, setCardTemplate: this.setCardTemplate,
+      cardNameInput: s.cardNameInput, setCardName: this.setCardName,
+      openCardEditor: () => this.openCardEditor(null), leaveCardEditor: this.leaveCardEditor,
+      imageLayerRows, userTextRows, userIconRows, instancePreviewLayers,
+      groups, selectedGroupId: s.selectedGroupId, setCardGroup: this.setCardGroup, saveCard: this.saveCard,
+
+      isPrint: s.section === 'print',
+      cartRows, cartTotal, hasCartItems: cartTotal > 0, cartEmpty: cartRows.length === 0, cartNotEmpty: cartRows.length > 0,
+      printSheets, clearCart: this.clearCart,
+      printSummary: cartRows.length + ' Karten · ' + cartTotal + ' Exemplare · ' + sheetCount + (sheetCount === 1 ? ' Bogen A4' : ' Bogen A4'),
+      cutMarks: s.cutMarks, bleed: s.bleed, toggleCutMarks: this.toggleCutMarks, toggleBleed: this.toggleBleed,
+    };
+  }
+}
+</script>
+</body>
+</html>
