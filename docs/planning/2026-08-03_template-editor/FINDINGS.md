@@ -45,12 +45,14 @@ ist, wandert in Phase 8 in die Folgeaufgaben der Plan-README.
       Phase 4 gibt es noch keine Bildanzeige (keine Asset-UI) — greift erst, sobald die
       Vorschau ein Bild zeichnet.
 
-- [ ] → Phase 6: Fehlerformat der Hochladung, damit die Oberfläche es unterscheiden kann:
+- [x] → Phase 6: Fehlerformat der Hochladung, damit die Oberfläche es unterscheiden kann:
       `413` (`payload_too_large`) für zu groß, `422` (`validation_failed`) mit
       `fields.file` für „kein PNG" bzw. „keine Datei", `500` wenn das Ablegen scheitert. Der
       globale `errorInterceptor` zeigt die Server-Nachricht bereits als Toast — reicht so
       lange, bis eine echte Hochlade-UI (Rahmen-/Icon-Auswahl mit Upload-Knopf) feldgenaue
       Rückmeldung braucht.
+      Umgesetzt: `AssetsActions.uploadFailure` trägt jetzt `fileError` (aus `fields.file`),
+      der `asset-picker`-Dialog zeigt es direkt unter dem Datei-Feld.
 
 - [ ] → Phase 8 (Folgeaufgaben): Zugriffstoken laufen nicht ab und kennen keine
       Einschränkung — `personal_access_tokens` hat nur `created_at` und `last_used_at`, und
@@ -65,15 +67,18 @@ ist, wandert in Phase 8 in die Folgeaufgaben der Plan-README.
       Zeichenreihenfolge kommt aus der DOM-Reihenfolge (`ng2-konva` beobachtet sie), `@for`
       mit `track` reicht also.
 
-- [ ] → Phase 6: Der Editor zeigt im Moment einen Wegwerf-Schalter „Beispielebenen anzeigen"
+- [x] → Phase 6: Der Editor zeigt im Moment einen Wegwerf-Schalter „Beispielebenen anzeigen"
       (`features/templates/template-editor/example-layers.ts`). Er existiert nur, weil es
       ohne Ebenenliste keine Ebenen zum Zeichnen gibt. Sobald Phase 6 echte Ebenen anlegen
       kann: Schalter, Datei und die zugehörigen Felder in `template-editor.ts` entfernen.
+      Erledigt: Datei gelöscht, Editor zeichnet jetzt die echten Ebenen aus dem Signal Store.
 
-- [ ] → Phase 6: Die Vorschau nimmt schon `selectedLayerId` (zeichnet einen gestrichelten
+- [x] → Phase 6: Die Vorschau nimmt schon `selectedLayerId` (zeichnet einen gestrichelten
       Umriss) und `interactive` (schaltet die Klick-Erkennung frei) entgegen und meldet
       `layerClicked` mit der Ebenen-ID. Die Ebenenliste muss also nur beides verdrahten,
       nichts nachbauen.
+      Erledigt: `card-canvas` bekommt `selectedLayerId`/`interactive` aus dem Signal Store,
+      `layerClicked` wählt die Ebene aus.
 
 - [ ] → Phase 7: Konva rechnet die Bildschirmauflösung selbst ein (`devicePixelRatio` im
       Canvas). Die Bühnengröße NICHT zusätzlich multiplizieren — das skaliert doppelt. Der

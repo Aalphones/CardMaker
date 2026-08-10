@@ -25,7 +25,7 @@ backend/src/Validators/<Feature>Validator.php
 | `auth` | Login, Sitzungen und Zugriffstoken — beide als Zufallswerte in der Datenbank, kein JWT (ADR-008) |
 | `card-groups` | Kartengruppen — Organisationseinheit für gespeicherte Karten (z. B. „Spiderman-Serie"), keine Charakterverwaltung (ADR-011) |
 | `assets` | Bildvorrat — hochgeladene Rahmen- und Icon-Dateien, hinter der Anmeldung ausgeliefert (ADR-015). Backend und Speicher stehen, noch kein eigener UI-Screen (kommt mit dem Editor) |
-| `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste und Anlegen stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Die Kartenvorschau auf Konva steht; Ebenenliste und Eigenschaften entstehen in Phase 6 |
+| `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste, Kartenvorschau, Ebenenliste und Eigenschaftenspalte stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Direkte Bearbeitung im Bild (Anfasser zum Verschieben/Skalieren/Drehen) folgt in Phase 7 |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
 
@@ -45,12 +45,22 @@ frontend/src/app/
       card-groups-detail/  ← Formular Anlegen/Bearbeiten (Routen .../new, .../:id)
     templates/
       templates-list/       ← Raster, Suchfeld, Leerzustand, „Neues Template"
-      template-editor/       ← Route .../:id — zeigt bislang nur die Kartenvorschau plus
-                               `example-layers.ts` (Wegwerf-Beispiel, fliegt mit Phase 6 raus);
-                               Ebenenliste und Eigenschaften folgen in Phase 6
+      template-editor/       ← Route .../:id — Kopfzeile (Name, Speichern), Drei-Spalten-Gitter
+                               (< 1200 px gestapelt, Vorschau zuerst). Bedien-Zustand im
+                               Signal Store `signal-stores/template-editor.ts`
+        layer-list/          ← linke Spalte: Ebenen anlegen/umbenennen/duplizieren/löschen,
+                               Sichtbarkeit, Drag-Reihenfolge (CDK, Index gedreht zum Array)
+        layer-properties/    ← rechte Spalte: verzweigt nach Ebenentyp auf
+                               `image-properties`, `shape-properties`, `icon-properties`,
+                               `frame-properties`, `text-properties`; `geometry-fields`
+                               (Geometrie + Deckkraft) und `color-field` (Farbe + Hex) sind
+                               von mehreren Typen wiederverwendete Unterkomponenten
+        asset-picker/         ← CDK-Dialog: vorhandene Rahmen/Icons wählen (einzeln oder
+                               mehrfach für die Icon-Auswahlliste) oder ein neues PNG hochladen
   shared/
     components/       ← wiederverwendbare Komponenten (u.a. confirm-dialog — CDK Dialog,
-                         Rückfrage vor Löschungen; not-found; notification-list)
+                         Rückfrage vor Löschungen; field-hint — Fragezeichen-Knopf mit
+                         aufklappbarem Klartext-Hinweis; not-found; notification-list)
     guards/            ← wiederverwendbare Route-Guards (u.a. pending-changes-guard —
                           canDeactivate bei ungespeicherten Formularen)
     canvas/            ← alles, was mit Konva zeichnet — Feature-Komponenten binden nur Daten
@@ -69,15 +79,17 @@ frontend/src/app/
   store/               ← NgRx Classic Store Slices (auth, card-groups, templates, assets,
                           tokens — Facade Pflicht pro Domain-Slice, `auth` bislang ohne, da
                           es keine eigene Domain-UI mit Zwischen-Zustand hat)
-  signal-stores/        ← NgRx Signal Stores (noch leer — Editor-UI-State, Canvas-Selektion
-                          entstehen erst mit Template-/Karteneditor)
+  signal-stores/        ← NgRx Signal Stores für UI-Zustand. `template-editor.ts`: Arbeitskopie
+                          der Ebenenliste, Auswahl, `dirty` — component-scoped (pro Editor-
+                          Aufruf neu, `providers: [TemplateEditorStore]`), nicht `root`
   layout/
     shell/               ← App-Shell, Topbar, Navigation
 ```
 
 `cards/`, `print-projects/`, `admin/` aus der Tabelle oben existieren noch nicht — sie
-entstehen erst mit den jeweiligen Folgeplänen. `templates/` existiert bereits (Liste,
-Anlegen, Editor-Platzhalter), der Konva-Editor selbst folgt in Phase 6.
+entstehen erst mit den jeweiligen Folgeplänen. `templates/` hat jetzt den vollständigen
+Editor (Liste, Anlegen, Vorschau, Ebenenliste, Eigenschaften); direkte Bearbeitung im Bild
+folgt in Phase 7.
 
 ## Backend-Layout (steht)
 

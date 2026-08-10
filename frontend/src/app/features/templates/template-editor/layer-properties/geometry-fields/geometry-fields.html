@@ -1,0 +1,37 @@
+@if (geometry()) {
+  <form [formGroup]="geometryForm" class="geometry-fields__grid">
+    <label class="geometry-fields__field">
+      <span>X</span>
+      <input type="number" formControlName="x" (change)="emitGeometry()" />
+    </label>
+    <label class="geometry-fields__field">
+      <span>Y</span>
+      <input type="number" formControlName="y" (change)="emitGeometry()" />
+    </label>
+    <label class="geometry-fields__field">
+      <span>Breite</span>
+      <input type="number" formControlName="width" (change)="emitGeometry()" />
+    </label>
+    <label class="geometry-fields__field">
+      <span>Höhe</span>
+      <input type="number" formControlName="height" (change)="emitGeometry()" />
+    </label>
+    <label class="geometry-fields__field">
+      <span class="geometry-fields__label-with-hint">
+        Drehung (°)
+        <app-field-hint text="Drehwinkel um die obere linke Ecke der Ebene, -360 bis 360 Grad." />
+      </span>
+      <input type="number" formControlName="rotation" min="-360" max="360" (change)="emitGeometry()" />
+    </label>
+  </form>
+}
+
+<form [formGroup]="opacityForm" class="geometry-fields__grid">
+  <label class="geometry-fields__field">
+    <span class="geometry-fields__label-with-hint">
+      Deckkraft
+      <app-field-hint text="0 = unsichtbar, 1 = voll sichtbar." />
+    </span>
+    <input type="number" formControlName="opacity" min="0" max="1" step="0.05" (change)="emitOpacity()" />
+  </label>
+</form>

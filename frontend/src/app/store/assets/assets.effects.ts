@@ -44,7 +44,14 @@ export class AssetsEffects {
 
         return this.api.postForm<Asset>('/assets', formData).pipe(
           map((asset: Asset) => AssetsActions.uploadSuccess({ asset })),
-          catchError((error: unknown) => of(AssetsActions.uploadFailure({ message: resolveErrorMessage(error) }))),
+          catchError((error: unknown) =>
+            of(
+              AssetsActions.uploadFailure({
+                message: resolveErrorMessage(error),
+                fileError: resolveFileFieldError(error),
+              }),
+            ),
+          ),
         );
       }),
     );
@@ -71,4 +78,12 @@ function resolveErrorMessage(error: unknown): string {
     }
   }
   return 'Der Bildvorrat konnte nicht aktualisiert werden.';
+}
+
+function resolveFileFieldError(error: unknown): string | null {
+  if (error instanceof HttpErrorResponse) {
+    const body = error.error as { fields?: Record<string, string> } | null;
+    return body?.fields?.['file'] ?? null;
+  }
+  return null;
 }

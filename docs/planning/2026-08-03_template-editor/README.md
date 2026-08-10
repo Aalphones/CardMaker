@@ -39,7 +39,7 @@ Vier Festlegungen, die alles Weitere prägen — jede kostet etwas, jede ist bew
 | 3 | [Templates im Backend](phase-3-templates-backend.md) | standard | done |
 | 4 | [Templates im Frontend: Speicher, Liste, Anlegen](phase-4-templates-frontend.md) | standard | done |
 | 5 | [Kartenvorschau auf Konva](phase-5-kartenvorschau.md) | heikel | done (Sichtprüfung offen) |
-| 6 | [Ebenenliste & Eigenschaften](phase-6-ebenenliste-und-eigenschaften.md) | heikel | pending |
+| 6 | [Ebenenliste & Eigenschaften](phase-6-ebenenliste-und-eigenschaften.md) | heikel | done (Sichtprüfung offen) |
 | 7 | [Direkt im Bild bearbeiten](phase-7-direkt-im-bild-bearbeiten.md) | heikel | pending |
 | 8 | [Doku-Abgleich & Abnahme](phase-8-doku-und-abnahme.md) | mechanisch | pending |
 

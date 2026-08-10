@@ -99,6 +99,21 @@ export interface TextLayer extends LayerBase, Geometry {
 
 export type Layer = ImageLayer | ShapeLayer | IconLayer | FrameLayer | TextLayer;
 
+/**
+ * Änderungsmenge für `patchLayer`: eine beliebige Teilmenge der Felder **irgendeiner**
+ * Ebenenvariante, jedes einzeln optional. `Partial<Layer>` würde nicht reichen — `keyof`
+ * einer Union bildet nur die gemeinsamen Schlüssel, also z. B. nicht `fill` oder `fontSize`.
+ * Die Eigenschaften-Unterkomponenten kennen ihre konkrete Ebene und schicken nur deren
+ * eigene Felder; diese Schnittmenge aus Partials lässt genau das ohne Typ-Zusammenbiegen zu.
+ */
+export type LayerPatch = Partial<ImageLayer> &
+  Partial<RectShapeLayer> &
+  Partial<CircleShapeLayer> &
+  Partial<LineShapeLayer> &
+  Partial<IconLayer> &
+  Partial<FrameLayer> &
+  Partial<TextLayer>;
+
 const DEFAULT_LAYER_SIZE = 200;
 const DEFAULT_LAYER_X = (CANVAS_WIDTH - DEFAULT_LAYER_SIZE) / 2;
 const DEFAULT_LAYER_Y = (CANVAS_HEIGHT - DEFAULT_LAYER_SIZE) / 2;

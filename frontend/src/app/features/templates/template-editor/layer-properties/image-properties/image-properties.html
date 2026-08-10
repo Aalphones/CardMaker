@@ -1,0 +1,6 @@
+<app-geometry-fields
+  [geometry]="geometryOf(layer())"
+  [opacity]="layer().opacity"
+  (geometryChange)="layerChange.emit($event)"
+  (opacityChange)="layerChange.emit({ opacity: $event })"
+/>

@@ -1,0 +1,90 @@
+<div class="layer-list">
+  <div class="layer-list__add-wrapper">
+    <button
+      type="button"
+      class="layer-list__add"
+      [attr.aria-expanded]="addMenuOpen()"
+      (click)="toggleAddMenu()"
+    >
+      + Ebene hinzufügen
+    </button>
+
+    @if (addMenuOpen()) {
+      <ul class="layer-list__add-menu">
+        <li><button type="button" (click)="chooseType('image')">Bildfläche</button></li>
+        <li><button type="button" (click)="chooseType('shape', 'rect')">Rechteck</button></li>
+        <li><button type="button" (click)="chooseType('shape', 'circle')">Kreis</button></li>
+        <li><button type="button" (click)="chooseType('shape', 'line')">Linie</button></li>
+        <li><button type="button" (click)="chooseType('icon')">Icon</button></li>
+        <li>
+          <button type="button" [disabled]="!canAddFrame()" (click)="chooseType('frame')">
+            Rahmen{{ canAddFrame() ? '' : ' (schon vorhanden)' }}
+          </button>
+        </li>
+        <li><button type="button" (click)="chooseType('text')">Text</button></li>
+      </ul>
+    }
+  </div>
+
+  <ul class="layer-list__items" cdkDropList (cdkDropListDropped)="onDrop($event)">
+    @for (layer of reversedLayers(); track layer.id) {
+      <li
+        class="layer-list__item"
+        cdkDrag
+        [class.layer-list__item--selected]="layer.id === selectedLayerId()"
+      >
+        <span class="layer-list__type">{{ typeLabel(layer) }}</span>
+
+        @if (renamingId() === layer.id) {
+          <input
+            type="text"
+            class="layer-list__rename-input"
+            [value]="layer.name"
+            (blur)="commitRename(layer.id, $event)"
+            (keydown.enter)="commitRename(layer.id, $event)"
+          />
+        } @else {
+          <button
+            type="button"
+            class="layer-list__name"
+            (click)="selectLayer.emit(layer.id)"
+            (dblclick)="startRename(layer.id)"
+          >
+            {{ layer.name }}
+          </button>
+        }
+
+        <button
+          type="button"
+          class="layer-list__visibility"
+          [attr.aria-pressed]="layer.visible"
+          [attr.aria-label]="(layer.visible ? 'Ebene ausblenden: ' : 'Ebene einblenden: ') + layer.name"
+          (click)="toggleVisible.emit(layer.id)"
+        >
+          {{ layer.visible ? '👁' : '🚫' }}
+        </button>
+
+        <div class="layer-list__menu-wrapper">
+          <button
+            type="button"
+            class="layer-list__menu-toggle"
+            [attr.aria-expanded]="menuOpenFor() === layer.id"
+            [attr.aria-label]="'Menü für ' + layer.name"
+            (click)="toggleMenu(layer.id)"
+          >
+            ⋮
+          </button>
+
+          @if (menuOpenFor() === layer.id) {
+            <ul class="layer-list__menu">
+              <li><button type="button" (click)="duplicateLayer(layer.id)">Duplizieren</button></li>
+              <li><button type="button" (click)="confirmRemove(layer.id, layer.name)">Löschen</button></li>
+            </ul>
+          }
+        </div>
+      </li>
+    } @empty {
+      <li class="layer-list__empty">Noch keine Ebenen — leg eine an.</li>
+    }
+  </ul>
+</div>

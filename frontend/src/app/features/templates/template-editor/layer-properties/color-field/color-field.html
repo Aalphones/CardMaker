@@ -1,0 +1,23 @@
+<div class="color-field">
+  <span class="color-field__label">
+    {{ label() }}
+    @if (hint(); as text) {
+      <app-field-hint [text]="text" />
+    }
+  </span>
+  <div class="color-field__inputs">
+    <input
+      type="color"
+      class="color-field__swatch"
+      [value]="value() ?? '#000000'"
+      (change)="onColorInput($event)"
+    />
+    <input
+      type="text"
+      class="color-field__hex"
+      [value]="value() ?? ''"
+      [placeholder]="nullable() ? 'keine Farbe' : '#rrggbb'"
+      (change)="onTextInput($event)"
+    />
+  </div>
+</div>

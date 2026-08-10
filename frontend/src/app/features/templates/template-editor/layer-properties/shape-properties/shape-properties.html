@@ -1,0 +1,63 @@
+<app-geometry-fields
+  [geometry]="geometryOrNull(layer())"
+  [opacity]="layer().opacity"
+  (geometryChange)="emitGeometry($event)"
+  (opacityChange)="emitOpacity($event)"
+/>
+
+@if (!isLine()) {
+  <app-color-field
+    label="Füllung"
+    [value]="fillOrNull(layer())"
+    [nullable]="true"
+    hint="Leer lassen für keine Füllung."
+    (valueChange)="emitFill($event)"
+  />
+}
+
+<app-color-field
+  label="Rahmenfarbe"
+  [value]="layer().stroke"
+  [nullable]="!isLine()"
+  (valueChange)="emitStroke($event)"
+/>
+
+<form [formGroup]="strokeWidthForm" class="shape-properties__field">
+  <label>
+    <span>Rahmenbreite</span>
+    <input type="number" formControlName="strokeWidth" min="0" (change)="emitStrokeWidth()" />
+  </label>
+</form>
+
+@if (isRect()) {
+  <form [formGroup]="cornerRadiusForm" class="shape-properties__field">
+    <label>
+      <span class="shape-properties__label-with-hint">
+        Eckradius
+        <app-field-hint text="0 = scharfe Ecken, größere Werte runden sie ab." />
+      </span>
+      <input type="number" formControlName="cornerRadius" min="0" (change)="emitCornerRadius()" />
+    </label>
+  </form>
+}
+
+@if (isLine()) {
+  <form [formGroup]="pointsForm" class="shape-properties__grid">
+    <label class="shape-properties__field">
+      <span>X1</span>
+      <input type="number" formControlName="x1" (change)="emitPoints()" />
+    </label>
+    <label class="shape-properties__field">
+      <span>Y1</span>
+      <input type="number" formControlName="y1" (change)="emitPoints()" />
+    </label>
+    <label class="shape-properties__field">
+      <span>X2</span>
+      <input type="number" formControlName="x2" (change)="emitPoints()" />
+    </label>
+    <label class="shape-properties__field">
+      <span>Y2</span>
+      <input type="number" formControlName="y2" (change)="emitPoints()" />
+    </label>
+  </form>
+}

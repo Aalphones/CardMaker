@@ -63,7 +63,7 @@ dieser Art braucht denselben Nachweis „nicht serialisierbar" — sonst gilt di
 | `templates` | Classic Store + Facade | Server-State — Layer-Struktur lebt hier |
 | `cards` | Classic Store + Facade | Server-State — Karteninstanzen |
 | `print-projects` | Classic Store + Facade | Server-State |
-| `template-editor` | SignalStore | UI-State: aktive Auswahl, Zoom-Level, Undo/Redo-Stack |
+| `template-editor` | SignalStore | UI-State: Arbeitskopie der Ebenenliste, aktive Auswahl, `dirty`-Flag. Component-scoped statt `root` — Kein Rückgängig-Stapel (bewusst zurückgestellt, siehe Plan-README) |
 | `card-editor` | SignalStore | UI-State: Crop-Rechteck-Entwurf, ungespeicherte Textänderungen |
 
 ## Pitfalls

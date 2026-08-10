@@ -1,0 +1,43 @@
+:host {
+  position: relative;
+  display: inline-block;
+}
+
+.field-hint {
+  &__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: 1;
+    cursor: pointer;
+
+    &[aria-expanded='true'] {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+  }
+
+  &__panel {
+    position: absolute;
+    z-index: 1;
+    top: calc(100% + var(--space-xs));
+    left: 0;
+    width: max-content;
+    max-width: 16rem;
+    margin: 0;
+    padding: var(--space-sm);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-elevated);
+    box-shadow: var(--shadow-md);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+}

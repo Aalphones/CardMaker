@@ -21,7 +21,7 @@ export const AssetsActions = createActionGroup({
     'Load Failure': props<{ message: string }>(),
     Upload: props<{ file: File; kind: AssetKind; name: string }>(),
     'Upload Success': props<{ asset: Asset }>(),
-    'Upload Failure': props<{ message: string }>(),
+    'Upload Failure': props<{ message: string; fileError: string | null }>(),
     Delete: props<{ id: number }>(),
     'Delete Success': props<{ id: number }>(),
     'Delete Failure': props<{ message: string }>(),

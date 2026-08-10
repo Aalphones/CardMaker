@@ -1,0 +1,21 @@
+@if (layer(); as current) {
+  @switch (current.type) {
+    @case ('image') {
+      <app-image-properties [layer]="current" (layerChange)="patch.emit($event)" />
+    }
+    @case ('shape') {
+      <app-shape-properties [layer]="current" (layerChange)="patch.emit($event)" />
+    }
+    @case ('icon') {
+      <app-icon-properties [layer]="current" (layerChange)="patch.emit($event)" />
+    }
+    @case ('frame') {
+      <app-frame-properties [layer]="current" (layerChange)="patch.emit($event)" />
+    }
+    @case ('text') {
+      <app-text-properties [layer]="current" (layerChange)="patch.emit($event)" />
+    }
+  }
+} @else {
+  <p class="layer-properties__empty">Keine Ebene ausgewählt</p>
+}

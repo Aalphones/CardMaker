@@ -1,0 +1,58 @@
+<div class="asset-picker" role="dialog" aria-labelledby="asset-picker-title">
+  <h2 class="asset-picker__title" id="asset-picker-title">
+    {{ data.kind === 'frame' ? 'Rahmen wählen' : 'Icon wählen' }}
+  </h2>
+
+  <ul class="asset-picker__grid">
+    @for (asset of items(); track asset.id) {
+      <li>
+        <button
+          type="button"
+          class="asset-picker__item"
+          [class.asset-picker__item--selected]="isSelected(asset.id)"
+          (click)="toggle(asset.id)"
+        >
+          @if (thumbUrl(asset.id); as url) {
+            <img class="asset-picker__thumb" [src]="url" [alt]="asset.name" />
+          } @else {
+            <span class="asset-picker__thumb-placeholder"></span>
+          }
+          <span class="asset-picker__name">{{ asset.name }}</span>
+        </button>
+      </li>
+    } @empty {
+      <li class="asset-picker__empty">Noch keine Bilder hochgeladen.</li>
+    }
+  </ul>
+
+  <div class="asset-picker__upload">
+    <label class="asset-picker__upload-label" for="asset-picker-file">Neues Bild hochladen (PNG)</label>
+    <input
+      id="asset-picker-file"
+      class="asset-picker__upload-input"
+      type="file"
+      accept="image/png"
+      (change)="onFileSelected($event)"
+    />
+    @if (assets.uploadFileError(); as message) {
+      <p class="asset-picker__upload-error" role="alert">{{ message }}</p>
+    }
+    <button
+      type="button"
+      class="asset-picker__upload-button"
+      [disabled]="!pendingFile() || assets.uploading()"
+      (click)="upload()"
+    >
+      {{ assets.uploading() ? 'Lädt hoch …' : 'Hochladen' }}
+    </button>
+  </div>
+
+  <div class="asset-picker__actions">
+    <button type="button" class="asset-picker__button asset-picker__button--ghost" (click)="cancel()">
+      Abbrechen
+    </button>
+    <button type="button" class="asset-picker__button asset-picker__button--primary" (click)="confirm()">
+      Übernehmen
+    </button>
+  </div>
+</div>

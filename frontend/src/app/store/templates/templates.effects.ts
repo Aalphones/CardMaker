@@ -7,6 +7,7 @@ import { Store } from '@ngrx/store';
 import { catchError, filter, map, of, switchMap, tap } from 'rxjs';
 
 import { Api } from '../../core/services/api';
+import { Layer } from '../../shared/canvas/rendering/layer';
 import { Template, TemplateSummary, TemplatesActions } from './templates.actions';
 import { templatesFeature } from './templates.feature';
 
@@ -73,7 +74,7 @@ export class TemplatesEffects {
         this.api.patch<Template>(`/templates/${id}`, { name, description, layers }).pipe(
           map((template: Template) => TemplatesActions.saveSuccess({ template })),
           catchError((error: unknown) =>
-            of(TemplatesActions.saveFailure({ message: resolveErrorMessage(error) })),
+            of(TemplatesActions.saveFailure({ message: resolveSaveErrorMessage(error, layers) })),
           ),
         ),
       ),
@@ -103,4 +104,47 @@ function resolveErrorMessage(error: unknown): string {
     }
   }
   return 'Templates konnten nicht aktualisiert werden.';
+}
+
+const LAYER_FIELD_PATTERN = /^layers\.(\d+)\./;
+
+/**
+ * Übersetzt Feldfehler wie `layers.2.width` in eine Meldung, die die betroffene Ebene beim
+ * Namen nennt (Plan-README „Speichern"). Ein Fehler auf `layers` selbst (z. B. „höchstens
+ * 100 Ebenen") betrifft keine einzelne Ebene und fällt auf die generische Nachricht zurück.
+ */
+function resolveSaveErrorMessage(error: unknown, layers: Layer[]): string {
+  if (error instanceof HttpErrorResponse) {
+    const body = error.error as { message?: string; fields?: Record<string, string> } | null;
+    const fields = body?.fields;
+
+    if (fields) {
+      const layerMessages = Object.entries(fields)
+        .map(([key, message]: [string, string]) => describeLayerField(key, message, layers))
+        .filter((message: string | null): message is string => message !== null);
+
+      if (layerMessages.length > 0) {
+        return layerMessages.join(' ');
+      }
+    }
+
+    if (body?.message) {
+      return body.message;
+    }
+  }
+
+  return 'Templates konnten nicht aktualisiert werden.';
+}
+
+function describeLayerField(key: string, message: string, layers: Layer[]): string | null {
+  const match = LAYER_FIELD_PATTERN.exec(key);
+
+  if (!match) {
+    return null;
+  }
+
+  const index = Number(match[1]);
+  const name = layers[index]?.name ?? `Ebene ${index + 1}`;
+
+  return `Ebene „${name}": ${message}`;
 }

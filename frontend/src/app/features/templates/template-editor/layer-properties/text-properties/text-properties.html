@@ -1,0 +1,139 @@
+<app-geometry-fields
+  [geometry]="geometryOf(layer())"
+  [opacity]="layer().opacity"
+  (geometryChange)="layerChange.emit($event)"
+  (opacityChange)="layerChange.emit({ opacity: $event })"
+/>
+
+<form [formGroup]="form" class="text-properties__grid">
+  <label class="text-properties__field text-properties__field--wide">
+    <span class="text-properties__label-with-hint">
+      Feldschlüssel
+      <app-field-hint
+        text="Unter diesem Namen liefert die Karteninstanz (und Claude über MCP) den Text.
+        Nur a-z, 0-9 und _, muss mit einem Buchstaben beginnen, im Template eindeutig."
+      />
+    </span>
+    <input type="text" formControlName="key" (change)="emitForm()" />
+  </label>
+
+  <label class="text-properties__field text-properties__field--wide">
+    <span class="text-properties__label-with-hint">
+      Datenquelle
+      <app-field-hint
+        text="Fest: der Text steht unveränderlich im Template. Vom Anwender wählbar: wird beim
+        Anlegen der Karte eingetragen."
+      />
+    </span>
+    <select formControlName="source" (change)="emitForm()">
+      <option value="static">Fest</option>
+      <option value="user">Vom Anwender wählbar</option>
+    </select>
+  </label>
+
+  <label class="text-properties__field text-properties__field--wide">
+    <span>{{ form.value.source === 'user' ? 'Vorbelegung' : 'Text' }}</span>
+    <textarea formControlName="defaultText" rows="3" maxlength="500" (change)="emitForm()"></textarea>
+  </label>
+
+  <label class="text-properties__field">
+    <span>Schriftart</span>
+    <select formControlName="fontFamily" (change)="emitForm()">
+      @for (font of fontFamilies; track font) {
+        <option [value]="font">{{ font }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="text-properties__field">
+    <span>Ausrichtung</span>
+    <select formControlName="align" (change)="emitForm()">
+      <option value="left">Links</option>
+      <option value="center">Mittig</option>
+      <option value="right">Rechts</option>
+    </select>
+  </label>
+
+  <label class="text-properties__field">
+    <span>Vertikale Ausrichtung</span>
+    <select formControlName="verticalAlign" (change)="emitForm()">
+      <option value="top">Oben</option>
+      <option value="middle">Mittig</option>
+      <option value="bottom">Unten</option>
+    </select>
+  </label>
+
+  <label class="text-properties__field">
+    <span>Schriftgröße</span>
+    <input type="number" formControlName="fontSize" min="4" max="200" (change)="emitForm()" />
+  </label>
+
+  <label class="text-properties__field">
+    <span class="text-properties__label-with-hint">
+      Mindestschriftgröße
+      <app-field-hint text="Unterste Grenze, bis zu der automatisches Verkleinern schrumpfen darf." />
+    </span>
+    <input type="number" formControlName="minFontSize" min="4" max="200" (change)="emitForm()" />
+  </label>
+
+  @if (minFontSizeExceedsFontSize()) {
+    <p class="text-properties__error" role="alert">
+      Die Mindestschriftgröße darf die Schriftgröße nicht überschreiten.
+    </p>
+  }
+
+  <label class="text-properties__field">
+    <span class="text-properties__label-with-hint">
+      Zeilenabstand
+      <app-field-hint text="Vielfaches der Schriftgröße, z. B. 1.2 für etwas Luft zwischen den Zeilen." />
+    </span>
+    <input type="number" formControlName="lineHeight" min="0.5" max="3" step="0.1" (change)="emitForm()" />
+  </label>
+
+  <label class="text-properties__field text-properties__field--checkbox">
+    <input type="checkbox" formControlName="autoShrink" (change)="emitForm()" />
+    <span class="text-properties__label-with-hint">
+      Automatisch verkleinern
+      <app-field-hint
+        text="Ist der Standardtext zu lang für die Box, wird die Schrift automatisch verkleinert —
+        bis höchstens zur Mindestschriftgröße."
+      />
+    </span>
+  </label>
+
+  <label class="text-properties__field">
+    <span>Umrandungsbreite</span>
+    <input type="number" formControlName="outlineWidth" min="0" (change)="emitForm()" />
+  </label>
+
+  <label class="text-properties__field">
+    <span>Schattenunschärfe</span>
+    <input type="number" formControlName="shadowBlur" min="0" (change)="emitForm()" />
+  </label>
+
+  <label class="text-properties__field">
+    <span>Schattenversatz X</span>
+    <input type="number" formControlName="shadowOffsetX" (change)="emitForm()" />
+  </label>
+
+  <label class="text-properties__field">
+    <span>Schattenversatz Y</span>
+    <input type="number" formControlName="shadowOffsetY" (change)="emitForm()" />
+  </label>
+</form>
+
+<app-color-field label="Textfarbe" [value]="layer().color" (valueChange)="emitColor($event)" />
+<app-color-field
+  label="Umrandungsfarbe"
+  [value]="layer().outlineColor"
+  [nullable]="true"
+  hint="Leer lassen für keine Umrandung."
+  (valueChange)="emitOutlineColor($event)"
+/>
+<app-color-field
+  label="Schattenfarbe"
+  [value]="layer().shadowColor"
+  [nullable]="true"
+  hint="Leer lassen für keinen Schatten."
+  (valueChange)="emitShadowColor($event)"
+/>

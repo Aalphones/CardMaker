@@ -15,6 +15,8 @@ export class AssetsFacade {
   readonly loading = this.store.selectSignal(assetsFeature.selectLoading);
   readonly uploading = this.store.selectSignal(assetsFeature.selectUploading);
   readonly error = this.store.selectSignal(assetsFeature.selectError);
+  readonly uploadFileError = this.store.selectSignal(assetsFeature.selectUploadFileError);
+  readonly lastUploaded = this.store.selectSignal(assetsFeature.selectLastUploaded);
 
   ensureLoaded(): void {
     this.store.dispatch(AssetsActions.load());

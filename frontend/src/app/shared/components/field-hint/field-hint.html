@@ -1,0 +1,13 @@
+<button
+  type="button"
+  class="field-hint__toggle"
+  [attr.aria-expanded]="expanded()"
+  [attr.aria-controls]="panelId"
+  (click)="toggle()"
+>
+  ?
+</button>
+
+@if (expanded()) {
+  <p class="field-hint__panel" [id]="panelId">{{ text() }}</p>
+}

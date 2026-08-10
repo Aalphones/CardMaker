@@ -4,14 +4,55 @@
   @if (templates.currentLoading()) {
     <p class="template-editor__status">Wird geladen …</p>
   } @else if (templates.current(); as template) {
-    <h1 class="template-editor__title">{{ template.name }}</h1>
-    <div class="template-editor__preview">
-      <app-card-canvas [layers]="previewLayers()" />
+    <header class="template-editor__header">
+      <input
+        class="template-editor__name"
+        type="text"
+        [value]="nameDraft()"
+        aria-label="Template-Name"
+        (input)="onNameInput($event)"
+      />
+
+      <div class="template-editor__header-actions">
+        @if (templates.error(); as message) {
+          <p class="template-editor__error" role="alert">{{ message }}</p>
+        }
+        <button type="button" class="template-editor__save" [disabled]="!canSave()" (click)="save()">
+          {{ saving() ? 'Speichert …' : 'Speichern' }}
+        </button>
+      </div>
+    </header>
+
+    <div class="template-editor__layout">
+      <app-layer-list
+        class="template-editor__column template-editor__column--layers"
+        [layers]="editor.layers()"
+        [selectedLayerId]="editor.selectedLayerId()"
+        [canAddFrame]="editor.canAddFrame()"
+        (selectLayer)="editor.select($event)"
+        (add)="onAddLayer($event)"
+        (rename)="editor.renameLayer($event.id, $event.name)"
+        (duplicate)="editor.duplicateLayer($event)"
+        (remove)="editor.removeLayer($event)"
+        (toggleVisible)="onToggleVisible($event)"
+        (move)="editor.moveLayer($event.fromIndex, $event.toIndex)"
+      />
+
+      <div class="template-editor__column template-editor__column--preview">
+        <app-card-canvas
+          [layers]="editor.layers()"
+          [selectedLayerId]="editor.selectedLayerId()"
+          [interactive]="true"
+          (layerClicked)="editor.select($event)"
+        />
+      </div>
+
+      <app-layer-properties
+        class="template-editor__column template-editor__column--properties"
+        [layer]="selectedLayer()"
+        (patch)="onPatch($event)"
+      />
     </div>
-    <button class="template-editor__example" type="button" (click)="toggleExample()">
-      {{ exampleButtonLabel() }}
-    </button>
-    <p class="template-editor__status">Ebenenliste und Eigenschaften folgen in Phase 6.</p>
   } @else {
     <p class="template-editor__status">Dieses Template gibt es nicht.</p>
   }

@@ -8,6 +8,8 @@ export interface AssetsState {
   loading: boolean;
   uploading: boolean;
   error: string | null;
+  uploadFileError: string | null;
+  lastUploaded: Asset | null;
 }
 
 const initialState: AssetsState = {
@@ -16,6 +18,8 @@ const initialState: AssetsState = {
   loading: false,
   uploading: false,
   error: null,
+  uploadFileError: null,
+  lastUploaded: null,
 };
 
 export const assetsFeature = createFeature({
@@ -34,16 +38,24 @@ export const assetsFeature = createFeature({
       loading: false,
       error: message,
     })),
-    on(AssetsActions.upload, (state): AssetsState => ({ ...state, uploading: true, error: null })),
+    on(AssetsActions.upload, (state): AssetsState => ({
+      ...state,
+      uploading: true,
+      error: null,
+      uploadFileError: null,
+      lastUploaded: null,
+    })),
     on(AssetsActions.uploadSuccess, (state, { asset }): AssetsState => ({
       ...state,
       items: [...state.items, asset],
       uploading: false,
+      lastUploaded: asset,
     })),
-    on(AssetsActions.uploadFailure, (state, { message }): AssetsState => ({
+    on(AssetsActions.uploadFailure, (state, { message, fileError }): AssetsState => ({
       ...state,
       uploading: false,
       error: message,
+      uploadFileError: fileError,
     })),
     on(AssetsActions.deleteSuccess, (state, { id }): AssetsState => ({
       ...state,
@@ -53,4 +65,12 @@ export const assetsFeature = createFeature({
   ),
 });
 
-export const { selectItems, selectLoaded, selectLoading, selectUploading, selectError } = assetsFeature;
+export const {
+  selectItems,
+  selectLoaded,
+  selectLoading,
+  selectUploading,
+  selectError,
+  selectUploadFileError,
+  selectLastUploaded,
+} = assetsFeature;
