@@ -11,20 +11,16 @@
   </div>
 
   @if (tokens.newToken(); as newToken) {
-    <div class="tokens__reveal" role="status">
+    <div class="card tokens__reveal" role="status">
       <p class="tokens__reveal-hint">
         Wird nur jetzt angezeigt — merk es dir jetzt, es lässt sich später nicht mehr abrufen.
       </p>
       <code class="tokens__reveal-value">{{ newToken.token }}</code>
       <div class="tokens__reveal-actions">
-        <button type="button" class="tokens__button" (click)="copy(newToken.token)">
+        <button type="button" class="btn btn--primary" (click)="copy(newToken.token)">
           Kopieren
         </button>
-        <button
-          type="button"
-          class="tokens__button tokens__button--ghost"
-          (click)="tokens.dismissNewToken()"
-        >
+        <button type="button" class="btn btn--ghost" (click)="tokens.dismissNewToken()">
           Schließen
         </button>
       </div>
@@ -32,31 +28,48 @@
   }
 
   <form class="tokens__form" [formGroup]="form" (ngSubmit)="create()">
-    <div class="tokens__field">
-      <label class="tokens__label" for="token-name">Name des neuen Tokens</label>
-      <input id="token-name" class="tokens__input" type="text" formControlName="name" />
+    <div class="field tokens__field">
+      <label for="token-name">Name des neuen Tokens</label>
+      <input id="token-name" class="input" type="text" formControlName="name" />
     </div>
-    <button type="submit" class="tokens__button" [disabled]="tokens.loading()">Anlegen</button>
+    <button type="submit" class="btn btn--primary" [disabled]="tokens.loading()">Anlegen</button>
   </form>
 
-  <ul class="tokens__list">
-    @for (item of tokens.items(); track item.id) {
-      <li class="tokens__item">
-        <div class="tokens__item-info">
-          <span class="tokens__item-name">{{ item.name }}</span>
-          <span class="tokens__item-meta">
-            Angelegt {{ item.createdAt | date: 'medium' }}
-            @if (item.lastUsedAt) {
-              · zuletzt verwendet {{ item.lastUsedAt | date: 'medium' }}
-            } @else {
-              · noch nie verwendet
-            }
-          </span>
-        </div>
-        <button type="button" class="tokens__button tokens__button--ghost" (click)="remove(item)">
-          Löschen
-        </button>
-      </li>
-    }
-  </ul>
+  @if (tokens.items().length) {
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Angelegt</th>
+          <th>Zuletzt verwendet</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of tokens.items(); track item.id) {
+          <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.createdAt | date: 'medium' }}</td>
+            <td>
+              @if (item.lastUsedAt) {
+                {{ item.lastUsedAt | date: 'medium' }}
+              } @else {
+                noch nie verwendet
+              }
+            </td>
+            <td>
+              <button
+                type="button"
+                class="btn btn--ghost"
+                [attr.aria-label]="'Token ' + item.name + ' löschen'"
+                (click)="remove(item)"
+              >
+                Löschen
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
 </section>

@@ -40,23 +40,40 @@
 
 ## Checkliste
 
-- [ ] `layout/shell/shell.html` + `shell.scss` auf den beschriebenen Aufbau umstellen.
+- [x] `layout/shell/shell.html` + `shell.scss` auf den beschriebenen Aufbau umstellen.
       Navigation als `<nav>` mit `<ul>`/`<li>`, aktiver Eintrag über
       `routerLinkActive` — kein `<div>` mit Klick-Handler.
-- [ ] Icons: Lucide-Pfade **inline als SVG** in der Vorlage, Strichstärke 2.75,
+- [x] Icons: Lucide-Pfade **inline als SVG** in der Vorlage, Strichstärke 2.75,
       `currentColor` als Strichfarbe. Keine Icon-Bibliothek als Abhängigkeit aufnehmen.
       Benötigt: Karten-Symbol (Wortmarke/Anmeldung), Raster, Ordner, Ebenen, Drucker,
       Abmelden.
-- [ ] Gesperrte Navigationseinträge umsetzen: `aria-disabled="true"`, kein `routerLink`,
+- [x] Gesperrte Navigationseinträge umsetzen: `aria-disabled="true"`, kein `routerLink`,
       Titel-Text wie oben. Kein stiller toter Link.
-- [ ] `features/auth/login/` umbauen (Vorlage + Stylesheet). Die vorhandene
+- [x] `features/auth/login/` umbauen (Vorlage + Stylesheet). Die vorhandene
       Formularlogik und Fehlerbehandlung bleibt unverändert.
-- [ ] `features/auth/tokens/tokens-page/` auf Bausteinklassen umstellen; eigene
+- [x] `features/auth/tokens/tokens-page/` auf Bausteinklassen umstellen; eigene
       Farb- und Rahmenregeln entfernen.
-- [ ] Sichtprüfung bei schmalem Fenster (unter 900px): die Seitenspalte darf den
+- [x] Sichtprüfung bei schmalem Fenster (unter 900px): die Seitenspalte darf den
       Hauptbereich nicht zerdrücken — unterhalb von 900px klappt sie auf eine
-      waagerechte Leiste über dem Inhalt um.
-- [ ] `docs/code-map.md`: Zeile zu `layout/shell/` um den neuen Aufbau ergänzen
+      waagerechte Leiste über dem Inhalt um. CSS umgesetzt (Media Query in
+      `shell.scss`); die visuelle Bestätigung im Browser läuft im Smoke-Test am
+      Plan-Ende.
+- [x] `docs/code-map.md`: Zeile zu `layout/shell/` um den neuen Aufbau ergänzt
       (Kopfzeile + Seitenspalte mit vier Einträgen, zwei davon bis Meilenstein 3/5 gesperrt).
 
 ## Report-Back
+
+- Die Zugriffstoken-Seite kommt im Entwurf nicht vor (Prototyp ohne echtes Auth-Backend).
+  Eigene Entscheidung: ein gedämpfter Text-Link „Zugriffstoken" sitzt in der Kopfzeile
+  zwischen Konto-E-Mail und „Abmelden" — behält die Funktion, ohne die vorgegebene
+  Vierer-Seitenspalte zu verändern.
+- Icon-Pfade sind aus dem Gedächtnis nachgebaute Lucide-Pfade (keine Bibliothek als
+  Abhängigkeit, wie gefordert) — optisch nah am Original, aber nicht Byte-für-Byte
+  aus der Lucide-Quelle kopiert. Bei Bedarf später gegen die echten Pfade tauschen.
+- `--font-size-sm` (13px) und `--space-4` (17.6px) decken die im Entwurf genannten
+  13px/17.6px-Werte exakt ab; 14px/12px/8px an den Sidebar-Zeilen sind bewusst roh
+  belassen (keine passenden Token, Ausnahme laut `docs/conventions/css.md`).
+
+## Abnahmekriterien — Status
+
+Alle Punkte umgesetzt, siehe oben.

@@ -43,7 +43,7 @@ liegen deshalb mit im Ordner, obwohl aus ihnen nichts übernommen wird.
 |---|---|---|---|
 | 1 | [Token-Fundament und Grundschrift](phase-1-token-fundament.md) | heikel | complete |
 | 2 | [Gemeinsame Bausteine](phase-2-bausteine.md) | standard | complete |
-| 3 | [App-Rahmen, Anmeldung, Zugriffstoken](phase-3-rahmen-und-anmeldung.md) | standard | pending |
+| 3 | [App-Rahmen, Anmeldung, Zugriffstoken](phase-3-rahmen-und-anmeldung.md) | standard | complete |
 | 4 | [Kartengruppen und Template-Liste](phase-4-listen.md) | standard | pending |
 | 5 | [Template-Editor: Vollbild-Aufbau](phase-5-editor-vollbild.md) | heikel | pending |
 | 6 | [Template-Editor: Zoom, Ansicht, Element-Menü](phase-6-editor-ansicht.md) | heikel | pending |

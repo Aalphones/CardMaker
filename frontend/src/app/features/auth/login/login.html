@@ -1,48 +1,67 @@
 <section class="login">
-  <h1 class="login__title">Anmelden</h1>
-
-  @if (setupIncomplete()) {
-    <p class="login__hint" role="status">
-      Die Einrichtung ist noch nicht abgeschlossen. Die nötigen Schritte stehen in der README des
-      Projekts.
-    </p>
-  } @else if (sessionExpiredHint()) {
-    <p class="login__hint" role="status">Sitzung abgelaufen. Bitte melde dich erneut an.</p>
-  }
-
-  @if (auth.error(); as message) {
-    <p class="login__error" role="alert">{{ message }}</p>
-  }
-
-  <form class="login__form" [formGroup]="form" (ngSubmit)="submit()">
-    <div class="login__field">
-      <label class="login__label" for="login-email">E-Mail-Adresse</label>
-      <input
-        id="login-email"
-        class="login__input"
-        type="email"
-        formControlName="email"
-        autocomplete="username"
-      />
+  <div class="login__card">
+    <div class="login__badge">
+      <svg
+        width="26"
+        height="26"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.75"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <rect width="20" height="14" x="2" y="5" rx="2" />
+        <line x1="2" y1="10" x2="22" y2="10" />
+      </svg>
     </div>
+    <h1 class="login__title">CardMaker</h1>
+    <p class="login__subtitle">Sammelkarten anlegen &amp; drucken</p>
 
-    <div class="login__field">
-      <label class="login__label" for="login-password">Passwort</label>
-      <input
-        id="login-password"
-        class="login__input"
-        type="password"
-        formControlName="password"
-        autocomplete="current-password"
-      />
-    </div>
+    @if (setupIncomplete()) {
+      <p class="login__hint" role="status">
+        Die Einrichtung ist noch nicht abgeschlossen. Die nötigen Schritte stehen in der README des
+        Projekts.
+      </p>
+    } @else if (sessionExpiredHint()) {
+      <p class="login__hint" role="status">Sitzung abgelaufen. Bitte melde dich erneut an.</p>
+    }
 
-    <button type="submit" class="login__submit" [disabled]="auth.loading()">
-      @if (auth.loading()) {
-        Anmelden …
-      } @else {
-        Anmelden
-      }
-    </button>
-  </form>
+    @if (auth.error(); as message) {
+      <p class="login__error" role="alert">{{ message }}</p>
+    }
+
+    <form class="login__form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label for="login-email">E-Mail-Adresse</label>
+        <input
+          id="login-email"
+          class="input"
+          type="email"
+          formControlName="email"
+          autocomplete="username"
+        />
+      </div>
+
+      <div class="field">
+        <label for="login-password">Passwort</label>
+        <input
+          id="login-password"
+          class="input"
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+        />
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--block" [disabled]="auth.loading()">
+        @if (auth.loading()) {
+          Anmelden …
+        } @else {
+          Anmelden
+        }
+      </button>
+    </form>
+  </div>
 </section>

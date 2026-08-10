@@ -94,7 +94,11 @@ frontend/src/app/
                           der Ebenenliste, Auswahl, `dirty` — component-scoped (pro Editor-
                           Aufruf neu, `providers: [TemplateEditorStore]`), nicht `root`
   layout/
-    shell/               ← App-Shell, Topbar, Navigation
+    shell/               ← App-Shell: Kopfzeile (Wortmarke, Konto-E-Mail, Zugriffstoken-Link,
+                           Abmelden) + Seitenspalte mit vier Einträgen (Alle Karten,
+                           Kartengruppen, Templates, Druckprojekte) — die ersten und letzten
+                           beiden davon bis Meilenstein 3 bzw. 5 gesperrt (aria-disabled,
+                           kein Link)
 ```
 
 `cards/`, `print-projects/`, `admin/` aus der Tabelle oben existieren noch nicht — sie

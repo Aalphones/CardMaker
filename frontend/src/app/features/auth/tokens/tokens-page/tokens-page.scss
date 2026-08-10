@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  max-width: 40rem;
 
   &__heading {
     display: flex;
@@ -21,7 +20,7 @@
     width: 1.5rem;
     height: 1.5rem;
     border-radius: 50%;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-divider);
     color: var(--color-text-muted);
     cursor: pointer;
   }
@@ -33,16 +32,11 @@
   }
 
   &__reveal {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    padding: var(--space-md);
     border: 1px solid var(--color-accent);
-    border-radius: var(--radius-md);
-    background: var(--color-bg-elevated);
   }
 
   &__reveal-hint {
+    margin: 0;
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
   }
@@ -66,71 +60,6 @@
   }
 
   &__field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
     flex: 1;
-  }
-
-  &__label {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-  }
-
-  &__input {
-    min-height: var(--touch-target-min);
-    padding-inline: var(--space-sm);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    background: var(--color-bg-elevated);
-    color: var(--color-text-primary);
-  }
-
-  &__button {
-    min-height: var(--touch-target-min);
-    padding-inline: var(--space-md);
-    border: none;
-    border-radius: var(--radius-sm);
-    background: var(--color-accent);
-    color: var(--color-text-primary);
-    cursor: pointer;
-
-    &--ghost {
-      background: transparent;
-      border: 1px solid var(--color-border);
-    }
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
-
-  &__list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  &__item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-sm) var(--space-md);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-  }
-
-  &__item-info {
-    display: flex;
-    flex-direction: column;
-  }
-
-  &__item-meta {
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
   }
 }

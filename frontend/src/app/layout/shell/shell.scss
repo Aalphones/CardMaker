@@ -9,73 +9,130 @@
     justify-content: space-between;
     padding-inline: var(--space-lg);
     padding-block: var(--space-md);
-    background: var(--color-bg-elevated);
-    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-divider);
   }
 
-  &__product-name {
+  &__brand {
+    font-family: var(--font-family-heading);
     font-size: var(--font-size-lg);
-    font-weight: 600;
     color: var(--color-accent);
   }
 
-  &__user {
+  &__account {
     display: flex;
     align-items: center;
     gap: var(--space-md);
   }
 
-  &__user-name {
+  &__account-email {
+    font-size: var(--font-size-sm);
     color: var(--color-text-muted);
   }
 
-  &__logout {
-    min-height: var(--touch-target-min);
-    padding-inline: var(--space-md);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--color-border);
-    background: transparent;
-    color: var(--color-text-primary);
-    cursor: pointer;
+  &__tokens-link {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    text-decoration: none;
 
     &:hover {
-      background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+      color: var(--color-accent);
+    }
+
+    &--active {
+      color: var(--color-accent);
     }
   }
 
   &__body {
     display: grid;
-    grid-template-columns: 14rem 1fr;
+    grid-template-columns: 216px 1fr;
     min-height: 0;
   }
 
   &__sidebar {
     padding: var(--space-lg);
-    background: var(--color-bg-sunken);
-    border-right: 1px solid var(--color-border);
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-divider);
+  }
+
+  &__nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  // Der Zähler-Punkt an "Druckprojekte" wird erst mit dem Druckprojekt (Meilenstein 5)
+  // befüllt und gerendert — der Baustein steht schon bereit.
+  &__nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding-inline: var(--space-xs);
+    border-radius: var(--radius-pill);
+    background: var(--color-accent);
+    color: var(--color-text-on-accent);
+    font-size: 11px;
   }
 
   &__nav-link {
-    display: block;
-    padding: var(--space-sm) var(--space-md);
-    border-radius: var(--radius-sm);
-    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    color: var(--color-text-primary);
     text-decoration: none;
 
     &:hover {
-      color: var(--color-text-primary);
-      background: var(--color-bg-elevated);
+      background: var(--color-neutral-200);
     }
 
     &--active {
-      color: var(--color-text-primary);
-      background: var(--color-bg-elevated);
-      font-weight: 600;
+      color: var(--color-accent-800);
+      background: var(--color-accent-200);
+    }
+
+    &--disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+
+      &:hover {
+        background: transparent;
+      }
     }
   }
 
   &__content {
-    padding: var(--space-xl);
+    padding: var(--space-6);
     overflow-y: auto;
+
+    // Inhaltsspalte der jeweils gerouteten Seite — router-outlet selbst rendert nichts.
+    > :not(router-outlet) {
+      max-width: 1100px;
+      margin-inline: 0;
+    }
+  }
+
+  @media (max-width: 900px) {
+    &__body {
+      grid-template-columns: 1fr;
+    }
+
+    &__sidebar {
+      border-right: none;
+      border-bottom: 1px solid var(--color-divider);
+    }
+
+    &__nav-list {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
   }
 }
