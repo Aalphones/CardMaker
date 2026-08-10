@@ -41,7 +41,7 @@ Vier Festlegungen, die alles Weitere prägen — jede kostet etwas, jede ist bew
 | 5 | [Kartenvorschau auf Konva](phase-5-kartenvorschau.md) | heikel | done (Sichtprüfung offen) |
 | 6 | [Ebenenliste & Eigenschaften](phase-6-ebenenliste-und-eigenschaften.md) | heikel | done (Sichtprüfung offen) |
 | 7 | [Direkt im Bild bearbeiten](phase-7-direkt-im-bild-bearbeiten.md) | heikel | done (Sichtprüfung offen) |
-| 8 | [Doku-Abgleich & Abnahme](phase-8-doku-und-abnahme.md) | mechanisch | pending |
+| 8 | [Doku-Abgleich & Abnahme](phase-8-doku-und-abnahme.md) | mechanisch | done |
 
 Reihenfolge ist bindend. Einzige Ausnahme: Phase 5 hängt nur am Datenmodell unten, nicht am
 Backend — sie darf vor 2/3 gebaut werden, wenn es zeitlich besser passt.
@@ -293,20 +293,47 @@ bereits vom Abgleich ausgenommen, hochgeladene Bilder überleben also ein Deploy
 
 ## Summary
 
-_(beim Archivieren füllen)_
+Meilenstein 2 abgeschlossen. Der Template-Editor kann jetzt alles, was das Ergebnis-Kapitel
+oben verspricht: Template anlegen, Rahmenbild hochladen, alle fünf Ebenentypen anlegen,
+direkt im Vorschaubild verschieben/skalieren/drehen, speichern und nach dem Neuladen
+unverändert wiederfinden. Abnahme-Rundgang (13 Punkte) am 2026-08-10 von Sascha durchgeführt
+und bestätigt — keine Beanstandungen.
 
 ## Files touched
 
-_(beim Archivieren füllen)_
+- `backend/src/{Controllers,Services,Repositories,Validators}/Asset*.php`,
+  `Template*.php` — Bildvorrat- und Templates-Backend (Phase 2/3)
+- `frontend/src/app/store/{assets,templates}/` — NgRx-Slices für Bildvorrat und Templates
+- `frontend/src/app/features/templates/` — Übersichtsliste, Template-Editor (Kopfzeile,
+  Drei-Spalten-Gitter, Ebenenliste, Eigenschaftenspalte, Bildauswahl-Dialog)
+- `frontend/src/app/shared/canvas/` — Konva-Kartenvorschau (`card-canvas`), reine
+  Zeichenregeln unter `rendering/` (ohne Konva-Abhängigkeit, für Meilenstein 4 vorbereitet)
+- `frontend/src/app/signal-stores/template-editor.ts` — Arbeitskopie/Auswahl/`dirty` des
+  Editors
+- `docs/code-map.md`, `docs/glossary.md`, `docs/PROJECT.md` — Doku-Abgleich Phase 8
 
 ## Commits
 
-_(beim Archivieren füllen)_
+`04f85f4` Plan angelegt → `1c2faeb` Phase 1 → `d4157a6`…`e2817f3` Phase 2 (Bildvorrat) →
+`6607348`…`7a1cc7d` Phase 3 (Templates-Backend) → `aae231d` Serverprobe → `0809f1f` Phase 4
+(Templates-Frontend) → `5e3ad24` Phase 5 (Kartenvorschau) → `453dff8` Phase 6 (Ebenenliste
+& Eigenschaften) → `4752fb4` Phase 7 (direkte Bearbeitung im Bild).
 
 ## Deviations from plan
 
-_(beim Archivieren füllen)_
+Keine wesentlichen Abweichungen vom Kontrakt (Datenmodell, Endpunkte, Bildschirmaufteilung).
+Der Wegwerf-Schalter „Beispielebenen anzeigen" aus Phase 5 wurde wie geplant in Phase 6
+wieder entfernt, sobald die echte Ebenenliste stand (siehe FINDINGS.md).
 
 ## Follow-ups
 
-_(beim Archivieren füllen)_
+- **Zugriffstoken ohne Ablauf** — `personal_access_tokens` kennt kein `expires_at`, ein
+  weitergegebenes Token ist ein Generalschlüssel auf Lebenszeit. Für ein Solo-Werkzeug
+  vertretbar, aber vor einer Mehrbenutzer-Erweiterung zu klären (aus FINDINGS.md).
+- **Meilenstein 3 (Karteneditor) kann wiederverwenden:** den Bildlader
+  (`shared/canvas/asset-image-loader.ts`, lädt Blobs hinter der Anmeldung) und die
+  Einheiten-/Auto-Shrink-Umrechnung unter `shared/canvas/rendering/` — beide bewusst ohne
+  Konva-Abhängigkeit gebaut (ADR-005). Offen bleibt weiterhin die Bild-Crop/Zoom-Interaktion
+  (siehe `docs/PROJECT.md` → Offene Fragen).
+- **Template duplizieren** („Vorlage kopieren") — bei der Freigabe genannt, nicht
+  eingeplant, passt jederzeit nachträglich in die Template-Übersicht.

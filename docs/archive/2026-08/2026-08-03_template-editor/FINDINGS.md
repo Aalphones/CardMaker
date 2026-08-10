@@ -54,12 +54,13 @@ ist, wandert in Phase 8 in die Folgeaufgaben der Plan-README.
       Umgesetzt: `AssetsActions.uploadFailure` trägt jetzt `fileError` (aus `fields.file`),
       der `asset-picker`-Dialog zeigt es direkt unter dem Datei-Feld.
 
-- [ ] → Phase 8 (Folgeaufgaben): Zugriffstoken laufen nicht ab und kennen keine
+- [x] → Phase 8 (Folgeaufgaben): Zugriffstoken laufen nicht ab und kennen keine
       Einschränkung — `personal_access_tokens` hat nur `created_at` und `last_used_at`, und
       die Anmeldesperre behandelt ein Token wie eine volle Anmeldung. Für ein Solo-Werkzeug
       vertretbar, aber es heißt: ein einmal weitergegebenes Token ist ein Generalschlüssel
       auf Lebenszeit. Zu entscheiden wäre eine Ablauffrist (Spalte `expires_at`, Vergleich
       in der Abfrage wie bei den Sitzungen). Aufgefallen beim Nachmessen von Phase 2.
+      Überführt in „Follow-ups" der Plan-README, nicht in diesem Plan behoben.
 
 - [x] → Phase 7: `ng2-konva` 12.0.1 verlangt Angular ^21 und Konva ^10 — beides installiert,
       passt. Alle Formen laufen über eine einzige Komponente (`CoreShapeComponent`) mit der

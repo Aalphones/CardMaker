@@ -104,6 +104,7 @@ Kompositing, kein Imagick-Verfügbarkeitscheck auf Strato nötig.
 2. **Template-Editor** — Layer-System (Image/Shape/Icon/Frame/Text), Konva-Canvas mit
    Live-Vorschau, Layerliste (erstellen/löschen/duplizieren/umbenennen/Reihenfolge). Das
    Layout liegt als ein Datenblock in einer Spalte, nicht als eigene Ebenentabelle (ADR-014).
+   **Erledigt** (2026-08-10), siehe `docs/archive/2026-08/2026-08-03_template-editor/`
 3. **Karteneditor** — Karteninstanz erstellen/bearbeiten: Template-Textfelder per Formular
    befüllen, Bild hochladen/verschieben/zoomen/zuschneiden, Schriftgröße/-farbe überschreiben,
    Auto-Shrink, Zuordnung zu einer Kartengruppe

@@ -25,11 +25,11 @@ backend/src/Validators/<Feature>Validator.php
 | `auth` | Login, Sitzungen und Zugriffstoken — beide als Zufallswerte in der Datenbank, kein JWT (ADR-008) |
 | `card-groups` | Kartengruppen — Organisationseinheit für gespeicherte Karten (z. B. „Spiderman-Serie"), keine Charakterverwaltung (ADR-011) |
 | `assets` | Bildvorrat — hochgeladene Rahmen- und Icon-Dateien, hinter der Anmeldung ausgeliefert (ADR-015). Backend und Speicher stehen, noch kein eigener UI-Screen (kommt mit dem Editor) |
-| `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste, Kartenvorschau, Ebenenliste und Eigenschaftenspalte stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Direkte Bearbeitung im Bild (Anfasser zum Verschieben/Skalieren/Drehen) folgt in Phase 7 |
+| `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste, Kartenvorschau, Ebenenliste, Eigenschaftenspalte und direkte Bearbeitung im Bild (Anfasser zum Verschieben/Skalieren/Drehen) stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Meilenstein 2 ist abgeschlossen |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
 
-## Frontend-Layout (steht seit Phase 5, Kartengruppen seit Phase 7)
+## Frontend-Layout (Kartengruppen seit Meilenstein 1, Template-Editor vollständig seit Meilenstein 2)
 
 ```
 frontend/src/app/
@@ -92,8 +92,7 @@ frontend/src/app/
 
 `cards/`, `print-projects/`, `admin/` aus der Tabelle oben existieren noch nicht — sie
 entstehen erst mit den jeweiligen Folgeplänen. `templates/` hat jetzt den vollständigen
-Editor (Liste, Anlegen, Vorschau, Ebenenliste, Eigenschaften); direkte Bearbeitung im Bild
-folgt in Phase 7.
+Editor (Liste, Anlegen, Vorschau, Ebenenliste, Eigenschaften, direkte Bearbeitung im Bild).
 
 ## Backend-Layout (steht)
 
