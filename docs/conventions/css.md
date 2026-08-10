@@ -80,6 +80,28 @@ Aussehen, und sind damit BEM-Komponenten, keine Utilities — ADR-010 bleibt unb
 Verboten in Templates: Klassennamen beschreiben das *Ding*, nicht sein Aussehen — keine
 `px-4`, `flex`, `bg-brand-500`-artigen Utility-Klassen, egal woher sie kämen.
 
+## Gemeinsame Bausteine
+
+`frontend/src/styles/_bausteine.scss` (per `@use` in `styles.scss` eingebunden) trägt die
+global wiederkehrenden Klassen: `.btn` (+ `--primary`, `--secondary`, `--ghost`, `--icon`,
+`--block`), `.tag` (+ `--accent`, `--accent-2`, `--neutral`, `--outline`), `.field`,
+`.input`, `.radio` + `.radio__dot`, `.seg` + `.seg__option`, `.card` (+ `__kicker`,
+`__title`, `__body`, `__meta`), `.table`, `.dialog` (+ `__title`, `__body`, `__actions`)
+und `.dialog-backdrop`. Dazu drei Zusatzklassen: `.icon-button` (Tönung beim Überfahren
+für nackte Icon-Schaltflächen), `.hover-row` (Zeilentönung für Listen/Menüs), `.thin-scroll`
+(schmale, eingefärbte Bildlaufleisten).
+
+**Komponenten bauen keine eigenen Button- oder Feld-Grundregeln mehr** — sie setzen die
+Bausteinklassen in ihrer Vorlage und ergänzen im eigenen Stylesheet höchstens
+Positionierung, Breite, Abstände am Einsatzort oder eine gezielte Farbabweichung (z. B.
+die Löschbestätigung, die `.btn--secondary` mit Gefahrenfarbe einfärbt). Es gibt keine
+Ausweich-Utilities daneben — fehlt ein Baustein, wird `_bausteine.scss` erweitert, nicht
+lokal nachgebaut.
+
+Die CDK-Dialoge (`@angular/cdk/dialog`, z. B. Löschbestätigung und Bildauswahl) bringen
+über `overlay-prebuilt.css` einen eigenen dunklen Standardhintergrund mit — der wird in
+`_bausteine.scss` global auf denselben Zweck-Token wie `.dialog-backdrop` umgestellt.
+
 ## Canvas-Spezifisch
 
 Der Konva-`<ko-stage>`-Container bekommt ein festes Seitenverhältnis (63:88) über SCSS

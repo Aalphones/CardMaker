@@ -39,12 +39,12 @@ einmal zentral hoch, damit die Folgephasen nur noch Struktur bauen.
 
 ## Checkliste
 
-- [ ] `frontend/src/styles/_bausteine.scss` anlegen und aus `styles.scss` per `@use`
+- [x] `frontend/src/styles/_bausteine.scss` anlegen und aus `styles.scss` per `@use`
       einbinden. Werte eins zu eins aus der Design-System-Datei übernehmen, aber
       **ausschließlich über die Zweck-Token** aus Phase 1 — kein Hexwert, keine rohe
       Pixelgröße außer den im Entwurf explizit genannten Bauteilmaßen (Höhe 36px für
       Eingabefelder, 36×36 für Icon-Buttons, 16px für den Auswahlpunkt).
-- [ ] Besonderheiten mitnehmen, die im Entwurf ausdrücklich stehen:
+- [x] Besonderheiten mitnehmen, die im Entwurf ausdrücklich stehen:
   - Buttons setzen die Überschriftenschrift (Caprasimo), Größe 14px.
   - `select.input` braucht `appearance: none` plus ein eingebettetes SVG-Pfeilchen als
     Hintergrundbild (Breite 12, Höhe 8, Strich `#201e1d` bei 1.9, Position
@@ -54,20 +54,43 @@ einmal zentral hoch, damit die Folgephasen nur noch Struktur bauen.
   - `.btn--ghost` nutzt die Akzentfarbe als Textfarbe und tönt beim Überfahren.
   - `.dialog-backdrop` legt sich mit `color-mix(in srgb, var(--color-neutral-900) 50%,
     transparent)` über die Seite.
-- [ ] Zusatzklassen aus dem Handoff ergänzen (dort `.cm-hit`, `.cm-row`, `.cm-scroll`),
+- [x] Zusatzklassen aus dem Handoff ergänzen (dort `.cm-hit`, `.cm-row`, `.cm-scroll`),
       hier unter sprechenden Namen: `.icon-button` (Tönung beim Überfahren für nackte
       Icon-Schaltflächen), `.hover-row` (Zeilentönung für Ebenenliste und Menüs),
       `.thin-scroll` (schmale, eingefärbte Bildlaufleisten für die Editorspalten).
-- [ ] Bestehende Komponenten auf die Bausteine umstellen — Reihenfolge:
+- [x] Bestehende Komponenten auf die Bausteine umstellen — Reihenfolge:
       `shared/components/confirm-dialog`, `shared/components/field-hint`,
       `shared/components/notification-list`, `shared/components/not-found`.
       In den Vorlagen die Klassen setzen, im jeweiligen Stylesheet die dadurch doppelten
       Regeln löschen.
-- [ ] Prüfen, dass die Dialoge des Angular-CDK (Bildauswahl, Löschabfrage) die neue
+- [x] Prüfen, dass die Dialoge des Angular-CDK (Bildauswahl, Löschabfrage) die neue
       Dialogfläche zeigen und der Hintergrund abdunkelt — das CDK bringt eigene
       Grundregeln mit, die überschrieben werden müssen.
-- [ ] `docs/conventions/css.md`: Abschnitt „Gemeinsame Bausteine" ergänzen — welche
+- [x] `docs/conventions/css.md`: Abschnitt „Gemeinsame Bausteine" ergänzen — welche
       Klassen es gibt, dass Komponenten sie benutzen statt eigene Buttons zu bauen, und
       dass es keine Ausweich-Utilities gibt.
 
 ## Report-Back
+
+**Status:** complete.
+
+- `frontend/src/styles/_bausteine.scss` neu, per `@use` in `styles.scss` eingebunden —
+  alle 8 Bausteine + `.icon-button`/`.hover-row`/`.thin-scroll` + die
+  `.cdk-overlay-dark-backdrop`-Umstellung.
+- Vier Komponenten umgestellt: `confirm-dialog` (Wurzel jetzt `.dialog`, Buttons `.btn`,
+  Löschen-Button bleibt über eine einzige Zeile lokal in Gefahrenfarbe), `field-hint`
+  und `notification-list` (ihr „?"/„×"-Knopf trägt jetzt zusätzlich `.icon-button` für
+  die Hover-Tönung), `not-found` (keine Buttons/Felder — schon konform, keine Änderung
+  nötig).
+- `login.scss`, `tokens-page.scss`, `card-groups-detail.scss` **bewusst nicht** in
+  dieser Phase angefasst — sie sind Ziel von Phase 3/4, nicht dieser. Sie greifen aber
+  bereits auf dieselben Zweck-Token zu und zeigen deshalb schon jetzt die neue Palette.
+- `asset-picker` (Bildauswahl-Dialog) ebenfalls nicht auf `.dialog`/`.btn` umgestellt —
+  nicht Teil der AK-Reihenfolge dieser Phase; der CDK-Hintergrund hinter ihm ist über
+  die globale Umstellung trotzdem schon dunkel-warm statt Standard-Schwarz.
+- `npm run build` und `npm run lint`: beide grün.
+
+**Konfidenz:** keine wacklige Stelle im Code selbst (Build+Lint grün, Klassen 1:1 aus
+dem Entwurf übernommen). Die einzige echte Unsicherheit ist optisch — ob Pillen-Radius,
+Abstände und der neue `?`-/`×`-Hover-Tönung im Browser so wirken wie im Entwurf gedacht;
+das prüft die übliche Sichtprüfung im Browser, nicht diese Session.

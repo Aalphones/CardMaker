@@ -1,45 +1,7 @@
-.confirm-dialog {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  max-width: 24rem;
-  padding: var(--space-lg);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-elevated);
-  box-shadow: var(--shadow-md);
-
-  &__title {
-    margin: 0;
-    font-size: var(--font-size-lg);
-  }
-
-  &__message {
-    margin: 0;
-    color: var(--color-text-muted);
-  }
-
-  &__actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-sm);
-  }
-
-  &__button {
-    min-height: var(--touch-target-min);
-    padding: var(--space-sm) var(--space-md);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--color-text-primary);
-    cursor: pointer;
-
-    &--ghost {
-      border-color: var(--color-border);
-    }
-
-    &--danger {
-      border-color: var(--color-danger);
-      color: var(--color-danger);
-    }
-  }
+// Löschbestätigung bleibt farblich als Gefahr erkennbar — kein eigenes
+// Button-Grundgerüst mehr, nur die Einfärbung obendrauf (.btn--secondary aus den
+// Bausteinen liefert Form, Fokusring und Zustände).
+.confirm-dialog__confirm {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
 }

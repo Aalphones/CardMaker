@@ -29,6 +29,13 @@ backend/src/Validators/<Feature>Validator.php
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
 
+## Globale Styles
+
+`frontend/src/styles.scss` — Token-Schicht (`:root`) und Basis-Resets, siehe
+`docs/conventions/css.md`. `frontend/src/styles/_bausteine.scss` — die gemeinsamen
+Bausteinklassen (Buttons, Felder, Karten, Tags, Dialog, Tabelle, Segment-Umschalter),
+per `@use` eingebunden; Komponenten bauen keine eigenen Button-/Feld-Grundregeln mehr.
+
 ## Frontend-Layout (Kartengruppen seit Meilenstein 1, Template-Editor vollständig seit Meilenstein 2)
 
 ```

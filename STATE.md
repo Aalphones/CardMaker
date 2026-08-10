@@ -1,10 +1,10 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-10_design-organic/`
-**Phase:** 2/8 — Gemeinsame Bausteine (pending)
-**Nächster Schritt:** `docs/planning/2026-08-10_design-organic/phase-2-bausteine.md` abarbeiten
-— die wiederkehrenden Klassen für Buttons, Eingabefelder, Tags, Karten und den
-Segment-Umschalter bauen. Vorher die für Phase 2 getaggten Einträge in `FINDINGS.md` lesen.
+**Phase:** 3/8 — App-Rahmen, Anmeldung, Zugriffstoken (pending)
+**Nächster Schritt:** `docs/planning/2026-08-10_design-organic/phase-3-rahmen-und-anmeldung.md`
+abarbeiten. Vorher die für Phase 3 getaggten Einträge in `FINDINGS.md` lesen (aktuell:
+sechs Stellen mit rohem `--color-gray-50`-Zugriff, siehe dort).
 
 Danach folgt Plan 2: **Meilenstein 3 — Karteneditor**
 (`docs/planning/2026-08-10_karteneditor/`, 9 Phasen).
