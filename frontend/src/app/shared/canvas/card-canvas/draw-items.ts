@@ -49,6 +49,7 @@ export interface DrawItem {
 export interface DrawContext {
   images: ReadonlyMap<number, HTMLImageElement>;
   selectedLayerId: string | null;
+  interactive: boolean;
 }
 
 /**
@@ -62,7 +63,11 @@ export function buildDrawItems(layers: Layer[], context: DrawContext): DrawItem[
     .flatMap((layer: Layer) => itemsForLayer(layer, context));
   const selectedLayer = layers.find((layer: Layer) => layer.id === context.selectedLayerId && layer.visible);
 
-  if (selectedLayer) {
+  // Nicht-Rahmen-Ebenen bekommen ab Phase 7 den echten Konva-Transformer als Auswahlrahmen
+  // (card-canvas) — der gestrichelte Platzhalterrahmen hier würde sich sonst mit dessen
+  // Rand überlagern. Beim Rahmen gibt es keinen Transformer (er hat keine Geometrie), der
+  // gestrichelte Umriss bleibt dort die einzige Auswahlanzeige.
+  if (selectedLayer && (!context.interactive || selectedLayer.type === 'frame')) {
     items.push(selectionItem(selectedLayer));
   }
 
@@ -85,31 +90,54 @@ export function requestedAssetIds(layers: Layer[]): number[] {
 function itemsForLayer(layer: Layer, context: DrawContext): DrawItem[] {
   switch (layer.type) {
     case 'image':
-      return imageAreaItems(layer);
+      return imageAreaItems(layer, context);
     case 'shape':
-      return [shapeItem(layer)];
+      return [shapeItem(layer, context)];
     case 'icon':
       return iconItems(layer, context);
     case 'frame':
       return frameItems(layer, context);
     case 'text':
-      return textItems(layer);
+      return textItems(layer, context);
   }
+}
+
+/**
+ * Anfasser/Ziehbarkeit gibt es nur für die gerade ausgewählte Ebene (Plan-README „Ein
+ * Klick wählt aus" — nicht jede Ebene ist die ganze Zeit ziehbar, sonst verschiebt ein
+ * Klick-Drag über eine fremde Ebene diese versehentlich mit). Rahmen sind nie ziehbar, sie
+ * haben keine Geometrie (Kontrakt).
+ *
+ * `name` statt `id`: `ng2-konva` warnt ausdrücklich davor, das Konva-`id`-Attribut zu
+ * benutzen ("may produce bugs"), und empfiehlt `name`. Der Anfasser in `card-canvas` sucht
+ * den Knoten entsprechend über den Namens-Selektor (`stage.findOne('.' + id)`).
+ */
+function interactionConfig(layer: Layer, context: DrawContext): { name: string; draggable: boolean } {
+  return {
+    name: layer.id,
+    draggable: context.interactive && context.selectedLayerId === layer.id && layer.type !== 'frame',
+  };
 }
 
 /**
  * Die Bildfläche bleibt im Template-Editor immer ein Platzhalter: Welches Bild dort landet,
  * entscheidet erst die Karteninstanz (Meilenstein 3) — das Template legt nur die Fläche fest.
  */
-function imageAreaItems(layer: ImageLayer): DrawItem[] {
-  return placeholderItems(layer.id, box(layer), 'Bildfläche', layer.opacity);
+function imageAreaItems(layer: ImageLayer, context: DrawContext): DrawItem[] {
+  return placeholderItems(layer.id, box(layer), 'Bildfläche', layer.opacity, interactionConfig(layer, context));
 }
 
 function iconItems(layer: IconLayer, context: DrawContext): DrawItem[] {
   const image = pickImage(layer.assetId, context);
 
   if (!image) {
-    return placeholderItems(layer.id, box(layer), layer.assetId === null ? 'Icon' : 'Icon lädt …', layer.opacity);
+    return placeholderItems(
+      layer.id,
+      box(layer),
+      layer.assetId === null ? 'Icon' : 'Icon lädt …',
+      layer.opacity,
+      interactionConfig(layer, context),
+    );
   }
 
   return [
@@ -117,23 +145,25 @@ function iconItems(layer: IconLayer, context: DrawContext): DrawItem[] {
       key: layer.id,
       layerId: layer.id,
       element: 'image',
-      config: { ...box(layer), image, opacity: layer.opacity },
+      config: { ...box(layer), image, opacity: layer.opacity, ...interactionConfig(layer, context) },
     },
   ];
 }
 
 function frameItems(layer: FrameLayer, context: DrawContext): DrawItem[] {
   const image = pickImage(layer.assetId, context);
+  const interaction = interactionConfig(layer, context);
 
   if (!image) {
-    return placeholderItems(layer.id, FRAME_BOX, layer.assetId === null ? 'Rahmen fehlt' : 'Rahmen lädt …', 1);
+    return placeholderItems(layer.id, FRAME_BOX, layer.assetId === null ? 'Rahmen fehlt' : 'Rahmen lädt …', 1, interaction);
   }
 
-  return [{ key: layer.id, layerId: layer.id, element: 'image', config: { ...FRAME_BOX, image } }];
+  return [{ key: layer.id, layerId: layer.id, element: 'image', config: { ...FRAME_BOX, image, ...interaction } }];
 }
 
-function shapeItem(layer: ShapeLayer): DrawItem {
+function shapeItem(layer: ShapeLayer, context: DrawContext): DrawItem {
   const base = { key: layer.id, layerId: layer.id };
+  const interaction = interactionConfig(layer, context);
 
   switch (layer.shape) {
     case 'rect':
@@ -147,6 +177,7 @@ function shapeItem(layer: ShapeLayer): DrawItem {
           strokeWidth: layer.strokeWidth,
           cornerRadius: layer.cornerRadius,
           opacity: layer.opacity,
+          ...interaction,
         },
       };
     case 'circle':
@@ -168,6 +199,7 @@ function shapeItem(layer: ShapeLayer): DrawItem {
           stroke: layer.stroke ?? undefined,
           strokeWidth: layer.strokeWidth,
           opacity: layer.opacity,
+          ...interaction,
         },
       };
     case 'line':
@@ -179,14 +211,15 @@ function shapeItem(layer: ShapeLayer): DrawItem {
           stroke: layer.stroke ?? undefined,
           strokeWidth: layer.strokeWidth,
           opacity: layer.opacity,
+          ...interaction,
         },
       };
   }
 }
 
-function textItems(layer: TextLayer): DrawItem[] {
+function textItems(layer: TextLayer, context: DrawContext): DrawItem[] {
   if (layer.defaultText.length === 0) {
-    return placeholderItems(layer.id, box(layer), 'Text', layer.opacity);
+    return placeholderItems(layer.id, box(layer), 'Text', layer.opacity, interactionConfig(layer, context));
   }
 
   return [
@@ -196,6 +229,7 @@ function textItems(layer: TextLayer): DrawItem[] {
       element: 'text',
       config: {
         ...box(layer),
+        ...interactionConfig(layer, context),
         text: layer.defaultText,
         fontFamily: layer.fontFamily,
         fontSize: effectiveFontSize(layer),
@@ -237,7 +271,13 @@ function effectiveFontSize(layer: TextLayer): number {
   });
 }
 
-function placeholderItems(layerId: string, area: Geometry, label: string, opacity: number): DrawItem[] {
+function placeholderItems(
+  layerId: string,
+  area: Geometry,
+  label: string,
+  opacity: number,
+  interaction: { name: string; draggable: boolean },
+): DrawItem[] {
   return [
     {
       key: `${layerId}:placeholder`,
@@ -250,6 +290,7 @@ function placeholderItems(layerId: string, area: Geometry, label: string, opacit
         strokeWidth: OUTLINE_WIDTH,
         dash: PLACEHOLDER_DASH,
         opacity,
+        ...interaction,
       },
     },
     {

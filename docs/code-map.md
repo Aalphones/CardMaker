@@ -65,16 +65,20 @@ frontend/src/app/
                           canDeactivate bei ungespeicherten Formularen)
     canvas/            ← alles, was mit Konva zeichnet — Feature-Komponenten binden nur Daten
       card-canvas/      ← die Kartenvorschau: `card-canvas.*` (Bühne, Maßstab, Schachbrett,
-                           Auswahl-Umriss) und `draw-items.ts` (Ebene → Konva-Konfiguration,
-                           inkl. Platzhalter für fehlende Bilder)
+                           Auswahl-Umriss, ab Phase 7 der Konva-Transformer als Anfasser) und
+                           `draw-items.ts` (Ebene → Konva-Konfiguration, inkl. Platzhalter für
+                           fehlende Bilder und der Ziehbarkeits-/Namens-Zuordnung der
+                           ausgewählten Ebene)
       asset-image-loader.ts ← lädt hochgeladene Bilder als Blob hinter der Anmeldung und hält
                            sie als fertige Bildelemente im Speicher
       rendering/        ← reine Zeichenregeln ohne Konva-Abhängigkeit: `layer.ts` (die fünf
                            Ebenentypen + Fabrikfunktionen), `fonts.ts` (feste Schriftenliste),
                            `units.ts` (Canvas-Einheiten → Pixel), `auto-shrink.ts`
-                           (automatisches Verkleinern von Text) — ADR-005, damit Meilenstein 4
-                           (Drucken) sie wiederverwendet. Einzige Ausnahme: `measure-text.ts`,
-                           die Messbrücke zu `Konva.Text`
+                           (automatisches Verkleinern von Text), `apply-transform.ts`
+                           (Konva-Transform-Ergebnis → Geometrie-Patch in Canvas-Einheiten,
+                           Linien-Punkte verschieben) — ADR-005, damit Meilenstein 4 (Drucken)
+                           sie wiederverwendet. Einzige Ausnahme: `measure-text.ts`, die
+                           Messbrücke zu `Konva.Text`
     services/
   store/               ← NgRx Classic Store Slices (auth, card-groups, templates, assets,
                           tokens — Facade Pflicht pro Domain-Slice, `auth` bislang ohne, da

@@ -61,11 +61,13 @@ ist, wandert in Phase 8 in die Folgeaufgaben der Plan-README.
       auf Lebenszeit. Zu entscheiden wäre eine Ablauffrist (Spalte `expires_at`, Vergleich
       in der Abfrage wie bei den Sitzungen). Aufgefallen beim Nachmessen von Phase 2.
 
-- [ ] → Phase 7: `ng2-konva` 12.0.1 verlangt Angular ^21 und Konva ^10 — beides installiert,
+- [x] → Phase 7: `ng2-konva` 12.0.1 verlangt Angular ^21 und Konva ^10 — beides installiert,
       passt. Alle Formen laufen über eine einzige Komponente (`CoreShapeComponent`) mit der
       Eingabe `[config]`; `ko-transformer` ist vorhanden. In Phase 5 bestätigt: Die
       Zeichenreihenfolge kommt aus der DOM-Reihenfolge (`ng2-konva` beobachtet sie), `@for`
       mit `track` reicht also.
+      Erledigt: `ko-transformer` als einzelner, umgehängter Knoten umgesetzt (siehe
+      Phase-7-Report-Back).
 
 - [x] → Phase 6: Der Editor zeigt im Moment einen Wegwerf-Schalter „Beispielebenen anzeigen"
       (`features/templates/template-editor/example-layers.ts`). Er existiert nur, weil es
@@ -80,13 +82,19 @@ ist, wandert in Phase 8 in die Folgeaufgaben der Plan-README.
       Erledigt: `card-canvas` bekommt `selectedLayerId`/`interactive` aus dem Signal Store,
       `layerClicked` wählt die Ebene aus.
 
-- [ ] → Phase 7: Konva rechnet die Bildschirmauflösung selbst ein (`devicePixelRatio` im
+- [x] → Phase 7: Konva rechnet die Bildschirmauflösung selbst ein (`devicePixelRatio` im
       Canvas). Die Bühnengröße NICHT zusätzlich multiplizieren — das skaliert doppelt. Der
       Maßstab Canvas-Einheiten → Bildschirmpunkte sitzt an genau einer Stelle: der
       `scaleX`/`scaleY` der Konva-Ebene. Anfasser-Werte aus Phase 7 müssen entsprechend
       durch diesen Maßstab zurückgerechnet werden, bevor sie in eine Ebene wandern.
+      Erledigt — mit einer Präzisierung: Nur die Anfasser-**Optik** (`anchorSize` u. Ä.)
+      braucht die Division, die Geometrie-**Werte** (Breite/Höhe/Position) rechnet Konvas
+      Transformer selbst schon in Canvas-Einheiten zurück. Details in
+      `docs/conventions/state-management.md`.
 
-- [ ] → Phase 6 und 7: Ein Textknoten mit fest gesetzter Höhe bricht in Konva nur so viele
+- [x] → Phase 6 und 7: Ein Textknoten mit fest gesetzter Höhe bricht in Konva nur so viele
       Zeilen um, wie in die Box passen — er meldet also nie eine Höhe größer als die Box.
       Wer Text messen will, muss einen Knoten OHNE feste Höhe benutzen (macht
       `rendering/measure-text.ts`). Sonst greift das automatische Verkleinern nie.
+      War bereits seit Phase 5/6 in `measure-text.ts` umgesetzt, Phase 7 hat daran nichts
+      geändert (Transform-Ereignisse lösen keine Neumessung aus).

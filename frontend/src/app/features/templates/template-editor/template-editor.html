@@ -44,6 +44,7 @@
           [selectedLayerId]="editor.selectedLayerId()"
           [interactive]="true"
           (layerClicked)="editor.select($event)"
+          (layerTransformed)="editor.patchLayer($event.id, $event.changes)"
         />
       </div>
 

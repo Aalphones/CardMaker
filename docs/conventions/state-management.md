@@ -110,6 +110,26 @@ Nicht jedes Zwischenevent dispatchen — lokal im Component/SignalStore puffern
 Classic-Store dispatchen. Sonst füllt sich die NgRx-DevTools-History mit hunderten
 Zwischenständen pro Drag-Geste, und jeder Frame löst eine volle Selector-Neuberechnung aus.
 
+**Bühnenmaßstab beim Transformer (bestätigt in Phase 7, `card-canvas.ts`):** Die
+Konva-Ebene, in der die Karte zeichnet, trägt selbst `scaleX`/`scaleY` (Canvas-Einheiten →
+Bildschirmpunkte, siehe `card-canvas.ts`). Ein Kind-Knoten dieser Ebene rechnet seine
+eigenen `x`/`y`/`width`/`height`/`scaleX`/`scaleY` trotzdem **in Canvas-Einheiten** — Konvas
+`Transformer._fitNodesInto()` invertiert den Eltern-Transform selbst, bevor es die neuen
+Werte an den Knoten schreibt (`node.getParent().getAbsoluteTransform()`, siehe
+`konva/lib/shapes/Transformer.js`). Nach `transformend` also `neueBreite = node.width() *
+node.scaleX()` **ohne** weitere Division durch den Bühnenmaßstab — der ist in den
+Konva-eigenen Werten schon herausgerechnet (`shared/canvas/rendering/apply-transform.ts`).
+
+Was den Bühnenmaßstab **doch** braucht: die reinen Anzeige-Werte des Transformers selbst
+(`anchorSize`, `borderStrokeWidth`, `rotateAnchorOffset`) — die sind literale Bildschirm-
+Pixelwerte und werden beim Zeichnen genauso durch die Eltern-Skalierung vergrößert wie jede
+andere Kantenbreite. Durch den Maßstab teilen, sonst sehen die Anfasser bei jeder
+Fenstergröße unterschiedlich groß aus.
+
+**`id`-Attribut meiden:** `ng2-konva` warnt selbst davor, Konvas `id`-Attribut zu benutzen
+("may produce bugs"). Für die Knotensuche (`stage.findOne()`) stattdessen `name` setzen und
+über den `.name`-Selektor suchen.
+
 ## Critical Rules
 
 1. **Facade-Pflicht ohne Ausnahme für neue Domain-Slices** — direkter `Store`-Zugriff aus

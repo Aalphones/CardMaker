@@ -1,16 +1,31 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, Signal } from '@angular/core';
+import { Dialog } from '@angular/cdk/dialog';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostListener,
+  computed,
+  effect,
+  inject,
+  signal,
+  Signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, ParamMap, RouterLink } from '@angular/router';
-import { map } from 'rxjs';
+import { firstValueFrom, map } from 'rxjs';
 
 import { CardCanvas } from '../../../shared/canvas/card-canvas/card-canvas';
+import { offsetLinePoints } from '../../../shared/canvas/rendering/apply-transform';
 import { Layer, LayerPatch } from '../../../shared/canvas/rendering/layer';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { ComponentWithUnsavedChanges } from '../../../shared/guards/pending-changes-guard';
 import { TemplateEditorStore } from '../../../signal-stores/template-editor';
 import { AssetsFacade } from '../../../store/assets/assets.facade';
 import { TemplatesFacade } from '../../../store/templates/templates.facade';
 import { AddLayerRequest, LayerList } from './layer-list/layer-list';
 import { LayerProperties } from './layer-properties/layer-properties';
+
+const ARROW_STEP = 1;
+const ARROW_STEP_FAST = 10;
 
 @Component({
   selector: 'app-template-editor',
@@ -22,6 +37,7 @@ import { LayerProperties } from './layer-properties/layer-properties';
 })
 export class TemplateEditor implements ComponentWithUnsavedChanges {
   private readonly route = inject(ActivatedRoute);
+  private readonly dialog = inject(Dialog);
   protected readonly templates = inject(TemplatesFacade);
   protected readonly assets = inject(AssetsFacade);
   protected readonly editor = inject(TemplateEditorStore);
@@ -118,6 +134,82 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
 
     if (id) {
       this.editor.patchLayer(id, patch);
+    }
+  }
+
+  /**
+   * Entf löscht die ausgewählte Ebene (mit derselben Rückfrage wie in der Ebenenliste),
+   * Pfeiltasten verschieben sie um eine Canvas-Einheit, mit Umschalttaste um zehn — nur
+   * wirksam, wenn kein Eingabefeld den Fokus hat (Plan-Phase-7-Checkliste „Tastatur").
+   */
+  @HostListener('window:keydown', ['$event'])
+  protected onKeydown(event: KeyboardEvent): void {
+    const layer = this.selectedLayer();
+
+    if (!layer || this.isTypingTarget(event.target)) {
+      return;
+    }
+
+    if (event.key === 'Delete' || event.key === 'Backspace') {
+      event.preventDefault();
+      void this.confirmAndRemoveLayer(layer);
+      return;
+    }
+
+    const step = event.shiftKey ? ARROW_STEP_FAST : ARROW_STEP;
+    const arrowDelta = this.arrowKeyDelta(event.key, step);
+
+    if (arrowDelta) {
+      event.preventDefault();
+      this.moveLayer(layer, arrowDelta.deltaX, arrowDelta.deltaY);
+    }
+  }
+
+  private isTypingTarget(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+  }
+
+  private arrowKeyDelta(key: string, step: number): { deltaX: number; deltaY: number } | null {
+    switch (key) {
+      case 'ArrowLeft':
+        return { deltaX: -step, deltaY: 0 };
+      case 'ArrowRight':
+        return { deltaX: step, deltaY: 0 };
+      case 'ArrowUp':
+        return { deltaX: 0, deltaY: -step };
+      case 'ArrowDown':
+        return { deltaX: 0, deltaY: step };
+      default:
+        return null;
+    }
+  }
+
+  private moveLayer(layer: Layer, deltaX: number, deltaY: number): void {
+    if (layer.type === 'shape' && layer.shape === 'line') {
+      this.editor.patchLayer(layer.id, { points: offsetLinePoints(layer.points, deltaX, deltaY) });
+      return;
+    }
+
+    if (layer.type === 'frame') {
+      return;
+    }
+
+    this.editor.patchLayer(layer.id, { x: layer.x + deltaX, y: layer.y + deltaY });
+  }
+
+  private async confirmAndRemoveLayer(layer: Layer): Promise<void> {
+    const dialogRef = this.dialog.open<boolean>(ConfirmDialog, {
+      data: { title: 'Ebene löschen', message: `Ebene „${layer.name}" wirklich löschen?` },
+    });
+
+    const confirmed = await firstValueFrom(dialogRef.closed);
+
+    if (confirmed) {
+      this.editor.removeLayer(layer.id);
     }
   }
 }

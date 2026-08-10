@@ -4,22 +4,43 @@
       @for (item of drawItems(); track item.key) {
         @switch (item.element) {
           @case ('image') {
-            <ko-image [config]="item.config" (click)="selectLayer(item.layerId)" />
+            <ko-image
+              [config]="item.config"
+              (click)="selectLayer(item.layerId)"
+              (dragend)="onDragEnd($event)"
+              (transformend)="onTransformEnd($event)"
+            />
           }
           @case ('rect') {
-            <ko-rect [config]="item.config" (click)="selectLayer(item.layerId)" />
+            <ko-rect
+              [config]="item.config"
+              (click)="selectLayer(item.layerId)"
+              (dragend)="onDragEnd($event)"
+              (transformend)="onTransformEnd($event)"
+            />
           }
           @case ('ellipse') {
-            <ko-ellipse [config]="item.config" (click)="selectLayer(item.layerId)" />
+            <ko-ellipse
+              [config]="item.config"
+              (click)="selectLayer(item.layerId)"
+              (dragend)="onDragEnd($event)"
+              (transformend)="onTransformEnd($event)"
+            />
           }
           @case ('line') {
-            <ko-line [config]="item.config" (click)="selectLayer(item.layerId)" />
+            <ko-line [config]="item.config" (click)="selectLayer(item.layerId)" (dragend)="onDragEnd($event)" />
           }
           @case ('text') {
-            <ko-text [config]="item.config" (click)="selectLayer(item.layerId)" />
+            <ko-text
+              [config]="item.config"
+              (click)="selectLayer(item.layerId)"
+              (dragend)="onDragEnd($event)"
+              (transformend)="onTransformEnd($event)"
+            />
           }
         }
       }
+      <ko-transformer #transformer [config]="transformerConfig()" />
     </ko-layer>
   </ko-stage>
 }

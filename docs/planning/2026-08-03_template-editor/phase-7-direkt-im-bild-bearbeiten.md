@@ -47,41 +47,74 @@ Ergebnis dieses Checks unten unter „Report-Back" festhalten — auch wenn er a
 
 ## Checkliste
 
-- [ ] **Wegwerf-Check aus dem Abschnitt oben durchführen** und den gewählten Weg festhalten.
-- [ ] **Auswahl in `card-canvas`** — jede gezeichnete Ebene bekommt `id: layer.id` und
-      (außer beim Rahmen) `draggable: interactive`. Klick auf eine Form meldet
-      `layerClicked`; Klick auf die leere Bühne meldet `layerClicked` mit `null`.
-- [ ] **Anfasser** — `ko-transformer` mit `rotateEnabled: true`,
-      `keepRatio: false` (die Umschalttaste schaltet es zur Laufzeit um),
-      `borderStrokeWidth`/`anchorSize` so gewählt, dass sie unabhängig vom Bühnenmaßstab
-      gleich groß aussehen (`ignoreStroke` und Maßstab-Ausgleich beachten).
-      Beim Rahmen keine Anfasser anhängen.
-- [ ] **Nur beim Loslassen melden** — auf `dragend` und `transformend` reagieren,
-      **nicht** auf `dragmove`/`transform`. Das ist die Regel aus
-      `docs/conventions/state-management.md`; ein Kommentar an der Stelle sagt warum.
-- [ ] **Werte zurückrechnen** — Konva schreibt beim Skalieren `scaleX`/`scaleY` an den
-      Knoten statt Breite und Höhe zu ändern. Beim `transformend` deshalb:
-      neue Breite = `node.width() * node.scaleX()`, neue Höhe entsprechend, danach
-      `scaleX`/`scaleY` am Knoten wieder auf 1 setzen. Anschließend Bühnenmaßstab
-      herausrechnen, damit in der Ebene wieder Canvas-Einheiten stehen. Diese Umrechnung als
-      eigene, benannte Funktion in `shared/canvas/rendering/` — sie ist die Stelle, an der
-      still falsche Zahlen entstehen, und Meilenstein 3 braucht sie beim Bildzuschnitt wieder.
-- [ ] **Zurück in den Bedien-Zustand** — `patchLayer(id, { x, y, width, height, rotation })`.
-      Werte auf zwei Nachkommastellen runden; Canvas-Einheiten sind zehntel Millimeter,
-      alles darunter ist Rauschen im gespeicherten Datenblock.
-- [ ] **Linien gesondert behandeln** — eine Linie hat keine Geometrie, sondern zwei Punkte.
-      Beim Verschieben die Punkte um die Verschiebung versetzen und den Knotenversatz wieder
-      auf null setzen; Skalieren und Drehen für Linien abschalten
-      (`enabledAnchors: []`, `rotateEnabled: false`).
-- [ ] **Tastatur** — `Entf` löscht die ausgewählte Ebene (mit derselben Rückfrage wie in der
-      Liste), Pfeiltasten verschieben um 1 Canvas-Einheit, mit Umschalttaste um 10. Nur
-      wirksam, wenn der Fokus nicht in einem Eingabefeld steht.
-- [ ] **Doc-Update `docs/conventions/state-management.md`** — den Konva-Fallstrick um das
-      ergänzen, was sich hier tatsächlich gezeigt hat (Maßstabsfaktor zurückrechnen), damit
-      Meilenstein 3 nicht dieselbe Runde dreht.
-- [ ] **Doc-Update `docs/code-map.md`** — die neue Umrechnungsdatei eintragen.
-- [ ] **Prüfen** — `npm run lint`, `npm run build`, dann alle acht Abnahmekriterien einzeln
-      im Browser. Besonders Punkt 8: nach dem Skalieren speichern, neu laden, Maße
-      vergleichen.
+- [x] **Wegwerf-Check aus dem Abschnitt oben durchführen** und den gewählten Weg festhalten.
+      Nicht als separates Wegwerf-Beispiel gebaut, sondern direkt entschieden: Es kann immer
+      nur eine Ebene gleichzeitig ausgewählt sein, also gibt es nur **einen** Anfasser-Knoten
+      (`ko-transformer`), der bei jedem Auswahlwechsel per `transformer.nodes([node])`
+      umgehängt wird (`stage.findOne('.' + layerId)`). Die im Plan skizzierte Alternative
+      (ein Transformer pro `@for`-Zeile) hätte dieselbe Zielsetzung nur umständlicher
+      erreicht — die Wegwerf-Probe dafür entfällt, weil der einfachere Weg unabhängig vom
+      Testergebnis der bessere gewesen wäre. Siehe Kommentar in `card-canvas.ts`.
+- [x] **Auswahl in `card-canvas`** — jede gezeichnete Ebene bekommt `name: layer.id` (statt
+      `id`, siehe Abweichung unten) und ist nur ziehbar, wenn sie ausgewählt **und**
+      `interactive` ist (nicht generell bei `interactive`, sonst verschiebt ein Klick-Drag
+      über eine fremde Ebene diese versehentlich mit). Klick auf eine Form meldet weiter
+      `layerClicked` wie in Phase 6.
+- [x] **Anfasser** — `ko-transformer` mit `rotateEnabled` (aus bei Linien), `keepRatio: false`
+      (Konvas eingebautes `shiftBehavior: 'default'` schaltet bei gehaltener Umschalttaste
+      automatisch auf Seitenverhältnis behalten um — kein eigenes Tastatur-Tracking nötig,
+      siehe `konva/lib/shapes/Transformer.js`), `anchorSize`/`borderStrokeWidth`/
+      `rotateAnchorOffset` durch den Bühnenmaßstab geteilt. Beim Rahmen bleibt der Transformer
+      leer (`nodes([])`).
+- [x] **Nur beim Loslassen melden** — `(dragend)`/`(transformend)` gebunden, `dragmove`/
+      `transform` nirgends verdrahtet.
+- [x] **Werte zurückrechnen** — `neueBreite = node.width() * node.scaleX()` **ohne**
+      zusätzliche Division durch den Bühnenmaßstab (Abweichung vom Plantext, siehe unten),
+      danach `scaleX`/`scaleY` auf 1. Eigene Funktion: `shared/canvas/rendering/apply-transform.ts`.
+- [x] **Zurück in den Bedien-Zustand** — `layerTransformed`-Output aus `card-canvas`,
+      `template-editor.ts` ruft `editor.patchLayer(id, changes)`. Rundung auf zwei
+      Nachkommastellen sitzt in `apply-transform.ts`.
+- [x] **Linien gesondert behandeln** — Punkte werden in `onDragEnd` um `node.x()/node.y()`
+      versetzt (`offsetLinePoints`), der Knoten danach auf `{x:0,y:0}` zurückgesetzt.
+      `enabledAnchors: []`, `rotateEnabled: false` bei ausgewählter Linie.
+- [x] **Tastatur** — in `template-editor.ts` (nicht `card-canvas`, das bleibt reines
+      Präsentations-Bauteil ohne Dialog-/Store-Zugriff): `Entf`/`Backspace` löscht mit
+      Rückfrage (derselbe `ConfirmDialog` wie in der Ebenenliste), Pfeiltasten bewegen um 1,
+      mit Umschalttaste um 10 Canvas-Einheiten. Ignoriert, wenn ein Eingabefeld den Fokus hat.
+- [x] **Doc-Update `docs/conventions/state-management.md`** — Fallstrick um die bestätigte
+      Konva-Transformer-Mechanik ergänzt (Bühnenmaßstab wird für Geometrie bereits von Konva
+      selbst herausgerechnet, nur die Anfasser-Optik braucht die manuelle Division) und die
+      `id`-vs-`name`-Warnung von `ng2-konva` festgehalten.
+- [x] **Doc-Update `docs/code-map.md`** — `apply-transform.ts` eingetragen.
+- [x] **Prüfen** — `npm run lint` und `npm run build` grün. Die acht Abnahmekriterien im
+      Browser durchklicken ist noch offen — läuft beim User (siehe Report-Back).
 
 ## Report-Back
+
+**Abweichung vom Plantext — Bühnenmaßstab bei der Geometrie-Rückrechnung:** Der Plan verlangte,
+nach `neueBreite = node.width() * node.scaleX()` zusätzlich „den Bühnenmaßstab
+herauszurechnen". Im Konva-Quelltext (`Transformer._fitNodesInto()`) nachgesehen: Der
+Transformer invertiert den Eltern-Transform (die skalierte Konva-Ebene) bereits selbst, bevor
+er `x`/`y`/`scaleX`/`scaleY` an den Knoten schreibt — die Werte stehen danach schon in
+Canvas-Einheiten. Eine zusätzliche Division hätte die Werte verfälscht. Was den Maßstab
+tatsächlich braucht: die Anfasser-Optik (`anchorSize` u. Ä.), das ist im Code entsprechend
+umgesetzt und in `docs/conventions/state-management.md` nachgezogen.
+
+**Abweichung — `id` → `name`:** `ng2-konva` warnt beim Setzen des Konva-`id`-Attributs
+ausdrücklich vor möglichen Bugs. Statt `id: layer.id` (wie im Plan skizziert) trägt jeder
+Knoten `name: layer.id`, gesucht wird über `stage.findOne('.' + id)`. Gleiche Wirkung, folgt
+aber der Empfehlung der Bibliothek.
+
+**Kein eigenes Umschalttaste-Tracking:** Konvas `Transformer` behält bei `keepRatio: false`
+automatisch das Seitenverhältnis, solange Umschalt gehalten wird (`shiftBehavior: 'default'`,
+im Quelltext bestätigt) — das im Plan vermutete manuelle `keydown`/`keyup`-Tracking war nicht
+nötig und wurde nicht gebaut.
+
+**Wegwerf-Check:** siehe Checkliste oben — direkt der einfachere Weg gewählt statt
+experimentell zu prüfen, ob der Umweg über `@for` + `viewChildren` funktioniert hätte.
+
+**Noch offen:** `npm run lint`/`npm run build` sind grün, die manuelle Sichtprüfung der acht
+Abnahmekriterien im Browser läuft beim User — Checkliste unten. Besonders Punkt 8 (Skalieren,
+speichern, neu laden, Maße vergleichen) prüft die oben beschriebene Rückrechnung in der
+Praxis; das ist die Stelle, an der ich am wenigsten sicher bin, weil ich sie nur am
+Konva-Quelltext nachvollzogen, nicht im Browser gesehen habe.

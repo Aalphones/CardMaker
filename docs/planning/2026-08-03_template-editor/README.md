@@ -40,7 +40,7 @@ Vier Festlegungen, die alles Weitere prägen — jede kostet etwas, jede ist bew
 | 4 | [Templates im Frontend: Speicher, Liste, Anlegen](phase-4-templates-frontend.md) | standard | done |
 | 5 | [Kartenvorschau auf Konva](phase-5-kartenvorschau.md) | heikel | done (Sichtprüfung offen) |
 | 6 | [Ebenenliste & Eigenschaften](phase-6-ebenenliste-und-eigenschaften.md) | heikel | done (Sichtprüfung offen) |
-| 7 | [Direkt im Bild bearbeiten](phase-7-direkt-im-bild-bearbeiten.md) | heikel | pending |
+| 7 | [Direkt im Bild bearbeiten](phase-7-direkt-im-bild-bearbeiten.md) | heikel | done (Sichtprüfung offen) |
 | 8 | [Doku-Abgleich & Abnahme](phase-8-doku-und-abnahme.md) | mechanisch | pending |
 
 Reihenfolge ist bindend. Einzige Ausnahme: Phase 5 hängt nur am Datenmodell unten, nicht am

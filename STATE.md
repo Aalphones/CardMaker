@@ -1,11 +1,12 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-03_template-editor/`
-**Phase:** 7/8 — Direkt im Bild bearbeiten (pending)
-**Nächster Schritt:** Phase 6 ist fertig — Ebenenliste, Eigenschaftenspalte, Bildauswahl und
-Speichern sind verdrahtet, `npm run lint`/`npm run build` grün. **Offen: die Sichtprüfung im
-Browser** (neun Abnahmekriterien, Checkliste im Report-Back von Phase 6) — läuft beim User,
-zusammen mit der noch offenen Sichtprüfung von Phase 5. Besonders die
-Drag&Drop-Indexumrechnung in `layer-list.ts` verdient einen echten Test (nur auf dem Papier
-geprüft). Danach `phase-7-direkt-im-bild-bearbeiten.md` lesen und umsetzen; Rating heikel →
-`/model opusplan`.
+**Phase:** 8/8 — Doku-Abgleich & Abnahme (pending)
+**Nächster Schritt:** Phase 7 ist fertig — Ebenen lassen sich direkt im Bild verschieben,
+skalieren und drehen (Konva-Transformer), Tastatursteuerung (Entf, Pfeiltasten) sitzt im
+Editor, `npm run lint`/`npm run build` grün. **Offen: die Sichtprüfung im Browser** für die
+Phasen 5, 6 **und** 7 (drei Checklisten in den jeweiligen Report-Backs) — läuft beim User.
+Besonders Phase 7 Punkt 8 (Skalieren → Speichern → Neuladen → Maße vergleichen) prüft eine
+Rückrechnung, die ich nur am Konva-Quelltext nachvollzogen, nicht im Browser gesehen habe
+(Details im Report-Back von Phase 7). Danach `phase-8-doku-und-abnahme.md` lesen und
+umsetzen; Rating mechanisch → `sonnet` reicht.
