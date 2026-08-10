@@ -1,0 +1,132 @@
+# Meilenstein 3 — Karteneditor
+
+Karteninstanzen: ein Template auswählen, seine Felder befüllen, ein Bild hochladen und
+zurechtschieben, einer Kartengruppe zuordnen, speichern — und alle gespeicherten Karten
+in einer durchsuchbaren Liste wiederfinden.
+
+**Setzt den Design-Plan voraus** (`2026-08-10_design-organic/`): dieser Plan baut direkt
+im neuen Aussehen und benutzt dessen Bausteinklassen. Wird er vorher umgesetzt, entfällt
+jedes Nachstylen.
+
+## Grundsatz
+
+Eine Karte speichert **nie** ein fertiges Bild, sondern nur: welches Template, welche
+Texte, welche Icon-Wahl, welches hochgeladene Bild an welcher Stelle. Damit bleibt jede
+Karte jederzeit neu renderbar, auch wenn das Template sich später ändert
+(`AGENTS.md`, Regel 1).
+
+## Entscheidungen, die schon gefallen sind (2026-08-10)
+
+- **Bildausschnitt** wird direkt in der Live-Vorschau gemacht: Bild ziehen und zoomen,
+  keine eigene Zuschneide-Oberfläche, kein Moduswechsel. Löst die offene Frage aus
+  `docs/PROJECT.md`. → ADR-018 in Phase 1.
+- **Kartenbilder liegen getrennt vom Bildvorrat**: eigene Ablage, an die Karte gebunden,
+  verschwinden mit ihr. Rahmen und Icons (`assets`) bleiben unberührt. → ADR-017.
+- **Keine Seltenheit** als festes Kartenfeld — im Entwurf nur Beispielinhalt. Wer eine
+  Seltenheit auf der Karte will, legt im Template ein Textfeld dafür an.
+
+## Übersicht
+
+| # | Phase | Rating | Status |
+|---|---|---|---|
+| 1 | [Entscheidungen und Datenmodell](phase-1-entscheidungen-und-datenmodell.md) | heikel | pending |
+| 2 | [Backend: Karten](phase-2-backend-karten.md) | standard | pending |
+| 3 | [Backend: Kartenbilder](phase-3-backend-kartenbilder.md) | standard | pending |
+| 4 | [Frontend: Speicher und Routen](phase-4-frontend-speicher.md) | standard | pending |
+| 5 | [Alle Karten](phase-5-kartenliste.md) | standard | pending |
+| 6 | [Karteneditor: Formular](phase-6-editor-formular.md) | heikel | pending |
+| 7 | [Karteneditor: Live-Vorschau](phase-7-live-vorschau.md) | heikel | pending |
+| 8 | [Bild ziehen und zoomen](phase-8-bild-platzieren.md) | heikel | pending |
+| 9 | [Verknüpfungen, Doku, Abnahme](phase-9-abschluss.md) | mechanisch | pending |
+
+## Kontrakt zwischen Backend und Frontend
+
+Gilt ab Phase 1 als festgenagelt. Wire-Format wie im Bestand: intern `snake_case`,
+nach außen `camelCase` (`App\Support\WireFormat`).
+
+### Karte
+
+```ts
+type Card = {
+  id: number;
+  name: string;                          // 1–191 Zeichen
+  templateId: number;                    // muss existieren
+  cardGroupId: number | null;
+  values: Record<string, string>;        // Feldschlüssel der Textebene → Text
+  iconChoices: Record<string, number>;   // Ebenen-Id → Asset-Id
+  textOverrides: Record<string, {        // Feldschlüssel → Abweichung
+    fontSize?: number;                   // 4–200
+    color?: string;                      // #rrggbb
+  }>;
+  images: CardImage[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+type CardImage = {
+  layerId: string;    // Id der Bildebene im Template
+  offsetX: number;    // Canvas-Einheiten, Verschiebung des Bildes in seiner Fläche
+  offsetY: number;
+  scale: number;      // 0.1–10, 1 = das Bild füllt die kürzere Seite der Fläche
+  width: number;      // Originalmaße der hochgeladenen Datei, in Pixeln
+  height: number;
+};
+```
+
+### Endpunkte
+
+| Methode | Pfad | Zweck |
+|---|---|---|
+| GET | `/api/cards` | Kurzfassungen aller Karten (ohne `values`/`images`), für die Liste |
+| POST | `/api/cards` | Karte anlegen |
+| GET | `/api/cards/{id}` | Karte vollständig |
+| PATCH | `/api/cards/{id}` | Karte ändern (nur übergebene Felder) |
+| DELETE | `/api/cards/{id}` | Karte löschen, Bilder mit |
+| POST | `/api/cards/{id}/images` | Bild hochladen (mehrteilig: `layerId`, `file`), ersetzt ein vorhandenes derselben Ebene |
+| PATCH | `/api/cards/{id}/images/{layerId}` | Verschiebung und Maßstab ändern |
+| DELETE | `/api/cards/{id}/images/{layerId}` | Bild dieser Ebene entfernen |
+| GET | `/api/cards/{id}/images/{layerId}/file` | Bilddatei, hinter der Anmeldung |
+
+Kurzfassung für die Liste (`GET /api/cards`):
+`{ id, name, templateId, templateName, cardGroupId, cardGroupName, updatedAt }`.
+
+## Finale Abnahmekriterien
+
+1. Eine neue Karte lässt sich von Grund auf anlegen: Template wählen → Felder erscheinen →
+   Texte eingeben → Bild ablegen → zurechtschieben → Gruppe wählen → speichern.
+2. Die Formularfelder ergeben sich **aus dem Template**: nur Textebenen und Icon-Ebenen
+   mit „Wird pro Karte ausgefüllt/gewählt" tauchen auf, plus je ein Ablagefeld pro
+   Bildfläche.
+3. Die Live-Vorschau zeigt jede Eingabe sofort, inklusive automatischem Verkleinern zu
+   langer Texte und der Abweichungen bei Schriftgröße und Farbe.
+4. Ein hochgeladenes Bild lässt sich in seiner Fläche ziehen und mit dem Mausrad zoomen;
+   der Ausschnitt bleibt nach dem Speichern und erneuten Öffnen erhalten.
+5. „Alle Karten" listet alle Karten als Raster oder Tabelle, mit Suche nach Namen,
+   Filter nach Template, Filter nach Gruppe und drei Sortierungen. Duplizieren und
+   Löschen funktionieren.
+6. Wird ein Template gelöscht, das noch Karten hat, wird das mit klarer Meldung
+   verweigert. Wird eine Kartengruppe gelöscht, verlieren ihre Karten nur die Zuordnung.
+7. Ändert sich ein Template nachträglich (Feld umbenannt, Ebene gelöscht), bleibt die
+   Karte ladbar; verwaiste Werte gehen nicht verloren, werden aber nicht gerendert.
+8. `npm run lint` und `npm run build` laufen sauber; die Migrationen laufen auf dem
+   Server durch.
+
+## Summary
+
+_(beim Archivieren füllen)_
+
+## Files touched
+
+_(beim Archivieren füllen)_
+
+## Commits
+
+_(beim Archivieren füllen)_
+
+## Deviations from plan
+
+_(beim Archivieren füllen)_
+
+## Follow-ups
+
+_(beim Archivieren füllen)_
