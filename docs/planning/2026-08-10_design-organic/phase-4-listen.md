@@ -44,15 +44,29 @@
 
 ## Checkliste
 
-- [ ] `card-groups-list` Vorlage und Stylesheet auf Karten-Bausteine und das neue Raster
+- [x] `card-groups-list` Vorlage und Stylesheet auf Karten-Bausteine und das neue Raster
       umstellen; eigene Farb-/Rahmenregeln entfernen. Suchfeld auf `.input`.
-- [ ] Leerzustand nach Vorgabe umbauen.
-- [ ] `card-groups-detail` auf `.field`/`.input`/`.btn` umstellen. Formularlogik,
+- [x] Leerzustand nach Vorgabe umbauen.
+- [x] `card-groups-detail` auf `.field`/`.input`/`.btn` umstellen. Formularlogik,
       Validierung und der Schutz vor ungespeicherten Änderungen bleiben unverändert.
-- [ ] `templates-list` analog umstellen, inklusive Überzeile mit Ebenenzahl.
-- [ ] Löschabfragen weiterhin über `shared/components/confirm-dialog` — jetzt im neuen
+- [x] `templates-list` analog umstellen, inklusive Überzeile mit Ebenenzahl.
+- [x] Löschabfragen weiterhin über `shared/components/confirm-dialog` — jetzt im neuen
       Dialog-Aussehen (aus Phase 2), keine eigenen Regeln in den Listen.
 - [ ] Sichtprüfung: leere Liste, eine Kachel, zwölf Kacheln, sehr langer Gruppenname
-      (muss abgeschnitten werden statt das Raster zu sprengen).
+      (muss abgeschnitten werden statt das Raster zu sprengen). **Offen — macht der User
+      im Browser** (private-Profil: keine Screenshot-Sichtprüfung durch die Session).
 
 ## Report-Back
+
+`npm run lint` und `npm run build` laufen sauber durch. Umgesetzt wie in der Checkliste:
+Kartengruppen-Liste/-Detail und Template-Liste laufen jetzt vollständig über die
+Bausteinklassen (`.btn`, `.field`, `.input`, `.card`, `.card__*`) statt eigener BEM-Regeln;
+lokale Farb-/Rahmen-/Radius-Deklarationen sind raus. Kartengruppen-Kacheln zeigen jetzt
+zusätzlich explizite „Bearbeiten"/„Löschen"-Textbuttons statt der ganzen Kachel als Link
+(Vorgabe der Abnahmekriterien); Template-Kacheln bleiben ganzflächig verlinkt, der
+Löschen-Button sitzt als eigenständiges Element daneben. Die 🟡-Fußzeilen („Karten
+anzeigen →" ohne Zahl/Link, Template-Überzeile nur „N Ebenen" ohne Kartenzahl) sind wie
+in den Abnahmekriterien vorgemerkt umgesetzt — beide werden mit Meilenstein 3 ergänzt.
+Für den Leerzustand-Innenabstand (35.2px) gibt es keinen passenden Zweck-Token
+(`--space-xl` deckt nur 26.4px); genutzt wird der Rohwert `--space-8`, wie es
+`login.scss` aus Phase 3 bereits vormacht.

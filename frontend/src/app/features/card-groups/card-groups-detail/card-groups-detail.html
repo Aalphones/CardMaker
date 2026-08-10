@@ -20,28 +20,24 @@
     }
 
     <form class="card-groups-detail__form" [formGroup]="form" (ngSubmit)="submit()">
-      <div class="card-groups-detail__field">
-        <label class="card-groups-detail__label" for="card-group-name">Name</label>
-        <input id="card-group-name" class="card-groups-detail__input" type="text" formControlName="name" />
+      <div class="field">
+        <label for="card-group-name">Name</label>
+        <input id="card-group-name" class="input" type="text" formControlName="name" />
       </div>
 
-      <div class="card-groups-detail__field">
-        <label class="card-groups-detail__label" for="card-group-description">
-          Beschreibung (optional)
-        </label>
+      <div class="field">
+        <label for="card-group-description">Beschreibung (optional)</label>
         <textarea
           id="card-group-description"
-          class="card-groups-detail__textarea"
+          class="input"
           formControlName="description"
           rows="4"
         ></textarea>
       </div>
 
       <div class="card-groups-detail__actions">
-        <a class="card-groups-detail__cancel" routerLink="/card-groups">Abbrechen</a>
-        <button type="submit" class="card-groups-detail__submit" [disabled]="submitting()">
-          Speichern
-        </button>
+        <a class="btn btn--secondary" routerLink="/card-groups">Abbrechen</a>
+        <button type="submit" class="btn btn--primary" [disabled]="submitting()">Speichern</button>
       </div>
     </form>
   }
