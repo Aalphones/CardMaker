@@ -1,29 +1,6 @@
 <div class="layer-list">
   <div class="layer-list__add-wrapper">
-    <button
-      type="button"
-      class="btn btn--secondary btn--block"
-      [attr.aria-expanded]="addMenuOpen()"
-      (click)="toggleAddMenu()"
-    >
-      Element hinzufügen
-    </button>
-
-    @if (addMenuOpen()) {
-      <ul class="layer-list__add-menu">
-        <li><button type="button" (click)="chooseType('text')">Text</button></li>
-        <li><button type="button" (click)="chooseType('image')">Bildfläche</button></li>
-        <li><button type="button" (click)="chooseType('icon')">Icon</button></li>
-        <li><button type="button" (click)="chooseType('shape', 'rect')">Rechteck</button></li>
-        <li><button type="button" (click)="chooseType('shape', 'circle')">Kreis</button></li>
-        <li><button type="button" (click)="chooseType('shape', 'line')">Linie</button></li>
-        <li>
-          <button type="button" [disabled]="!canAddFrame()" (click)="chooseType('frame')">
-            Rahmen{{ canAddFrame() ? '' : ' (schon vorhanden)' }}
-          </button>
-        </li>
-      </ul>
-    }
+    <app-add-layer-menu [canAddFrame]="canAddFrame()" (add)="add.emit($event)" />
   </div>
 
   <ul class="layer-list__items thin-scroll" cdkDropList (cdkDropListDropped)="onDrop($event)">

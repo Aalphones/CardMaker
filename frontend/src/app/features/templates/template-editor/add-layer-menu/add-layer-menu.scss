@@ -1,0 +1,93 @@
+// Menü unter dem Block-Button oben in der Ebenenspalte. Rohe Pixelwerte nur als Bauteilmaß
+// aus dem Entwurf (6px Innenabstand, 2px Überlappung nach oben, 7px Typpunkt, 10px Kürzel).
+
+:host {
+  display: block;
+}
+
+.add-layer-menu {
+  position: relative;
+
+  &__list {
+    position: absolute;
+    z-index: 30;
+    inset-block-start: calc(100% - 2px);
+    inset-inline: 8px;
+    margin: 0;
+    padding: 6px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+    list-style: none;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    inline-size: 100%;
+    padding: var(--space-xs) var(--space-sm);
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    text-align: left;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--color-text-primary) 7%, transparent);
+    }
+
+    &:disabled {
+      color: var(--color-text-muted);
+      cursor: not-allowed;
+    }
+  }
+
+  &__dot {
+    flex: none;
+    inline-size: 7px;
+    block-size: 7px;
+    border-radius: 50%;
+
+    &--text {
+      background: var(--color-layer-text);
+    }
+
+    &--image {
+      background: var(--color-layer-image);
+    }
+
+    &--icon {
+      background: var(--color-layer-icon);
+    }
+
+    &--shape {
+      background: var(--color-layer-shape);
+    }
+
+    &--frame {
+      background: var(--color-layer-frame);
+    }
+  }
+
+  &__label {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  &__shortcut {
+    flex: none;
+    color: var(--color-text-muted);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+
+  &__reason {
+    flex: none;
+    color: var(--color-text-muted);
+    font-size: 10px;
+  }
+}

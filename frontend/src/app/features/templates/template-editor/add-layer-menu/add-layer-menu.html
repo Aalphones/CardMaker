@@ -1,0 +1,47 @@
+<div class="add-layer-menu">
+  <button
+    #trigger
+    type="button"
+    class="btn btn--secondary btn--block"
+    aria-haspopup="menu"
+    [attr.aria-expanded]="open()"
+    (click)="toggle()"
+  >
+    Element hinzufügen
+  </button>
+
+  @if (open()) {
+    <!-- Der Tastaturzweig hängt an der Liste: Die Einträge bekommen den Fokus, ihre
+         Tastenereignisse steigen hier auf. tabindex="-1" macht die Liste selbst nur
+         programmatisch fokussierbar, sie taucht damit nicht in der Tabulator-Reihe auf. -->
+    <ul
+      class="add-layer-menu__list"
+      role="menu"
+      aria-label="Element hinzufügen"
+      tabindex="-1"
+      (keydown)="onKeydown($event)"
+    >
+      @for (entry of entries; track entry.label) {
+        <li role="none">
+          <button
+            #entry
+            type="button"
+            role="menuitem"
+            class="add-layer-menu__item"
+            [disabled]="isDisabled(entry)"
+            (click)="choose(entry)"
+          >
+            <span class="add-layer-menu__dot" [class]="dotClass(entry)"></span>
+            <span class="add-layer-menu__label">{{ entry.label }}</span>
+
+            @if (isDisabled(entry)) {
+              <span class="add-layer-menu__reason">nur eine Rahmenebene je Template</span>
+            } @else {
+              <span class="add-layer-menu__shortcut">{{ entry.shortcut }}</span>
+            }
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</div>

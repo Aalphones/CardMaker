@@ -3,13 +3,9 @@ import { Dialog } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
-import { Layer, LayerType, ShapeKind } from '../../../../shared/canvas/rendering/layer';
+import { Layer, LayerType } from '../../../../shared/canvas/rendering/layer';
 import { ConfirmDialog } from '../../../../shared/components/confirm-dialog/confirm-dialog';
-
-export interface AddLayerRequest {
-  type: LayerType;
-  shape?: ShapeKind;
-}
+import { AddLayerMenu, AddLayerRequest } from '../add-layer-menu/add-layer-menu';
 
 const TYPE_LABELS: Record<LayerType, string> = {
   image: 'Bild',
@@ -21,7 +17,7 @@ const TYPE_LABELS: Record<LayerType, string> = {
 
 @Component({
   selector: 'app-layer-list',
-  imports: [CdkDropList, CdkDrag],
+  imports: [AddLayerMenu, CdkDropList, CdkDrag],
   templateUrl: './layer-list.html',
   styleUrl: './layer-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,7 +45,6 @@ export class LayerList {
     () => this.layers().find((layer: Layer) => layer.id === this.selectedLayerId()) ?? null,
   );
 
-  protected readonly addMenuOpen = signal(false);
   protected readonly renamingId = signal<string | null>(null);
 
   protected typeLabel(layer: Layer): string {
@@ -59,15 +54,6 @@ export class LayerList {
   /** Der Punkt vor dem Namen trägt die Typfarbe — die Farben selbst stehen als Token fest. */
   protected dotClass(layer: Layer): string {
     return `layer-list__dot--${layer.type}`;
-  }
-
-  protected toggleAddMenu(): void {
-    this.addMenuOpen.update((isOpen: boolean) => !isOpen);
-  }
-
-  protected chooseType(type: LayerType, shape?: ShapeKind): void {
-    this.add.emit({ type, shape });
-    this.addMenuOpen.set(false);
   }
 
   protected startRename(id: string): void {

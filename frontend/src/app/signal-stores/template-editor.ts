@@ -2,17 +2,42 @@ import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 
 import { Layer, LayerPatch, LayerType, ShapeKind, createLayer } from '../shared/canvas/rendering/layer';
+import {
+  Point,
+  StageSize,
+  clampZoom,
+  fitZoom,
+  nextZoomStep,
+  previousZoomStep,
+} from '../shared/canvas/rendering/units';
+
+export type ZoomMode = 'fit' | 'manual';
 
 export interface TemplateEditorState {
   layers: Layer[];
   selectedLayerId: string | null;
   dirty: boolean;
+
+  // Reine Bedienzustände der Bühne — sie gehören weder in den NgRx-Store noch in die
+  // gespeicherten Template-Daten: nichts davon überlebt das Schließen des Editors.
+  zoomMode: ZoomMode;
+  manualZoom: number;
+  pan: Point;
+  stageSize: StageSize;
+  spaceDown: boolean;
+  cursorPos: Point | null;
 }
 
 const initialState: TemplateEditorState = {
   layers: [],
   selectedLayerId: null,
   dirty: false,
+  zoomMode: 'fit',
+  manualZoom: 1,
+  pan: { x: 0, y: 0 },
+  stageSize: { width: 0, height: 0 },
+  spaceDown: false,
+  cursorPos: null,
 };
 
 function buildLayer(type: LayerType, shape: ShapeKind): Layer {
@@ -40,9 +65,16 @@ function buildLayer(type: LayerType, shape: ShapeKind): Layer {
 
 export const TemplateEditorStore = signalStore(
   withState(initialState),
-  withComputed(({ layers, selectedLayerId }) => ({
+  withComputed(({ layers, selectedLayerId, zoomMode, manualZoom, stageSize }) => ({
     selectedLayer: computed(() => layers().find((layer: Layer) => layer.id === selectedLayerId()) ?? null),
     canAddFrame: computed(() => !layers().some((layer: Layer) => layer.type === 'frame')),
+
+    // „Eingepasst" ist kein einmal gesetzter Wert, sondern eine Rechnung: Beim Öffnen und
+    // bei jeder Größenänderung der Bühne fällt der Maßstab dadurch von selbst neu aus.
+    zoom: computed(() => (zoomMode() === 'fit' ? fitZoom(stageSize()) : manualZoom())),
+  })),
+  withComputed(({ zoom, stageSize, pan }) => ({
+    view: computed(() => ({ size: stageSize(), zoom: zoom(), pan: pan() })),
   })),
   withMethods((store) => ({
     startEditing(layers: Layer[]): void {
@@ -119,6 +151,38 @@ export const TemplateEditorStore = signalStore(
     },
     markSaved(): void {
       patchState(store, { dirty: false });
+    },
+
+    setStageSize(size: StageSize): void {
+      patchState(store, { stageSize: size });
+    },
+    fitView(): void {
+      patchState(store, { zoomMode: 'fit', pan: { x: 0, y: 0 } });
+    },
+    /** Maßstab von Hand setzen — `pan` kommt mit, weil Radzoom beides zugleich ändert. */
+    zoomTo(zoom: number, pan: Point): void {
+      patchState(store, { zoomMode: 'manual', manualZoom: clampZoom(zoom), pan });
+    },
+    zoomIn(): void {
+      patchState(store, { zoomMode: 'manual', manualZoom: nextZoomStep(store.zoom()) });
+    },
+    zoomOut(): void {
+      patchState(store, { zoomMode: 'manual', manualZoom: previousZoomStep(store.zoom()) });
+    },
+    panBy(deltaX: number, deltaY: number): void {
+      patchState(store, (state: TemplateEditorState) => ({
+        // Beim Verschieben aus dem eingepassten Zustand heraus wird der gerade gültige
+        // Maßstab eingefroren — sonst spränge die Karte beim nächsten Einpassen zurück.
+        zoomMode: 'manual' as ZoomMode,
+        manualZoom: state.zoomMode === 'fit' ? fitZoom(state.stageSize) : state.manualZoom,
+        pan: { x: state.pan.x + deltaX, y: state.pan.y + deltaY },
+      }));
+    },
+    setSpaceDown(spaceDown: boolean): void {
+      patchState(store, { spaceDown });
+    },
+    setCursorPos(cursorPos: Point | null): void {
+      patchState(store, { cursorPos });
     },
   })),
 );

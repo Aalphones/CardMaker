@@ -114,7 +114,18 @@
         />
       </aside>
 
-      <div class="template-editor__stage">
+      <div
+        #stage
+        class="template-editor__stage"
+        [class.template-editor__stage--pan-ready]="editor.spaceDown()"
+        [class.template-editor__stage--panning]="panning()"
+        (wheel)="onStageWheel($event)"
+        (pointerdown)="onStagePointerDown($event)"
+        (pointermove)="onStagePointerMove($event)"
+        (pointerup)="onStagePointerUp($event)"
+        (pointercancel)="onStagePointerUp($event)"
+        (pointerleave)="onStagePointerLeave()"
+      >
         <button
           type="button"
           class="template-editor__handle template-editor__handle--layers"
@@ -129,8 +140,20 @@
           [layers]="editor.layers()"
           [selectedLayerId]="editor.selectedLayerId()"
           [interactive]="true"
+          [panning]="panning() || editor.spaceDown()"
+          [style.inline-size.px]="cardWidth()"
+          [style.inset-inline-start.px]="cardPosition().x"
+          [style.inset-block-start.px]="cardPosition().y"
           (layerClicked)="editor.select($event)"
           (layerTransformed)="editor.patchLayer($event.id, $event.changes)"
+        />
+
+        <app-stage-controls
+          [zoom]="editor.zoom()"
+          [cursorPos]="editor.cursorPos()"
+          (zoomIn)="editor.zoomIn()"
+          (zoomOut)="editor.zoomOut()"
+          (fitView)="editor.fitView()"
         />
 
         <button

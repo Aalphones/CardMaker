@@ -58,9 +58,14 @@ frontend/src/app/
                                dunkle Bühne mit der Karte, rechte Eigenschaftenspalte. Unter
                                1000 px werden beide Spalten zu einklappbaren Schubladen.
                                Bedien-Zustand im Signal Store `signal-stores/template-editor.ts`
-        layer-list/          ← linke Spalte: Ebenen anlegen/umbenennen, Sichtbarkeit,
+        layer-list/          ← linke Spalte: Ebenen umbenennen, Sichtbarkeit,
                                Drag-Reihenfolge (CDK, Index gedreht zum Array) und die
                                Fußzeile mit nach vorn/nach hinten/Kopie/Löschen
+        add-layer-menu/      ← Block-Button oben in der linken Spalte samt Aufklappmenü der
+                               sieben Elementarten (Kürzelhinweis, Pfeiltasten/Escape,
+                               „Rahmen" gesperrt, wenn es schon einen gibt)
+        stage-controls/      ← die beiden Pillen über der Bühne: Maßstab (−, Prozent =
+                               einpassen, +, Kürzel) unten links, Zeigerposition unten rechts
         layer-properties/    ← rechte Spalte: verzweigt nach Ebenentyp auf
                                `image-properties`, `shape-properties`, `icon-properties`,
                                `frame-properties`, `text-properties`; `geometry-fields`
@@ -95,7 +100,9 @@ frontend/src/app/
                           tokens — Facade Pflicht pro Domain-Slice, `auth` bislang ohne, da
                           es keine eigene Domain-UI mit Zwischen-Zustand hat)
   signal-stores/        ← NgRx Signal Stores für UI-Zustand. `template-editor.ts`: Arbeitskopie
-                          der Ebenenliste, Auswahl, `dirty` — component-scoped (pro Editor-
+                          der Ebenenliste, Auswahl, `dirty` und der Ansichts-Zustand der Bühne
+                          (Maßstab „eingepasst"/„von Hand", Verschiebung, gemessene
+                          Bühnengröße, Leertaste, Zeigerposition) — component-scoped (pro Editor-
                           Aufruf neu, `providers: [TemplateEditorStore]`), nicht `root`
   layout/
     shell/               ← App-Shell: Kopfzeile (Wortmarke, Konto-E-Mail, Zugriffstoken-Link,

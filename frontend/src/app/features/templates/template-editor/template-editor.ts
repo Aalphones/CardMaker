@@ -4,11 +4,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   HostListener,
   computed,
   effect,
   inject,
   signal,
+  viewChild,
   Signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -17,21 +19,37 @@ import { firstValueFrom, map } from 'rxjs';
 
 import { CardCanvas } from '../../../shared/canvas/card-canvas/card-canvas';
 import { offsetLinePoints } from '../../../shared/canvas/rendering/apply-transform';
-import { Layer, LayerPatch } from '../../../shared/canvas/rendering/layer';
+import { CANVAS_WIDTH, Layer, LayerPatch } from '../../../shared/canvas/rendering/layer';
+import {
+  Point,
+  cardOrigin,
+  clampZoom,
+  isOverCard,
+  panKeepingAnchor,
+  screenToCanvas,
+} from '../../../shared/canvas/rendering/units';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { ComponentWithUnsavedChanges } from '../../../shared/guards/pending-changes-guard';
 import { TemplateEditorStore } from '../../../signal-stores/template-editor';
 import { AssetsFacade } from '../../../store/assets/assets.facade';
 import { TemplatesFacade } from '../../../store/templates/templates.facade';
-import { AddLayerRequest, LayerList } from './layer-list/layer-list';
+import { AddLayerRequest } from './add-layer-menu/add-layer-menu';
+import { LayerList } from './layer-list/layer-list';
 import { LayerProperties } from './layer-properties/layer-properties';
+import { StageControls } from './stage-controls/stage-controls';
 
 const ARROW_STEP = 1;
 const ARROW_STEP_FAST = 10;
 
+/** Aus Radweg in Maßstabsänderung: ein voller Rasterschritt (100) ändert um gut 16 %. */
+const WHEEL_ZOOM_SENSITIVITY = 0.0015;
+
+/** Elemente, die die Leertaste selbst brauchen — dort schaltet sie nicht das Verschieben ein. */
+const ACTIVATABLE_TAGS = ['BUTTON', 'A', 'SUMMARY'];
+
 @Component({
   selector: 'app-template-editor',
-  imports: [CardCanvas, RouterLink, LayerList, LayerProperties],
+  imports: [CardCanvas, RouterLink, LayerList, LayerProperties, StageControls],
   templateUrl: './template-editor.html',
   styleUrl: './template-editor.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -65,6 +83,17 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
   /** Nur unter 1000px Fensterbreite wirksam — darüber stehen beide Spalten ohnehin fest. */
   protected readonly layersPanelOpen = signal(false);
   protected readonly propertiesPanelOpen = signal(false);
+
+  private readonly stageRef = viewChild<ElementRef<HTMLElement>>('stage');
+
+  /** Läuft gerade eine Verschiebe-Geste? (Leertaste allein reicht dafür noch nicht.) */
+  protected readonly panning = signal(false);
+  private panPointerId: number | null = null;
+  private lastPanClientPoint: Point | null = null;
+
+  /** Die Karte hängt absolut in der Bühne — Breite aus dem Maßstab, Ecke aus Maßstab + Verschiebung. */
+  protected readonly cardWidth: Signal<number> = computed(() => CANVAS_WIDTH * this.editor.zoom());
+  protected readonly cardPosition: Signal<Point> = computed(() => cardOrigin(this.editor.view()));
 
   constructor() {
     // Der Editor deckt die App vollständig ab; die Seite darunter darf nicht mitscrollen.
@@ -106,6 +135,29 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
       }
     });
 
+    // Die Bühnengröße wird gemessen, nicht geraten: „Einpassen" rechnet damit, und die
+    // Bühne erscheint erst, wenn das Template geladen ist — deshalb hängt der Beobachter
+    // am Signal des Kindelements statt einmalig im Konstruktor.
+    const stageObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
+      const rect = entries[0]?.contentRect;
+
+      if (rect) {
+        this.editor.setStageSize({ width: rect.width, height: rect.height });
+      }
+    });
+
+    effect(() => {
+      const stage = this.stageRef();
+
+      stageObserver.disconnect();
+
+      if (stage) {
+        stageObserver.observe(stage.nativeElement);
+      }
+    });
+
+    inject(DestroyRef).onDestroy(() => stageObserver.disconnect());
+
     this.assets.ensureLoaded();
   }
 
@@ -119,6 +171,81 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
 
   protected togglePropertiesPanel(): void {
     this.propertiesPanelOpen.update((isOpen: boolean) => !isOpen);
+  }
+
+  /** Rad über der Bühne: stufenlos zum Zeiger hin, in den Grenzen 10 % bis 400 %. */
+  protected onStageWheel(event: WheelEvent): void {
+    event.preventDefault();
+
+    const view = this.editor.view();
+    const anchor = this.stagePoint(event);
+    const zoom = clampZoom(view.zoom * Math.exp(-event.deltaY * WHEEL_ZOOM_SENSITIVITY));
+
+    this.editor.zoomTo(zoom, panKeepingAnchor(view, anchor, zoom));
+  }
+
+  protected onStagePointerDown(event: PointerEvent): void {
+    const isMiddleButton = event.button === 1;
+
+    if (!isMiddleButton && !this.editor.spaceDown()) {
+      return;
+    }
+
+    // Unterbindet zugleich das Rollen-Kreuz, das die mittlere Maustaste sonst aufspannt.
+    event.preventDefault();
+
+    this.panning.set(true);
+    this.panPointerId = event.pointerId;
+    this.lastPanClientPoint = { x: event.clientX, y: event.clientY };
+    this.stageRef()?.nativeElement.setPointerCapture(event.pointerId);
+  }
+
+  protected onStagePointerMove(event: PointerEvent): void {
+    const canvasPoint = screenToCanvas(this.stagePoint(event), this.editor.view());
+    this.editor.setCursorPos(isOverCard(canvasPoint) ? canvasPoint : null);
+
+    const lastPoint = this.lastPanClientPoint;
+
+    if (!this.panning() || event.pointerId !== this.panPointerId || !lastPoint) {
+      return;
+    }
+
+    this.editor.panBy(event.clientX - lastPoint.x, event.clientY - lastPoint.y);
+    this.lastPanClientPoint = { x: event.clientX, y: event.clientY };
+  }
+
+  protected onStagePointerUp(event: PointerEvent): void {
+    if (event.pointerId === this.panPointerId) {
+      this.endPan();
+    }
+  }
+
+  protected onStagePointerLeave(): void {
+    this.editor.setCursorPos(null);
+  }
+
+  /** Zeigerposition relativ zur oberen linken Ecke der Bühne. */
+  private stagePoint(event: MouseEvent): Point {
+    const bounds = this.stageRef()?.nativeElement.getBoundingClientRect();
+
+    if (!bounds) {
+      return { x: 0, y: 0 };
+    }
+
+    return { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+  }
+
+  private endPan(): void {
+    const pointerId = this.panPointerId;
+    const stage = this.stageRef()?.nativeElement;
+
+    if (pointerId !== null && stage?.hasPointerCapture(pointerId)) {
+      stage.releasePointerCapture(pointerId);
+    }
+
+    this.panPointerId = null;
+    this.lastPanClientPoint = null;
+    this.panning.set(false);
   }
 
   protected onNameInput(event: Event): void {
@@ -163,6 +290,14 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
    */
   @HostListener('window:keydown', ['$event'])
   protected onKeydown(event: KeyboardEvent): void {
+    if (event.key === ' ' && !this.isTypingTarget(event.target) && !this.isActivatableTarget(event.target)) {
+      // Nicht auf Schaltflächen: dort löst die Leertaste die Schaltfläche aus, und genau das
+      // soll sie auch weiterhin tun.
+      event.preventDefault();
+      this.editor.setSpaceDown(true);
+      return;
+    }
+
     const layer = this.selectedLayer();
 
     if (!layer || this.isTypingTarget(event.target)) {
@@ -184,12 +319,40 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
     }
   }
 
+  @HostListener('window:keyup', ['$event'])
+  protected onKeyup(event: KeyboardEvent): void {
+    if (event.key === ' ') {
+      this.editor.setSpaceDown(false);
+      this.endPan();
+    }
+  }
+
+  /**
+   * Verlässt das Fenster den Vordergrund, kommt kein `keyup` mehr an — ohne das hier bliebe
+   * der Editor nach einem Fensterwechsel im Verschiebe-Modus hängen.
+   */
+  @HostListener('window:blur')
+  protected onWindowBlur(): void {
+    this.editor.setSpaceDown(false);
+    this.endPan();
+  }
+
   private isTypingTarget(target: EventTarget | null): boolean {
     if (!(target instanceof HTMLElement)) {
       return false;
     }
 
     return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+  }
+
+  private isActivatableTarget(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    const role = target.getAttribute('role');
+
+    return ACTIVATABLE_TAGS.includes(target.tagName) || role === 'button' || role === 'menuitem';
   }
 
   private arrowKeyDelta(key: string, step: number): { deltaX: number; deltaY: number } | null {

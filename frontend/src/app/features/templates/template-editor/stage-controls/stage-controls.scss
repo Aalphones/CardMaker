@@ -1,0 +1,72 @@
+// Die beiden Pillen schweben über der dunklen Bühne: Maßstab unten links, Zeigerposition
+// unten rechts. Der Wirt selbst fängt keine Klicks ab, sonst läge eine unsichtbare Fläche
+// über der Karte. Rohe Pixelwerte nur als Bauteilmaß aus dem Entwurf (11px Statusschrift).
+
+:host {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.stage-controls {
+  &__zoom {
+    position: absolute;
+    inset-block-end: var(--space-md);
+    inset-inline-start: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+    pointer-events: auto;
+  }
+
+  &__button,
+  &__value {
+    border: none;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+
+  &__button {
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+  }
+
+  &__value {
+    min-inline-size: 3.5rem;
+    padding-inline: var(--space-xs);
+    block-size: 1.75rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__status {
+    position: absolute;
+    inset-block-end: var(--space-md);
+    inset-inline-end: var(--space-md);
+    margin: 0;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-size: 11px;
+    box-shadow: var(--shadow-md);
+  }
+}

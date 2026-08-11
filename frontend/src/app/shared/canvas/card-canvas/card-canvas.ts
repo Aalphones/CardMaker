@@ -63,6 +63,14 @@ export class CardCanvas {
   readonly selectedLayerId = input<string | null>(null);
   readonly interactive = input(false);
 
+  /**
+   * Solange die Ansicht verschoben wird (Leertaste oder mittlere Maustaste), hört die
+   * Zeichenebene nicht mehr auf Zeigerereignisse: Ein Ziehen verschiebt dann die Ansicht,
+   * nie die ausgewählte Ebene — und der Anfasser reagiert ebenfalls nicht. Die Auswahl
+   * bleibt dabei sichtbar, deshalb ein eigener Eingang statt `interactive` umzuschalten.
+   */
+  readonly panning = input(false);
+
   readonly layerClicked = output<string>();
   readonly layerTransformed = output<{ id: string; changes: LayerPatch }>();
 
@@ -87,7 +95,7 @@ export class CardCanvas {
   protected readonly konvaLayerConfig: Signal<LayerConfig> = computed(() => {
     const scale = this.canvasScale();
 
-    return { scaleX: scale, scaleY: scale, listening: this.interactive() };
+    return { scaleX: scale, scaleY: scale, listening: this.interactive() && !this.panning() };
   });
 
   protected readonly drawItems: Signal<DrawItem[]> = computed(() =>

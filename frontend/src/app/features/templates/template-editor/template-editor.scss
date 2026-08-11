@@ -118,25 +118,30 @@
     text-transform: uppercase;
   }
 
-  // Die Bühne ist ihr eigener Größen-Container: die Karte passt sich über
-  // Container-Einheiten ein, ohne dass ihr Seitenverhältnis je verzerrt.
+  // Die Karte hängt frei in der Bühne: Breite und Ecke rechnet der Maßstab aus (Einpassen,
+  // Radzoom, Verschieben), das Seitenverhältnis hält `app-card-canvas` selbst. Kein
+  // Innenabstand — sonst läge der Nullpunkt der absoluten Platzierung woanders als der
+  // gemessene Bühnenkasten, und die Rechnung wäre um den Abstand daneben.
   &__stage {
     position: relative;
-    display: flex;
     flex: 1;
-    align-items: center;
-    justify-content: center;
     min-inline-size: 0;
-    padding: var(--space-md);
     background: var(--color-bg-canvas);
     overflow: hidden;
-    container-type: size;
+    touch-action: none;
 
     --shadow-canvas-card: var(--shadow-lg);
 
     app-card-canvas {
-      inline-size: auto;
-      block-size: min(100cqh, 100cqw * 880 / 630);
+      position: absolute;
+    }
+
+    &--pan-ready {
+      cursor: grab;
+    }
+
+    &--panning {
+      cursor: grabbing;
     }
   }
 

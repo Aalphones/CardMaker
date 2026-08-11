@@ -22,11 +22,13 @@ import { measureTextHeight } from '../rendering/measure-text';
 
 /**
  * Das Canvas kennt keine CSS-Variablen — diese drei Werte spiegeln bewusst
- * `--color-brand-300`/`--color-brand-500` aus `styles.scss`.
+ * `--color-accent-400` (heller Platzhalterrand) und `--color-accent` (Auswahl,
+ * Platzhalterfüllung) aus `styles.scss`. Ändert sich dort die Akzentfarbe, gehören diese
+ * drei Zeilen mit nachgezogen — es gibt keinen automatischen Weg von CSS ins Canvas.
  */
-const PLACEHOLDER_STROKE = '#a89cfc';
-const PLACEHOLDER_FILL = 'rgb(109 94 248 / 12%)';
-const SELECTION_STROKE = '#6d5ef8';
+const PLACEHOLDER_STROKE = '#f6a06b';
+const PLACEHOLDER_FILL = 'rgb(198 113 57 / 12%)';
+const SELECTION_STROKE = '#c67139';
 
 /** Der Rahmen liegt immer vollflächig — er hat keine eigene Geometrie (Kontrakt). */
 const FRAME_BOX: Geometry = { x: 0, y: 0, width: CANVAS_WIDTH, height: CANVAS_HEIGHT, rotation: 0 };
