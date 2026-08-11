@@ -4,6 +4,10 @@
   gap: var(--space-md);
 }
 
+.text-default {
+  border-radius: var(--radius-md);
+}
+
 .text-properties {
   &__grid {
     display: grid;
