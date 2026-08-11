@@ -21,3 +21,4 @@ Kurskorrektur bekommt eine neue ADR, die auf die alte verweist, statt die alte z
 | 014 | [Template-Layout als Datenblock statt Ebenentabelle](014-template-layout-als-datenblock.md) | Akzeptiert |
 | 015 | [Bildablage außerhalb des Webbereichs, nur PNG](015-bildablage-und-dateiformate.md) | Akzeptiert |
 | 016 | [Organic-Gestaltung als verbindliches Erscheinungsbild](016-organic-design-system.md) | Akzeptiert |
+| 019 | [Eigene Schriften: berechneter Name, Blob statt CSS-Adresse](019-eigene-schriften.md) | Akzeptiert |

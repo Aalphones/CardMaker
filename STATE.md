@@ -1,10 +1,9 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-11_schriften-hochladen/`
-**Phase:** 5/6 — Fett und Kursiv (offen, standard)
-**Nächster Schritt:** `phase-5-fett-und-kursiv.md` öffnen und `TextLayer` um `bold`/`italic`
-erweitern (siehe Checkliste dort — Konva-`fontStyle`-String nur in `draw-items.ts` bauen,
-Messbrücke `measure-text.ts`/`auto-shrink.ts` mitziehen).
+**Phase:** 6/6 — Abschluss (offen, mechanisch)
+**Nächster Schritt:** `phase-6-abschluss.md` öffnen — ADR 019, Doku-Abgleich, `LIZENZ.md`,
+Build/Lint, Abnahme durch Sascha nach der README-Liste, dann Plan archivieren.
 
 **Im Backlog:** `docs/planning/2026-08-10_karteneditor/` — Karteneditor, freigegeben, noch
 nicht gestartet.

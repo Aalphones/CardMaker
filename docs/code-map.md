@@ -80,6 +80,9 @@ frontend/src/app/
                                wiederverwendete Unterkomponenten
         asset-picker/         ← CDK-Dialog: vorhandene Rahmen/Icons wählen (einzeln oder
                                mehrfach für die Icon-Auswahlliste) oder ein neues PNG hochladen
+        font-manager/         ← CDK-Dialog, aus `text-properties` über „Schriften verwalten"
+                               geöffnet: eigene Schriften auflisten, hochladen (Datei + Name),
+                               umbenennen, löschen (409 bei Benutzung durch ein Template)
         shortcuts-dialog/     ← CDK-Dialog mit der Kürzelübersicht, gespeist aus derselben
                                Tabelle wie die Tastaturbedienung
         editor-shortcuts.ts   ← die eine Zuordnung Tastenereignis → Aktion (ohne Angular):

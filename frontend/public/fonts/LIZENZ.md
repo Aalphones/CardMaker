@@ -29,11 +29,17 @@ sie hier nicht, auch wenn Seiten wie font.download sie zum Herunterladen anbiete
 
 ## Neue Schrift aufnehmen
 
+Für alle Schriften, die **nicht** fest mitgeliefert werden sollen, gibt es keinen Handbetrieb
+mehr: im Template-Editor eine Textebene wählen, „Schriften verwalten" öffnen, `.ttf`/`.woff2`
+hochladen (max. 2 MB), Name vergeben — die Schrift steht sofort in der Auswahl (siehe
+ADR-019). Diese Datei hier dokumentiert nur noch die **mitgelieferten** Schriften.
+
+Der Handbetrieb unten gilt ausschließlich, wenn eine Schrift dauerhaft mit der App
+ausgeliefert werden soll (z. B. weil sie als Standard in vielen Templates gebraucht wird):
+
 1. `.woff2` hier ablegen (Namensschema `<schrift>-400.woff2`), Lizenz oben eintragen.
 2. `@font-face`-Eintrag in `frontend/src/styles/_kartenschriften.scss` ergänzen.
 3. Familie in `frontend/src/app/shared/canvas/rendering/fonts.ts` eintragen
    (Sorte + Ersatzschrift).
 4. Familie in `backend/src/Validators/LayerValidator.php` (`BUILT_IN_FONT_FAMILIES`) ergänzen —
    fehlt sie dort, weist das Backend jedes Template mit dieser Schrift beim Speichern ab.
-
-Ab dem geplanten Schriften-Upload über die Oberfläche entfällt dieser Weg für neue Schriften.

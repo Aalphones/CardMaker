@@ -112,6 +112,12 @@ Kompositing, kein Imagick-Verfügbarkeitscheck auf Strato nötig.
    Zoom, Ansicht verschieben, Rückgängig, Tastenkürzel). **Erledigt** (2026-08-11), siehe
    `docs/archive/2026-08/2026-08-10_design-organic/`
 
+   **Eigene Schriften hochladen** — ebenfalls kein eigener Meilenstein, sondern eine
+   Erweiterung des Template-Editors: Schriftdateien (`.ttf`/`.woff2`, max. 2 MB) über die
+   Oberfläche hochladen, umbenennen, löschen — ohne Entwickler und Commit (ADR-019). Dazu
+   Fett/Kursiv als Umschalter an jeder Textebene. **Erledigt** (2026-08-11), siehe
+   `docs/archive/2026-08/2026-08-11_schriften-hochladen/`
+
 3. **Karteneditor** — Karteninstanz erstellen/bearbeiten: Template-Textfelder per Formular
    befüllen, Bild hochladen/verschieben/zoomen/zuschneiden, Schriftgröße/-farbe überschreiben,
    Auto-Shrink, Zuordnung zu einer Kartengruppe
