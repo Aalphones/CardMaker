@@ -1,0 +1,106 @@
+.font-manager {
+  width: 28rem;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+  }
+
+  &__preview {
+    flex: none;
+    width: 4.5rem;
+    overflow: hidden;
+    font-size: var(--font-size-md);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__meta {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__name {
+    overflow: hidden;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__name-input {
+    width: 100%;
+  }
+
+  &__details {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  &__delete {
+    flex: none;
+  }
+
+  &__empty {
+    padding: var(--space-md) 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  &__error,
+  &__upload-error {
+    margin: 0;
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+  }
+
+  &__upload {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    border: 1px dashed var(--color-divider);
+    border-radius: var(--radius-md);
+  }
+
+  &__checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  &__label-with-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--font-size-sm);
+  }
+}

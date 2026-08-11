@@ -49,18 +49,31 @@ die Bausteine aus dieser Phase bleiben dieselben.
 
 ## Checkliste
 
-- [ ] `ng generate component features/templates/template-editor/font-manager --skip-tests`
+- [x] `ng generate component features/templates/template-editor/font-manager --skip-tests`
       (CDK-Dialog wie `asset-picker`).
-- [ ] Liste, Hochlade-Formular, Umbenennen und Löschen im Dialog — Daten über die
+- [x] Liste, Hochlade-Formular, Umbenennen und Löschen im Dialog — Daten über die
       Schriften-Facade aus Phase 3, kein `HttpClient` in der Komponente.
-- [ ] Die Vorschau in der jeweiligen Schrift setzen: dafür muss der `FontLoader` sie geladen
+- [x] Die Vorschau in der jeweiligen Schrift setzen: dafür muss der `FontLoader` sie geladen
       haben — beim Öffnen des Dialogs alle Schriften der Liste anfordern.
-- [ ] `text-properties`: Auswahlliste um die Gruppe „Eigene Schriften" erweitern (aus der
+- [x] `text-properties`: Auswahlliste um die Gruppe „Eigene Schriften" erweitern (aus der
       Facade, nicht aus `FONT_GROUPS`) und den Knopf daneben setzen.
-- [ ] Beschriftung: Im Editor steht überall der **Anzeigename**, nie `cmfont-7`. Der interne
+- [x] Beschriftung: Im Editor steht überall der **Anzeigename**, nie `cmfont-7`. Der interne
       Name taucht in der Oberfläche an keiner Stelle auf.
-- [ ] Eigene Stylesheet-Regeln nach `docs/conventions/css.md` (BEM, nur Zweck-Tokens).
+- [x] Eigene Stylesheet-Regeln nach `docs/conventions/css.md` (BEM, nur Zweck-Tokens).
 
 ## Bericht
 
-*(nach der Umsetzung füllen)*
+Neue Komponente `font-manager` (CDK-Dialog, Vorbild `asset-picker`): Liste mit Vorschau in
+eigener Schrift, Umbenennen inline, Löschen mit `ConfirmDialog`-Rückfrage, Hochladen mit
+Pflicht-Checkbox „Ich darf diese Schrift verwenden" (+ `FieldHint`-Erklärung) und Namensfeld,
+vorbelegt aus dem Dateinamen. Alle Datenzugriffe laufen über `FontsFacade` — kein `HttpClient`
+in der Komponente. `text-properties` bekommt eine zusätzliche Optgroup „Eigene Schriften"
+(Wert = `font.family`, Anzeigetext = `font.name`) plus einen Knopf „Schriften verwalten"
+daneben, der den Dialog öffnet.
+
+Abweichung von der Checkliste: Der Löschfehler bei einer benutzten Schrift kommt aus
+`FontsActions.deleteFailure` nur als globale Fehlermeldung (`message`, keine `id`) — die
+Meldung erscheint darum im Dialog als allgemeine Fehlerzeile, nicht direkt neben der
+betroffenen Zeile. Das ist die bestehende Store-Form aus Phase 3, hier nicht angefasst.
+
+Build (`ng build`) und Lint (`ng lint`) laufen grün.

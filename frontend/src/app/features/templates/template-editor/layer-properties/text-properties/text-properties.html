@@ -28,17 +28,33 @@
     </span>
   </label>
 
-  <div class="field">
+  <div class="field text-properties__field--wide">
     <label for="text-font-family">Schriftart</label>
-    <select id="text-font-family" class="input" formControlName="fontFamily" (change)="emitForm()">
-      @for (group of fontGroups; track group.label) {
-        <optgroup [label]="group.label">
-          @for (font of group.families; track font) {
-            <option [value]="font" [style.font-family]="font">{{ font }}</option>
-          }
-        </optgroup>
-      }
-    </select>
+    <div class="text-properties__font-row">
+      <select id="text-font-family" class="input" formControlName="fontFamily" (change)="emitForm()">
+        @for (group of fontGroups; track group.label) {
+          <optgroup [label]="group.label">
+            @for (font of group.families; track font) {
+              <option [value]="font" [style.font-family]="font">{{ font }}</option>
+            }
+          </optgroup>
+        }
+        @if (ownFonts.all().length > 0) {
+          <optgroup label="Eigene Schriften">
+            @for (font of ownFonts.all(); track font.id) {
+              <option [value]="font.family" [style.font-family]="font.family">{{ font.name }}</option>
+            }
+          </optgroup>
+        }
+      </select>
+      <button
+        type="button"
+        class="btn btn--secondary text-properties__font-manager-button"
+        (click)="openFontManager()"
+      >
+        Schriften verwalten
+      </button>
+    </div>
   </div>
 
   <div class="field text-properties__field--size">

@@ -1,0 +1,111 @@
+<div class="dialog font-manager" role="dialog" aria-labelledby="font-manager-title">
+  <h2 class="dialog__title" id="font-manager-title">Schriften verwalten</h2>
+
+  <ul class="font-manager__list thin-scroll">
+    @for (font of fonts.all(); track font.id) {
+      <li class="font-manager__row hover-row">
+        <span class="font-manager__preview" [style.font-family]="font.family + ', sans-serif'">Aa Bb Cc</span>
+
+        <div class="font-manager__meta">
+          @if (editingId() === font.id) {
+            <input
+              class="input font-manager__name-input"
+              type="text"
+              [value]="font.name"
+              (blur)="commitRename(font, $event)"
+              (keydown.enter)="commitRename(font, $event)"
+              (keydown.escape)="cancelRename()"
+            />
+          } @else {
+            <button type="button" class="font-manager__name" (click)="startRename(font)">
+              {{ font.name }}
+            </button>
+          }
+          <span class="font-manager__details">{{ font.format }} · {{ formatSize(font.byteSize) }}</span>
+        </div>
+
+        <button
+          type="button"
+          class="icon-button font-manager__delete"
+          aria-label="Schrift löschen"
+          (click)="remove(font)"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3 6h18" />
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+          </svg>
+        </button>
+      </li>
+    } @empty {
+      <li class="font-manager__empty">Noch keine eigenen Schriften hochgeladen.</li>
+    }
+  </ul>
+
+  @if (fonts.error(); as message) {
+    <p class="font-manager__error" role="alert">{{ message }}</p>
+  }
+
+  <div class="font-manager__upload">
+    <div class="field">
+      <label for="font-manager-file">Neue Schrift</label>
+      <input
+        id="font-manager-file"
+        class="input"
+        type="file"
+        accept=".woff2,.ttf,.otf"
+        (change)="onFileSelected($event)"
+      />
+      @if (fonts.uploadFileError(); as message) {
+        <p class="font-manager__upload-error" role="alert">{{ message }}</p>
+      }
+    </div>
+
+    @if (pendingFile()) {
+      <div class="field">
+        <label for="font-manager-name">Name</label>
+        <input
+          id="font-manager-name"
+          class="input"
+          type="text"
+          [value]="pendingName()"
+          (input)="onNameInput($event)"
+        />
+      </div>
+
+      <label class="font-manager__checkbox">
+        <input type="checkbox" [checked]="allowedToUse()" (change)="onAllowedToUseChange($event)" />
+        <span class="font-manager__label-with-hint">
+          Ich darf diese Schrift verwenden
+          <app-field-hint
+            text="Schriften aus Office oder Windows dürfen nicht auf einen Server gestellt werden.
+            Freie Schriften, z. B. von Google Fonts, oder Schriften mit offener Lizenz schon."
+          />
+        </span>
+      </label>
+
+      <button
+        type="button"
+        class="btn btn--secondary"
+        [disabled]="!canUpload() || fonts.uploading()"
+        (click)="upload()"
+      >
+        {{ fonts.uploading() ? 'Lädt hoch …' : 'Hochladen' }}
+      </button>
+    }
+  </div>
+
+  <div class="dialog__actions">
+    <button type="button" class="btn btn--primary" (click)="close()">Fertig</button>
+  </div>
+</div>

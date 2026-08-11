@@ -16,17 +16,17 @@ Format:
 - [x] → Phase 3: Der Löschschutz sucht `cmfont-<id>` im Feld `font_family` der gespeicherten
       Ebenen. Das Frontend schickt `fontFamily`, das Backend wandelt an der Wire-Grenze um —
       wer den Namen im Frontend anders ablegt, hebelt den Schutz aus, ohne dass es auffällt.
-- [ ] → Phase 4: Fehlerantworten beim Hochladen sind **immer 422** mit dem Klartext in
+- [x] → Phase 4: Fehlerantworten beim Hochladen sind **immer 422** mit dem Klartext in
       `fields.file` (kein 413 wie bei Bildern). Die Oberfläche kann eine Meldung durchreichen,
       statt drei Fälle zu unterscheiden.
 - [ ] → Phase 5: `LayerValidator` ist jetzt eine Instanz: `validateAll`, `validateLayer` und
       `validateText` sind Objektmethoden (`$this->`), die kleinen Helfer bleiben statisch.
       Wer dort `font_bold`/`font_italic` ergänzt, arbeitet in `validateText` — und ruft
       Helfer weiterhin mit `self::` auf.
-- [ ] → Phase 4: Die Facade kann schon alles (`ensureLoaded`, `upload`, `rename`, `remove`) —
+- [x] → Phase 4: Die Facade kann schon alles (`ensureLoaded`, `upload`, `rename`, `remove`) —
       der Dialog braucht keinen eigenen Datenweg. Der Anzeigename steht in `name`, der interne
       in `family`; in der Oberfläche darf nur `name` auftauchen.
-- [ ] → Phase 4: Die Vorschau im Dialog braucht `FontLoader.load(font.family)` pro Eintrag —
+- [x] → Phase 4: Die Vorschau im Dialog braucht `FontLoader.load(font.family)` pro Eintrag —
       der Lader holt jede Schrift nur einmal, mehrfaches Anfordern ist gratis.
 - [ ] → Phase 4: Sammlungen (`.ttc`) werden abgelehnt — sie enthalten mehrere Schriften. Falls
       das im Test auffällt: gewollt, nicht vergessen.

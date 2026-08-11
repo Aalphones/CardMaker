@@ -20,6 +20,22 @@
     max-inline-size: 72px;
   }
 
+  &__font-row {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+
+    select {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &__font-manager-button {
+    flex: none;
+    white-space: nowrap;
+  }
+
   &__seg-label {
     display: block;
     margin-bottom: var(--space-xs);

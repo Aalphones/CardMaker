@@ -1,3 +1,4 @@
+import { Dialog } from '@angular/cdk/dialog';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,6 +13,8 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { FONT_GROUPS } from '../../../../../shared/canvas/rendering/fonts';
 import { LayerPatch, TextLayer } from '../../../../../shared/canvas/rendering/layer';
 import { FieldHint } from '../../../../../shared/components/field-hint/field-hint';
+import { FontsFacade } from '../../../../../store/fonts/fonts.facade';
+import { FontManager } from '../../font-manager/font-manager';
 import { AdvancedFields } from '../advanced-fields/advanced-fields';
 import { ColorField } from '../color-field/color-field';
 import { GeometryFields, GeometryValue } from '../geometry-fields/geometry-fields';
@@ -27,6 +30,8 @@ const KEY_PATTERN = /^[a-z][a-z0-9_]{0,39}$/;
 })
 export class TextProperties {
   private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly dialog = inject(Dialog);
+  protected readonly ownFonts = inject(FontsFacade);
 
   readonly layer = input.required<TextLayer>();
   readonly layerChange = output<LayerPatch>();
@@ -56,6 +61,8 @@ export class TextProperties {
   });
 
   constructor() {
+    this.ownFonts.ensureLoaded();
+
     effect(() => {
       const layer = this.layer();
 
@@ -121,5 +128,9 @@ export class TextProperties {
 
   protected emitShadowColor(shadowColor: string | null): void {
     this.layerChange.emit({ shadowColor });
+  }
+
+  protected openFontManager(): void {
+    this.dialog.open(FontManager);
   }
 }
