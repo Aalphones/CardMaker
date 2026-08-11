@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Controllers\AssetController;
 use App\Controllers\AuthController;
 use App\Controllers\CardGroupController;
+use App\Controllers\FontController;
 use App\Controllers\HealthController;
 use App\Controllers\MigrateController;
 use App\Controllers\SetupController;
@@ -18,6 +19,7 @@ use App\Middleware\Cors;
 use App\Repositories\AccessTokenRepository;
 use App\Repositories\AssetRepository;
 use App\Repositories\CardGroupRepository;
+use App\Repositories\FontRepository;
 use App\Repositories\SessionRepository;
 use App\Repositories\TemplateRepository;
 use App\Repositories\UserRepository;
@@ -25,6 +27,7 @@ use App\Services\AccessTokenService;
 use App\Services\AssetService;
 use App\Services\AuthService;
 use App\Services\CardGroupService;
+use App\Services\FontService;
 use App\Services\TemplateService;
 use App\Services\TokenService;
 use Dotenv\Dotenv;
@@ -123,6 +126,7 @@ $authService = null;
 $accessTokenService = null;
 $cardGroupService = null;
 $assetService = null;
+$fontService = null;
 $templateService = null;
 
 if ($database instanceof PDO) {
@@ -148,6 +152,12 @@ if ($database instanceof PDO) {
         $assetRepository,
         $templateRepository,
         $backendRoot . '/uploads',
+        $logger
+    );
+    $fontService = new FontService(
+        new FontRepository($database),
+        $templateRepository,
+        $backendRoot . '/uploads/fonts',
         $logger
     );
     $templateService = new TemplateService($templateRepository, $assetRepository);
@@ -188,6 +198,11 @@ $dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes
     $routes->addRoute('POST', '/api/assets', [AssetController::class, 'create']);
     $routes->addRoute('GET', '/api/assets/{id:\d+}/file', [AssetController::class, 'file']);
     $routes->addRoute('DELETE', '/api/assets/{id:\d+}', [AssetController::class, 'destroy']);
+    $routes->addRoute('GET', '/api/fonts', [FontController::class, 'index']);
+    $routes->addRoute('POST', '/api/fonts', [FontController::class, 'create']);
+    $routes->addRoute('GET', '/api/fonts/{id:\d+}/file', [FontController::class, 'file']);
+    $routes->addRoute('PATCH', '/api/fonts/{id:\d+}', [FontController::class, 'update']);
+    $routes->addRoute('DELETE', '/api/fonts/{id:\d+}', [FontController::class, 'destroy']);
     $routes->addRoute('GET', '/api/templates', [TemplateController::class, 'index']);
     $routes->addRoute('POST', '/api/templates', [TemplateController::class, 'create']);
     $routes->addRoute('GET', '/api/templates/{id:\d+}', [TemplateController::class, 'show']);
@@ -208,6 +223,7 @@ $makeController = static function (string $controllerClass) use (
     $accessTokenService,
     $cardGroupService,
     $assetService,
+    $fontService,
     $templateService
 ): object {
     return match ($controllerClass) {
@@ -224,6 +240,7 @@ $makeController = static function (string $controllerClass) use (
         TokenController::class => new TokenController($request, $accessTokenService),
         CardGroupController::class => new CardGroupController($request, $cardGroupService),
         AssetController::class => new AssetController($request, $assetService),
+        FontController::class => new FontController($request, $fontService),
         TemplateController::class => new TemplateController($request, $templateService),
         default => throw new RuntimeException('Kein Bauplan für Controller: ' . $controllerClass),
     };

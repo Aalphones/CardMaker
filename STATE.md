@@ -1,13 +1,12 @@
 # STATE
 
-**Aktiver Plan:** `docs/planning/2026-08-10_karteneditor/`
-**Phase:** noch nicht gestartet
-**Nächster Schritt:** Plan-Ordner öffnen (`README.md` + `phase-1-*.md`), Freigabe prüfen,
-dann Phase 1 wie gewohnt starten.
+**Aktiver Plan:** `docs/planning/2026-08-11_schriften-hochladen/`
+**Phase:** 2/6 — Schriftnamen prüfen (offen, heikel)
+**Nächster Schritt:** `phase-2-namenspruefung.md` öffnen und die feste Schriftliste in
+`LayerValidator.php` gegen die hochgeladenen Schriften öffnen (siehe FINDINGS → Phase 2).
 
-**Im Backlog:** `docs/planning/2026-08-11_schriften-hochladen/` — eigene Schriften über die
-Oberfläche hochladen, dazu Fett/Kursiv für Textfelder. Freigegeben, noch nicht gestartet;
-kann vor oder nach dem Karteneditor laufen.
+**Im Backlog:** `docs/planning/2026-08-10_karteneditor/` — Karteneditor, freigegeben, noch
+nicht gestartet.
 
 Plan „Neues Aussehen (Organic)" ist abgeschlossen und archiviert:
 `docs/archive/2026-08/2026-08-10_design-organic/`. Offene Punkte von dort (siehe README

@@ -25,6 +25,7 @@ backend/src/Validators/<Feature>Validator.php
 | `auth` | Login, Sitzungen und Zugriffstoken — beide als Zufallswerte in der Datenbank, kein JWT (ADR-008) |
 | `card-groups` | Kartengruppen — Organisationseinheit für gespeicherte Karten (z. B. „Spiderman-Serie"), keine Charakterverwaltung (ADR-011) |
 | `assets` | Bildvorrat — hochgeladene Rahmen- und Icon-Dateien, hinter der Anmeldung ausgeliefert (ADR-015). Backend und Speicher stehen, noch kein eigener UI-Screen (kommt mit dem Editor) |
+| `fonts` | Schriftvorrat — hochgeladene Schriftdateien (WOFF2/TTF/OTF, max. 2 MB), hinter der Anmeldung ausgeliefert. Der Name für CSS ist immer `cmfont-<Kennung>` und wird berechnet, nie gespeichert; der Wunschname des Nutzers ist reine Beschriftung. Backend und Speicher stehen, noch keine Oberfläche |
 | `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste, Kartenvorschau, Ebenenliste, Eigenschaftenspalte und direkte Bearbeitung im Bild (Anfasser zum Verschieben/Skalieren/Drehen) stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Meilenstein 2 ist abgeschlossen |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
@@ -142,6 +143,8 @@ backend/
   storage/logs/   ← app.log (nicht im Git)
   uploads/        ← hochgeladene Rahmen und Icons, außerhalb des ausgelieferten Bereichs
                      (ADR-015); Inhalt nicht im Git, vom Hochlade-Skript ausgenommen
+  uploads/fonts/  ← hochgeladene Schriftdateien, Ablagename `<Kennung>.<Format>`;
+                     wird beim ersten Hochladen angelegt, dieselben Ausnahmen wie oben
   .env            ← von deploy.cmd geschrieben, nicht im Git
   src/
     Controllers/    ← dünn: validieren → Service aufrufen → JSON zurückgeben

@@ -9,7 +9,7 @@ Namen vergeben, fertig — die Schrift steht sofort in der Auswahl jedes Textfel
 
 | # | Phase | Was danach geht | Aufwand | Status |
 |---|---|---|---|---|
-| 1 | [Ablage im Backend](phase-1-backend-ablage.md) | Schriftdatei landet auf dem Server, Liste und Löschen funktionieren (per Werkzeug prüfbar) | standard | offen |
+| 1 | [Ablage im Backend](phase-1-backend-ablage.md) | Schriftdatei landet auf dem Server, Liste und Löschen funktionieren (per Werkzeug prüfbar) | standard | **fertig** |
 | 2 | [Schriftnamen prüfen](phase-2-namenspruefung.md) | Ein Template mit hochgeladener Schrift lässt sich speichern, ein Template mit erfundener nicht | heikel | offen |
 | 3 | [Schrift im Browser laden](phase-3-frontend-laden.md) | Die Karte zeichnet die hochgeladene Schrift wirklich | heikel | offen |
 | 4 | [Verwaltung in der Oberfläche](phase-4-oberflaeche.md) | Hochladen, Umbenennen, Löschen — ohne Entwickler | standard | offen |
@@ -42,7 +42,7 @@ Alles hinter der Anmeldung, Namensschema wie bei `/api/assets`.
 
 | Weg | Zweck | Antwort |
 |---|---|---|
-| `GET /api/fonts` | Liste | `[{ id, name, family, format, byteSize, createdAt }]` |
+| `GET /api/fonts` | Liste | `{ items: [{ id, name, family, format, byteSize, createdAt }] }` |
 | `POST /api/fonts` | Hochladen (`multipart/form-data`: `file`, `name`) | der neue Eintrag |
 | `GET /api/fonts/{id}/file` | die Schriftdatei | Binärdaten mit passendem Inhaltstyp |
 | `PATCH /api/fonts/{id}` | umbenennen (`{ name }`) | der geänderte Eintrag |
@@ -50,6 +50,9 @@ Alles hinter der Anmeldung, Namensschema wie bei `/api/assets`.
 
 - `family` ist immer `cmfont-<id>` — genau der Wert, der in `fontFamily` einer Textebene steht.
 - `format` ist `woff2`, `ttf` oder `otf`.
+- Die Liste kommt in `{ items: [...] }` — wie bei `/api/assets` und `/api/card-groups`.
+- Eine abgelehnte Datei (kein Schriftformat, über 2 MB, keine ausgewählt) antwortet **422**
+  mit dem Klartext in `fields.file`. Abweichung zur Bildablage, die für „zu groß" 413 nimmt.
 - Feldnamen gehen wie überall in `snake_case` über die Leitung und werden in `WireFormat`
   umgesetzt (siehe `backend/src/Support/`).
 

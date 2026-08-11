@@ -126,6 +126,25 @@ final class TemplateRepository
     }
 
     /**
+     * Für die Löschsperre in `FontService::delete()`: dieselben Layout-Blöcke, aber mit dem
+     * Templatenamen daneben — die Ablehnung soll sagen, wo die Schrift noch steckt.
+     *
+     * @return array<int, array{name: string, layers: string}>
+     */
+    public function allLayerBlobsWithName(): array
+    {
+        $statement = $this->database->query('SELECT name, layers FROM templates');
+
+        return array_map(
+            static fn (array $row): array => [
+                'name' => (string) $row['name'],
+                'layers' => (string) $row['layers'],
+            ],
+            $statement->fetchAll()
+        );
+    }
+
+    /**
      * @param array<string, mixed> $row
      * @return array{
      *     id: int,
