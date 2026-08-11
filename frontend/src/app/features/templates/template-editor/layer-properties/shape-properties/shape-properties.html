@@ -1,9 +1,4 @@
-<app-geometry-fields
-  [geometry]="geometryOrNull(layer())"
-  [opacity]="layer().opacity"
-  (geometryChange)="emitGeometry($event)"
-  (opacityChange)="emitOpacity($event)"
-/>
+<app-geometry-fields [geometry]="geometryOrNull(layer())" (geometryChange)="emitGeometry($event)" />
 
 @if (!isLine()) {
   <app-color-field
@@ -22,42 +17,37 @@
   (valueChange)="emitStroke($event)"
 />
 
-<form [formGroup]="strokeWidthForm" class="shape-properties__field">
-  <label>
-    <span>Rahmenbreite</span>
-    <input type="number" formControlName="strokeWidth" min="0" (change)="emitStrokeWidth()" />
-  </label>
+<form [formGroup]="strokeWidthForm" class="field">
+  <label for="shape-stroke-width">Rahmenbreite</label>
+  <input id="shape-stroke-width" type="number" class="input" formControlName="strokeWidth" min="0" (change)="emitStrokeWidth()" />
 </form>
-
-@if (isRect()) {
-  <form [formGroup]="cornerRadiusForm" class="shape-properties__field">
-    <label>
-      <span class="shape-properties__label-with-hint">
-        Eckradius
-        <app-field-hint text="0 = scharfe Ecken, größere Werte runden sie ab." />
-      </span>
-      <input type="number" formControlName="cornerRadius" min="0" (change)="emitCornerRadius()" />
-    </label>
-  </form>
-}
 
 @if (isLine()) {
   <form [formGroup]="pointsForm" class="shape-properties__grid">
-    <label class="shape-properties__field">
-      <span>X1</span>
-      <input type="number" formControlName="x1" (change)="emitPoints()" />
-    </label>
-    <label class="shape-properties__field">
-      <span>Y1</span>
-      <input type="number" formControlName="y1" (change)="emitPoints()" />
-    </label>
-    <label class="shape-properties__field">
-      <span>X2</span>
-      <input type="number" formControlName="x2" (change)="emitPoints()" />
-    </label>
-    <label class="shape-properties__field">
-      <span>Y2</span>
-      <input type="number" formControlName="y2" (change)="emitPoints()" />
-    </label>
+    <div class="field">
+      <label for="shape-x1">X1</label>
+      <input id="shape-x1" type="number" class="input" formControlName="x1" (change)="emitPoints()" />
+    </div>
+    <div class="field">
+      <label for="shape-y1">Y1</label>
+      <input id="shape-y1" type="number" class="input" formControlName="y1" (change)="emitPoints()" />
+    </div>
+    <div class="field">
+      <label for="shape-x2">X2</label>
+      <input id="shape-x2" type="number" class="input" formControlName="x2" (change)="emitPoints()" />
+    </div>
+    <div class="field">
+      <label for="shape-y2">Y2</label>
+      <input id="shape-y2" type="number" class="input" formControlName="y2" (change)="emitPoints()" />
+    </div>
   </form>
 }
+
+<app-advanced-fields
+  [opacity]="layer().opacity"
+  [rotation]="rotationOrNull(layer())"
+  [cornerRadius]="cornerRadiusOrNull(layer())"
+  (opacityChange)="emitOpacity($event)"
+  (rotationChange)="emitRotation($event)"
+  (cornerRadiusChange)="emitCornerRadius($event)"
+/>

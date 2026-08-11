@@ -1,4 +1,9 @@
 @if (layer(); as current) {
+  <div class="layer-properties__header">
+    <span class="layer-properties__dot" [class]="'layer-properties__dot--' + current.type"></span>
+    <span class="layer-properties__name">{{ current.name }}</span>
+  </div>
+
   @switch (current.type) {
     @case ('image') {
       <app-image-properties [layer]="current" (layerChange)="patch.emit($event)" />

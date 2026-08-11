@@ -1,39 +1,44 @@
-<app-geometry-fields
-  [geometry]="geometryOf(layer())"
-  [opacity]="layer().opacity"
-  (geometryChange)="layerChange.emit($event)"
-  (opacityChange)="layerChange.emit({ opacity: $event })"
-/>
+<app-geometry-fields [geometry]="geometryOf(layer())" (geometryChange)="layerChange.emit($event)" />
 
-<label class="icon-properties__field">
+<label class="icon-properties__checkbox">
+  <input type="checkbox" [checked]="layer().source === 'user'" (change)="onSourceChange($event)" />
   <span class="icon-properties__label-with-hint">
-    Datenquelle
+    Wird pro Karte gewählt
     <app-field-hint
-      text="Fest: die Karte zeigt immer dasselbe Icon. Vom Anwender wählbar: beim Anlegen der Karte
-      aus den festgelegten Auswahlmöglichkeiten wählen."
+      text="Aus: die Karte zeigt immer dasselbe Icon. An: beim Anlegen der Karte aus den
+      festgelegten Auswahlmöglichkeiten wählen."
     />
   </span>
-  <select [value]="layer().source" (change)="onSourceChange($event)">
-    <option value="static">Fest</option>
-    <option value="user">Vom Anwender wählbar</option>
-  </select>
 </label>
 
-<div class="icon-properties__field">
-  <span>{{ layer().source === 'user' ? 'Standardbild' : 'Bild' }}</span>
-  <p class="icon-properties__current">{{ assetName(layer().assetId) ?? 'Kein Bild ausgewählt' }}</p>
-  <button type="button" class="icon-properties__button" (click)="pickAsset()">Bild wählen</button>
-</div>
-
-@if (layer().source === 'user') {
+@if (layer().source === 'static') {
+  <div class="icon-properties__field">
+    <span>Bild</span>
+    <p class="icon-properties__current">{{ assetName(layer().assetId) ?? 'Kein Bild ausgewählt' }}</p>
+    <button type="button" class="btn btn--secondary" (click)="pickAsset()">Bild wählen</button>
+  </div>
+} @else {
   <div class="icon-properties__field">
     <span class="icon-properties__label-with-hint">
       Auswahlmöglichkeiten
       <app-field-hint text="Die Icons, aus denen beim Anlegen einer Karte gewählt werden kann." />
     </span>
-    <p class="icon-properties__current">
-      {{ layer().choiceAssetIds.length }} Bild(er) ausgewählt
-    </p>
-    <button type="button" class="icon-properties__button" (click)="pickChoices()">Auswahl festlegen</button>
+    <button type="button" class="btn btn--secondary" (click)="pickChoices()">
+      Auswahl verwalten ({{ layer().choiceAssetIds.length }})
+    </button>
+    @if (layer().choiceAssetIds.length > 0) {
+      <ul class="icon-properties__choices">
+        @for (id of layer().choiceAssetIds; track id) {
+          <li class="tag tag--accent-2">{{ assetName(id) ?? 'Unbekannt' }}</li>
+        }
+      </ul>
+    }
   </div>
 }
+
+<app-advanced-fields
+  [opacity]="layer().opacity"
+  [rotation]="layer().rotation"
+  (opacityChange)="layerChange.emit({ opacity: $event })"
+  (rotationChange)="layerChange.emit({ rotation: $event })"
+/>

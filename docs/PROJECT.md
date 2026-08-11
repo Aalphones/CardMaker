@@ -105,6 +105,13 @@ Kompositing, kein Imagick-Verfügbarkeitscheck auf Strato nötig.
    Live-Vorschau, Layerliste (erstellen/löschen/duplizieren/umbenennen/Reihenfolge). Das
    Layout liegt als ein Datenblock in einer Spalte, nicht als eigene Ebenentabelle (ADR-014).
    **Erledigt** (2026-08-10), siehe `docs/archive/2026-08/2026-08-03_template-editor/`
+
+   **Neues Aussehen (Organic)** — kein eigener Meilenstein, sondern ein Design-Durchgang
+   über die ganze bestehende App vor Meilenstein 3: warmes, helles Erscheinungsbild
+   (Caprasimo/Figtree, Pillen-Buttons), plus die Editor-Bedienung aus dem Entwurf (Vollbild,
+   Zoom, Ansicht verschieben, Rückgängig, Tastenkürzel). **Erledigt** (2026-08-11), siehe
+   `docs/archive/2026-08/2026-08-10_design-organic/`
+
 3. **Karteneditor** — Karteninstanz erstellen/bearbeiten: Template-Textfelder per Formular
    befüllen, Bild hochladen/verschieben/zoomen/zuschneiden, Schriftgröße/-farbe überschreiben,
    Auto-Shrink, Zuordnung zu einer Kartengruppe

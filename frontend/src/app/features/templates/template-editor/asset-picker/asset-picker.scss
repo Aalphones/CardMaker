@@ -1,123 +1,102 @@
 .asset-picker {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
   width: 28rem;
   max-width: 90vw;
   max-height: 80vh;
-  padding: var(--space-lg);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-elevated);
-  box-shadow: var(--shadow-md);
   overflow-y: auto;
 
-  &__title {
-    margin: 0;
-    font-size: var(--font-size-lg);
-  }
-
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
-    gap: var(--space-sm);
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  &__item {
+  &__row {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: var(--space-xs);
+    gap: var(--space-sm);
     width: 100%;
-    padding: var(--space-xs);
-    border: 2px solid transparent;
+    padding: var(--space-xs) var(--space-sm);
+    border: none;
     border-radius: var(--radius-sm);
-    background: var(--color-bg-sunken);
+    background: transparent;
     color: var(--color-text-primary);
     cursor: pointer;
 
     &--selected {
-      border-color: var(--color-accent);
+      background: var(--color-accent-tint);
     }
   }
 
   &__thumb,
   &__thumb-placeholder {
-    width: 4rem;
-    height: 4rem;
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
     object-fit: contain;
-    background: var(--color-canvas-checker-light);
+    background: var(--color-accent-200);
   }
 
   &__name {
-    max-width: 100%;
+    flex: 1;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: var(--font-size-sm);
+    text-align: left;
+  }
+
+  &__check {
+    flex: none;
+    color: var(--color-accent);
   }
 
   &__empty {
-    grid-column: 1 / -1;
+    padding: var(--space-md) 0;
     color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
   }
 
-  &__upload {
+  &__dropzone {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: var(--space-xs);
-    padding-top: var(--space-md);
-    border-top: 1px solid var(--color-border);
+    min-height: 80px;
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    border: 1px dashed var(--color-divider);
+    border-radius: var(--radius-md);
+    text-align: center;
+
+    &--active {
+      border-color: var(--color-accent);
+      background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+    }
   }
 
-  &__upload-label {
-    font-size: var(--font-size-sm);
+  &__dropzone-label {
     color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+  }
+
+  &__file-input {
+    // Nur per Klick auf das Label erreichbar — das Ablagefeld selbst nimmt Drag&Drop an.
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
   }
 
   &__upload-error {
     margin: 0;
     color: var(--color-danger);
     font-size: var(--font-size-sm);
-  }
-
-  &__upload-button {
-    align-self: flex-start;
-    min-height: var(--touch-target-min);
-    padding: var(--space-xs) var(--space-md);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--color-text-primary);
-    cursor: pointer;
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-
-  &__actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-sm);
-  }
-
-  &__button {
-    min-height: var(--touch-target-min);
-    padding: var(--space-sm) var(--space-md);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--color-text-primary);
-    cursor: pointer;
-
-    &--primary {
-      border-color: var(--color-accent);
-      background: var(--color-accent);
-      color: var(--color-text-on-accent);
-    }
   }
 }

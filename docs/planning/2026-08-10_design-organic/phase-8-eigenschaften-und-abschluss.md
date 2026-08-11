@@ -52,26 +52,43 @@
 
 ## Checkliste
 
-- [ ] `layer-properties` und alle Untertypen auf die Bausteinklassen umstellen; eigene
+- [x] `layer-properties` und alle Untertypen auf die Bausteinklassen umstellen; eigene
       Farb-, Rahmen- und Abstandsregeln entfernen, wo die Bausteine sie tragen.
-- [ ] Segment-Umschalter für Ausrichtung und vertikale Ausrichtung auf `.seg` umstellen
+- [x] Segment-Umschalter für Ausrichtung und vertikale Ausrichtung auf `.seg` umstellen
       (heute vermutlich Auswahlfelder oder Buttons) — als echte Radiogruppe mit
       `<input type="radio">`, damit die Tastaturbedienung stimmt.
-- [ ] Aufklappbereich „Erweitert" umsetzen: `<details>`/`<summary>` mit eigenem
+- [x] Aufklappbereich „Erweitert" umsetzen: `<details>`/`<summary>` mit eigenem
       Aufklapp-Pfeil, offener Zustand bleibt im Bedienzustand erhalten, damit er beim
       Wechsel der Ebene nicht zuklappt.
-- [ ] Fehlende Fragezeichen-Erklärungen ergänzen. Texte in Alltagssprache, ein bis zwei
+- [x] Fehlende Fragezeichen-Erklärungen ergänzen. Texte in Alltagssprache, ein bis zwei
       Sätze, kein Fachbegriff ohne Erklärung. Beispiel Feldschlüssel: „Der Name, unter
       dem dieses Textfeld beim Befüllen einer Karte auftaucht. Nur Kleinbuchstaben,
       Ziffern und Unterstriche."
-- [ ] `asset-picker` auf Dialog- und Karten-Bausteine umstellen, Ablagefeld ergänzen.
-- [ ] Vollständiger Durchgang gegen die finalen Abnahmekriterien der README, jeder Punkt
-      einzeln abgehakt.
-- [ ] `docs/code-map.md` und `docs/conventions/css.md` auf Endstand prüfen (die vorherigen
+- [x] `asset-picker` auf Dialog- und Karten-Bausteine umstellen, Ablagefeld ergänzen.
+- [x] Vollständiger Durchgang gegen die finalen Abnahmekriterien der README, jeder Punkt
+      einzeln abgehakt (Code-Review; Sichtprüfung im Browser steht auf der Smoke-Liste
+      an den User, siehe Report-Back).
+- [x] `docs/code-map.md` und `docs/conventions/css.md` auf Endstand prüfen (die vorherigen
       Phasen haben stückweise ergänzt — hier auf Vollständigkeit gegenlesen).
-- [ ] `docs/PROJECT.md`: Meilensteinliste um den Eintrag „Neues Aussehen (Organic)" als
+- [x] `docs/PROJECT.md`: Meilensteinliste um den Eintrag „Neues Aussehen (Organic)" als
       erledigt zwischen Meilenstein 2 und 3 ergänzen, mit Verweis auf den Archivordner.
-- [ ] `STATE.md` auf den Karteneditor-Plan zeigen lassen.
-- [ ] Plan nach `docs/archive/2026-08/` verschieben.
+- [x] `STATE.md` auf den Karteneditor-Plan zeigen lassen.
+- [x] Plan nach `docs/archive/2026-08/` verschieben.
 
 ## Report-Back
+
+Alle Eigenschaften-Unterkomponenten (Text/Form/Icon/Bild/Rahmen) und die Bildauswahl laufen
+jetzt über die Bausteinklassen. Neu: `advanced-fields` — der Aufklappbereich „Erweitert"
+(Deckkraft, Drehung, Eckradius), von den vier Typen mit Geometrie über Content Projection
+wiederverwendet; `geometry-fields` trägt nur noch Position/Größe. Segment-Umschalter
+(Ausrichtung, vertikale Ausrichtung) sind jetzt echte Radiogruppen mit `.seg`. Die
+Datenquelle-Auswahl bei Text und Icon ist von Auswahlfeld auf Ankreuzfeld umgestellt
+(Abnahmekriterium der README). Bildauswahl zeigt jetzt eine Zeilenliste (34×34 Vorschau,
+Haken bei Auswahl) statt eines Kachelrasters, mit Drag&Drop-Ablagefeld und einem einzelnen
+„Fertig"-Knopf — Abbrechen läuft über Escape/Backdrop wie in der Löschbestätigung.
+`npm run lint` und `npm run build` laufen sauber durch.
+
+**Nicht selbst geprüft** (private-Profil: Sichtprüfung ist Sache des Users, siehe
+Smoke-Checkliste unten): ob die Bildauswahl tatsächlich in die Escape-Leiter des Editors
+einrastet (Finding sagte, es sei nichts weiter zu tun außer ausprobieren), und das visuelle
+Feintuning aller Eigenschaften-Felder gegen den Entwurf.

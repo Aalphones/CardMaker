@@ -66,11 +66,14 @@ frontend/src/app/
                                „Rahmen" gesperrt, wenn es schon einen gibt)
         stage-controls/      ← die beiden Pillen über der Bühne: Maßstab (−, Prozent =
                                einpassen, +, Kürzel) unten links, Zeigerposition unten rechts
-        layer-properties/    ← rechte Spalte: verzweigt nach Ebenentyp auf
-                               `image-properties`, `shape-properties`, `icon-properties`,
-                               `frame-properties`, `text-properties`; `geometry-fields`
-                               (Geometrie + Deckkraft) und `color-field` (Farbe + Hex) sind
-                               von mehreren Typen wiederverwendete Unterkomponenten
+        layer-properties/    ← rechte Spalte: Kopf mit Punkt + Ebenenname, dann verzweigt
+                               nach Ebenentyp auf `image-properties`, `shape-properties`,
+                               `icon-properties`, `frame-properties`, `text-properties`;
+                               `geometry-fields` (Position/Größe), `advanced-fields`
+                               (Aufklappbereich „Erweitert" — Deckkraft, Drehung, Eckradius,
+                               nimmt typspezifische Zusatzfelder per Content Projection auf)
+                               und `color-field` (Farbe + Hex) sind von mehreren Typen
+                               wiederverwendete Unterkomponenten
         asset-picker/         ← CDK-Dialog: vorhandene Rahmen/Icons wählen (einzeln oder
                                mehrfach für die Icon-Auswahlliste) oder ein neues PNG hochladen
         shortcuts-dialog/     ← CDK-Dialog mit der Kürzelübersicht, gespeist aus derselben

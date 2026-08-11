@@ -5,21 +5,26 @@
 }
 
 .icon-properties {
-  &__field {
+  &__checkbox {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: var(--space-xs);
     font-size: var(--font-size-sm);
     color: var(--color-text-muted);
+    cursor: pointer;
 
-    select {
-      min-height: var(--touch-target-min);
-      padding: var(--space-xs) var(--space-sm);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      background: var(--color-bg-sunken);
-      color: var(--color-text-primary);
+    input {
+      accent-color: var(--color-accent);
     }
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
   }
 
   &__label-with-hint {
@@ -33,14 +38,12 @@
     color: var(--color-text-primary);
   }
 
-  &__button {
-    align-self: flex-start;
-    min-height: var(--touch-target-min);
-    padding: var(--space-xs) var(--space-md);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--color-text-primary);
-    cursor: pointer;
+  &__choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 }

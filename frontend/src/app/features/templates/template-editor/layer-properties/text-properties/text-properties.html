@@ -1,139 +1,154 @@
-<app-geometry-fields
-  [geometry]="geometryOf(layer())"
-  [opacity]="layer().opacity"
-  (geometryChange)="layerChange.emit($event)"
-  (opacityChange)="layerChange.emit({ opacity: $event })"
-/>
+<app-geometry-fields [geometry]="geometryOf(layer())" (geometryChange)="layerChange.emit($event)" />
 
 <form [formGroup]="form" class="text-properties__grid">
-  <label class="text-properties__field text-properties__field--wide">
+  <div class="field text-properties__field--wide">
+    <label for="text-default">{{ form.value.source === 'user' ? 'Vorbelegung' : 'Text' }}</label>
+    <textarea id="text-default" class="input" formControlName="defaultText" rows="3" maxlength="500" (change)="emitForm()"></textarea>
+  </div>
+
+  <label class="text-properties__checkbox text-properties__field--wide">
+    <input type="checkbox" [checked]="form.value.source === 'user'" (change)="onSourceChange($event)" />
     <span class="text-properties__label-with-hint">
-      Feldschlüssel
+      Wird pro Karte ausgefüllt
       <app-field-hint
-        text="Unter diesem Namen liefert die Karteninstanz (und Claude über MCP) den Text.
-        Nur a-z, 0-9 und _, muss mit einem Buchstaben beginnen, im Template eindeutig."
+        text="Aus: der Text steht unveränderlich im Template. An: wird beim Anlegen der Karte
+        eingetragen."
       />
     </span>
-    <input type="text" formControlName="key" (change)="emitForm()" />
   </label>
 
-  <label class="text-properties__field text-properties__field--wide">
-    <span class="text-properties__label-with-hint">
-      Datenquelle
-      <app-field-hint
-        text="Fest: der Text steht unveränderlich im Template. Vom Anwender wählbar: wird beim
-        Anlegen der Karte eingetragen."
-      />
-    </span>
-    <select formControlName="source" (change)="emitForm()">
-      <option value="static">Fest</option>
-      <option value="user">Vom Anwender wählbar</option>
-    </select>
-  </label>
-
-  <label class="text-properties__field text-properties__field--wide">
-    <span>{{ form.value.source === 'user' ? 'Vorbelegung' : 'Text' }}</span>
-    <textarea formControlName="defaultText" rows="3" maxlength="500" (change)="emitForm()"></textarea>
-  </label>
-
-  <label class="text-properties__field">
-    <span>Schriftart</span>
-    <select formControlName="fontFamily" (change)="emitForm()">
+  <div class="field">
+    <label for="text-font-family">Schriftart</label>
+    <select id="text-font-family" class="input" formControlName="fontFamily" (change)="emitForm()">
       @for (font of fontFamilies; track font) {
         <option [value]="font">{{ font }}</option>
       }
     </select>
-  </label>
+  </div>
 
-  <label class="text-properties__field">
-    <span>Ausrichtung</span>
-    <select formControlName="align" (change)="emitForm()">
-      <option value="left">Links</option>
-      <option value="center">Mittig</option>
-      <option value="right">Rechts</option>
-    </select>
-  </label>
+  <div class="field text-properties__field--size">
+    <label for="text-font-size">Größe</label>
+    <input id="text-font-size" type="number" class="input" formControlName="fontSize" min="4" max="200" (change)="emitForm()" />
+  </div>
 
-  <label class="text-properties__field">
-    <span>Vertikale Ausrichtung</span>
-    <select formControlName="verticalAlign" (change)="emitForm()">
-      <option value="top">Oben</option>
-      <option value="middle">Mittig</option>
-      <option value="bottom">Unten</option>
-    </select>
-  </label>
-
-  <label class="text-properties__field">
-    <span>Schriftgröße</span>
-    <input type="number" formControlName="fontSize" min="4" max="200" (change)="emitForm()" />
-  </label>
-
-  <label class="text-properties__field">
-    <span class="text-properties__label-with-hint">
-      Mindestschriftgröße
-      <app-field-hint text="Unterste Grenze, bis zu der automatisches Verkleinern schrumpfen darf." />
-    </span>
-    <input type="number" formControlName="minFontSize" min="4" max="200" (change)="emitForm()" />
-  </label>
-
-  @if (minFontSizeExceedsFontSize()) {
-    <p class="text-properties__error" role="alert">
-      Die Mindestschriftgröße darf die Schriftgröße nicht überschreiten.
-    </p>
-  }
-
-  <label class="text-properties__field">
-    <span class="text-properties__label-with-hint">
-      Zeilenabstand
-      <app-field-hint text="Vielfaches der Schriftgröße, z. B. 1.2 für etwas Luft zwischen den Zeilen." />
-    </span>
-    <input type="number" formControlName="lineHeight" min="0.5" max="3" step="0.1" (change)="emitForm()" />
-  </label>
-
-  <label class="text-properties__field text-properties__field--checkbox">
-    <input type="checkbox" formControlName="autoShrink" (change)="emitForm()" />
-    <span class="text-properties__label-with-hint">
-      Automatisch verkleinern
-      <app-field-hint
-        text="Ist der Standardtext zu lang für die Box, wird die Schrift automatisch verkleinert —
-        bis höchstens zur Mindestschriftgröße."
-      />
-    </span>
-  </label>
-
-  <label class="text-properties__field">
-    <span>Umrandungsbreite</span>
-    <input type="number" formControlName="outlineWidth" min="0" (change)="emitForm()" />
-  </label>
-
-  <label class="text-properties__field">
-    <span>Schattenunschärfe</span>
-    <input type="number" formControlName="shadowBlur" min="0" (change)="emitForm()" />
-  </label>
-
-  <label class="text-properties__field">
-    <span>Schattenversatz X</span>
-    <input type="number" formControlName="shadowOffsetX" (change)="emitForm()" />
-  </label>
-
-  <label class="text-properties__field">
-    <span>Schattenversatz Y</span>
-    <input type="number" formControlName="shadowOffsetY" (change)="emitForm()" />
-  </label>
+  <div class="text-properties__field--wide">
+    <span class="text-properties__seg-label">Ausrichtung</span>
+    <div class="seg" role="radiogroup" aria-label="Ausrichtung">
+      <label class="seg__option">
+        <input type="radio" name="text-align" formControlName="align" value="left" (change)="emitForm()" />
+        Links
+      </label>
+      <label class="seg__option">
+        <input type="radio" name="text-align" formControlName="align" value="center" (change)="emitForm()" />
+        Mitte
+      </label>
+      <label class="seg__option">
+        <input type="radio" name="text-align" formControlName="align" value="right" (change)="emitForm()" />
+        Rechts
+      </label>
+    </div>
+  </div>
 </form>
 
 <app-color-field label="Textfarbe" [value]="layer().color" (valueChange)="emitColor($event)" />
-<app-color-field
-  label="Umrandungsfarbe"
-  [value]="layer().outlineColor"
-  [nullable]="true"
-  hint="Leer lassen für keine Umrandung."
-  (valueChange)="emitOutlineColor($event)"
-/>
-<app-color-field
-  label="Schattenfarbe"
-  [value]="layer().shadowColor"
-  [nullable]="true"
-  hint="Leer lassen für keinen Schatten."
-  (valueChange)="emitShadowColor($event)"
-/>
+
+<app-advanced-fields [opacity]="layer().opacity" [rotation]="layer().rotation" (opacityChange)="emitOpacity($event)" (rotationChange)="emitRotation($event)">
+  <form [formGroup]="form" class="text-properties__grid">
+    <div class="field text-properties__field--wide">
+      <label for="text-key" class="text-properties__label-with-hint">
+        Feldschlüssel
+        <app-field-hint
+          text="Unter diesem Namen liefert die Karteninstanz (und Claude über MCP) den Text.
+          Nur a-z, 0-9 und _, muss mit einem Buchstaben beginnen, im Template eindeutig."
+        />
+      </label>
+      <input id="text-key" type="text" class="input" formControlName="key" (change)="emitForm()" />
+    </div>
+
+    <div class="text-properties__field--wide">
+      <span class="text-properties__seg-label">Vertikale Ausrichtung</span>
+      <div class="seg" role="radiogroup" aria-label="Vertikale Ausrichtung">
+        <label class="seg__option">
+          <input type="radio" name="text-valign" formControlName="verticalAlign" value="top" (change)="emitForm()" />
+          Oben
+        </label>
+        <label class="seg__option">
+          <input type="radio" name="text-valign" formControlName="verticalAlign" value="middle" (change)="emitForm()" />
+          Mitte
+        </label>
+        <label class="seg__option">
+          <input type="radio" name="text-valign" formControlName="verticalAlign" value="bottom" (change)="emitForm()" />
+          Unten
+        </label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="text-min-font-size" class="text-properties__label-with-hint">
+        Mindestgröße
+        <app-field-hint text="Unterste Grenze, bis zu der automatisches Verkleinern schrumpfen darf." />
+      </label>
+      <input id="text-min-font-size" type="number" class="input" formControlName="minFontSize" min="4" max="200" (change)="emitForm()" />
+    </div>
+
+    @if (minFontSizeExceedsFontSize()) {
+      <p class="text-properties__error" role="alert">
+        Die Mindestschriftgröße darf die Schriftgröße nicht überschreiten.
+      </p>
+    }
+
+    <div class="field">
+      <label for="text-line-height" class="text-properties__label-with-hint">
+        Zeilenabstand
+        <app-field-hint text="Vielfaches der Schriftgröße, z. B. 1.2 für etwas Luft zwischen den Zeilen." />
+      </label>
+      <input id="text-line-height" type="number" class="input" formControlName="lineHeight" min="0.5" max="3" step="0.1" (change)="emitForm()" />
+    </div>
+
+    <label class="text-properties__checkbox text-properties__field--wide">
+      <input type="checkbox" formControlName="autoShrink" (change)="emitForm()" />
+      <span class="text-properties__label-with-hint">
+        Automatisch verkleinern
+        <app-field-hint
+          text="Ist der Standardtext zu lang für die Box, wird die Schrift automatisch verkleinert —
+          bis höchstens zur Mindestschriftgröße."
+        />
+      </span>
+    </label>
+
+    <div class="field">
+      <label for="text-outline-width">Umrandungsbreite</label>
+      <input id="text-outline-width" type="number" class="input" formControlName="outlineWidth" min="0" (change)="emitForm()" />
+    </div>
+
+    <div class="field">
+      <label for="text-shadow-blur">Schattenunschärfe</label>
+      <input id="text-shadow-blur" type="number" class="input" formControlName="shadowBlur" min="0" (change)="emitForm()" />
+    </div>
+
+    <div class="field">
+      <label for="text-shadow-offset-x">Schattenversatz X</label>
+      <input id="text-shadow-offset-x" type="number" class="input" formControlName="shadowOffsetX" (change)="emitForm()" />
+    </div>
+
+    <div class="field">
+      <label for="text-shadow-offset-y">Schattenversatz Y</label>
+      <input id="text-shadow-offset-y" type="number" class="input" formControlName="shadowOffsetY" (change)="emitForm()" />
+    </div>
+  </form>
+
+  <app-color-field
+    label="Umrandungsfarbe"
+    [value]="layer().outlineColor"
+    [nullable]="true"
+    hint="Leer lassen für keine Umrandung."
+    (valueChange)="emitOutlineColor($event)"
+  />
+  <app-color-field
+    label="Schattenfarbe"
+    [value]="layer().shadowColor"
+    [nullable]="true"
+    hint="Leer lassen für keinen Schatten."
+    (valueChange)="emitShadowColor($event)"
+  />
+</app-advanced-fields>

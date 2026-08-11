@@ -1,0 +1,52 @@
+<details class="advanced-fields">
+  <summary class="advanced-fields__trigger">Erweitert</summary>
+
+  <div class="advanced-fields__body">
+    <form [formGroup]="opacityForm" class="field">
+      <label for="advanced-opacity" class="advanced-fields__label-with-hint">
+        Deckkraft
+        <app-field-hint text="0 = unsichtbar, 1 = voll sichtbar." />
+      </label>
+      <input
+        id="advanced-opacity"
+        type="range"
+        class="advanced-fields__range"
+        formControlName="opacity"
+        min="0"
+        max="1"
+        step="0.05"
+        (change)="emitOpacity()"
+      />
+    </form>
+
+    @if (rotation() !== null) {
+      <form [formGroup]="rotationForm" class="field">
+        <label for="advanced-rotation" class="advanced-fields__label-with-hint">
+          Drehung (°)
+          <app-field-hint text="Drehwinkel um die obere linke Ecke der Ebene, -360 bis 360 Grad." />
+        </label>
+        <input
+          id="advanced-rotation"
+          type="number"
+          class="input"
+          formControlName="rotation"
+          min="-360"
+          max="360"
+          (change)="emitRotation()"
+        />
+      </form>
+    }
+
+    @if (cornerRadius() !== null) {
+      <form [formGroup]="cornerRadiusForm" class="field">
+        <label for="advanced-corner-radius" class="advanced-fields__label-with-hint">
+          Eckradius
+          <app-field-hint text="0 = scharfe Ecken, größere Werte runden sie ab." />
+        </label>
+        <input id="advanced-corner-radius" type="number" class="input" formControlName="cornerRadius" min="0" (change)="emitCornerRadius()" />
+      </form>
+    }
+
+    <ng-content />
+  </div>
+</details>

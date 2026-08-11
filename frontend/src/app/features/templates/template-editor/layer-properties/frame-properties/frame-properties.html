@@ -1,5 +1,7 @@
+<p class="frame-properties__hint">Liegt immer über der ganzen Karte.</p>
+
 <div class="frame-properties__field">
   <span>Rahmenbild</span>
   <p class="frame-properties__current">{{ assetName(layer().assetId) ?? 'Kein Bild ausgewählt' }}</p>
-  <button type="button" class="frame-properties__button" (click)="pickAsset()">Bild wählen</button>
+  <button type="button" class="btn btn--secondary" (click)="pickAsset()">Bild wählen</button>
 </div>

@@ -8,11 +8,12 @@ import { FieldHint } from '../../../../../shared/components/field-hint/field-hin
 import { Asset } from '../../../../../store/assets/assets.actions';
 import { AssetsFacade } from '../../../../../store/assets/assets.facade';
 import { AssetPicker, AssetPickerData, AssetPickerResult } from '../../asset-picker/asset-picker';
+import { AdvancedFields } from '../advanced-fields/advanced-fields';
 import { GeometryFields, GeometryValue } from '../geometry-fields/geometry-fields';
 
 @Component({
   selector: 'app-icon-properties',
-  imports: [GeometryFields, FieldHint],
+  imports: [GeometryFields, AdvancedFields, FieldHint],
   templateUrl: './icon-properties.html',
   styleUrl: './icon-properties.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,7 +27,7 @@ export class IconProperties {
   readonly layerChange = output<LayerPatch>();
 
   protected geometryOf(layer: IconLayer): GeometryValue {
-    return { x: layer.x, y: layer.y, width: layer.width, height: layer.height, rotation: layer.rotation };
+    return { x: layer.x, y: layer.y, width: layer.width, height: layer.height };
   }
 
   protected assetName(id: number | null): string | null {
@@ -38,7 +39,7 @@ export class IconProperties {
   }
 
   protected onSourceChange(event: Event): void {
-    const source = (event.target as HTMLSelectElement).value as LayerSource;
+    const source: LayerSource = (event.target as HTMLInputElement).checked ? 'user' : 'static';
     this.layerChange.emit(source === 'static' ? { source, choiceAssetIds: [] } : { source });
   }
 

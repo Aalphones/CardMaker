@@ -50,10 +50,13 @@ Erledigte Punkte abhaken, nicht löschen.
 - [x] → Phase 7: Das Element-Menü zeigt die Kürzel als schlichten kleinen Text — der
       Kürzel-Dialog braucht ohnehin einen `kbd`-Baustein (11px, Rahmen, Radius 6px). Wenn
       der steht, gehört er auch ins Menü.
-- [ ] → Phase 8: Die Bildauswahl ist die letzte Stufe der Escape-Leiter, die noch nicht am
+- [x] → Phase 8: Die Bildauswahl ist die letzte Stufe der Escape-Leiter, die noch nicht am
       Editor hängt. Der Editor hört bei jedem offenen CDK-Dialog gar nicht erst zu, die
       Reihenfolge stimmt damit von selbst — beim Anschließen der Bildauswahl in Phase 8 ist
-      also nichts weiter zu tun, außer es einmal auszuprobieren.
+      also nichts weiter zu tun, außer es einmal auszuprobieren. Code-seitig bestätigt: der
+      Editor-Tastaturzweig in `template-editor.ts` prüft generisch `this.dialog.openDialogs.length
+      > 0`, nicht dialogspezifisch — die Bildauswahl fällt automatisch darunter. Die
+      Sichtprüfung im Browser steht auf der Smoke-Liste an den User.
 - [ ] → Phase 8: `frontend/.prettierrc` steht auf 100 Zeichen Zeilenbreite, der Bestand ist
       aber auf ~110 geschrieben — ein `npx prettier --write` formatiert deshalb quer durch
       unbeteiligte Dateien um. Prettier läuft also nicht mit; entweder einmal komplett

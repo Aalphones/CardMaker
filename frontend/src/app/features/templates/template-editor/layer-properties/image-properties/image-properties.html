@@ -1,6 +1,10 @@
-<app-geometry-fields
-  [geometry]="geometryOf(layer())"
+<app-geometry-fields [geometry]="geometryOf(layer())" (geometryChange)="layerChange.emit($event)" />
+
+<p class="image-properties__hint">Das Bild kommt von der Karte — das Template legt nur den Bereich fest.</p>
+
+<app-advanced-fields
   [opacity]="layer().opacity"
-  (geometryChange)="layerChange.emit($event)"
+  [rotation]="layer().rotation"
   (opacityChange)="layerChange.emit({ opacity: $event })"
+  (rotationChange)="layerChange.emit({ rotation: $event })"
 />

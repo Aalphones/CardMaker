@@ -4,6 +4,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { FONT_FAMILIES } from '../../../../../shared/canvas/rendering/fonts';
 import { LayerPatch, TextLayer } from '../../../../../shared/canvas/rendering/layer';
 import { FieldHint } from '../../../../../shared/components/field-hint/field-hint';
+import { AdvancedFields } from '../advanced-fields/advanced-fields';
 import { ColorField } from '../color-field/color-field';
 import { GeometryFields, GeometryValue } from '../geometry-fields/geometry-fields';
 
@@ -11,7 +12,7 @@ const KEY_PATTERN = /^[a-z][a-z0-9_]{0,39}$/;
 
 @Component({
   selector: 'app-text-properties',
-  imports: [GeometryFields, ColorField, FieldHint, ReactiveFormsModule],
+  imports: [GeometryFields, ColorField, AdvancedFields, FieldHint, ReactiveFormsModule],
   templateUrl: './text-properties.html',
   styleUrl: './text-properties.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -73,7 +74,13 @@ export class TextProperties {
   }
 
   protected geometryOf(layer: TextLayer): GeometryValue {
-    return { x: layer.x, y: layer.y, width: layer.width, height: layer.height, rotation: layer.rotation };
+    return { x: layer.x, y: layer.y, width: layer.width, height: layer.height };
+  }
+
+  protected onSourceChange(event: Event): void {
+    const source: TextLayer['source'] = (event.target as HTMLInputElement).checked ? 'user' : 'static';
+    this.form.patchValue({ source }, { emitEvent: false });
+    this.layerChange.emit({ source });
   }
 
   protected emitForm(): void {
@@ -82,6 +89,14 @@ export class TextProperties {
     }
 
     this.layerChange.emit(this.form.getRawValue());
+  }
+
+  protected emitOpacity(opacity: number): void {
+    this.layerChange.emit({ opacity });
+  }
+
+  protected emitRotation(rotation: number): void {
+    this.layerChange.emit({ rotation });
   }
 
   protected emitColor(color: string | null): void {

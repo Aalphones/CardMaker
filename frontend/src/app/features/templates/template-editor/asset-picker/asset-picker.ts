@@ -33,6 +33,7 @@ export class AssetPicker {
   );
 
   protected readonly pendingFile = signal<File | null>(null);
+  protected readonly dragActive = signal(false);
   private readonly awaitingUpload = signal(false);
 
   constructor() {
@@ -84,6 +85,25 @@ export class AssetPicker {
     this.pendingFile.set((event.target as HTMLInputElement).files?.[0] ?? null);
   }
 
+  protected onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.dragActive.set(true);
+  }
+
+  protected onDragLeave(): void {
+    this.dragActive.set(false);
+  }
+
+  protected onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.dragActive.set(false);
+    const file = event.dataTransfer?.files?.[0] ?? null;
+
+    if (file) {
+      this.pendingFile.set(file);
+    }
+  }
+
   protected upload(): void {
     const file = this.pendingFile();
 
@@ -98,10 +118,6 @@ export class AssetPicker {
   protected confirm(): void {
     const selected = [...this.selection()];
     this.dialogRef.close(this.data.mode === 'single' ? (selected[0] ?? null) : selected);
-  }
-
-  protected cancel(): void {
-    this.dialogRef.close(null);
   }
 }
 

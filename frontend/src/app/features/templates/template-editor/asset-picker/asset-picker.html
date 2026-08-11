@@ -1,15 +1,15 @@
-<div class="asset-picker" role="dialog" aria-labelledby="asset-picker-title">
-  <h2 class="asset-picker__title" id="asset-picker-title">
+<div class="dialog asset-picker" role="dialog" aria-labelledby="asset-picker-title">
+  <h2 class="dialog__title" id="asset-picker-title">
     {{ data.kind === 'frame' ? 'Rahmen wählen' : 'Icon wählen' }}
   </h2>
 
-  <ul class="asset-picker__grid">
+  <ul class="asset-picker__list thin-scroll">
     @for (asset of items(); track asset.id) {
       <li>
         <button
           type="button"
-          class="asset-picker__item"
-          [class.asset-picker__item--selected]="isSelected(asset.id)"
+          class="asset-picker__row hover-row"
+          [class.asset-picker__row--selected]="isSelected(asset.id)"
           (click)="toggle(asset.id)"
         >
           @if (thumbUrl(asset.id); as url) {
@@ -18,6 +18,22 @@
             <span class="asset-picker__thumb-placeholder"></span>
           }
           <span class="asset-picker__name">{{ asset.name }}</span>
+          @if (isSelected(asset.id)) {
+            <svg
+              class="asset-picker__check"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          }
         </button>
       </li>
     } @empty {
@@ -25,11 +41,19 @@
     }
   </ul>
 
-  <div class="asset-picker__upload">
-    <label class="asset-picker__upload-label" for="asset-picker-file">Neues Bild hochladen (PNG)</label>
+  <div
+    class="asset-picker__dropzone"
+    [class.asset-picker__dropzone--active]="dragActive()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+  >
+    <label class="asset-picker__dropzone-label" for="asset-picker-file">
+      {{ pendingFile()?.name ?? 'Neues PNG hochladen' }}
+    </label>
     <input
       id="asset-picker-file"
-      class="asset-picker__upload-input"
+      class="asset-picker__file-input"
       type="file"
       accept="image/png"
       (change)="onFileSelected($event)"
@@ -37,22 +61,14 @@
     @if (assets.uploadFileError(); as message) {
       <p class="asset-picker__upload-error" role="alert">{{ message }}</p>
     }
-    <button
-      type="button"
-      class="asset-picker__upload-button"
-      [disabled]="!pendingFile() || assets.uploading()"
-      (click)="upload()"
-    >
-      {{ assets.uploading() ? 'Lädt hoch …' : 'Hochladen' }}
-    </button>
+    @if (pendingFile()) {
+      <button type="button" class="btn btn--secondary" [disabled]="assets.uploading()" (click)="upload()">
+        {{ assets.uploading() ? 'Lädt hoch …' : 'Hochladen' }}
+      </button>
+    }
   </div>
 
-  <div class="asset-picker__actions">
-    <button type="button" class="asset-picker__button asset-picker__button--ghost" (click)="cancel()">
-      Abbrechen
-    </button>
-    <button type="button" class="asset-picker__button asset-picker__button--primary" (click)="confirm()">
-      Übernehmen
-    </button>
+  <div class="dialog__actions">
+    <button type="button" class="btn btn--primary" (click)="confirm()">Fertig</button>
   </div>
 </div>
