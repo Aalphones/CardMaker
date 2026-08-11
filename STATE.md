@@ -1,9 +1,9 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-11_schriften-hochladen/`
-**Phase:** 2/6 — Schriftnamen prüfen (offen, heikel)
-**Nächster Schritt:** `phase-2-namenspruefung.md` öffnen und die feste Schriftliste in
-`LayerValidator.php` gegen die hochgeladenen Schriften öffnen (siehe FINDINGS → Phase 2).
+**Phase:** 3/6 — Schrift im Browser laden (offen, heikel)
+**Nächster Schritt:** `phase-3-frontend-laden.md` öffnen und die hochgeladene Schriftdatei als
+Blob holen und per `FontFace` registrieren (Vorbild: `asset-image-loader.ts`).
 
 **Im Backlog:** `docs/planning/2026-08-10_karteneditor/` — Karteneditor, freigegeben, noch
 nicht gestartet.

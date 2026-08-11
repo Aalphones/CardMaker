@@ -10,7 +10,7 @@ Namen vergeben, fertig — die Schrift steht sofort in der Auswahl jedes Textfel
 | # | Phase | Was danach geht | Aufwand | Status |
 |---|---|---|---|---|
 | 1 | [Ablage im Backend](phase-1-backend-ablage.md) | Schriftdatei landet auf dem Server, Liste und Löschen funktionieren (per Werkzeug prüfbar) | standard | **fertig** |
-| 2 | [Schriftnamen prüfen](phase-2-namenspruefung.md) | Ein Template mit hochgeladener Schrift lässt sich speichern, ein Template mit erfundener nicht | heikel | offen |
+| 2 | [Schriftnamen prüfen](phase-2-namenspruefung.md) | Ein Template mit hochgeladener Schrift lässt sich speichern, ein Template mit erfundener nicht | heikel | **fertig** |
 | 3 | [Schrift im Browser laden](phase-3-frontend-laden.md) | Die Karte zeichnet die hochgeladene Schrift wirklich | heikel | offen |
 | 4 | [Verwaltung in der Oberfläche](phase-4-oberflaeche.md) | Hochladen, Umbenennen, Löschen — ohne Entwickler | standard | offen |
 | 5 | [Fett und Kursiv](phase-5-fett-und-kursiv.md) | Zwei Umschalter am Textfeld | standard | offen |

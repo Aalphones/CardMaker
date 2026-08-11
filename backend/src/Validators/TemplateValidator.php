@@ -29,11 +29,13 @@ final class TemplateValidator
 
     /**
      * Nur übergebene Felder werden geprüft, gleiches Muster wie `CardGroupValidator`.
-     * `layers` kommt beim Anlegen nie vor (ein neues Template startet immer leer) und wird
-     * nur bei einer Teilaktualisierung an `LayerValidator` weitergereicht.
+     * `layers` kommt beim Anlegen nie vor (ein neues Template startet immer leer) und geht
+     * hier ungeprüft durch: die Ebenenprüfung braucht die Liste der hochgeladenen Schriften
+     * aus der Datenbank und sitzt deshalb in `TemplateService::update()`, zusammen mit der
+     * Bild-Referenzprüfung.
      *
      * @param array<string, mixed> $body
-     * @return array{name?: string, description?: ?string, layers?: array<int, array<string, mixed>>}
+     * @return array{name?: string, description?: ?string, layers?: mixed}
      */
     public static function validateForUpdate(array $body): array
     {
@@ -53,7 +55,7 @@ final class TemplateValidator
         }
 
         if (array_key_exists('layers', $body)) {
-            $result['layers'] = LayerValidator::validateAll($body['layers']);
+            $result['layers'] = $body['layers'];
         }
 
         return $result;

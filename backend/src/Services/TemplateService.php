@@ -6,13 +6,16 @@ namespace App\Services;
 
 use App\Http\Response;
 use App\Repositories\AssetRepository;
+use App\Repositories\FontRepository;
 use App\Repositories\TemplateRepository;
+use App\Validators\LayerValidator;
 
 final class TemplateService
 {
     public function __construct(
         private readonly TemplateRepository $templates,
-        private readonly AssetRepository $assets
+        private readonly AssetRepository $assets,
+        private readonly FontRepository $fonts
     ) {
     }
 
@@ -43,12 +46,18 @@ final class TemplateService
     }
 
     /**
-     * @param array{name?: string, description?: ?string, layers?: array<int, array<string, mixed>>} $data
+     * `layers` kommt ungeprüft herein (siehe `TemplateValidator::validateForUpdate()`) und
+     * wird hier geprüft — beide Prüfungen brauchen die Datenbank: die eine die abgelegten
+     * Schriften, die andere die vorhandenen Bilder.
+     *
+     * @param array{name?: string, description?: ?string, layers?: mixed} $data
      * @return array<string, mixed>|null
      */
     public function update(int $id, array $data): ?array
     {
         if (array_key_exists('layers', $data)) {
+            $data['layers'] = (new LayerValidator($this->fonts->existingFamilies()))
+                ->validateAll($data['layers']);
             $this->guardReferencedAssetsExist($data['layers']);
         }
 

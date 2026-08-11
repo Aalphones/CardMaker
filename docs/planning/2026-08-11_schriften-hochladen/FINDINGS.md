@@ -9,7 +9,7 @@ Format:
 - [ ] → Phase N: <Erkenntnis, ein Satz>
 ```
 
-- [ ] → Phase 2: `LayerValidator.php` prüft `font_family` heute über `requiredEnum(...,
+- [x] → Phase 2: `LayerValidator.php` prüft `font_family` heute über `requiredEnum(...,
       self::FONT_FAMILIES, ...)` (Zeile ~276) — eine feste Liste im Quelltext. Genau dieser
       Aufruf ist die Stelle, die um die hochgeladenen Schriften erweitert werden muss; die
       Liste selbst ist das Gegenstück zu `frontend/.../rendering/fonts.ts`.
@@ -19,5 +19,9 @@ Format:
 - [ ] → Phase 4: Fehlerantworten beim Hochladen sind **immer 422** mit dem Klartext in
       `fields.file` (kein 413 wie bei Bildern). Die Oberfläche kann eine Meldung durchreichen,
       statt drei Fälle zu unterscheiden.
+- [ ] → Phase 5: `LayerValidator` ist jetzt eine Instanz: `validateAll`, `validateLayer` und
+      `validateText` sind Objektmethoden (`$this->`), die kleinen Helfer bleiben statisch.
+      Wer dort `font_bold`/`font_italic` ergänzt, arbeitet in `validateText` — und ruft
+      Helfer weiterhin mit `self::` auf.
 - [ ] → Phase 4: Sammlungen (`.ttc`) werden abgelehnt — sie enthalten mehrere Schriften. Falls
       das im Test auffällt: gewollt, nicht vergessen.

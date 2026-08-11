@@ -33,7 +33,7 @@ sie hier nicht, auch wenn Seiten wie font.download sie zum Herunterladen anbiete
 2. `@font-face`-Eintrag in `frontend/src/styles/_kartenschriften.scss` ergänzen.
 3. Familie in `frontend/src/app/shared/canvas/rendering/fonts.ts` eintragen
    (Sorte + Ersatzschrift).
-4. Familie in `backend/src/Validators/LayerValidator.php` (`FONT_FAMILIES`) ergänzen —
+4. Familie in `backend/src/Validators/LayerValidator.php` (`BUILT_IN_FONT_FAMILIES`) ergänzen —
    fehlt sie dort, weist das Backend jedes Template mit dieser Schrift beim Speichern ab.
 
 Ab dem geplanten Schriften-Upload über die Oberfläche entfällt dieser Weg für neue Schriften.

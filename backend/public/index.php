@@ -143,10 +143,12 @@ if ($database instanceof PDO) {
     );
     $cardGroupService = new CardGroupService(new CardGroupRepository($database));
 
-    // Reihenfolge bewusst: das Repository zuerst, danach beide Dienste, die es teilen —
-    // AssetService braucht es für die Löschsperre, TemplateService für die Asset-Referenzprüfung.
+    // Reihenfolge bewusst: die Repositories zuerst, danach die Dienste, die sie teilen —
+    // AssetService braucht das Template-Repository für die Löschsperre, TemplateService das
+    // Bild- und das Schrift-Repository für die Prüfung der Ebenen.
     $assetRepository = new AssetRepository($database);
     $templateRepository = new TemplateRepository($database);
+    $fontRepository = new FontRepository($database);
 
     $assetService = new AssetService(
         $assetRepository,
@@ -155,12 +157,12 @@ if ($database instanceof PDO) {
         $logger
     );
     $fontService = new FontService(
-        new FontRepository($database),
+        $fontRepository,
         $templateRepository,
         $backendRoot . '/uploads/fonts',
         $logger
     );
-    $templateService = new TemplateService($templateRepository, $assetRepository);
+    $templateService = new TemplateService($templateRepository, $assetRepository, $fontRepository);
 }
 
 // Positivliste der offenen Pfade. Die Sperre ist die Vorgabe, nicht die Ausnahme: Ein

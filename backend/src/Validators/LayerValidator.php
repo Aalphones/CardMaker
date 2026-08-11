@@ -28,10 +28,12 @@ final class LayerValidator
     private const ALIGNS = ['left', 'center', 'right'];
     private const VERTICAL_ALIGNS = ['top', 'middle', 'bottom'];
     /**
-     * Muss deckungsgleich mit `frontend/src/app/shared/canvas/rendering/fonts.ts` bleiben —
-     * fehlt eine Schrift hier, lässt sich ein Template mit ihr nicht speichern.
+     * Die eingebauten Schriften: vom Gerät und mitgeliefert. Muss deckungsgleich mit
+     * `frontend/src/app/shared/canvas/rendering/fonts.ts` bleiben — fehlt eine Schrift hier,
+     * lässt sich ein Template mit ihr nicht speichern. Hochgeladene Schriften stehen nicht
+     * hier, sondern kommen als `cmfont-<Kennung>` über den Konstruktor dazu.
      */
-    private const FONT_FAMILIES = [
+    private const BUILT_IN_FONT_FAMILIES = [
         // Vom Gerät
         'Arial', 'Verdana', 'Trebuchet MS', 'Georgia', 'Times New Roman', 'Courier New', 'Impact',
         // Mitgeliefert (frontend/public/fonts)
@@ -44,9 +46,20 @@ final class LayerValidator
     private const KEY_PATTERN = '/^[a-z][a-z0-9_]{0,39}$/';
 
     /**
+     * Der Prüfer selbst bleibt ohne Datenbankwissen: welche Schriften hochgeladen wurden,
+     * reicht der Aufrufer als fertige Liste durch (`TemplateService`), damit hier keine
+     * Abfrage pro Textebene entsteht.
+     *
+     * @param string[] $uploadedFontFamilies Namen der hochgeladenen Schriften (`cmfont-<id>`).
+     */
+    public function __construct(private readonly array $uploadedFontFamilies = [])
+    {
+    }
+
+    /**
      * @return array<int, array<string, mixed>> Die geprüfte, normalisierte Ebenenliste.
      */
-    public static function validateAll(mixed $layers): array
+    public function validateAll(mixed $layers): array
     {
         $fields = [];
         $normalized = self::normalizeList($layers, $fields);
@@ -61,7 +74,7 @@ final class LayerValidator
         $result = [];
 
         foreach ($normalized as $index => $layer) {
-            $result[] = self::validateLayer($layer, (int) $index, $fields, $seenIds, $seenKeys, $frameIndexes);
+            $result[] = $this->validateLayer($layer, (int) $index, $fields, $seenIds, $seenKeys, $frameIndexes);
         }
 
         foreach (array_slice($frameIndexes, 1) as $extraIndex) {
@@ -106,7 +119,7 @@ final class LayerValidator
      * @param int[] $frameIndexes
      * @return array<string, mixed>
      */
-    private static function validateLayer(
+    private function validateLayer(
         mixed $layer,
         int $index,
         array &$fields,
@@ -152,7 +165,7 @@ final class LayerValidator
             'shape' => self::validateShape($layer, $fields, $prefix),
             'icon' => self::validateIcon($layer, $fields, $prefix),
             'frame' => self::validateFrame($layer, $fields, $prefix, $frameIndexes, $index),
-            'text' => self::validateText($layer, $fields, $prefix, $seenKeys),
+            'text' => $this->validateText($layer, $fields, $prefix, $seenKeys),
         };
 
         return array_merge($result, $typeFields);
@@ -254,7 +267,7 @@ final class LayerValidator
      * @param array<string, true> $seenKeys
      * @return array<string, mixed>
      */
-    private static function validateText(array $layer, array &$fields, string $prefix, array &$seenKeys): array
+    private function validateText(array $layer, array &$fields, string $prefix, array &$seenKeys): array
     {
         $key = self::requiredString($layer, 'key', $fields, $prefix);
 
@@ -273,7 +286,7 @@ final class LayerValidator
 
         $source = self::requiredEnum($layer, 'source', self::TEXT_SOURCES, $fields, $prefix);
         $defaultText = self::stringUpTo($layer, 'default_text', 500, $fields, $prefix);
-        $fontFamily = self::requiredEnum($layer, 'font_family', self::FONT_FAMILIES, $fields, $prefix);
+        $fontFamily = $this->fontFamily($layer, $fields, $prefix);
         $fontSize = self::numberInRange($layer, 'font_size', 4, 200, $fields, $prefix);
         $minFontSize = self::numberInRange($layer, 'min_font_size', 4, 200, $fields, $prefix);
 
@@ -305,6 +318,41 @@ final class LayerValidator
                 'opacity' => self::numberInRange($layer, 'opacity', 0, 1, $fields, $prefix),
             ]
         );
+    }
+
+    /**
+     * Erlaubt sind die eingebauten Schriften und die hochgeladenen. Der Fall „gab es mal,
+     * gibt es nicht mehr" ist der wahrscheinlichste (Schrift von Hand aus der Ablage
+     * entfernt) — deshalb nennt die Meldung die betroffene Ebene, damit man weiß, wo man
+     * umstellen muss, statt nur zu erfahren, dass irgendetwas ungültig ist.
+     *
+     * @param array<string, mixed> $layer
+     * @param array<string, string> $fields
+     */
+    private function fontFamily(array $layer, array &$fields, string $prefix): ?string
+    {
+        $value = $layer['font_family'] ?? null;
+
+        if (!is_string($value) || $value === '') {
+            $fields[self::fieldKey($prefix, 'font_family')] = 'Bitte eine Schriftart angeben.';
+
+            return null;
+        }
+
+        if (
+            in_array($value, self::BUILT_IN_FONT_FAMILIES, true)
+            || in_array($value, $this->uploadedFontFamilies, true)
+        ) {
+            return $value;
+        }
+
+        $name = is_string($layer['name'] ?? null) && trim((string) $layer['name']) !== ''
+            ? 'der Ebene „' . $layer['name'] . '"'
+            : 'dieser Ebene';
+        $fields[self::fieldKey($prefix, 'font_family')] = "Die Schriftart $name gibt es nicht (mehr). "
+            . 'Bitte dort eine andere Schrift auswählen.';
+
+        return null;
     }
 
     /**

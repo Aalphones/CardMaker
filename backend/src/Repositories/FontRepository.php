@@ -25,6 +25,22 @@ final class FontRepository
         return $statement->fetchAll();
     }
 
+    /**
+     * Die Schriftnamen aller abgelegten Schriften — eine Abfrage, unabhängig davon, wie viele
+     * Textebenen ein Template prüfen lässt.
+     *
+     * @return string[]
+     */
+    public function existingFamilies(): array
+    {
+        $statement = $this->database->query('SELECT id FROM fonts');
+
+        return array_map(
+            static fn (array $row): string => self::family((int) $row['id']),
+            $statement->fetchAll()
+        );
+    }
+
     /** @return array<string, mixed>|null */
     public function find(int $id): ?array
     {
