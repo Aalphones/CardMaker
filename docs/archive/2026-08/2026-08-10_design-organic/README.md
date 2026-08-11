@@ -48,7 +48,7 @@ liegen deshalb mit im Ordner, obwohl aus ihnen nichts übernommen wird.
 | 5 | [Template-Editor: Vollbild-Aufbau](phase-5-editor-vollbild.md) | heikel | complete |
 | 6 | [Template-Editor: Zoom, Ansicht, Element-Menü](phase-6-editor-ansicht.md) | heikel | complete |
 | 7 | [Template-Editor: Rückgängig und Tastenkürzel](phase-7-editor-tastatur.md) | heikel | complete |
-| 8 | [Eigenschaften, Bildauswahl, Doku und Abnahme](phase-8-eigenschaften-und-abschluss.md) | standard | pending |
+| 8 | [Eigenschaften, Bildauswahl, Doku und Abnahme](phase-8-eigenschaften-und-abschluss.md) | standard | complete |
 
 ## Kontrakt: die Token-Schicht
 
@@ -89,20 +89,51 @@ Token-Schicht in `frontend/src/styles.scss`. Er gilt ab Phase 1 als eingefroren:
 
 ## Summary
 
-_(beim Archivieren füllen)_
+Die gesamte App läuft jetzt im warmen, hellen „Organic"-Look: Token-Fundament,
+gemeinsame Bausteinklassen, App-Rahmen/Anmeldung/Zugriffstoken, Kartengruppen/Template-Liste,
+der Template-Editor als Vollbild-Ebene (Zoom, Ansicht verschieben, Rückgängig, Tastenkürzel)
+und zuletzt die Eigenschaftenspalte samt Bildauswahl. `npm run lint` und `npm run build`
+laufen sauber durch.
 
 ## Files touched
 
-_(beim Archivieren füllen)_
+23 Komponenten-Stylesheets plus `styles.scss`/`_bausteine.scss` (Phasen 1–2), App-Rahmen/
+Anmeldung/Zugriffstoken (Phase 3), Kartengruppen/Template-Liste (Phase 4), Template-Editor
+Grundgerüst/Ansicht/Tastatur (Phasen 5–7), Eigenschaftenspalte + Bildauswahl (Phase 8, neu:
+`layer-properties/advanced-fields/`). Vollständige Liste: `git log --stat` über die Commits
+unten.
 
 ## Commits
 
-_(beim Archivieren füllen)_
+- `5d2b3ee` App-Rahmen, Anmeldung und Zugriffstoken im Organic-Look
+- `8f24502` Kartengruppen und Template-Liste im Organic-Look
+- `23a3837` Template-Editor als Vollbild-Ebene im Organic-Look
+- `edc8614` Zoom, Ansicht verschieben und Element-Menü im Template-Editor
+- `b97cfe1` Rückgängig, Tastenkürzel und Kürzel-Dialog im Template-Editor
+- `46f2df4` Eigenschaftenspalte und Bildauswahl im Organic-Look
+
+(Phase-1/2-Commits liegen vor diesem Log-Ausschnitt — Token-Fundament und Bausteine.)
 
 ## Deviations from plan
 
-_(beim Archivieren füllen)_
+- **Bildauswahl-Dialog ohne „Abbrechen"-Knopf**: die Handoff-Beschreibung nennt nur die
+  Aktion „Fertig". Abbrechen läuft jetzt wie bei der Löschbestätigung über Escape/Backdrop
+  (CDK schließt dann mit `undefined`, von den Aufrufern schon als Abbruch behandelt).
+- **`shadowOffsetX`/`shadowOffsetY` bei Text** stehen nicht im Handoff, existierten aber
+  schon im Datenmodell und in der Vorphase — beibehalten (im Aufklappbereich „Erweitert"),
+  nicht stillschweigend entfernt.
+- **Prettier-Zeilenbreite** (`.prettierrc` 100 vs. Bestand ~110, siehe `FINDINGS.md`)
+  bewusst nicht angefasst — Entscheidung liegt bei Sascha, siehe Follow-ups.
 
 ## Follow-ups
 
-_(beim Archivieren füllen)_
+- 🔴 **Prettier-Zeilenbreite entscheiden**: `.prettierrc` auf 100 Zeichen, Bestand auf
+  ~110 geschrieben — `npx prettier --write` formatiert sonst quer durch unbeteiligte
+  Dateien. Entweder einmal komplett durchformatieren (eigener Commit) oder die Breite im
+  Bestand heben.
+- Kartenumrandung (`--shadow-canvas-card`) muss an jeder weiteren Stelle, die die Karte
+  zeigt (Kartenliste, Druckvorschau — Meilenstein 3/5), den Token passend setzen statt in
+  `card-canvas.scss` zu schreiben (`FINDINGS.md`, noch offen — Surface existiert erst dort).
+- Smoke-Test steht aus (siehe Report-Back in Phase 8) — insbesondere die neue
+  Eigenschaftenspalte (Aufklappbereich, Ankreuzfelder, Segment-Umschalter) und die
+  umgebaute Bildauswahl (Zeilenliste, Drag&Drop, Escape-Leiter) im Browser gegenprüfen.
