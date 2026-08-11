@@ -21,9 +21,23 @@ Erledigte Punkte abhaken, nicht löschen.
       Bildauswahl auf `.btn` umstellt, fallen die lokalen `--color-gray-50`-Einzelregeln
       dort mit weg — bis dahin bleibt der (jetzt korrekte) Einzelverweis auf
       `--color-text-on-accent` stehen.
+      **Stand nach Phase 5:** Editor-Kopfzeile (Speichern) und Ebenenliste (Hinzufügen)
+      sind auf `.btn` umgestellt, ihre Einzelregeln sind weg. Offen bleibt nur noch die
+      Bildauswahl → Phase 8.
 - [ ] → Phase 6: Die Kartenvorschau zeichnet auf Konva und kennt keine Token — in
       `frontend/src/app/shared/canvas/card-canvas/draw-items.ts` stehen drei feste
       Violett-Werte (Platzhalter-Rahmen, Platzhalter-Füllung, Auswahlrahmen). Sie
       überleben den Palettenwechsel und sind der letzte sichtbare Rest der alten Farben.
       Auf Terrakotta umstellen, wenn der Editor sowieso angefasst wird (finales
       Abnahmekriterium 1).
+- [ ] → Phase 6: Die Karte passt sich auf der Bühne bisher rein über CSS ein — die Bühne ist
+      ein Größen-Container (`container-type: size`), die Karte bekommt
+      `block-size: min(100cqh, 100cqw * 880 / 630)` in `template-editor.scss`. Sobald der
+      echte Maßstab kommt, ersetzt der diese Zeile; „Einpassen" ist genau diese Rechnung.
+- [ ] → Phase 6: Das Menü hinter „Element hinzufügen" steht noch in der alten Form
+      (reine Textliste, Reihenfolge schon auf den Entwurf gedreht). Zeichen und
+      Tastenkürzel-Hinweise fehlen — die baut Phase 6 mit dem Element-Menü.
+- [ ] → Phase 6/8: Die Kartenumrandung hängt jetzt am neuen Zweck-Token
+      `--shadow-canvas-card` (Standard: Haarlinie, die Editor-Bühne überschreibt ihn auf
+      `--shadow-lg`). Wer die Karte woanders zeigt (Kartenliste, Druckvorschau), setzt den
+      Token dort passend, statt in `card-canvas.scss` zu schreiben.

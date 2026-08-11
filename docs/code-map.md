@@ -52,11 +52,15 @@ frontend/src/app/
       card-groups-detail/  ← Formular Anlegen/Bearbeiten (Routen .../new, .../:id)
     templates/
       templates-list/       ← Raster, Suchfeld, Leerzustand, „Neues Template"
-      template-editor/       ← Route .../:id — Kopfzeile (Name, Speichern), Drei-Spalten-Gitter
-                               (< 1200 px gestapelt, Vorschau zuerst). Bedien-Zustand im
-                               Signal Store `signal-stores/template-editor.ts`
-        layer-list/          ← linke Spalte: Ebenen anlegen/umbenennen/duplizieren/löschen,
-                               Sichtbarkeit, Drag-Reihenfolge (CDK, Index gedreht zum Array)
+      template-editor/       ← Route .../:id — Vollbild-Ebene über der App (fest positioniert,
+                               Ebene 50): Kopfzeile (Zurück, Name direkt bearbeitbar,
+                               Rückgängig/Wiederherstellen, Speichern), linke Ebenenspalte,
+                               dunkle Bühne mit der Karte, rechte Eigenschaftenspalte. Unter
+                               1000 px werden beide Spalten zu einklappbaren Schubladen.
+                               Bedien-Zustand im Signal Store `signal-stores/template-editor.ts`
+        layer-list/          ← linke Spalte: Ebenen anlegen/umbenennen, Sichtbarkeit,
+                               Drag-Reihenfolge (CDK, Index gedreht zum Array) und die
+                               Fußzeile mit nach vorn/nach hinten/Kopie/Löschen
         layer-properties/    ← rechte Spalte: verzweigt nach Ebenentyp auf
                                `image-properties`, `shape-properties`, `icon-properties`,
                                `frame-properties`, `text-properties`; `geometry-fields`

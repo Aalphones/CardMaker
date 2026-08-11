@@ -7,8 +7,10 @@
   overflow: hidden;
 
   /* Rand als Schatten statt als border: eine border würde das Seitenverhältnis
-     des Inhaltskastens verschieben und die Bühne unten um eine Zeile beschneiden. */
-  box-shadow: 0 0 0 1px var(--color-border);
+     des Inhaltskastens verschieben und die Bühne unten um eine Zeile beschneiden.
+     Den Wert setzt die Umgebung — auf der dunklen Editor-Bühne hebt ein Schlagschatten
+     die Karte ab, in hellen Listen reicht die Haarlinie. */
+  box-shadow: var(--shadow-canvas-card);
   background-image: conic-gradient(
     var(--color-canvas-checker-dark) 0deg 90deg,
     var(--color-canvas-checker-light) 90deg 180deg,

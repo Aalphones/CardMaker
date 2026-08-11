@@ -1,50 +1,45 @@
+// Die linke Editorspalte: Hinzufügen oben, scrollende Ebenenliste dazwischen, vier
+// Aktionen unten. Rohe Pixelwerte nur als Bauteilmaß aus dem Entwurf (7px Punkt,
+// 6px Innenabstand, 2px Zeilenabstand, 13px Name, 10px Typbezeichnung).
+
 .layer-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-  height: 100%;
+  block-size: 100%;
 
   &__add-wrapper {
     position: relative;
-  }
-
-  &__add {
-    width: 100%;
-    min-height: var(--touch-target-min);
+    flex: none;
     padding: var(--space-sm);
-    border: none;
-    border-radius: var(--radius-sm);
-    background: var(--color-accent);
-    color: var(--color-text-on-accent);
-    cursor: pointer;
+    border-block-end: 1px solid var(--color-divider);
   }
 
-  &__add-menu,
-  &__menu {
+  &__add-menu {
     position: absolute;
-    z-index: 1;
-    top: calc(100% + var(--space-xs));
-    left: 0;
-    min-width: 10rem;
+    z-index: 30;
+    inset-block-start: calc(100% - 2px);
+    inset-inline: var(--space-sm);
     margin: 0;
-    padding: var(--space-xs);
-    border-radius: var(--radius-sm);
-    background: var(--color-bg-elevated);
-    box-shadow: var(--shadow-md);
+    padding: 6px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-lg);
     list-style: none;
 
     button {
-      width: 100%;
+      inline-size: 100%;
       padding: var(--space-xs) var(--space-sm);
       border: none;
       border-radius: var(--radius-sm);
       background: transparent;
       color: var(--color-text-primary);
+      font: inherit;
+      font-size: var(--font-size-sm);
       text-align: left;
       cursor: pointer;
 
       &:hover {
-        background: var(--color-bg-sunken);
+        background: color-mix(in srgb, var(--color-text-primary) 7%, transparent);
       }
 
       &:disabled {
@@ -56,10 +51,11 @@
 
   &__items {
     display: flex;
+    flex: 1;
     flex-direction: column;
-    gap: var(--space-xs);
+    gap: 2px;
     margin: 0;
-    padding: 0;
+    padding: 6px;
     list-style: none;
     overflow-y: auto;
   }
@@ -70,29 +66,62 @@
     gap: var(--space-xs);
     padding: var(--space-xs) var(--space-sm);
     border-radius: var(--radius-sm);
-    background: var(--color-bg-elevated);
 
     &--selected {
-      outline: 2px solid var(--color-accent);
+      background: var(--color-accent-tint);
     }
   }
 
-  &__type {
+  &__visibility {
+    display: flex;
     flex: none;
-    padding: 0.1rem var(--space-xs);
+    padding: 2px;
+    border: none;
     border-radius: var(--radius-sm);
-    background: var(--color-bg-sunken);
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
+    background: transparent;
+    color: var(--color-text-primary);
+
+    &--hidden {
+      color: var(--color-text-muted);
+    }
+  }
+
+  &__dot {
+    flex: none;
+    inline-size: 7px;
+    block-size: 7px;
+    border-radius: 50%;
+
+    &--text {
+      background: var(--color-layer-text);
+    }
+
+    &--image {
+      background: var(--color-layer-image);
+    }
+
+    &--icon {
+      background: var(--color-layer-icon);
+    }
+
+    &--shape {
+      background: var(--color-layer-shape);
+    }
+
+    &--frame {
+      background: var(--color-layer-frame);
+    }
   }
 
   &__name {
     flex: 1;
-    min-width: 0;
-    padding: var(--space-xs);
+    min-inline-size: 0;
+    padding: 0;
     border: none;
     background: transparent;
     color: var(--color-text-primary);
+    font: inherit;
+    font-size: 13px;
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -102,38 +131,49 @@
 
   &__rename-input {
     flex: 1;
-    min-width: 0;
-    min-height: var(--touch-target-min);
-    padding: var(--space-xs);
+    min-inline-size: 0;
+    padding: 2px var(--space-xs);
     border: 1px solid var(--color-accent);
-    border-radius: var(--radius-sm);
-    background: var(--color-bg-sunken);
+    border-radius: 6px;
+    background: var(--color-bg-base);
     color: var(--color-text-primary);
+    font: inherit;
+    font-size: 13px;
   }
 
-  &__visibility {
+  &__type {
     flex: none;
-    border: none;
-    background: transparent;
-    color: var(--color-text-primary);
-    cursor: pointer;
-  }
-
-  &__menu-wrapper {
-    position: relative;
-    flex: none;
-  }
-
-  &__menu-toggle {
-    border: none;
-    background: transparent;
-    color: var(--color-text-primary);
-    cursor: pointer;
+    color: var(--color-text-muted);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   &__empty {
     padding: var(--space-md);
     color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
     text-align: center;
+  }
+
+  &__footer {
+    display: flex;
+    flex: none;
+    gap: var(--space-xs);
+    padding: var(--space-sm) 6px;
+    border-block-start: 1px solid var(--color-divider);
+  }
+
+  &__action {
+    flex: 1;
+    min-inline-size: 0;
+    padding-inline: var(--space-xs);
+    font-size: 12px;
+    white-space: nowrap;
+
+    // Der Entwurf setzt hier das dunkle Akzentbraun, nicht das Fehlerrot.
+    &--danger {
+      color: var(--color-accent-text);
+    }
   }
 }

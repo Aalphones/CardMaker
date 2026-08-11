@@ -112,6 +112,17 @@
   --color-canvas-checker-light: var(--color-neutral-200);
   --color-canvas-checker-dark: var(--color-neutral-400);
   --size-canvas-checker: 1rem;
+
+  /* SEMANTIC — Kartenrand. Auf heller Fläche eine Haarlinie; die Editor-Bühne ist dunkel
+     und überschreibt den Wert dort auf einen abhebenden Schlagschatten. */
+  --shadow-canvas-card: 0 0 0 1px var(--color-border);
+
+  /* SEMANTIC — Ebenentypen, als Punkt in der Ebenenliste und am Eigenschaftenkopf */
+  --color-layer-text: var(--color-accent-500);
+  --color-layer-image: var(--color-accent-2-500);
+  --color-layer-icon: var(--color-accent-300);
+  --color-layer-shape: var(--color-neutral-500);
+  --color-layer-frame: var(--color-neutral-700);
 }
 
 * {
@@ -130,6 +141,12 @@ body {
   line-height: 1.55;
   background: var(--color-bg-base);
   color: var(--color-text-primary);
+}
+
+/* Der Template-Editor liegt als eigene Ebene über der App. Solange er offen ist, darf die
+   App darunter nicht mitscrollen — die Komponente setzt und entfernt diese Klasse. */
+body.editor-open {
+  overflow: hidden;
 }
 
 h1,

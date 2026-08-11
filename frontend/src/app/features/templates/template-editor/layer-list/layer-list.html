@@ -2,38 +2,65 @@
   <div class="layer-list__add-wrapper">
     <button
       type="button"
-      class="layer-list__add"
+      class="btn btn--secondary btn--block"
       [attr.aria-expanded]="addMenuOpen()"
       (click)="toggleAddMenu()"
     >
-      + Ebene hinzufügen
+      Element hinzufügen
     </button>
 
     @if (addMenuOpen()) {
       <ul class="layer-list__add-menu">
+        <li><button type="button" (click)="chooseType('text')">Text</button></li>
         <li><button type="button" (click)="chooseType('image')">Bildfläche</button></li>
+        <li><button type="button" (click)="chooseType('icon')">Icon</button></li>
         <li><button type="button" (click)="chooseType('shape', 'rect')">Rechteck</button></li>
         <li><button type="button" (click)="chooseType('shape', 'circle')">Kreis</button></li>
         <li><button type="button" (click)="chooseType('shape', 'line')">Linie</button></li>
-        <li><button type="button" (click)="chooseType('icon')">Icon</button></li>
         <li>
           <button type="button" [disabled]="!canAddFrame()" (click)="chooseType('frame')">
             Rahmen{{ canAddFrame() ? '' : ' (schon vorhanden)' }}
           </button>
         </li>
-        <li><button type="button" (click)="chooseType('text')">Text</button></li>
       </ul>
     }
   </div>
 
-  <ul class="layer-list__items" cdkDropList (cdkDropListDropped)="onDrop($event)">
+  <ul class="layer-list__items thin-scroll" cdkDropList (cdkDropListDropped)="onDrop($event)">
     @for (layer of reversedLayers(); track layer.id) {
       <li
-        class="layer-list__item"
+        class="layer-list__item hover-row"
         cdkDrag
         [class.layer-list__item--selected]="layer.id === selectedLayerId()"
       >
-        <span class="layer-list__type">{{ typeLabel(layer) }}</span>
+        <button
+          type="button"
+          class="layer-list__visibility icon-button"
+          [class.layer-list__visibility--hidden]="!layer.visible"
+          [attr.aria-pressed]="layer.visible"
+          [attr.aria-label]="(layer.visible ? 'Ebene ausblenden: ' : 'Ebene einblenden: ') + layer.name"
+          (click)="toggleVisible.emit(layer.id)"
+        >
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+            <circle cx="12" cy="12" r="3" />
+            @if (!layer.visible) {
+              <line x1="3" y1="3" x2="21" y2="21" />
+            }
+          </svg>
+        </button>
+
+        <span class="layer-list__dot" [class]="dotClass(layer)"></span>
 
         @if (renamingId() === layer.id) {
           <input
@@ -54,37 +81,45 @@
           </button>
         }
 
-        <button
-          type="button"
-          class="layer-list__visibility"
-          [attr.aria-pressed]="layer.visible"
-          [attr.aria-label]="(layer.visible ? 'Ebene ausblenden: ' : 'Ebene einblenden: ') + layer.name"
-          (click)="toggleVisible.emit(layer.id)"
-        >
-          {{ layer.visible ? '👁' : '🚫' }}
-        </button>
-
-        <div class="layer-list__menu-wrapper">
-          <button
-            type="button"
-            class="layer-list__menu-toggle"
-            [attr.aria-expanded]="menuOpenFor() === layer.id"
-            [attr.aria-label]="'Menü für ' + layer.name"
-            (click)="toggleMenu(layer.id)"
-          >
-            ⋮
-          </button>
-
-          @if (menuOpenFor() === layer.id) {
-            <ul class="layer-list__menu">
-              <li><button type="button" (click)="duplicateLayer(layer.id)">Duplizieren</button></li>
-              <li><button type="button" (click)="confirmRemove(layer.id, layer.name)">Löschen</button></li>
-            </ul>
-          }
-        </div>
+        <span class="layer-list__type">{{ typeLabel(layer) }}</span>
       </li>
     } @empty {
       <li class="layer-list__empty">Noch keine Ebenen — leg eine an.</li>
     }
   </ul>
+
+  <footer class="layer-list__footer">
+    <button
+      type="button"
+      class="btn btn--ghost layer-list__action"
+      [disabled]="!selectedLayerId()"
+      (click)="moveSelected(1)"
+    >
+      ↑ nach vorn
+    </button>
+    <button
+      type="button"
+      class="btn btn--ghost layer-list__action"
+      [disabled]="!selectedLayerId()"
+      (click)="moveSelected(-1)"
+    >
+      ↓ nach hinten
+    </button>
+    <button
+      type="button"
+      class="btn btn--ghost layer-list__action"
+      [disabled]="!selectedLayerId()"
+      (click)="duplicateSelected()"
+    >
+      Kopie
+    </button>
+    <button
+      type="button"
+      class="btn btn--ghost layer-list__action layer-list__action--danger"
+      [disabled]="!selectedLayerId()"
+      (click)="removeSelected()"
+    >
+      Löschen
+    </button>
+  </footer>
 </div>

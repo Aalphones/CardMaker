@@ -45,12 +45,20 @@ export class LayerList {
   // (Index 0 liegt zuunterst). Siehe Plan-README „Bildschirmaufteilung des Editors".
   protected readonly reversedLayers = computed(() => [...this.layers()].reverse());
 
+  private readonly selectedLayer = computed(
+    () => this.layers().find((layer: Layer) => layer.id === this.selectedLayerId()) ?? null,
+  );
+
   protected readonly addMenuOpen = signal(false);
-  protected readonly menuOpenFor = signal<string | null>(null);
   protected readonly renamingId = signal<string | null>(null);
 
   protected typeLabel(layer: Layer): string {
     return TYPE_LABELS[layer.type];
+  }
+
+  /** Der Punkt vor dem Namen trägt die Typfarbe — die Farben selbst stehen als Token fest. */
+  protected dotClass(layer: Layer): string {
+    return `layer-list__dot--${layer.type}`;
   }
 
   protected toggleAddMenu(): void {
@@ -62,12 +70,7 @@ export class LayerList {
     this.addMenuOpen.set(false);
   }
 
-  protected toggleMenu(id: string): void {
-    this.menuOpenFor.update((current: string | null) => (current === id ? null : id));
-  }
-
   protected startRename(id: string): void {
-    this.menuOpenFor.set(null);
     this.renamingId.set(id);
   }
 
@@ -81,23 +84,46 @@ export class LayerList {
     this.renamingId.set(null);
   }
 
-  protected duplicateLayer(id: string): void {
-    this.menuOpenFor.set(null);
-    this.duplicate.emit(id);
+  protected duplicateSelected(): void {
+    const layer = this.selectedLayer();
+
+    if (layer) {
+      this.duplicate.emit(layer.id);
+    }
   }
 
-  protected async confirmRemove(id: string, name: string): Promise<void> {
-    this.menuOpenFor.set(null);
+  protected async removeSelected(): Promise<void> {
+    const layer = this.selectedLayer();
+
+    if (!layer) {
+      return;
+    }
 
     const dialogRef = this.dialog.open<boolean>(ConfirmDialog, {
-      data: { title: 'Ebene löschen', message: `Ebene „${name}" wirklich löschen?` },
+      data: { title: 'Ebene löschen', message: `Ebene „${layer.name}" wirklich löschen?` },
     });
 
     const confirmed = await firstValueFrom(dialogRef.closed);
 
     if (confirmed) {
-      this.remove.emit(id);
+      this.remove.emit(layer.id);
     }
+  }
+
+  /**
+   * „Nach vorn" heißt im Speicher-Array einen Platz weiter nach hinten (Index 0 liegt
+   * zuunterst) — dieselbe Drehung wie bei der Anzeige, nur ohne Liste dazwischen.
+   */
+  protected moveSelected(direction: 1 | -1): void {
+    const layers = this.layers();
+    const fromIndex = layers.findIndex((layer: Layer) => layer.id === this.selectedLayerId());
+    const toIndex = fromIndex + direction;
+
+    if (fromIndex === -1 || toIndex < 0 || toIndex >= layers.length) {
+      return;
+    }
+
+    this.move.emit({ fromIndex, toIndex });
   }
 
   /**

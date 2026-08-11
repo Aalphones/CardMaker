@@ -1,7 +1,9 @@
 import { Dialog } from '@angular/cdk/dialog';
+import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   HostListener,
   computed,
   effect,
@@ -38,6 +40,7 @@ const ARROW_STEP_FAST = 10;
 export class TemplateEditor implements ComponentWithUnsavedChanges {
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(Dialog);
+  private readonly document = inject(DOCUMENT);
   protected readonly templates = inject(TemplatesFacade);
   protected readonly assets = inject(AssetsFacade);
   protected readonly editor = inject(TemplateEditorStore);
@@ -59,7 +62,15 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
 
   protected readonly selectedLayer = this.editor.selectedLayer;
 
+  /** Nur unter 1000px Fensterbreite wirksam — darüber stehen beide Spalten ohnehin fest. */
+  protected readonly layersPanelOpen = signal(false);
+  protected readonly propertiesPanelOpen = signal(false);
+
   constructor() {
+    // Der Editor deckt die App vollständig ab; die Seite darunter darf nicht mitscrollen.
+    this.document.body.classList.add('editor-open');
+    inject(DestroyRef).onDestroy(() => this.document.body.classList.remove('editor-open'));
+
     effect(() => {
       const id = this.templateId();
 
@@ -100,6 +111,14 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
 
   hasUnsavedChanges(): boolean {
     return this.editor.dirty() || this.nameChanged();
+  }
+
+  protected toggleLayersPanel(): void {
+    this.layersPanelOpen.update((isOpen: boolean) => !isOpen);
+  }
+
+  protected togglePropertiesPanel(): void {
+    this.propertiesPanelOpen.update((isOpen: boolean) => !isOpen);
   }
 
   protected onNameInput(event: Event): void {

@@ -1,10 +1,26 @@
 <section class="template-editor">
-  <a class="template-editor__back" routerLink="/templates">← Zurück zu den Templates</a>
-
   @if (templates.currentLoading()) {
     <p class="template-editor__status">Wird geladen …</p>
   } @else if (templates.current(); as template) {
-    <header class="template-editor__header">
+    <header class="template-editor__topbar">
+      <a class="btn btn--ghost" routerLink="/templates">
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+        Templates
+      </a>
+
       <input
         class="template-editor__name"
         type="text"
@@ -13,32 +29,102 @@
         (input)="onNameInput($event)"
       />
 
-      <div class="template-editor__header-actions">
-        @if (templates.error(); as message) {
-          <p class="template-editor__error" role="alert">{{ message }}</p>
-        }
-        <button type="button" class="template-editor__save" [disabled]="!canSave()" (click)="save()">
-          {{ saving() ? 'Speichert …' : 'Speichern' }}
-        </button>
-      </div>
+      @if (hasUnsavedChanges()) {
+        <span class="template-editor__dirty">Nicht gespeichert</span>
+      }
+
+      @if (templates.error(); as message) {
+        <p class="template-editor__error" role="alert">{{ message }}</p>
+      }
+
+      <span class="template-editor__spacer"></span>
+
+      <button
+        type="button"
+        class="btn btn--secondary btn--icon template-editor__history"
+        disabled
+        title="Rückgängig — kommt mit den Tastenkürzeln"
+        aria-label="Rückgängig"
+      >
+        <svg
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M3 7v6h6" />
+          <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="btn btn--secondary btn--icon template-editor__history"
+        disabled
+        title="Wiederherstellen — kommt mit den Tastenkürzeln"
+        aria-label="Wiederherstellen"
+      >
+        <svg
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M21 7v6h-6" />
+          <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+        </svg>
+      </button>
+
+      <button type="button" class="btn btn--secondary" disabled title="kommt mit dem Karteneditor">
+        Karte erstellen
+      </button>
+
+      <button type="button" class="btn btn--primary" [disabled]="!canSave()" (click)="save()">
+        {{ saving() ? 'Speichert …' : 'Speichern' }}
+      </button>
     </header>
 
-    <div class="template-editor__layout">
-      <app-layer-list
-        class="template-editor__column template-editor__column--layers"
-        [layers]="editor.layers()"
-        [selectedLayerId]="editor.selectedLayerId()"
-        [canAddFrame]="editor.canAddFrame()"
-        (selectLayer)="editor.select($event)"
-        (add)="onAddLayer($event)"
-        (rename)="editor.renameLayer($event.id, $event.name)"
-        (duplicate)="editor.duplicateLayer($event)"
-        (remove)="editor.removeLayer($event)"
-        (toggleVisible)="onToggleVisible($event)"
-        (move)="editor.moveLayer($event.fromIndex, $event.toIndex)"
-      />
+    <div class="template-editor__body">
+      <aside
+        id="template-editor-layers"
+        class="template-editor__panel template-editor__panel--layers"
+        [class.template-editor__panel--open]="layersPanelOpen()"
+      >
+        <app-layer-list
+          [layers]="editor.layers()"
+          [selectedLayerId]="editor.selectedLayerId()"
+          [canAddFrame]="editor.canAddFrame()"
+          (selectLayer)="editor.select($event)"
+          (add)="onAddLayer($event)"
+          (rename)="editor.renameLayer($event.id, $event.name)"
+          (duplicate)="editor.duplicateLayer($event)"
+          (remove)="editor.removeLayer($event)"
+          (toggleVisible)="onToggleVisible($event)"
+          (move)="editor.moveLayer($event.fromIndex, $event.toIndex)"
+        />
+      </aside>
 
-      <div class="template-editor__column template-editor__column--preview">
+      <div class="template-editor__stage">
+        <button
+          type="button"
+          class="template-editor__handle template-editor__handle--layers"
+          aria-controls="template-editor-layers"
+          [attr.aria-expanded]="layersPanelOpen()"
+          (click)="toggleLayersPanel()"
+        >
+          Ebenen
+        </button>
+
         <app-card-canvas
           [layers]="editor.layers()"
           [selectedLayerId]="editor.selectedLayerId()"
@@ -46,13 +132,26 @@
           (layerClicked)="editor.select($event)"
           (layerTransformed)="editor.patchLayer($event.id, $event.changes)"
         />
+
+        <button
+          type="button"
+          class="template-editor__handle template-editor__handle--properties"
+          aria-controls="template-editor-properties"
+          [attr.aria-expanded]="propertiesPanelOpen()"
+          (click)="togglePropertiesPanel()"
+        >
+          Eigenschaften
+        </button>
       </div>
 
-      <app-layer-properties
-        class="template-editor__column template-editor__column--properties"
-        [layer]="selectedLayer()"
-        (patch)="onPatch($event)"
-      />
+      <aside
+        id="template-editor-properties"
+        class="template-editor__panel template-editor__panel--properties thin-scroll"
+        [class.template-editor__panel--open]="propertiesPanelOpen()"
+      >
+        <h2 class="template-editor__panel-title">Eigenschaften</h2>
+        <app-layer-properties [layer]="selectedLayer()" (patch)="onPatch($event)" />
+      </aside>
     </div>
   } @else {
     <p class="template-editor__status">Dieses Template gibt es nicht.</p>

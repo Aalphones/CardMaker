@@ -58,23 +58,61 @@ und Rückgängig kommen in Phase 6 und 7.
 
 ## Checkliste
 
-- [ ] `template-editor.html` und `.scss` auf den Vollbild-Aufbau umstellen. Das Umschalten
+- [x] `template-editor.html` und `.scss` auf den Vollbild-Aufbau umstellen. Das Umschalten
       der Darstellung ist reine Gestaltung — Zustand und Datenfluss aus dem Signal-Store
       bleiben unangetastet.
-- [ ] Kopfzeile neu bauen. Rückgängig/Wiederherstellen als Icon-Buttons **anlegen und
+- [x] Kopfzeile neu bauen. Rückgängig/Wiederherstellen als Icon-Buttons **anlegen und
       dauerhaft gesperrt lassen**; Phase 7 verdrahtet sie. Keine Attrappe ohne Sperre.
-- [ ] Die App-Hülle darf beim geöffneten Editor nicht mitscrollen: solange der Editor
+- [x] Die App-Hülle darf beim geöffneten Editor nicht mitscrollen: solange der Editor
       offen ist, bekommt `body` `overflow: hidden`.
-- [ ] `layer-list` auf die neue Zeilendarstellung umstellen (Punkt in Typfarbe,
+- [x] `layer-list` auf die neue Zeilendarstellung umstellen (Punkt in Typfarbe,
       Typbezeichnung). Typfarben als Zweck-Token festlegen: Text `--color-accent-500`,
       Bild `--color-accent-2-500`, Icon `--color-accent-300`, Form `--color-neutral-500`,
       Rahmen `--color-neutral-700`. Das Ziehen zum Umsortieren (CDK) bleibt.
-- [ ] Fußzeile der linken Spalte mit den vier Aktionen aufbauen; sie rufen die bereits
+- [x] Fußzeile der linken Spalte mit den vier Aktionen aufbauen; sie rufen die bereits
       vorhandenen Store-Methoden auf, es entsteht keine neue Logik.
-- [ ] Bühne: Hintergrundfarbe und das Übersteuern des Kartenschattens in
+- [x] Bühne: Hintergrundfarbe und das Übersteuern des Kartenschattens in
       `card-canvas.scss` prüfen — das Schachbrett hinter der Karte bleibt erhalten.
-- [ ] Einklappbare Spalten für schmale Fenster umsetzen (Griffe mit `aria-expanded`).
-- [ ] `docs/code-map.md`: Beschreibung von `template-editor/` auf Vollbild-Aufbau
+- [x] Einklappbare Spalten für schmale Fenster umsetzen (Griffe mit `aria-expanded`).
+- [x] `docs/code-map.md`: Beschreibung von `template-editor/` auf Vollbild-Aufbau
       aktualisieren, den Satz zum Drei-Spalten-Gitter ersetzen.
 
 ## Report-Back
+
+**Status:** complete. `npm run lint` und `npm run build` laufen sauber durch.
+
+**Was entstanden ist**
+
+- Der Editor liegt fest positioniert über der App (alle Kanten 0, Ebene 50). Solange er
+  offen ist, trägt `body` die Klasse `editor-open` (`overflow: hidden`); die Komponente
+  entfernt sie beim Verlassen wieder.
+- Kopfzeile 56px mit Zurück-Textbutton, direkt bearbeitbarem Namen in Caprasimo,
+  Hinweis „Nicht gespeichert", Rückgängig/Wiederherstellen (angelegt und **fest gesperrt**,
+  Deckkraft 0.35), gesperrtem „Karte erstellen" und dem Speichern-Button.
+- Linke Spalte 250px mit Hinzufügen-Knopf, scrollender Ebenenliste und der neuen Fußzeile;
+  rechte Spalte 308px mit klebender Überschrift „Eigenschaften"; dazwischen die dunkle Bühne.
+- Ebenenzeile neu: Augen-Umschalter (SVG statt Emoji), 7px-Punkt in der Typfarbe, Name,
+  Typbezeichnung. Umbenennen per Doppelklick und das Ziehen zum Umsortieren bleiben.
+- Unter 1000px werden beide Spalten zu Schubladen über der Bühne, je ein Griff mit
+  `aria-expanded`; eingeklappt sind sie auch für den Tabulator weg (`visibility: hidden`).
+
+**Abweichungen und bewusste Entscheidungen**
+
+- **Das Zeilenmenü (⋮) ist weg.** Es trug „Duplizieren" und „Löschen" — beides steht jetzt
+  in der Fußzeile der Spalte, wie der Entwurf es vorsieht. Keine Funktion verloren, nur
+  umgezogen; die Löschabfrage ist dieselbe.
+- **Zwei neue Zweck-Token** über den Kontrakt der README hinaus, beide additiv:
+  `--shadow-canvas-card` (Kartenumrandung, von der Umgebung gesetzt) und die fünf
+  `--color-layer-*` für die Typpunkte. Der Löschen-Knopf nutzt `--color-accent-text`, das
+  bereits auf `--color-accent-700` zeigt — so bleibt die Regel „nur Zweck-Token" heil.
+- **Zoom- und Status-Pille fehlen bewusst** — sie gehören zu Phase 6. Attrappen wären
+  Blindtext gewesen.
+
+**Wo ich mir am wenigsten sicher bin**
+
+Die Einpassung der Karte auf der Bühne: `template-editor.scss` setzt
+`container-type: size` auf die Bühne und leitet die Kartenhöhe über Container-Einheiten ab
+(`min(100cqh, 100cqw * 880 / 630)`), inklusive einer Überschreibung der Breitenregel, die
+`card-canvas` selbst mitbringt. Das ist rechnerisch sauber, aber nur im Browser wirklich zu
+sehen — Sichtprüfung: Karte mittig, unverzerrt, kein Überstand, bei sehr breitem **und**
+sehr flachem Fenster.
