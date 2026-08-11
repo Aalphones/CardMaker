@@ -1,9 +1,10 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-11_schriften-hochladen/`
-**Phase:** 3/6 — Schrift im Browser laden (offen, heikel)
-**Nächster Schritt:** `phase-3-frontend-laden.md` öffnen und die hochgeladene Schriftdatei als
-Blob holen und per `FontFace` registrieren (Vorbild: `asset-image-loader.ts`).
+**Phase:** 4/6 — Verwaltung in der Oberfläche (offen, standard)
+**Nächster Schritt:** `phase-4-oberflaeche.md` öffnen und den Dialog „Schriften verwalten"
+nach dem Vorbild von `asset-picker/` bauen — Daten kommen aus `store/fonts/fonts.facade.ts`
+(steht seit Phase 3, kann Liste/Hochladen/Umbenennen/Löschen).
 
 **Im Backlog:** `docs/planning/2026-08-10_karteneditor/` — Karteneditor, freigegeben, noch
 nicht gestartet.

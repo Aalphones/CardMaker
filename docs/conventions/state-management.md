@@ -47,12 +47,19 @@ return actions$.pipe(
 
 ### Wo ein HTTP-Call ohne Effect erlaubt bleibt
 
-Genau ein dokumentierter Fall: `shared/canvas/asset-image-loader.ts` holt Bilddateien selbst
-über den `Api`-Dienst. Begründung: Ein `HTMLImageElement` ist kein serialisierbarer
-Server-Zustand — es gehört nicht in den Store, und ein Effect müsste es trotzdem dort
-ablegen, um es an die Vorschau zu bekommen. Der Dienst ist ein reiner Render-Cache mit
-eigener Lebensdauer (Objekt-Adressen werden beim Zerstören freigegeben). Jeder weitere Fall
-dieser Art braucht denselben Nachweis „nicht serialisierbar" — sonst gilt die Effect-Regel.
+Zwei dokumentierte Fälle, beide im Canvas-Ordner, beide mit derselben Begründung: Was sie
+holen, ist **kein serialisierbarer Server-Zustand** und gehört deshalb nicht in den Store —
+ein Effect müsste es trotzdem dort ablegen, um es an die Vorschau zu bekommen.
+
+- `shared/canvas/asset-image-loader.ts` holt Bilddateien und hält sie als
+  `HTMLImageElement`. Reiner Render-Cache mit eigener Lebensdauer (Objekt-Adressen werden
+  beim Zerstören freigegeben).
+- `shared/canvas/font-loader.ts` holt hochgeladene Schriftdateien und trägt sie als
+  `FontFace` in `document.fonts` ein. Was **doch** serialisierbar ist — die Liste der
+  Schriften mit Name und Kennung — liegt im Slice `store/fonts/`.
+
+Jeder weitere Fall dieser Art braucht denselben Nachweis „nicht serialisierbar" — sonst gilt
+die Effect-Regel.
 
 ## Geplante Slices (Meilenstein 1–5)
 
@@ -61,6 +68,7 @@ dieser Art braucht denselben Nachweis „nicht serialisierbar" — sonst gilt di
 | `auth` | Classic Store (außerhalb Facade-Pflicht) | Server-State, aber auth-spezifische Sonderrolle |
 | `card-groups` | Classic Store + Facade | Server-State |
 | `templates` | Classic Store + Facade | Server-State — Layer-Struktur lebt hier |
+| `fonts` | Classic Store + Facade | Server-State — Liste der hochgeladenen Schriften (die Dateien selbst nicht, siehe oben) |
 | `cards` | Classic Store + Facade | Server-State — Karteninstanzen |
 | `print-projects` | Classic Store + Facade | Server-State |
 | `template-editor` | SignalStore | UI-State: Arbeitskopie der Ebenenliste, aktive Auswahl, `dirty`-Flag. Component-scoped statt `root` — Kein Rückgängig-Stapel (bewusst zurückgestellt, siehe Plan-README) |

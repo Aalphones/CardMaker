@@ -98,14 +98,19 @@ frontend/src/app/
                            ausgewählten Ebene)
       asset-image-loader.ts ← lädt hochgeladene Bilder als Blob hinter der Anmeldung und hält
                            sie als fertige Bildelemente im Speicher
-      font-loader.ts    ← fordert die mitgelieferten Kartenschriften an und meldet, welche
-                           fertig geladen sind (Konva zeichnet auf ein Bitmap — das zählt für
-                           den Browser nicht als Schriftverwendung, ohne diese Anforderung
-                           bliebe still die Ersatzschrift stehen)
+      font-loader.ts    ← fordert die Kartenschriften an und meldet, welche fertig geladen sind
+                           (Konva zeichnet auf ein Bitmap — das zählt für den Browser nicht als
+                           Schriftverwendung, ohne diese Anforderung bliebe still die
+                           Ersatzschrift stehen). Zwei Wege: mitgelieferte Schriften über
+                           `document.fonts.load`, hochgeladene als Blob hinter der Anmeldung →
+                           `FontFace` (wie `asset-image-loader.ts`)
       rendering/        ← reine Zeichenregeln ohne Konva-Abhängigkeit: `layer.ts` (die fünf
-                           Ebenentypen + Fabrikfunktionen), `fonts.ts` (die wählbaren
+                           Ebenentypen + Fabrikfunktionen), `fonts.ts` (die eingebauten
                            Schriften samt Sorte und Ersatzschrift — Gegenstück zur Prüfliste
-                           in `LayerValidator.php`, beide müssen deckungsgleich bleiben),
+                           in `LayerValidator.php`, beide müssen deckungsgleich bleiben —
+                           dazu der Namensschlüssel `cmfont-<Kennung>` für hochgeladene
+                           Schriften und `renderFontFamily()`, die einzige Stelle, die
+                           entscheidet, welcher Schriftname ans Canvas geht),
                            `units.ts` (Canvas-Einheiten → Pixel), `auto-shrink.ts`
                            (automatisches Verkleinern von Text), `apply-transform.ts`
                            (Konva-Transform-Ergebnis → Geometrie-Patch in Canvas-Einheiten,
@@ -114,7 +119,7 @@ frontend/src/app/
                            Messbrücke zu `Konva.Text`
     services/
   store/               ← NgRx Classic Store Slices (auth, card-groups, templates, assets,
-                          tokens — Facade Pflicht pro Domain-Slice, `auth` bislang ohne, da
+                          fonts, tokens — Facade Pflicht pro Domain-Slice, `auth` bislang ohne, da
                           es keine eigene Domain-UI mit Zwischen-Zustand hat)
   signal-stores/        ← NgRx Signal Stores für UI-Zustand. `template-editor.ts`: Arbeitskopie
                           der Ebenenliste, Auswahl, `dirty`, der Verlauf (zwei Stapel mit

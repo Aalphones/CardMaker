@@ -21,6 +21,8 @@ import { authFeature } from './store/auth/auth.feature';
 import { AuthEffects } from './store/auth/auth.effects';
 import { cardGroupsFeature } from './store/card-groups/card-groups.feature';
 import { CardGroupsEffects } from './store/card-groups/card-groups.effects';
+import { fontsFeature } from './store/fonts/fonts.feature';
+import { FontsEffects } from './store/fonts/fonts.effects';
 import { templatesFeature } from './store/templates/templates.feature';
 import { TemplatesEffects } from './store/templates/templates.effects';
 import { tokensFeature } from './store/tokens/tokens.feature';
@@ -37,7 +39,15 @@ export const appConfig: ApplicationConfig = {
     provideState(cardGroupsFeature),
     provideState(templatesFeature),
     provideState(assetsFeature),
-    provideEffects(AuthEffects, TokensEffects, CardGroupsEffects, TemplatesEffects, AssetsEffects),
+    provideState(fontsFeature),
+    provideEffects(
+      AuthEffects,
+      TokensEffects,
+      CardGroupsEffects,
+      TemplatesEffects,
+      AssetsEffects,
+      FontsEffects,
+    ),
     provideAppInitializer(() => inject(Store).dispatch(AuthActions.restoreSession())),
     ...(environment.production ? [] : [provideStoreDevtools({ maxAge: 25 })]),
   ],

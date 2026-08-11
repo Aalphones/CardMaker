@@ -1,10 +1,12 @@
 /**
  * Die Schriften, die im Template-Editor wählbar sind.
  *
- * Zwei Sorten: `system` verlässt sich auf das, was das Gerät ohnehin hat (schnell, aber auf
- * einem iPad steht statt „Impact" eben irgendetwas anderes) — alle übrigen liegen als
- * `.woff2` in `frontend/public/fonts/` und werden per `@font-face` aus
- * `styles/_kartenschriften.scss` eingebunden.
+ * Drei Sorten: `system` verlässt sich auf das, was das Gerät ohnehin hat (schnell, aber auf
+ * einem iPad steht statt „Impact" eben irgendetwas anderes) — die übrigen eingebauten liegen
+ * als `.woff2` in `frontend/public/fonts/` und werden per `@font-face` aus
+ * `styles/_kartenschriften.scss` eingebunden. Dazu kommen die **hochgeladenen** Schriften:
+ * die stehen in keiner Liste hier, sie heißen `cmfont-<Kennung>` und werden zur Laufzeit
+ * vom `FontLoader` als Datei geholt.
  *
  * Wichtig für das Canvas: Eine mitgelieferte Schrift gilt für den Browser erst dann als
  * gebraucht, wenn sie im Seitenlayout vorkommt — Konva zeichnet aber auf ein Bitmap, das
@@ -48,13 +50,38 @@ const FONT_DEFINITIONS = [
   { family: 'Lato', category: 'reading', fallback: 'sans-serif', selfHosted: true },
 ] as const satisfies readonly FontDefinition[];
 
-export type FontFamily = (typeof FONT_DEFINITIONS)[number]['family'];
+export type BuiltInFontFamily = (typeof FONT_DEFINITIONS)[number]['family'];
 
-export const FONT_FAMILIES: readonly FontFamily[] = FONT_DEFINITIONS.map(
-  (definition: FontDefinition) => definition.family as FontFamily,
+/**
+ * Eine hochgeladene Schrift. Den Namen vergibt das Backend (`FontRepository::family`), der
+ * Wunschname des Nutzers ist nur Beschriftung — siehe Plan-README „Die zwei Entscheidungen".
+ */
+export type UploadedFontFamily = `cmfont-${number}`;
+
+export type FontFamily = BuiltInFontFamily | UploadedFontFamily;
+
+export const FONT_FAMILIES: readonly BuiltInFontFamily[] = FONT_DEFINITIONS.map(
+  (definition: FontDefinition) => definition.family as BuiltInFontFamily,
 );
 
-export const DEFAULT_FONT_FAMILY: FontFamily = 'Arial';
+export const DEFAULT_FONT_FAMILY: BuiltInFontFamily = 'Arial';
+
+const UPLOADED_FONT_PATTERN = /^cmfont-\d+$/;
+
+/** Was gezeichnet wird, solange eine hochgeladene Schrift noch nicht geladen ist. */
+const UPLOADED_FONT_FALLBACK = 'sans-serif';
+
+export function isUploadedFont(family: string): family is UploadedFontFamily {
+  return UPLOADED_FONT_PATTERN.test(family);
+}
+
+export function uploadedFontFamily(fontId: number): UploadedFontFamily {
+  return `cmfont-${fontId}`;
+}
+
+export function uploadedFontId(family: UploadedFontFamily): number {
+  return Number(family.slice('cmfont-'.length));
+}
 
 const CATEGORY_LABELS: Record<FontCategory, string> = {
   system: 'Immer verfügbar',
@@ -83,14 +110,19 @@ function definitionOf(family: string): FontDefinition | undefined {
   return FONT_DEFINITIONS.find((definition: FontDefinition) => definition.family === family);
 }
 
+/** Liegt die Schrift als Datei bei uns — mitgeliefert oder hochgeladen? */
 export function isSelfHostedFont(family: string): boolean {
+  if (isUploadedFont(family)) {
+    return true;
+  }
+
   return definitionOf(family)?.selfHosted ?? false;
 }
 
 /** Die Schriften, die als Datei mitgeliefert werden und angefordert werden müssen. */
-export const SELF_HOSTED_FONT_FAMILIES: readonly FontFamily[] = FONT_DEFINITIONS.filter(
+export const SELF_HOSTED_FONT_FAMILIES: readonly BuiltInFontFamily[] = FONT_DEFINITIONS.filter(
   (definition: FontDefinition) => definition.selfHosted,
-).map((definition: FontDefinition) => definition.family as FontFamily);
+).map((definition: FontDefinition) => definition.family as BuiltInFontFamily);
 
 /**
  * Was Konva als Schriftname bekommt: die echte Familie, sobald sie geladen ist — vorher
@@ -98,6 +130,10 @@ export const SELF_HOSTED_FONT_FAMILIES: readonly FontFamily[] = FONT_DEFINITIONS
  * dieselbe Schrift benutzen.
  */
 export function renderFontFamily(family: string, loadedFamilies: ReadonlySet<string>): string {
+  if (isUploadedFont(family)) {
+    return loadedFamilies.has(family) ? family : UPLOADED_FONT_FALLBACK;
+  }
+
   const definition = definitionOf(family);
 
   if (!definition) {
