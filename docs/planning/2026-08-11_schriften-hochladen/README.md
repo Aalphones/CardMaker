@@ -13,7 +13,7 @@ Namen vergeben, fertig — die Schrift steht sofort in der Auswahl jedes Textfel
 | 2 | [Schriftnamen prüfen](phase-2-namenspruefung.md) | Ein Template mit hochgeladener Schrift lässt sich speichern, ein Template mit erfundener nicht | heikel | **fertig** |
 | 3 | [Schrift im Browser laden](phase-3-frontend-laden.md) | Die Karte zeichnet die hochgeladene Schrift wirklich | heikel | **fertig** |
 | 4 | [Verwaltung in der Oberfläche](phase-4-oberflaeche.md) | Hochladen, Umbenennen, Löschen — ohne Entwickler | standard | **fertig** |
-| 5 | [Fett und Kursiv](phase-5-fett-und-kursiv.md) | Zwei Umschalter am Textfeld | standard | offen |
+| 5 | [Fett und Kursiv](phase-5-fett-und-kursiv.md) | Zwei Umschalter am Textfeld | standard | **fertig** |
 | 6 | [Abschluss](phase-6-abschluss.md) | Doku und Abnahme | mechanisch | offen |
 
 Phase 5 hängt nicht am Rest — sie betrifft die Textebene, nicht die Schriftverwaltung. Sie

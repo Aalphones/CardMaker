@@ -304,6 +304,8 @@ final class LayerValidator
                 'font_family' => $fontFamily ?? '',
                 'font_size' => $fontSize,
                 'min_font_size' => $minFontSize,
+                'font_bold' => self::boolWithDefault($layer, 'font_bold', false, $fields, $prefix),
+                'font_italic' => self::boolWithDefault($layer, 'font_italic', false, $fields, $prefix),
                 'color' => self::requiredHex($layer, 'color', $fields, $prefix),
                 'align' => self::requiredEnum($layer, 'align', self::ALIGNS, $fields, $prefix),
                 'vertical_align' => self::requiredEnum($layer, 'vertical_align', self::VERTICAL_ALIGNS, $fields, $prefix),
@@ -503,6 +505,27 @@ final class LayerValidator
         }
 
         return $value;
+    }
+
+    /**
+     * Wie {@see requiredBool}, aber fehlt der Schlüssel ganz (bestehendes Template ohne
+     * dieses Feld), gilt der Standardwert statt eines Fehlers — sonst würde jedes ältere
+     * Template beim nächsten Speichern zurückgewiesen.
+     *
+     * @param array<string, mixed> $layer
+     */
+    private static function boolWithDefault(
+        array $layer,
+        string $key,
+        bool $default,
+        array &$fields,
+        string $prefix,
+    ): ?bool {
+        if (!array_key_exists($key, $layer)) {
+            return $default;
+        }
+
+        return self::requiredBool($layer, $key, $fields, $prefix);
     }
 
     /** @param array<string, mixed> $layer */

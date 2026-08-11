@@ -45,6 +45,8 @@ export class TextProperties {
     fontFamily: ['Arial' as TextLayer['fontFamily']],
     fontSize: [40, [Validators.min(4), Validators.max(200)]],
     minFontSize: [12, [Validators.min(4), Validators.max(200)]],
+    bold: [false],
+    italic: [false],
     align: ['center' as TextLayer['align']],
     verticalAlign: ['middle' as TextLayer['verticalAlign']],
     lineHeight: [1.2, [Validators.min(0.5), Validators.max(3)]],
@@ -74,6 +76,8 @@ export class TextProperties {
           fontFamily: layer.fontFamily,
           fontSize: layer.fontSize,
           minFontSize: layer.minFontSize,
+          bold: layer.bold,
+          italic: layer.italic,
           align: layer.align,
           verticalAlign: layer.verticalAlign,
           lineHeight: layer.lineHeight,
@@ -90,6 +94,18 @@ export class TextProperties {
 
   protected geometryOf(layer: TextLayer): GeometryValue {
     return { x: layer.x, y: layer.y, width: layer.width, height: layer.height };
+  }
+
+  protected toggleBold(): void {
+    const bold = !this.form.value.bold;
+    this.form.patchValue({ bold }, { emitEvent: false });
+    this.layerChange.emit({ bold });
+  }
+
+  protected toggleItalic(): void {
+    const italic = !this.form.value.italic;
+    this.form.patchValue({ italic }, { emitEvent: false });
+    this.layerChange.emit({ italic });
   }
 
   protected onSourceChange(event: Event): void {

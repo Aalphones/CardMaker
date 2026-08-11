@@ -31,7 +31,12 @@
   <div class="field text-properties__field--wide">
     <label for="text-font-family">Schriftart</label>
     <div class="text-properties__font-row">
-      <select id="text-font-family" class="input" formControlName="fontFamily" (change)="emitForm()">
+      <select
+        id="text-font-family"
+        class="input"
+        formControlName="fontFamily"
+        (change)="emitForm()"
+      >
         @for (group of fontGroups; track group.label) {
           <optgroup [label]="group.label">
             @for (font of group.families; track font) {
@@ -42,7 +47,9 @@
         @if (ownFonts.all().length > 0) {
           <optgroup label="Eigene Schriften">
             @for (font of ownFonts.all(); track font.id) {
-              <option [value]="font.family" [style.font-family]="font.family">{{ font.name }}</option>
+              <option [value]="font.family" [style.font-family]="font.family">
+                {{ font.name }}
+              </option>
             }
           </optgroup>
         }
@@ -68,6 +75,28 @@
       max="200"
       (change)="emitForm()"
     />
+  </div>
+
+  <div class="field text-properties__field--size">
+    <span class="text-properties__seg-label">Schriftschnitt</span>
+    <div class="seg" role="group" aria-label="Schriftschnitt">
+      <button
+        type="button"
+        class="seg__option"
+        [attr.aria-pressed]="form.value.bold"
+        (click)="toggleBold()"
+      >
+        Fett
+      </button>
+      <button
+        type="button"
+        class="seg__option"
+        [attr.aria-pressed]="form.value.italic"
+        (click)="toggleItalic()"
+      >
+        Kursiv
+      </button>
+    </div>
   </div>
 
   <div class="text-properties__field--wide">

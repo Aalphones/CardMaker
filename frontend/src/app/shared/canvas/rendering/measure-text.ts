@@ -18,9 +18,14 @@ export function measureTextHeight(measurement: TextMeasurement): number {
     fontSize: measurement.fontSize,
     fontFamily: measurement.fontFamily,
     lineHeight: measurement.lineHeight,
+    fontStyle: measurement.fontStyle,
     wrap: 'word',
   });
-  const height = node.getClientRect({ skipTransform: true, skipShadow: true, skipStroke: true }).height;
+  const height = node.getClientRect({
+    skipTransform: true,
+    skipShadow: true,
+    skipStroke: true,
+  }).height;
 
   node.destroy();
 

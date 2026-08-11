@@ -56,24 +56,35 @@ nicht gezeichnet — die Umschaltung im Kartenformular kommt erst, wenn diese Ph
 
 ## Checkliste
 
-- [ ] `TextLayer` um `bold: boolean` und `italic: boolean` erweitern (zwei Wahrheitswerte,
+- [x] `TextLayer` um `bold: boolean` und `italic: boolean` erweitern (zwei Wahrheitswerte,
       **nicht** ein `fontStyle`-String — der String ist eine Konva-Eigenheit und hat im
       Datenmodell nichts verloren). Fabrikfunktion für neue Textebenen: beide `false`.
-- [ ] In `draw-items.ts` eine kleine Funktion `konvaFontStyle(bold, italic): string`, die
+- [x] In `draw-items.ts` eine kleine Funktion `konvaFontStyle(bold, italic): string`, die
       daraus `'normal' | 'bold' | 'italic' | 'italic bold'` macht. Sie ist die **einzige**
       Stelle, die diesen String baut.
-- [ ] `measure-text.ts` und `auto-shrink.ts` durchreichen lassen: Die Messung bekommt
+- [x] `measure-text.ts` und `auto-shrink.ts` durchreichen lassen: Die Messung bekommt
       denselben `fontStyle` wie die Anzeige — sonst schrumpft fetter Text nach normalem Maß
       und läuft trotzdem über. Das ist die Stelle, an der diese Phase am ehesten still
       schiefgeht.
-- [ ] `LayerValidator.php`: `font_bold` und `font_italic` als Wahrheitswerte prüfen —
+- [x] `LayerValidator.php`: `font_bold` und `font_italic` als Wahrheitswerte prüfen —
       **optional mit Voreinstellung `false`**, nicht als Pflichtfeld. Ein Pflichtfeld würde
       jedes bereits gespeicherte Template beim nächsten Speichern zurückweisen.
-- [ ] Zwei Umschalter in `text-properties`: neben der Schriftgröße, als Segment-Umschalter im
+- [x] Zwei Umschalter in `text-properties`: neben der Schriftgröße, als Segment-Umschalter im
       Bestandsstil (`seg`-Bausteinklasse), mit `aria-pressed`. Beschriftung „Fett" / „Kursiv",
       keine B/I-Buchstaben — die versteht nur, wer Textverarbeitung kennt.
-- [ ] Doku: `docs/models.md` bei `templates.layers` um die beiden Felder ergänzen.
+- [x] Doku: `docs/models.md` gibt es in diesem Projekt nicht — die Felder sind stattdessen in
+      `docs/code-map.md` bei der `templates`-Zeile ergänzt, dort steht der Rest des
+      Layer-Kontrakts auch schon (`font_family` u.a.).
 
 ## Bericht
 
-*(nach der Umsetzung füllen)*
+Umgesetzt wie geplant, keine Abweichungen vom Kontrakt. `.seg__option` kannte bisher nur die
+versteckte-Radio-Variante (`:has(input:checked)`) — für die beiden unabhängig schaltbaren
+Knöpfe kam eine zweite Variante über `[aria-pressed="true"]` dazu, gleiche Optik, kein
+verstecktes `<input>` nötig. TypeScript-Check, ESLint und Prettier auf den geänderten Dateien
+sind grün, PHP-Syntaxcheck ebenso.
+
+**Unsicherste Stelle:** `auto-shrink.ts`/`measure-text.ts` — die Messung bekommt jetzt
+`fontStyle` mitgereicht, aber ungeprüft im Browser. Prüfen mit dem in den Abnahmekriterien
+genannten Fall: ein Text, der normal knapp passt und fett überläuft, muss beim Umschalten auf
+„Fett" stärker schrumpfen als vorher.

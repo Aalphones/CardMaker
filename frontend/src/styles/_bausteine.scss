@@ -209,11 +209,24 @@ select.input {
     color: var(--color-text-on-accent);
   }
 
-  &:not(:has(input:checked)):hover {
+  &:has(input:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+
+  // Variante ohne verstecktes <input> — ein <button> trägt seinen Zustand über
+  // aria-pressed statt über :checked (z. B. Fett/Kursiv, die unabhängig voneinander
+  // schaltbar sind statt sich wie eine Radiogruppe gegenseitig auszuschließen).
+  &[aria-pressed='true'] {
+    background: var(--color-accent);
+    color: var(--color-text-on-accent);
+  }
+
+  &:not([aria-pressed='true']):not(:has(input:checked)):hover {
     background: color-mix(in srgb, var(--color-text-primary) 7%, transparent);
   }
 
-  &:has(input:focus-visible) {
+  &:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: -2px;
   }

@@ -83,6 +83,8 @@ export interface TextLayer extends LayerBase, Geometry {
   fontFamily: FontFamily;
   fontSize: number;
   minFontSize: number;
+  bold: boolean;
+  italic: boolean;
   color: string;
   align: TextAlign;
   verticalAlign: TextVerticalAlign;
@@ -119,7 +121,13 @@ const DEFAULT_LAYER_X = (CANVAS_WIDTH - DEFAULT_LAYER_SIZE) / 2;
 const DEFAULT_LAYER_Y = (CANVAS_HEIGHT - DEFAULT_LAYER_SIZE) / 2;
 
 function defaultGeometry(): Geometry {
-  return { x: DEFAULT_LAYER_X, y: DEFAULT_LAYER_Y, width: DEFAULT_LAYER_SIZE, height: DEFAULT_LAYER_SIZE, rotation: 0 };
+  return {
+    x: DEFAULT_LAYER_X,
+    y: DEFAULT_LAYER_Y,
+    width: DEFAULT_LAYER_SIZE,
+    height: DEFAULT_LAYER_SIZE,
+    rotation: 0,
+  };
 }
 
 function createId(): string {
@@ -136,7 +144,14 @@ export function createLayer(type: 'text'): TextLayer;
 export function createLayer(type: LayerType, shape?: ShapeKind): Layer {
   switch (type) {
     case 'image':
-      return { id: createId(), name: 'Bildfläche', visible: true, type, opacity: 1, ...defaultGeometry() };
+      return {
+        id: createId(),
+        name: 'Bildfläche',
+        visible: true,
+        type,
+        opacity: 1,
+        ...defaultGeometry(),
+      };
     case 'shape':
       return createShapeLayer(shape ?? 'rect');
     case 'icon':
@@ -165,6 +180,8 @@ export function createLayer(type: LayerType, shape?: ShapeKind): Layer {
         fontFamily: DEFAULT_FONT_FAMILY,
         fontSize: 40,
         minFontSize: 12,
+        bold: false,
+        italic: false,
         color: '#1a1a1a',
         align: 'center',
         verticalAlign: 'middle',
@@ -194,7 +211,14 @@ function createShapeLayer(shape: ShapeKind): ShapeLayer {
 
   switch (shape) {
     case 'rect':
-      return { ...base, name: 'Rechteck', shape, fill: '#6d5ef8', cornerRadius: 0, ...defaultGeometry() };
+      return {
+        ...base,
+        name: 'Rechteck',
+        shape,
+        fill: '#6d5ef8',
+        cornerRadius: 0,
+        ...defaultGeometry(),
+      };
     case 'circle':
       return { ...base, name: 'Kreis', shape, fill: '#6d5ef8', ...defaultGeometry() };
     case 'line':
@@ -202,7 +226,12 @@ function createShapeLayer(shape: ShapeKind): ShapeLayer {
         ...base,
         name: 'Linie',
         shape,
-        points: [DEFAULT_LAYER_X, DEFAULT_LAYER_Y, DEFAULT_LAYER_X + DEFAULT_LAYER_SIZE, DEFAULT_LAYER_Y],
+        points: [
+          DEFAULT_LAYER_X,
+          DEFAULT_LAYER_Y,
+          DEFAULT_LAYER_X + DEFAULT_LAYER_SIZE,
+          DEFAULT_LAYER_Y,
+        ],
       };
   }
 }

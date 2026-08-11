@@ -276,6 +276,7 @@ function textItems(layer: TextLayer, context: DrawContext): DrawItem[] {
   }
 
   const fontFamily = renderFontFamily(layer.fontFamily, context.loadedFonts);
+  const fontStyle = konvaFontStyle(layer.bold, layer.italic);
 
   return [
     {
@@ -287,7 +288,8 @@ function textItems(layer: TextLayer, context: DrawContext): DrawItem[] {
         ...interactionConfig(layer, context),
         text: layer.defaultText,
         fontFamily,
-        fontSize: effectiveFontSize(layer, fontFamily),
+        fontStyle,
+        fontSize: effectiveFontSize(layer, fontFamily, fontStyle),
         lineHeight: layer.lineHeight,
         fill: layer.color,
         align: layer.align,
@@ -312,9 +314,10 @@ function textItems(layer: TextLayer, context: DrawContext): DrawItem[] {
 /**
  * `fontFamily` kommt von außen statt aus der Ebene: Gemessen werden muss dieselbe Schrift,
  * die auch gezeichnet wird — solange eine mitgelieferte Schrift noch lädt, ist das die
- * Ersatzschrift.
+ * Ersatzschrift. Derselbe Grund gilt für `fontStyle`: ein fett geschalteter Text ist breiter
+ * als derselbe Text normal, die Messung muss also denselben Schnitt verwenden wie die Anzeige.
  */
-function effectiveFontSize(layer: TextLayer, fontFamily: string): number {
+function effectiveFontSize(layer: TextLayer, fontFamily: string, fontStyle: string): number {
   if (!layer.autoShrink) {
     return layer.fontSize;
   }
@@ -326,9 +329,27 @@ function effectiveFontSize(layer: TextLayer, fontFamily: string): number {
     fontSize: layer.fontSize,
     minFontSize: layer.minFontSize,
     fontFamily,
+    fontStyle,
     lineHeight: layer.lineHeight,
     measureHeight: measureTextHeight,
   });
+}
+
+/**
+ * Die einzige Stelle, die den Konva-`fontStyle`-String baut — er ist eine Konva-Eigenheit
+ * und hat im Datenmodell nichts verloren (`TextLayer` kennt nur die zwei Wahrheitswerte).
+ */
+function konvaFontStyle(bold: boolean, italic: boolean): string {
+  if (bold && italic) {
+    return 'italic bold';
+  }
+  if (bold) {
+    return 'bold';
+  }
+  if (italic) {
+    return 'italic';
+  }
+  return 'normal';
 }
 
 function placeholderItems(

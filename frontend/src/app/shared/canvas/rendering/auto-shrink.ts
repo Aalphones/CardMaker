@@ -4,6 +4,7 @@ export interface TextMeasurement {
   fontSize: number;
   fontFamily: string;
   lineHeight: number;
+  fontStyle: string;
 }
 
 export type MeasureTextHeight = (measurement: TextMeasurement) => number;
@@ -16,6 +17,7 @@ export interface FitFontSizeOptions {
   minFontSize: number;
   fontFamily: string;
   lineHeight: number;
+  fontStyle: string;
   measureHeight: MeasureTextHeight;
 }
 
@@ -27,7 +29,17 @@ export interface FitFontSizeOptions {
  * Verkleinerungsregel benutzen. Deshalb bleibt diese Datei ohne Konva-Abhängigkeit.
  */
 export function fitFontSize(options: FitFontSizeOptions): number {
-  const { text, boxWidth, boxHeight, fontSize, minFontSize, lineHeight, fontFamily, measureHeight } = options;
+  const {
+    text,
+    boxWidth,
+    boxHeight,
+    fontSize,
+    minFontSize,
+    lineHeight,
+    fontFamily,
+    fontStyle,
+    measureHeight,
+  } = options;
   const smallest = Math.min(minFontSize, fontSize);
 
   if (text.length === 0 || boxWidth <= 0 || boxHeight <= 0) {
@@ -35,7 +47,14 @@ export function fitFontSize(options: FitFontSizeOptions): number {
   }
 
   for (let candidate = fontSize; candidate > smallest; candidate -= 1) {
-    const height = measureHeight({ text, width: boxWidth, fontSize: candidate, fontFamily, lineHeight });
+    const height = measureHeight({
+      text,
+      width: boxWidth,
+      fontSize: candidate,
+      fontFamily,
+      lineHeight,
+      fontStyle,
+    });
 
     if (height <= boxHeight) {
       return candidate;
