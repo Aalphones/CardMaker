@@ -14,7 +14,7 @@ Namen vergeben, fertig — die Schrift steht sofort in der Auswahl jedes Textfel
 | 3 | [Schrift im Browser laden](phase-3-frontend-laden.md) | Die Karte zeichnet die hochgeladene Schrift wirklich | heikel | **fertig** |
 | 4 | [Verwaltung in der Oberfläche](phase-4-oberflaeche.md) | Hochladen, Umbenennen, Löschen — ohne Entwickler | standard | **fertig** |
 | 5 | [Fett und Kursiv](phase-5-fett-und-kursiv.md) | Zwei Umschalter am Textfeld | standard | **fertig** |
-| 6 | [Abschluss](phase-6-abschluss.md) | Doku und Abnahme | mechanisch | offen |
+| 6 | [Abschluss](phase-6-abschluss.md) | Doku und Abnahme | mechanisch | **fertig** |
 
 Phase 5 hängt nicht am Rest — sie betrifft die Textebene, nicht die Schriftverwaltung. Sie
 steht hier, weil sie beim Thema Schriften auffiel, und lässt sich auch vorziehen oder
@@ -76,4 +76,33 @@ Nach Phase 6 muss all das ohne Entwicklerwerkzeug gehen:
 
 ## Zusammenfassung / Berührte Dateien / Abweichungen / Offene Punkte
 
-*(beim Archivieren füllen)*
+**Zusammenfassung:** Schriftverwaltung komplett über die Oberfläche — hochladen (`.ttf`/
+`.woff2`, max. 2 MB), umbenennen, löschen, mit Schutz gegen das Löschen benutzter Schriften.
+Die Datei kommt als Blob hinter der Anmeldung ins Canvas, der interne Name wird als
+`cmfont-<id>` selbst vergeben (ADR-019). Dazu, thematisch angrenzend, Fett/Kursiv als
+Umschalter an jeder Textebene, inklusive Auto-Shrink-Anpassung.
+
+**Berührte Dateien (grob):**
+- Backend: `FontController`, `FontService`, `FontRepository`, `FontValidator`,
+  `FontUploadException`, `LayerValidator` (Schriftprüfung beim Speichern), Migration
+  `M007CreateFonts`, `backend/uploads/fonts/`
+- Frontend: `store/fonts/` (NgRx-Slice + Facade), `shared/canvas/font-loader.ts`,
+  `shared/canvas/rendering/fonts.ts` (`cmfont-`-Namensschlüssel, `renderFontFamily()`),
+  `template-editor/font-manager/` (neuer Dialog), `text-properties/` (Fett/Kursiv-Leiste,
+  Aufruf des Dialogs), `_bausteine.scss` (Segment-Umschalter-Fix)
+- Doku: ADR-019, `docs/code-map.md`, `frontend/public/fonts/LIZENZ.md`, `docs/PROJECT.md`
+
+**Commits:** `feat(fonts): Schriftdateien im Backend ablegen, ausliefern und schuetzen` ·
+`feat(templates): hochgeladene Schriften beim Speichern als gueltig anerkennen` ·
+`feat(fonts): hochgeladene Schriften im Canvas zeichnen` ·
+`feat(fonts): Dialog "Schriften verwalten" im Template-Editor` ·
+`feat(templates): Fett und Kursiv fuer Textebenen` ·
+`docs(fonts): ADR 019 und Doku-Abgleich fuer Phase 6 Abschluss` ·
+`fix(templates): Schriftschnitt-Leiste wieder lesbar`
+
+**Abweichungen:** keine vom Plan-Kontrakt. Ein Layout-Fehler an der Fett/Kursiv-Leiste wurde
+erst bei der Abnahme sichtbar (Klasse für Zahlenfelder deckelte die Breite) und in derselben
+Phase behoben — siehe Bericht in `phase-6-abschluss.md`.
+
+**Offene Punkte:** keine. Alle sieben Punkte der finalen Abnahme sind durch Sascha im Browser
+bestätigt.
