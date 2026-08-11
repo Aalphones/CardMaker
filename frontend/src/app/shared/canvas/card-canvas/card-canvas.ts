@@ -74,6 +74,12 @@ export class CardCanvas {
   readonly layerClicked = output<string>();
   readonly layerTransformed = output<{ id: string; changes: LayerPatch }>();
 
+  /**
+   * Beginn einer Zieh- oder Skaliergeste. Der Editor legt darauf seine Momentaufnahme für den
+   * Verlauf ab — eine Geste ergibt so einen Schritt, nicht einen pro Mausbewegung.
+   */
+  readonly gestureStart = output<void>();
+
   protected readonly stageWidth = signal(0);
 
   private readonly transformerRef = viewChild<CoreShapeComponent>('transformer');
@@ -187,6 +193,12 @@ export class CardCanvas {
   protected selectLayer(layerId: string): void {
     if (this.interactive()) {
       this.layerClicked.emit(layerId);
+    }
+  }
+
+  protected onGestureStart(): void {
+    if (this.interactive()) {
+      this.gestureStart.emit();
     }
   }
 

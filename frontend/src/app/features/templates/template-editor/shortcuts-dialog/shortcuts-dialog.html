@@ -1,0 +1,21 @@
+<div class="dialog shortcuts-dialog">
+  <h2 class="dialog__title">Tastenkürzel</h2>
+
+  <dl class="shortcuts-dialog__grid">
+    @for (row of rows; track row.label) {
+      <dt class="shortcuts-dialog__action">{{ row.label }}</dt>
+      <dd class="shortcuts-dialog__keys">
+        @for (key of row.keys; track key; let isFirst = $first) {
+          @if (!isFirst && row.separator) {
+            <span class="shortcuts-dialog__separator">{{ row.separator }}</span>
+          }
+          <kbd class="kbd">{{ key }}</kbd>
+        }
+      </dd>
+    }
+  </dl>
+
+  <div class="dialog__actions">
+    <button type="button" class="btn btn--primary" (click)="close()">Schließen</button>
+  </div>
+</div>

@@ -47,7 +47,7 @@ liegen deshalb mit im Ordner, obwohl aus ihnen nichts übernommen wird.
 | 4 | [Kartengruppen und Template-Liste](phase-4-listen.md) | standard | complete |
 | 5 | [Template-Editor: Vollbild-Aufbau](phase-5-editor-vollbild.md) | heikel | complete |
 | 6 | [Template-Editor: Zoom, Ansicht, Element-Menü](phase-6-editor-ansicht.md) | heikel | complete |
-| 7 | [Template-Editor: Rückgängig und Tastenkürzel](phase-7-editor-tastatur.md) | heikel | pending |
+| 7 | [Template-Editor: Rückgängig und Tastenkürzel](phase-7-editor-tastatur.md) | heikel | complete |
 | 8 | [Eigenschaften, Bildauswahl, Doku und Abnahme](phase-8-eigenschaften-und-abschluss.md) | standard | pending |
 
 ## Kontrakt: die Token-Schicht

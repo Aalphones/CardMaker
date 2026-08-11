@@ -7,6 +7,8 @@
             <ko-image
               [config]="item.config"
               (click)="selectLayer(item.layerId)"
+              (dragstart)="onGestureStart()"
+              (transformstart)="onGestureStart()"
               (dragend)="onDragEnd($event)"
               (transformend)="onTransformEnd($event)"
             />
@@ -15,6 +17,8 @@
             <ko-rect
               [config]="item.config"
               (click)="selectLayer(item.layerId)"
+              (dragstart)="onGestureStart()"
+              (transformstart)="onGestureStart()"
               (dragend)="onDragEnd($event)"
               (transformend)="onTransformEnd($event)"
             />
@@ -23,17 +27,26 @@
             <ko-ellipse
               [config]="item.config"
               (click)="selectLayer(item.layerId)"
+              (dragstart)="onGestureStart()"
+              (transformstart)="onGestureStart()"
               (dragend)="onDragEnd($event)"
               (transformend)="onTransformEnd($event)"
             />
           }
           @case ('line') {
-            <ko-line [config]="item.config" (click)="selectLayer(item.layerId)" (dragend)="onDragEnd($event)" />
+            <ko-line
+              [config]="item.config"
+              (click)="selectLayer(item.layerId)"
+              (dragstart)="onGestureStart()"
+              (dragend)="onDragEnd($event)"
+            />
           }
           @case ('text') {
             <ko-text
               [config]="item.config"
               (click)="selectLayer(item.layerId)"
+              (dragstart)="onGestureStart()"
+              (transformstart)="onGestureStart()"
               (dragend)="onDragEnd($event)"
               (transformend)="onTransformEnd($event)"
             />

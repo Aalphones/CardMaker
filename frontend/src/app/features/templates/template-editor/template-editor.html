@@ -42,9 +42,10 @@
       <button
         type="button"
         class="btn btn--secondary btn--icon template-editor__history"
-        disabled
-        title="Rückgängig — kommt mit den Tastenkürzeln"
+        [disabled]="!editor.canUndo()"
+        title="Rückgängig (Strg+Z)"
         aria-label="Rückgängig"
+        (click)="editor.undo()"
       >
         <svg
           width="17"
@@ -65,9 +66,10 @@
       <button
         type="button"
         class="btn btn--secondary btn--icon template-editor__history"
-        disabled
-        title="Wiederherstellen — kommt mit den Tastenkürzeln"
+        [disabled]="!editor.canRedo()"
+        title="Wiederherstellen (Umschalt+Strg+Z)"
         aria-label="Wiederherstellen"
+        (click)="editor.redo()"
       >
         <svg
           width="17"
@@ -145,7 +147,8 @@
           [style.inset-inline-start.px]="cardPosition().x"
           [style.inset-block-start.px]="cardPosition().y"
           (layerClicked)="editor.select($event)"
-          (layerTransformed)="editor.patchLayer($event.id, $event.changes)"
+          (gestureStart)="editor.pushHistory()"
+          (layerTransformed)="editor.applyGesture($event.id, $event.changes)"
         />
 
         <app-stage-controls
@@ -154,6 +157,7 @@
           (zoomIn)="editor.zoomIn()"
           (zoomOut)="editor.zoomOut()"
           (fitView)="editor.fitView()"
+          (showShortcuts)="openShortcuts()"
         />
 
         <button

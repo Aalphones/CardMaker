@@ -37,19 +37,28 @@ Erledigte Punkte abhaken, nicht löschen.
 - [x] → Phase 6: Das Menü hinter „Element hinzufügen" steht noch in der alten Form
       (reine Textliste, Reihenfolge schon auf den Entwurf gedreht). Zeichen und
       Tastenkürzel-Hinweise fehlen — die baut Phase 6 mit dem Element-Menü.
-- [ ] → Phase 7: Die Zoom-Pille bringt den „?"-Knopf schon mit, er ist gesperrt und hat
+- [x] → Phase 7: Die Zoom-Pille bringt den „?"-Knopf schon mit, er ist gesperrt und hat
       bewusst noch keinen Ausgang. Phase 7 hängt den Kürzel-Dialog daran und ergänzt die
       Zoom-Kürzel (+/−, Cmd+0 einpassen, Cmd+1 100 %) — die Store-Methoden `zoomIn`,
       `zoomOut`, `fitView` liegen dafür bereit.
-- [ ] → Phase 7: Der Fenster-Tastaturzweig im Editor unterscheidet ab jetzt drei Fälle:
+- [x] → Phase 7: Der Fenster-Tastaturzweig im Editor unterscheidet ab jetzt drei Fälle:
       Eingabefelder (nichts greift), Schaltflächen/Menüeinträge (die Leertaste löst dort
       weiterhin aus, statt das Verschieben einzuschalten) und alles andere. Die
       Buchstabenkürzel aus Phase 7 (T/I/K/R/O/L/F, H, F2) brauchen dieselbe Unterscheidung,
       sonst legen sie beim Tippen im Namensfeld oder im offenen Menü Ebenen an.
       `isActivatableTarget()` in `template-editor.ts` ist die vorhandene Stelle dafür.
-- [ ] → Phase 7: Das Element-Menü zeigt die Kürzel als schlichten kleinen Text — der
+- [x] → Phase 7: Das Element-Menü zeigt die Kürzel als schlichten kleinen Text — der
       Kürzel-Dialog braucht ohnehin einen `kbd`-Baustein (11px, Rahmen, Radius 6px). Wenn
       der steht, gehört er auch ins Menü.
+- [ ] → Phase 8: Die Bildauswahl ist die letzte Stufe der Escape-Leiter, die noch nicht am
+      Editor hängt. Der Editor hört bei jedem offenen CDK-Dialog gar nicht erst zu, die
+      Reihenfolge stimmt damit von selbst — beim Anschließen der Bildauswahl in Phase 8 ist
+      also nichts weiter zu tun, außer es einmal auszuprobieren.
+- [ ] → Phase 8: `frontend/.prettierrc` steht auf 100 Zeichen Zeilenbreite, der Bestand ist
+      aber auf ~110 geschrieben — ein `npx prettier --write` formatiert deshalb quer durch
+      unbeteiligte Dateien um. Prettier läuft also nicht mit; entweder einmal komplett
+      durchformatieren (eigener Commit) oder die Zeilenbreite auf den Bestand heben.
+      Entscheidung liegt bei Sascha.
 - [ ] → Phase 6/8: Die Kartenumrandung hängt jetzt am neuen Zweck-Token
       `--shadow-canvas-card` (Standard: Haarlinie, die Editor-Bühne überschreibt ihn auf
       `--shadow-lg`). Wer die Karte woanders zeigt (Kartenliste, Druckvorschau), setzt den

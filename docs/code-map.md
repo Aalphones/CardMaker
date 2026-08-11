@@ -73,6 +73,10 @@ frontend/src/app/
                                von mehreren Typen wiederverwendete Unterkomponenten
         asset-picker/         ← CDK-Dialog: vorhandene Rahmen/Icons wählen (einzeln oder
                                mehrfach für die Icon-Auswahlliste) oder ein neues PNG hochladen
+        shortcuts-dialog/     ← CDK-Dialog mit der Kürzelübersicht, gespeist aus derselben
+                               Tabelle wie die Tastaturbedienung
+        editor-shortcuts.ts   ← die eine Zuordnung Tastenereignis → Aktion (ohne Angular):
+                               Kürzeltabelle, Unterdrückung in Eingabefeldern und Menüs
   shared/
     components/       ← wiederverwendbare Komponenten (u.a. confirm-dialog — CDK Dialog,
                          Rückfrage vor Löschungen; field-hint — Fragezeichen-Knopf mit
@@ -100,7 +104,8 @@ frontend/src/app/
                           tokens — Facade Pflicht pro Domain-Slice, `auth` bislang ohne, da
                           es keine eigene Domain-UI mit Zwischen-Zustand hat)
   signal-stores/        ← NgRx Signal Stores für UI-Zustand. `template-editor.ts`: Arbeitskopie
-                          der Ebenenliste, Auswahl, `dirty` und der Ansichts-Zustand der Bühne
+                          der Ebenenliste, Auswahl, `dirty`, der Verlauf (zwei Stapel mit
+                          Momentaufnahmen für Rückgängig/Wiederherstellen) und der Ansichts-Zustand der Bühne
                           (Maßstab „eingepasst"/„von Hand", Verschiebung, gemessene
                           Bühnengröße, Leertaste, Zeigerposition) — component-scoped (pro Editor-
                           Aufruf neu, `providers: [TemplateEditorStore]`), nicht `root`

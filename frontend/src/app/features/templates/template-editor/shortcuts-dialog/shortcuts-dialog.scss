@@ -1,0 +1,32 @@
+// Zweispaltiges Raster aus Aktion und Taste. Die Abstände (6px/17.6px) und die Breite sind
+// Bauteilmaße aus dem Entwurf (Handoff, „Shortcuts dialog").
+
+.shortcuts-dialog {
+  inline-size: min(520px, 100%);
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 17.6px;
+    align-items: center;
+    margin: 0;
+  }
+
+  &__action {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  &__keys {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+    margin: 0;
+  }
+
+  &__separator {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+}

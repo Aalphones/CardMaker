@@ -19,6 +19,7 @@ export class StageControls {
   readonly zoomIn = output<void>();
   readonly zoomOut = output<void>();
   readonly fitView = output<void>();
+  readonly showShortcuts = output<void>();
 
   protected readonly zoomPercent: Signal<number> = computed(() => Math.round(this.zoom() * 100));
 

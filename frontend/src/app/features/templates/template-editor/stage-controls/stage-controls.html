@@ -1,5 +1,12 @@
 <div class="stage-controls__zoom">
-  <button type="button" class="stage-controls__button" aria-label="Verkleinern" (click)="zoomOut.emit()">−</button>
+  <button
+    type="button"
+    class="stage-controls__button"
+    aria-label="Verkleinern"
+    (click)="zoomOut.emit()"
+  >
+    −
+  </button>
 
   <button
     type="button"
@@ -11,14 +18,21 @@
     {{ zoomPercent() }}%
   </button>
 
-  <button type="button" class="stage-controls__button" aria-label="Vergrößern" (click)="zoomIn.emit()">+</button>
+  <button
+    type="button"
+    class="stage-controls__button"
+    aria-label="Vergrößern"
+    (click)="zoomIn.emit()"
+  >
+    +
+  </button>
 
   <button
     type="button"
     class="stage-controls__button"
-    disabled
-    title="Tastenkürzel — kommen mit der Tastaturbedienung"
-    aria-label="Tastenkürzel"
+    title="Tastenkürzel anzeigen"
+    aria-label="Tastenkürzel anzeigen"
+    (click)="showShortcuts.emit()"
   >
     ?
   </button>

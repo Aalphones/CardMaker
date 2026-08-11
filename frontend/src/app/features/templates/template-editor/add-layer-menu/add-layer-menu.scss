@@ -78,11 +78,9 @@
     min-inline-size: 0;
   }
 
+  // Der Rest der Tastenkappe kommt aus dem Baustein `.kbd`.
   &__shortcut {
     flex: none;
-    color: var(--color-text-muted);
-    font-size: 10px;
-    letter-spacing: 0.04em;
   }
 
   &__reason {

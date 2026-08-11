@@ -41,11 +41,13 @@
 
         @if (renamingId() === layer.id) {
           <input
+            #renameInput
             type="text"
             class="layer-list__rename-input"
             [value]="layer.name"
             (blur)="commitRename(layer.id, $event)"
             (keydown.enter)="commitRename(layer.id, $event)"
+            (keydown.escape)="cancelRename($event)"
           />
         } @else {
           <button

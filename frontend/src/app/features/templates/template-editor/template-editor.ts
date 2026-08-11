@@ -14,7 +14,7 @@ import {
   Signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, ParamMap, RouterLink } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { firstValueFrom, map } from 'rxjs';
 
 import { CardCanvas } from '../../../shared/canvas/card-canvas/card-canvas';
@@ -34,12 +34,11 @@ import { TemplateEditorStore } from '../../../signal-stores/template-editor';
 import { AssetsFacade } from '../../../store/assets/assets.facade';
 import { TemplatesFacade } from '../../../store/templates/templates.facade';
 import { AddLayerRequest } from './add-layer-menu/add-layer-menu';
+import { EditorAction, LayerAction, isTypingTarget, resolveShortcut } from './editor-shortcuts';
 import { LayerList } from './layer-list/layer-list';
 import { LayerProperties } from './layer-properties/layer-properties';
+import { ShortcutsDialog } from './shortcuts-dialog/shortcuts-dialog';
 import { StageControls } from './stage-controls/stage-controls';
-
-const ARROW_STEP = 1;
-const ARROW_STEP_FAST = 10;
 
 /** Aus Radweg in Maßstabsänderung: ein voller Rasterschritt (100) ändert um gut 16 %. */
 const WHEEL_ZOOM_SENSITIVITY = 0.0015;
@@ -57,6 +56,7 @@ const ACTIVATABLE_TAGS = ['BUTTON', 'A', 'SUMMARY'];
 })
 export class TemplateEditor implements ComponentWithUnsavedChanges {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly dialog = inject(Dialog);
   private readonly document = inject(DOCUMENT);
   protected readonly templates = inject(TemplatesFacade);
@@ -85,6 +85,9 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
   protected readonly propertiesPanelOpen = signal(false);
 
   private readonly stageRef = viewChild<ElementRef<HTMLElement>>('stage');
+
+  /** Nur fürs Umbenennen per F2 — das Eingabefeld dafür gehört der Ebenenliste. */
+  private readonly layerList = viewChild(LayerList);
 
   /** Läuft gerade eine Verschiebe-Geste? (Leertaste allein reicht dafür noch nicht.) */
   protected readonly panning = signal(false);
@@ -283,14 +286,27 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
     }
   }
 
+  protected openShortcuts(): void {
+    this.dialog.open(ShortcutsDialog, { autoFocus: 'first-tabbable', restoreFocus: true });
+  }
+
   /**
-   * Entf löscht die ausgewählte Ebene (mit derselben Rückfrage wie in der Ebenenliste),
-   * Pfeiltasten verschieben sie um eine Canvas-Einheit, mit Umschalttaste um zehn — nur
-   * wirksam, wenn kein Eingabefeld den Fokus hat (Plan-Phase-7-Checkliste „Tastatur").
+   * Die gesamte Tastaturbedienung des Editors. Welche Taste was bedeutet, steht in
+   * `editor-shortcuts.ts` — hier wird nur ausgeführt.
    */
   @HostListener('window:keydown', ['$event'])
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.key === ' ' && !this.isTypingTarget(event.target) && !this.isActivatableTarget(event.target)) {
+    // Ist ein Dialog offen, gehört ihm die Tastatur — auch Escape, das dort die oberste
+    // Stufe der Leiter schließt (CDK macht das selbst).
+    if (this.dialog.openDialogs.length > 0) {
+      return;
+    }
+
+    if (
+      event.key === ' ' &&
+      !isTypingTarget(event.target) &&
+      !this.isActivatableTarget(event.target)
+    ) {
       // Nicht auf Schaltflächen: dort löst die Leertaste die Schaltfläche aus, und genau das
       // soll sie auch weiterhin tun.
       event.preventDefault();
@@ -298,25 +314,116 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
       return;
     }
 
+    const action = resolveShortcut(event);
+
+    if (!action) {
+      return;
+    }
+
+    // Trifft ein Kürzel, gehört die Taste dem Editor: Pfeiltasten würden sonst die Seite
+    // rollen, Strg+S/Strg+D/Strg+0 zöge sich der Browser.
+    event.preventDefault();
+    this.runAction(action, event);
+  }
+
+  private runAction(action: EditorAction, event: KeyboardEvent): void {
+    switch (action.kind) {
+      case 'escape':
+        this.escape();
+        return;
+      case 'blurField':
+        (event.target as HTMLElement).blur();
+        return;
+      case 'deselect':
+        this.editor.select(null);
+        return;
+      case 'addLayer':
+        this.editor.addLayer(action.type, action.shape);
+        return;
+      case 'save':
+        this.save();
+        return;
+      case 'undo':
+        this.editor.undo();
+        return;
+      case 'redo':
+        this.editor.redo();
+        return;
+      case 'zoomIn':
+        this.editor.zoomIn();
+        return;
+      case 'zoomOut':
+        this.editor.zoomOut();
+        return;
+      case 'fitView':
+        this.editor.fitView();
+        return;
+      case 'resetZoom':
+        this.editor.resetZoom();
+        return;
+      case 'showShortcuts':
+        this.openShortcuts();
+        return;
+      default:
+        this.runLayerAction(action);
+    }
+  }
+
+  /** Alles, was ohne ausgewählte Ebene kein Ziel hätte. */
+  private runLayerAction(action: LayerAction): void {
     const layer = this.selectedLayer();
 
-    if (!layer || this.isTypingTarget(event.target)) {
+    if (!layer) {
       return;
     }
 
-    if (event.key === 'Delete' || event.key === 'Backspace') {
-      event.preventDefault();
-      void this.confirmAndRemoveLayer(layer);
+    switch (action.kind) {
+      case 'move':
+        this.moveLayer(layer, action.deltaX, action.deltaY);
+        return;
+      case 'order':
+        this.reorderSelected(action.direction);
+        return;
+      case 'duplicate':
+        this.editor.duplicateLayer(layer.id);
+        return;
+      case 'remove':
+        void this.confirmAndRemoveLayer(layer);
+        return;
+      case 'toggleVisible':
+        this.onToggleVisible(layer.id);
+        return;
+      case 'rename':
+        this.layerList()?.startRenameSelected();
+    }
+  }
+
+  /**
+   * Escape-Reihenfolge, an genau einer Stelle entschieden: Dialoge schließen sich weiter oben
+   * selbst (siehe `onKeydown`), danach fällt erst die Auswahl, dann der Editor.
+   */
+  private escape(): void {
+    if (this.editor.selectedLayerId()) {
+      this.editor.select(null);
       return;
     }
 
-    const step = event.shiftKey ? ARROW_STEP_FAST : ARROW_STEP;
-    const arrowDelta = this.arrowKeyDelta(event.key, step);
+    void this.router.navigate(['/templates']);
+  }
 
-    if (arrowDelta) {
-      event.preventDefault();
-      this.moveLayer(layer, arrowDelta.deltaX, arrowDelta.deltaY);
+  /** „Nach vorn" ist im Speicher-Array ein Platz weiter hinten (Index 0 liegt zuunterst). */
+  private reorderSelected(direction: 1 | -1): void {
+    const layers = this.editor.layers();
+    const fromIndex = layers.findIndex(
+      (layer: Layer) => layer.id === this.editor.selectedLayerId(),
+    );
+    const toIndex = fromIndex + direction;
+
+    if (fromIndex === -1 || toIndex < 0 || toIndex >= layers.length) {
+      return;
     }
+
+    this.editor.moveLayer(fromIndex, toIndex);
   }
 
   @HostListener('window:keyup', ['$event'])
@@ -337,14 +444,6 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
     this.endPan();
   }
 
-  private isTypingTarget(target: EventTarget | null): boolean {
-    if (!(target instanceof HTMLElement)) {
-      return false;
-    }
-
-    return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
-  }
-
   private isActivatableTarget(target: EventTarget | null): boolean {
     if (!(target instanceof HTMLElement)) {
       return false;
@@ -353,21 +452,6 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
     const role = target.getAttribute('role');
 
     return ACTIVATABLE_TAGS.includes(target.tagName) || role === 'button' || role === 'menuitem';
-  }
-
-  private arrowKeyDelta(key: string, step: number): { deltaX: number; deltaY: number } | null {
-    switch (key) {
-      case 'ArrowLeft':
-        return { deltaX: -step, deltaY: 0 };
-      case 'ArrowRight':
-        return { deltaX: step, deltaY: 0 };
-      case 'ArrowUp':
-        return { deltaX: 0, deltaY: -step };
-      case 'ArrowDown':
-        return { deltaX: 0, deltaY: step };
-      default:
-        return null;
-    }
   }
 
   private moveLayer(layer: Layer, deltaX: number, deltaY: number): void {

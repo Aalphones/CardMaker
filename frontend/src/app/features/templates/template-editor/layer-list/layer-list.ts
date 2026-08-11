@@ -1,6 +1,17 @@
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { Dialog } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import { Layer, LayerType } from '../../../../shared/canvas/rendering/layer';
@@ -47,6 +58,31 @@ export class LayerList {
 
   protected readonly renamingId = signal<string | null>(null);
 
+  private readonly renameInput = viewChild<ElementRef<HTMLInputElement>>('renameInput');
+
+  constructor() {
+    // Das Feld erscheint erst mit dem nächsten Rendern — deshalb hängt der Effekt am Signal
+    // des Kindelements. Ohne Fokus wäre F2 wirkungslos: das Feld stünde da, der Tastendruck
+    // ginge weiter ans Fenster.
+    effect(() => {
+      const input = this.renameInput();
+
+      if (input) {
+        input.nativeElement.focus();
+        input.nativeElement.select();
+      }
+    });
+  }
+
+  /** Ruft die Editor-Komponente auf, wenn F2 gedrückt wurde. */
+  startRenameSelected(): void {
+    const layer = this.selectedLayer();
+
+    if (layer) {
+      this.renamingId.set(layer.id);
+    }
+  }
+
   protected typeLabel(layer: Layer): string {
     return TYPE_LABELS[layer.type];
   }
@@ -67,6 +103,12 @@ export class LayerList {
       this.rename.emit({ id, name });
     }
 
+    this.renamingId.set(null);
+  }
+
+  /** Escape verwirft die Umbenennung — das anschließende `blur` darf sie nicht doch noch übernehmen. */
+  protected cancelRename(event: Event): void {
+    event.stopPropagation();
     this.renamingId.set(null);
   }
 
