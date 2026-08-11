@@ -185,6 +185,16 @@ select.input {
 }
 
 .seg__option {
+  // Die Gruppe trägt Rahmen und Rundung — ein <button> als Option bringt sonst seine
+  // eigene Browser-Optik (weiße Fläche, Rahmen, Systemschrift) mit und sitzt als
+  // fremder Knopf mitten in der Leiste. Bei <label>-Optionen ändert der Block nichts.
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-family: inherit;
+  line-height: inherit;
+
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
