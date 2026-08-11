@@ -26,8 +26,9 @@
   - `values`: Objekt, Schlüssel entsprechen dem Muster der Feldschlüssel
     (`^[a-z][a-z0-9_]{0,39}$`), Werte sind Zeichenketten bis 2000 Zeichen
   - `iconChoices`: Objekt, Werte sind Asset-Ids, die existieren
-  - `textOverrides`: Objekt, je Eintrag optional `fontSize` (4–200) und `color`
-    (`#rrggbb`)
+  - `textOverrides`: Objekt, je Eintrag optional `fontSize` (4–200), `color`
+    (`#rrggbb`), `bold` und `italic` (Wahrheitswerte). Alle vier sind einzeln
+    weglassbar — weggelassen heißt „so wie im Template", nicht „aus".
 - **Werte werden nicht gegen das Template abgeglichen**: ein Feldschlüssel, den das
   Template (noch oder nicht mehr) kennt, ist kein Fehler. Ohne diese Regel würde jede
   Template-Änderung bestehende Karten unspeicherbar machen.

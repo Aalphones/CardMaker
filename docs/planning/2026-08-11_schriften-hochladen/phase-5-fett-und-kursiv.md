@@ -20,6 +20,15 @@ eine andere Schrift — die Auswahl ist jetzt groß genug.
 Nachrüsten bleibt jederzeit möglich (ein zweiter `@font-face`-Eintrag mit `font-weight: 700`
 für dieselbe Familie, mehr braucht es nicht) und wäre ein eigener kleiner Plan.
 
+## Zusammenspiel mit dem Karteneditor
+
+Entschieden am 2026-08-11: Eine **einzelne Karte darf Fett und Kursiv abweichend vom
+Template setzen**, genau wie Schriftgröße und Farbe. Der Kartenaufbau im Plan
+`2026-08-10_karteneditor/` führt die beiden Felder deshalb bereits mit (README, Abschnitt
+„Karte"), unabhängig davon, welcher Plan zuerst läuft. Diese Phase liefert die Grundlage:
+Solange die Textebene Fett/Kursiv nicht kennt, werden die Kartenwerte nur gespeichert und
+nicht gezeichnet — die Umschaltung im Kartenformular kommt erst, wenn diese Phase durch ist.
+
 ## Vorher lesen
 
 - `frontend/src/app/shared/canvas/rendering/layer.ts` — `TextLayer` und die Fabrikfunktion,

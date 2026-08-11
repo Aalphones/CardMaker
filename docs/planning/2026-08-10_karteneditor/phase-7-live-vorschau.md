@@ -35,6 +35,10 @@ was ADR-005 verhindern soll.
   - Eine Textebene mit „Wird pro Karte ausgefüllt" zeigt den Wert der Karte; ist er leer
     oder fehlt, den Vorgabetext des Templates.
   - Abweichungen der Karte bei Schriftgröße und Farbe schlagen die Template-Werte.
+  - Dasselbe gilt für Fett und Kursiv, **sobald die Textebene sie kennt** (Plan
+    „Eigene Schriften hochladen", Phase 5). Ist dieser Plan hier zuerst dran, werden die
+    beiden Werte nur durchgereicht und nicht gezeichnet — dann darf hier auch keine
+    Umschaltung im Formular auftauchen (Phase 6), sonst gibt es einen Schalter ohne Wirkung.
   - Automatisches Verkleinern verringert die Schriftgröße bis zur Mindestgröße, bis der
     Text in seinen Bereich passt (bestehende Funktion `fitFontSize`, unverändert).
   - Waagerechte und senkrechte Ausrichtung, Zeilenabstand, Umrandung, Schatten und

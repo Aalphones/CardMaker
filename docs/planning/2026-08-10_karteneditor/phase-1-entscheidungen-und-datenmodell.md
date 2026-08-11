@@ -34,7 +34,7 @@
 | `card_group_id` | INT NULL | Fremdschlüssel auf `card_groups`, `ON DELETE SET NULL` |
 | `values` | JSON NOT NULL | Feldschlüssel → Text |
 | `icon_choices` | JSON NOT NULL | Ebenen-Id → Asset-Id |
-| `text_overrides` | JSON NOT NULL | Feldschlüssel → `{font_size?, color?}` |
+| `text_overrides` | JSON NOT NULL | Feldschlüssel → `{font_size?, color?, bold?, italic?}` (zu den letzten beiden siehe README, Hinweis unter der Endpunkt-Tabelle) |
 | `created_at` / `updated_at` | DATETIME | wie im Bestand |
 
 `ON DELETE RESTRICT` beim Template ist Absicht: ein Template mit Karten darf nicht

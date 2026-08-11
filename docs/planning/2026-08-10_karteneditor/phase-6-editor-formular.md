@@ -33,6 +33,11 @@
 - **Größe und Farbe sind Abweichungen**: leer gelassen heißt „so wie im Template".
   Ein gesetzter Wert überschreibt ihn nur für diese Karte. Beide Felder haben einen
   Zurücksetzen-Knopf und eine Fragezeichen-Erklärung.
+- **Fett und Kursiv** gehören in denselben Block, mit derselben Dreier-Logik (aus dem
+  Template / an / aus) statt eines einfachen Umschalters — ein zweistufiger Schalter kann
+  „nimm's vom Template" nicht ausdrücken. **Nur einbauen, wenn der Plan „Eigene Schriften
+  hochladen" (Phase 5) schon durch ist**; sonst gäbe es einen Schalter, den die Vorschau
+  ignoriert. Gespeichert und durchgereicht werden die Werte in jedem Fall (Phase 2).
 - **Template wechseln** an einer bestehenden Karte: es erscheint eine Rückfrage
   („Felder, die das neue Template nicht kennt, werden nicht mehr angezeigt. Fortfahren?").
   Nach dem Wechsel bleiben die alten Werte im Datensatz erhalten und tauchen wieder auf,

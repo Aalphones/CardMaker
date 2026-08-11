@@ -57,6 +57,8 @@ type Card = {
   textOverrides: Record<string, {        // Feldschlüssel → Abweichung
     fontSize?: number;                   // 4–200
     color?: string;                      // #rrggbb
+    bold?: boolean;                      // siehe Hinweis unter der Tabelle
+    italic?: boolean;
   }>;
   images: CardImage[];
   createdAt: string;
@@ -90,6 +92,16 @@ type CardImage = {
 Kurzfassung für die Liste (`GET /api/cards`):
 `{ id, name, templateId, templateName, cardGroupId, cardGroupName, updatedAt }`.
 
+**Zu `bold`/`italic` in den Abweichungen (Entscheidung 2026-08-11):** Fett und Kursiv als
+Eigenschaft einer Textebene entstehen im Plan „Eigene Schriften hochladen"
+(`docs/planning/2026-08-11_schriften-hochladen/phase-5-fett-und-kursiv.md`). Dass eine
+einzelne Karte sie überschreiben darf, steht hier bewusst schon im Kontrakt — es sind zwei
+Wahrheitswerte neben Schriftgröße und Farbe, die ohnehin überschreibbar sind. Sie jetzt
+mitzuführen kostet nichts; sie nachträglich zu ergänzen hieße, ein Datenformat zu ändern,
+in dem schon Karten liegen. Läuft dieser Plan **vor** dem Schriften-Plan, werden die zwei
+Felder trotzdem gespeichert und durchgereicht — nur zeichnen kann das Canvas sie erst,
+wenn dessen Phase 5 durch ist. Das ist keine Baustelle, sondern ein Feld, das noch nichts tut.
+
 ## Finale Abnahmekriterien
 
 1. Eine neue Karte lässt sich von Grund auf anlegen: Template wählen → Felder erscheinen →
@@ -98,7 +110,8 @@ Kurzfassung für die Liste (`GET /api/cards`):
    mit „Wird pro Karte ausgefüllt/gewählt" tauchen auf, plus je ein Ablagefeld pro
    Bildfläche.
 3. Die Live-Vorschau zeigt jede Eingabe sofort, inklusive automatischem Verkleinern zu
-   langer Texte und der Abweichungen bei Schriftgröße und Farbe.
+   langer Texte und der Abweichungen bei Schriftgröße und Farbe (Fett/Kursiv ebenfalls,
+   sobald der Schriften-Plan durch ist — vorher werden die Werte nur gespeichert).
 4. Ein hochgeladenes Bild lässt sich in seiner Fläche ziehen und mit dem Mausrad zoomen;
    der Ausschnitt bleibt nach dem Speichern und erneuten Öffnen erhalten.
 5. „Alle Karten" listet alle Karten als Raster oder Tabelle, mit Suche nach Namen,
