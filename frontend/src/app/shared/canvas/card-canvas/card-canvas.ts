@@ -20,9 +20,11 @@ import { TransformerConfig } from 'konva/lib/shapes/Transformer';
 import { CoreShapeComponent, NgKonvaEventObject, StageComponent } from 'ng2-konva';
 
 import { AssetImageLoader } from '../asset-image-loader';
+import { FontLoader } from '../font-loader';
 import { geometryFromNodeSnapshot, offsetLinePoints } from '../rendering/apply-transform';
+import { FontFamily } from '../rendering/fonts';
 import { CANVAS_HEIGHT, CANVAS_WIDTH, Layer, LayerPatch } from '../rendering/layer';
-import { DrawItem, buildDrawItems, requestedAssetIds } from './draw-items';
+import { DrawItem, buildDrawItems, requestedAssetIds, requestedFontFamilies } from './draw-items';
 
 /** Bildschirmpunkte, nicht Canvas-Einheiten — werden unten durch den Bühnenmaßstab geteilt,
  *  damit Anfasser bei jeder Fenstergröße gleich groß aussehen. */
@@ -58,6 +60,7 @@ const ALL_ANCHORS = [
 export class CardCanvas {
   private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
   private readonly imageLoader = inject(AssetImageLoader);
+  private readonly fontLoader = inject(FontLoader);
 
   readonly layers = input.required<Layer[]>();
   readonly selectedLayerId = input<string | null>(null);
@@ -107,6 +110,7 @@ export class CardCanvas {
   protected readonly drawItems: Signal<DrawItem[]> = computed(() =>
     buildDrawItems(this.layers(), {
       images: this.imageLoader.images(),
+      loadedFonts: this.fontLoader.loaded(),
       selectedLayerId: this.selectedLayerId(),
       interactive: this.interactive(),
     }),
@@ -151,6 +155,9 @@ export class CardCanvas {
   constructor() {
     effect(() => {
       requestedAssetIds(this.layers()).forEach((assetId: number) => this.imageLoader.load(assetId));
+      requestedFontFamilies(this.layers()).forEach((family: FontFamily) =>
+        this.fontLoader.load(family),
+      );
     });
 
     const sizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {

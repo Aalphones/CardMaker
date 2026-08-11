@@ -1,0 +1,31 @@
+// Schriften für die Karten selbst — nicht für die Oberfläche (die nutzt Caprasimo/Figtree
+// aus styles.scss). Die Dateien liegen unter frontend/public/fonts/ und werden mit
+// ausgeliefert; Herkunft und Lizenz stehen in frontend/public/fonts/LIZENZ.md.
+//
+// Die Auswahlliste dazu steht in shared/canvas/rendering/fonts.ts — kommt hier eine Schrift
+// dazu, gehört sie dort und in backend/src/Validators/LayerValidator.php ebenfalls hinein,
+// sonst weist das Backend das Template beim Speichern zurück.
+
+@each $family,
+  $file
+    in (
+      'Berkshire Swash': 'berkshire-swash-400',
+      'Great Vibes': 'great-vibes-400',
+      'Cinzel': 'cinzel-400',
+      'MedievalSharp': 'medievalsharp-400',
+      'Uncial Antiqua': 'uncial-antiqua-400',
+      'Bangers': 'bangers-400',
+      'Luckiest Guy': 'luckiest-guy-400',
+      'Bungee': 'bungee-400',
+      'Merriweather': 'merriweather-400',
+      'Lato': 'lato-400'
+    )
+{
+  @font-face {
+    font-family: $family;
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/#{$file}.woff2') format('woff2');
+  }
+}

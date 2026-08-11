@@ -3,11 +3,22 @@
 <form [formGroup]="form" class="text-properties__grid">
   <div class="field text-properties__field--wide">
     <label for="text-default">{{ form.value.source === 'user' ? 'Vorbelegung' : 'Text' }}</label>
-    <textarea id="text-default" class="input" formControlName="defaultText" rows="3" maxlength="500" (change)="emitForm()"></textarea>
+    <textarea
+      id="text-default"
+      class="input"
+      formControlName="defaultText"
+      rows="3"
+      maxlength="500"
+      (change)="emitForm()"
+    ></textarea>
   </div>
 
   <label class="text-properties__checkbox text-properties__field--wide">
-    <input type="checkbox" [checked]="form.value.source === 'user'" (change)="onSourceChange($event)" />
+    <input
+      type="checkbox"
+      [checked]="form.value.source === 'user'"
+      (change)="onSourceChange($event)"
+    />
     <span class="text-properties__label-with-hint">
       Wird pro Karte ausgefüllt
       <app-field-hint
@@ -20,30 +31,60 @@
   <div class="field">
     <label for="text-font-family">Schriftart</label>
     <select id="text-font-family" class="input" formControlName="fontFamily" (change)="emitForm()">
-      @for (font of fontFamilies; track font) {
-        <option [value]="font">{{ font }}</option>
+      @for (group of fontGroups; track group.label) {
+        <optgroup [label]="group.label">
+          @for (font of group.families; track font) {
+            <option [value]="font" [style.font-family]="font">{{ font }}</option>
+          }
+        </optgroup>
       }
     </select>
   </div>
 
   <div class="field text-properties__field--size">
     <label for="text-font-size">Größe</label>
-    <input id="text-font-size" type="number" class="input" formControlName="fontSize" min="4" max="200" (change)="emitForm()" />
+    <input
+      id="text-font-size"
+      type="number"
+      class="input"
+      formControlName="fontSize"
+      min="4"
+      max="200"
+      (change)="emitForm()"
+    />
   </div>
 
   <div class="text-properties__field--wide">
     <span class="text-properties__seg-label">Ausrichtung</span>
     <div class="seg" role="radiogroup" aria-label="Ausrichtung">
       <label class="seg__option">
-        <input type="radio" name="text-align" formControlName="align" value="left" (change)="emitForm()" />
+        <input
+          type="radio"
+          name="text-align"
+          formControlName="align"
+          value="left"
+          (change)="emitForm()"
+        />
         Links
       </label>
       <label class="seg__option">
-        <input type="radio" name="text-align" formControlName="align" value="center" (change)="emitForm()" />
+        <input
+          type="radio"
+          name="text-align"
+          formControlName="align"
+          value="center"
+          (change)="emitForm()"
+        />
         Mitte
       </label>
       <label class="seg__option">
-        <input type="radio" name="text-align" formControlName="align" value="right" (change)="emitForm()" />
+        <input
+          type="radio"
+          name="text-align"
+          formControlName="align"
+          value="right"
+          (change)="emitForm()"
+        />
         Rechts
       </label>
     </div>
@@ -52,7 +93,12 @@
 
 <app-color-field label="Textfarbe" [value]="layer().color" (valueChange)="emitColor($event)" />
 
-<app-advanced-fields [opacity]="layer().opacity" [rotation]="layer().rotation" (opacityChange)="emitOpacity($event)" (rotationChange)="emitRotation($event)">
+<app-advanced-fields
+  [opacity]="layer().opacity"
+  [rotation]="layer().rotation"
+  (opacityChange)="emitOpacity($event)"
+  (rotationChange)="emitRotation($event)"
+>
   <form [formGroup]="form" class="text-properties__grid">
     <div class="field text-properties__field--wide">
       <label for="text-key" class="text-properties__label-with-hint">
@@ -69,15 +115,33 @@
       <span class="text-properties__seg-label">Vertikale Ausrichtung</span>
       <div class="seg" role="radiogroup" aria-label="Vertikale Ausrichtung">
         <label class="seg__option">
-          <input type="radio" name="text-valign" formControlName="verticalAlign" value="top" (change)="emitForm()" />
+          <input
+            type="radio"
+            name="text-valign"
+            formControlName="verticalAlign"
+            value="top"
+            (change)="emitForm()"
+          />
           Oben
         </label>
         <label class="seg__option">
-          <input type="radio" name="text-valign" formControlName="verticalAlign" value="middle" (change)="emitForm()" />
+          <input
+            type="radio"
+            name="text-valign"
+            formControlName="verticalAlign"
+            value="middle"
+            (change)="emitForm()"
+          />
           Mitte
         </label>
         <label class="seg__option">
-          <input type="radio" name="text-valign" formControlName="verticalAlign" value="bottom" (change)="emitForm()" />
+          <input
+            type="radio"
+            name="text-valign"
+            formControlName="verticalAlign"
+            value="bottom"
+            (change)="emitForm()"
+          />
           Unten
         </label>
       </div>
@@ -86,9 +150,19 @@
     <div class="field">
       <label for="text-min-font-size" class="text-properties__label-with-hint">
         Mindestgröße
-        <app-field-hint text="Unterste Grenze, bis zu der automatisches Verkleinern schrumpfen darf." />
+        <app-field-hint
+          text="Unterste Grenze, bis zu der automatisches Verkleinern schrumpfen darf."
+        />
       </label>
-      <input id="text-min-font-size" type="number" class="input" formControlName="minFontSize" min="4" max="200" (change)="emitForm()" />
+      <input
+        id="text-min-font-size"
+        type="number"
+        class="input"
+        formControlName="minFontSize"
+        min="4"
+        max="200"
+        (change)="emitForm()"
+      />
     </div>
 
     @if (minFontSizeExceedsFontSize()) {
@@ -100,9 +174,20 @@
     <div class="field">
       <label for="text-line-height" class="text-properties__label-with-hint">
         Zeilenabstand
-        <app-field-hint text="Vielfaches der Schriftgröße, z. B. 1.2 für etwas Luft zwischen den Zeilen." />
+        <app-field-hint
+          text="Vielfaches der Schriftgröße, z. B. 1.2 für etwas Luft zwischen den Zeilen."
+        />
       </label>
-      <input id="text-line-height" type="number" class="input" formControlName="lineHeight" min="0.5" max="3" step="0.1" (change)="emitForm()" />
+      <input
+        id="text-line-height"
+        type="number"
+        class="input"
+        formControlName="lineHeight"
+        min="0.5"
+        max="3"
+        step="0.1"
+        (change)="emitForm()"
+      />
     </div>
 
     <label class="text-properties__checkbox text-properties__field--wide">
@@ -118,22 +203,48 @@
 
     <div class="field">
       <label for="text-outline-width">Umrandungsbreite</label>
-      <input id="text-outline-width" type="number" class="input" formControlName="outlineWidth" min="0" (change)="emitForm()" />
+      <input
+        id="text-outline-width"
+        type="number"
+        class="input"
+        formControlName="outlineWidth"
+        min="0"
+        (change)="emitForm()"
+      />
     </div>
 
     <div class="field">
       <label for="text-shadow-blur">Schattenunschärfe</label>
-      <input id="text-shadow-blur" type="number" class="input" formControlName="shadowBlur" min="0" (change)="emitForm()" />
+      <input
+        id="text-shadow-blur"
+        type="number"
+        class="input"
+        formControlName="shadowBlur"
+        min="0"
+        (change)="emitForm()"
+      />
     </div>
 
     <div class="field">
       <label for="text-shadow-offset-x">Schattenversatz X</label>
-      <input id="text-shadow-offset-x" type="number" class="input" formControlName="shadowOffsetX" (change)="emitForm()" />
+      <input
+        id="text-shadow-offset-x"
+        type="number"
+        class="input"
+        formControlName="shadowOffsetX"
+        (change)="emitForm()"
+      />
     </div>
 
     <div class="field">
       <label for="text-shadow-offset-y">Schattenversatz Y</label>
-      <input id="text-shadow-offset-y" type="number" class="input" formControlName="shadowOffsetY" (change)="emitForm()" />
+      <input
+        id="text-shadow-offset-y"
+        type="number"
+        class="input"
+        formControlName="shadowOffsetY"
+        (change)="emitForm()"
+      />
     </div>
   </form>
 

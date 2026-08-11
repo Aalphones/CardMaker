@@ -35,6 +35,9 @@ backend/src/Validators/<Feature>Validator.php
 `docs/conventions/css.md`. `frontend/src/styles/_bausteine.scss` — die gemeinsamen
 Bausteinklassen (Buttons, Felder, Karten, Tags, Dialog, Tabelle, Segment-Umschalter),
 per `@use` eingebunden; Komponenten bauen keine eigenen Button-/Feld-Grundregeln mehr.
+`frontend/src/styles/_kartenschriften.scss` — die `@font-face`-Einträge der Schriften **für
+die Karten** (nicht für die Oberfläche); die Dateien liegen in `frontend/public/fonts/`,
+Herkunft und Lizenz in `frontend/public/fonts/LIZENZ.md`.
 
 ## Frontend-Layout (Kartengruppen seit Meilenstein 1, Template-Editor vollständig seit Meilenstein 2)
 
@@ -94,8 +97,14 @@ frontend/src/app/
                            ausgewählten Ebene)
       asset-image-loader.ts ← lädt hochgeladene Bilder als Blob hinter der Anmeldung und hält
                            sie als fertige Bildelemente im Speicher
+      font-loader.ts    ← fordert die mitgelieferten Kartenschriften an und meldet, welche
+                           fertig geladen sind (Konva zeichnet auf ein Bitmap — das zählt für
+                           den Browser nicht als Schriftverwendung, ohne diese Anforderung
+                           bliebe still die Ersatzschrift stehen)
       rendering/        ← reine Zeichenregeln ohne Konva-Abhängigkeit: `layer.ts` (die fünf
-                           Ebenentypen + Fabrikfunktionen), `fonts.ts` (feste Schriftenliste),
+                           Ebenentypen + Fabrikfunktionen), `fonts.ts` (die wählbaren
+                           Schriften samt Sorte und Ersatzschrift — Gegenstück zur Prüfliste
+                           in `LayerValidator.php`, beide müssen deckungsgleich bleiben),
                            `units.ts` (Canvas-Einheiten → Pixel), `auto-shrink.ts`
                            (automatisches Verkleinern von Text), `apply-transform.ts`
                            (Konva-Transform-Ergebnis → Geometrie-Patch in Canvas-Einheiten,

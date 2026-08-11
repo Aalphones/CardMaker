@@ -27,8 +27,18 @@ final class LayerValidator
     private const TEXT_SOURCES = ['static', 'user'];
     private const ALIGNS = ['left', 'center', 'right'];
     private const VERTICAL_ALIGNS = ['top', 'middle', 'bottom'];
+    /**
+     * Muss deckungsgleich mit `frontend/src/app/shared/canvas/rendering/fonts.ts` bleiben —
+     * fehlt eine Schrift hier, lässt sich ein Template mit ihr nicht speichern.
+     */
     private const FONT_FAMILIES = [
+        // Vom Gerät
         'Arial', 'Verdana', 'Trebuchet MS', 'Georgia', 'Times New Roman', 'Courier New', 'Impact',
+        // Mitgeliefert (frontend/public/fonts)
+        'Berkshire Swash', 'Great Vibes',
+        'Cinzel', 'MedievalSharp', 'Uncial Antiqua',
+        'Bangers', 'Luckiest Guy', 'Bungee',
+        'Merriweather', 'Lato',
     ];
     private const HEX_PATTERN = '/^#[0-9a-fA-F]{6}$/';
     private const KEY_PATTERN = '/^[a-z][a-z0-9_]{0,39}$/';

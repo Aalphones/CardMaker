@@ -1,7 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { FONT_FAMILIES } from '../../../../../shared/canvas/rendering/fonts';
+import { FONT_GROUPS } from '../../../../../shared/canvas/rendering/fonts';
 import { LayerPatch, TextLayer } from '../../../../../shared/canvas/rendering/layer';
 import { FieldHint } from '../../../../../shared/components/field-hint/field-hint';
 import { AdvancedFields } from '../advanced-fields/advanced-fields';
@@ -23,7 +31,7 @@ export class TextProperties {
   readonly layer = input.required<TextLayer>();
   readonly layerChange = output<LayerPatch>();
 
-  protected readonly fontFamilies = FONT_FAMILIES;
+  protected readonly fontGroups = FONT_GROUPS;
 
   protected readonly form = this.formBuilder.group({
     key: ['', [Validators.required, Validators.pattern(KEY_PATTERN)]],
@@ -78,7 +86,9 @@ export class TextProperties {
   }
 
   protected onSourceChange(event: Event): void {
-    const source: TextLayer['source'] = (event.target as HTMLInputElement).checked ? 'user' : 'static';
+    const source: TextLayer['source'] = (event.target as HTMLInputElement).checked
+      ? 'user'
+      : 'static';
     this.form.patchValue({ source }, { emitEvent: false });
     this.layerChange.emit({ source });
   }

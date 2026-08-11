@@ -5,7 +5,7 @@ import { RectConfig } from 'konva/lib/shapes/Rect';
 import { TextConfig } from 'konva/lib/shapes/Text';
 
 import { fitFontSize } from '../rendering/auto-shrink';
-import { DEFAULT_FONT_FAMILY } from '../rendering/fonts';
+import { DEFAULT_FONT_FAMILY, FontFamily, renderFontFamily } from '../rendering/fonts';
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
@@ -50,6 +50,8 @@ export interface DrawItem {
 
 export interface DrawContext {
   images: ReadonlyMap<number, HTMLImageElement>;
+  /** Mitgelieferte Schriften, die fertig geladen sind (siehe `FontLoader`). */
+  loadedFonts: ReadonlySet<string>;
   selectedLayerId: string | null;
   interactive: boolean;
 }
@@ -63,7 +65,9 @@ export function buildDrawItems(layers: Layer[], context: DrawContext): DrawItem[
   const items: DrawItem[] = layers
     .filter((layer: Layer) => layer.visible)
     .flatMap((layer: Layer) => itemsForLayer(layer, context));
-  const selectedLayer = layers.find((layer: Layer) => layer.id === context.selectedLayerId && layer.visible);
+  const selectedLayer = layers.find(
+    (layer: Layer) => layer.id === context.selectedLayerId && layer.visible,
+  );
 
   // Nicht-Rahmen-Ebenen bekommen ab Phase 7 den echten Konva-Transformer als Auswahlrahmen
   // (card-canvas) — der gestrichelte Platzhalterrahmen hier würde sich sonst mit dessen
@@ -87,6 +91,19 @@ export function requestedAssetIds(layers: Layer[]): number[] {
   }
 
   return [...assetIds];
+}
+
+/** Schriften, die die Vorschau braucht — Auftragsliste für den Schriftlader. */
+export function requestedFontFamilies(layers: Layer[]): FontFamily[] {
+  const families = new Set<FontFamily>();
+
+  for (const layer of layers) {
+    if (layer.type === 'text') {
+      families.add(layer.fontFamily);
+    }
+  }
+
+  return [...families];
 }
 
 function itemsForLayer(layer: Layer, context: DrawContext): DrawItem[] {
@@ -114,10 +131,14 @@ function itemsForLayer(layer: Layer, context: DrawContext): DrawItem[] {
  * benutzen ("may produce bugs"), und empfiehlt `name`. Der Anfasser in `card-canvas` sucht
  * den Knoten entsprechend über den Namens-Selektor (`stage.findOne('.' + id)`).
  */
-function interactionConfig(layer: Layer, context: DrawContext): { name: string; draggable: boolean } {
+function interactionConfig(
+  layer: Layer,
+  context: DrawContext,
+): { name: string; draggable: boolean } {
   return {
     name: layer.id,
-    draggable: context.interactive && context.selectedLayerId === layer.id && layer.type !== 'frame',
+    draggable:
+      context.interactive && context.selectedLayerId === layer.id && layer.type !== 'frame',
   };
 }
 
@@ -126,7 +147,13 @@ function interactionConfig(layer: Layer, context: DrawContext): { name: string; 
  * entscheidet erst die Karteninstanz (Meilenstein 3) — das Template legt nur die Fläche fest.
  */
 function imageAreaItems(layer: ImageLayer, context: DrawContext): DrawItem[] {
-  return placeholderItems(layer.id, box(layer), 'Bildfläche', layer.opacity, interactionConfig(layer, context));
+  return placeholderItems(
+    layer.id,
+    box(layer),
+    'Bildfläche',
+    layer.opacity,
+    interactionConfig(layer, context),
+  );
 }
 
 function iconItems(layer: IconLayer, context: DrawContext): DrawItem[] {
@@ -147,7 +174,12 @@ function iconItems(layer: IconLayer, context: DrawContext): DrawItem[] {
       key: layer.id,
       layerId: layer.id,
       element: 'image',
-      config: { ...box(layer), image, opacity: layer.opacity, ...interactionConfig(layer, context) },
+      config: {
+        ...box(layer),
+        image,
+        opacity: layer.opacity,
+        ...interactionConfig(layer, context),
+      },
     },
   ];
 }
@@ -157,10 +189,23 @@ function frameItems(layer: FrameLayer, context: DrawContext): DrawItem[] {
   const interaction = interactionConfig(layer, context);
 
   if (!image) {
-    return placeholderItems(layer.id, FRAME_BOX, layer.assetId === null ? 'Rahmen fehlt' : 'Rahmen lädt …', 1, interaction);
+    return placeholderItems(
+      layer.id,
+      FRAME_BOX,
+      layer.assetId === null ? 'Rahmen fehlt' : 'Rahmen lädt …',
+      1,
+      interaction,
+    );
   }
 
-  return [{ key: layer.id, layerId: layer.id, element: 'image', config: { ...FRAME_BOX, image, ...interaction } }];
+  return [
+    {
+      key: layer.id,
+      layerId: layer.id,
+      element: 'image',
+      config: { ...FRAME_BOX, image, ...interaction },
+    },
+  ];
 }
 
 function shapeItem(layer: ShapeLayer, context: DrawContext): DrawItem {
@@ -221,8 +266,16 @@ function shapeItem(layer: ShapeLayer, context: DrawContext): DrawItem {
 
 function textItems(layer: TextLayer, context: DrawContext): DrawItem[] {
   if (layer.defaultText.length === 0) {
-    return placeholderItems(layer.id, box(layer), 'Text', layer.opacity, interactionConfig(layer, context));
+    return placeholderItems(
+      layer.id,
+      box(layer),
+      'Text',
+      layer.opacity,
+      interactionConfig(layer, context),
+    );
   }
+
+  const fontFamily = renderFontFamily(layer.fontFamily, context.loadedFonts);
 
   return [
     {
@@ -233,8 +286,8 @@ function textItems(layer: TextLayer, context: DrawContext): DrawItem[] {
         ...box(layer),
         ...interactionConfig(layer, context),
         text: layer.defaultText,
-        fontFamily: layer.fontFamily,
-        fontSize: effectiveFontSize(layer),
+        fontFamily,
+        fontSize: effectiveFontSize(layer, fontFamily),
         lineHeight: layer.lineHeight,
         fill: layer.color,
         align: layer.align,
@@ -256,7 +309,12 @@ function textItems(layer: TextLayer, context: DrawContext): DrawItem[] {
   ];
 }
 
-function effectiveFontSize(layer: TextLayer): number {
+/**
+ * `fontFamily` kommt von außen statt aus der Ebene: Gemessen werden muss dieselbe Schrift,
+ * die auch gezeichnet wird — solange eine mitgelieferte Schrift noch lädt, ist das die
+ * Ersatzschrift.
+ */
+function effectiveFontSize(layer: TextLayer, fontFamily: string): number {
   if (!layer.autoShrink) {
     return layer.fontSize;
   }
@@ -267,7 +325,7 @@ function effectiveFontSize(layer: TextLayer): number {
     boxHeight: layer.height,
     fontSize: layer.fontSize,
     minFontSize: layer.minFontSize,
-    fontFamily: layer.fontFamily,
+    fontFamily,
     lineHeight: layer.lineHeight,
     measureHeight: measureTextHeight,
   });
@@ -355,7 +413,13 @@ function lineBox(layer: LineShapeLayer): Geometry {
 }
 
 function box(layer: Geometry): Geometry {
-  return { x: layer.x, y: layer.y, width: layer.width, height: layer.height, rotation: layer.rotation };
+  return {
+    x: layer.x,
+    y: layer.y,
+    width: layer.width,
+    height: layer.height,
+    rotation: layer.rotation,
+  };
 }
 
 function pickImage(assetId: number | null, context: DrawContext): HTMLImageElement | undefined {
