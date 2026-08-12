@@ -1,20 +1,680 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Dialog } from '@angular/cdk/dialog';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  FormControl,
+  FormGroup,
+  FormRecord,
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
+import { CardImageLoader, cardImageKey } from '../../../shared/canvas/card-image-loader';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { FieldHint } from '../../../shared/components/field-hint/field-hint';
 import { ComponentWithUnsavedChanges } from '../../../shared/guards/pending-changes-guard';
+import { Asset } from '../../../store/assets/assets.actions';
+import { AssetsFacade } from '../../../store/assets/assets.facade';
+import { CardGroupsFacade } from '../../../store/card-groups/card-groups.facade';
+import { Card, CardInput, CardTextOverride } from '../../../store/cards/cards.actions';
+import { CardsFacade } from '../../../store/cards/cards.facade';
+import { TemplatesFacade } from '../../../store/templates/templates.facade';
+import {
+  CardFormFields,
+  CardIconField,
+  CardTextField,
+  EMPTY_CARD_FORM_FIELDS,
+  describeCardFields,
+} from './card-fields';
+import { ImageDrop } from './image-drop/image-drop';
 
 /**
- * Rohbau — Formular (Phase 6), Live-Vorschau (Phase 7) und das Zurechtschieben des
- * Bildes (Phase 8) entstehen hier. Der Rohbau hat noch keinen Entwurf, den man verlieren
- * könnte; sobald das Formular steht, meldet `hasUnsavedChanges()` echte Änderungen.
+ * Fett und Kursiv sind Abweichungen, keine Schalter: „aus dem Template" ist ein eigener
+ * Zustand und lässt sich mit zwei Stellungen nicht ausdrücken.
  */
+type OverrideFlag = 'inherit' | 'on' | 'off';
+
+interface OverrideControls {
+  fontSize: FormControl<number | null>;
+  color: FormControl<string | null>;
+  bold: FormControl<OverrideFlag>;
+  italic: FormControl<OverrideFlag>;
+}
+
+interface OrphanKeys {
+  texts: string[];
+  icons: string[];
+}
+
+const NEW_CARD_FALLBACK_NAME = 'Neue Karte';
+
+const SIZE_HINT =
+  'Leer heißt: so groß wie im Template. Ein Wert hier gilt nur für diese eine Karte.';
+const COLOR_HINT =
+  'Leer heißt: die Farbe aus dem Template. Ein Wert hier gilt nur für diese eine Karte.';
+const ORPHAN_HINT =
+  'Das Template kennt diese Felder nicht mehr — umbenannt oder gelöscht. Die Werte bleiben ' +
+  'gespeichert und tauchen wieder auf, falls die Felder zurückkommen.';
+const TEMPLATE_HINT =
+  'Die Felder unten richten sich nach dem Template. Wechselst du es, verschwinden Felder, ' +
+  'die das neue Template nicht kennt — ihre Werte bleiben trotzdem erhalten.';
+
 @Component({
   selector: 'app-card-editor',
+  imports: [ReactiveFormsModule, RouterLink, FieldHint, ImageDrop],
   templateUrl: './card-editor.html',
   styleUrl: './card-editor.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CardEditor implements ComponentWithUnsavedChanges {
-  hasUnsavedChanges(): boolean {
-    return false;
+  private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly route = inject(ActivatedRoute);
+  private readonly dialog = inject(Dialog);
+  private readonly cardImages = inject(CardImageLoader);
+  protected readonly cards = inject(CardsFacade);
+  protected readonly templates = inject(TemplatesFacade);
+  protected readonly cardGroups = inject(CardGroupsFacade);
+  protected readonly assets = inject(AssetsFacade);
+
+  protected readonly flagOptions: readonly { value: OverrideFlag; label: string }[] = [
+    { value: 'inherit', label: 'Template' },
+    { value: 'on', label: 'An' },
+    { value: 'off', label: 'Aus' },
+  ];
+
+  protected readonly flagFields: readonly { field: 'bold' | 'italic'; label: string }[] = [
+    { field: 'bold', label: 'Fett' },
+    { field: 'italic', label: 'Kursiv' },
+  ];
+
+  protected readonly sizeHint = SIZE_HINT;
+  protected readonly colorHint = COLOR_HINT;
+  protected readonly orphanHint = ORPHAN_HINT;
+  protected readonly templateHint = TEMPLATE_HINT;
+
+  private readonly paramMap = toSignal(this.route.paramMap, {
+    initialValue: this.route.snapshot.paramMap,
+  });
+
+  protected readonly cardId = computed(() => {
+    const idParam = this.paramMap().get('id');
+    return idParam === null ? null : Number(idParam);
+  });
+
+  protected readonly card = computed(() => {
+    const id = this.cardId();
+    const current = this.cards.current();
+    return id !== null && current?.id === id ? current : null;
+  });
+
+  protected readonly selectedTemplateId = signal<number | null>(null);
+  protected readonly submitting = signal(false);
+  protected readonly formError = signal<string | null>(null);
+
+  /** Ein Template-Wechsel ist eine Änderung, die kein Formular-Control mitbekommt. */
+  private readonly templateChanged = signal(false);
+
+  /**
+   * Der Entwurfsstand **aller** je gesehenen Werte — auch der, die das aktuelle Template
+   * nicht kennt. Das Formular zeigt nur die passenden; gespeichert wird alles. Sonst
+   * würde ein Template-Wechsel Werte still löschen.
+   */
+  private readonly draftValues = signal<Record<string, string>>({});
+  private readonly draftIconChoices = signal<Record<string, number>>({});
+  private readonly draftOverrides = signal<Record<string, CardTextOverride>>({});
+
+  private loadedCardId: number | null = null;
+  private requestedTemplateId: number | null = null;
+
+  /**
+   * Die drei veränderlichen Teile stehen als eigene Felder da: über `form.controls` gelesen
+   * verlieren sie ihren `FormRecord`-Typ und damit das Hinzufügen/Entfernen zur Laufzeit.
+   */
+  private readonly valueControls = new FormRecord<FormControl<string>>({});
+  private readonly iconControls = new FormRecord<FormControl<number | null>>({});
+  private readonly overrideControls = new FormRecord<FormGroup<OverrideControls>>({});
+
+  protected readonly form = this.formBuilder.group({
+    name: this.formBuilder.control('', [Validators.required, Validators.maxLength(191)]),
+    cardGroupId: this.formBuilder.control<number | null>(null),
+    values: this.valueControls,
+    icons: this.iconControls,
+    overrides: this.overrideControls,
+  });
+
+  protected readonly templateLoaded = computed(() => {
+    const id = this.selectedTemplateId();
+    return id !== null && this.templates.current()?.id === id;
+  });
+
+  protected readonly fields = computed<CardFormFields>(() => {
+    const template = this.templates.current();
+
+    if (!this.templateLoaded() || template === null) {
+      return EMPTY_CARD_FORM_FIELDS;
+    }
+
+    return describeCardFields(template.layers);
+  });
+
+  protected readonly title = computed(() => this.card()?.name ?? NEW_CARD_FALLBACK_NAME);
+
+  protected readonly iconAssetsById = computed(
+    () => new Map(this.assets.all().map((asset: Asset) => [asset.id, asset])),
+  );
+
+  protected readonly orphanKeys = computed<OrphanKeys>(() => {
+    if (!this.templateLoaded()) {
+      return { texts: [], icons: [] };
+    }
+
+    const fields = this.fields();
+    const knownTextKeys = new Set(fields.texts.map((text: CardTextField) => text.key));
+    const knownIconLayerIds = new Set(fields.icons.map((icon: CardIconField) => icon.layerId));
+    const values = this.draftValues();
+    const overrides = this.draftOverrides();
+
+    const textKeys = new Set(
+      Object.keys(values).filter((key: string) => (values[key] ?? '').trim() !== ''),
+    );
+    Object.keys(overrides).forEach((key: string) => textKeys.add(key));
+
+    return {
+      texts: [...textKeys].filter((key: string) => !knownTextKeys.has(key)),
+      icons: Object.keys(this.draftIconChoices()).filter(
+        (layerId: string) => !knownIconLayerIds.has(layerId),
+      ),
+    };
+  });
+
+  protected readonly orphanCount = computed(
+    () => this.orphanKeys().texts.length + this.orphanKeys().icons.length,
+  );
+
+  constructor() {
+    this.cards.ensureLoaded();
+    this.templates.ensureLoaded();
+    this.cardGroups.ensureLoaded();
+    this.assets.ensureLoaded();
+
+    const id = this.cardId();
+
+    if (id !== null) {
+      this.cards.loadOne(id);
+    }
+
+    effect(() => {
+      const card = this.card();
+
+      if (card !== null) {
+        untracked(() => this.adoptCard(card));
+      }
+    });
+
+    effect(() => {
+      const templateId = this.selectedTemplateId();
+
+      if (templateId !== null && this.requestedTemplateId !== templateId) {
+        this.requestedTemplateId = templateId;
+        this.templates.loadOne(templateId);
+      }
+    });
+
+    effect(() => {
+      const fields = this.fields();
+      const values = this.draftValues();
+      const icons = this.draftIconChoices();
+      const overrides = this.draftOverrides();
+
+      untracked(() => this.rebuildDynamicControls(fields, values, icons, overrides));
+    });
+
+    effect(() => {
+      const card = this.card();
+
+      if (card === null) {
+        return;
+      }
+
+      for (const image of card.images) {
+        this.cardImages.load(card.id, image.layerId);
+      }
+    });
+
+    effect(() => {
+      if (this.cards.error()) {
+        this.submitting.set(false);
+      }
+    });
   }
+
+  hasUnsavedChanges(): boolean {
+    return (this.form.dirty || this.templateChanged()) && !this.submitting();
+  }
+
+  protected imageUrlFor(layerId: string): string | null {
+    const id = this.cardId();
+
+    if (id === null) {
+      return null;
+    }
+
+    return this.cardImages.images().get(cardImageKey(id, layerId))?.src ?? null;
+  }
+
+  protected valueControl(key: string): FormControl<string> | null {
+    return this.valueControls.controls[key] ?? null;
+  }
+
+  protected overrideGroup(key: string): FormGroup<OverrideControls> | null {
+    return this.overrideControls.controls[key] ?? null;
+  }
+
+  /** Genau ein Tag der Gruppe ist mit der Tabulatortaste erreichbar — das gewählte. */
+  protected iconTabIndex(layerId: string, assetId: number, index: number): number {
+    const chosen = this.chosenIconAssetId(layerId);
+
+    if (chosen === null) {
+      return index === 0 ? 0 : -1;
+    }
+
+    return chosen === assetId ? 0 : -1;
+  }
+
+  protected chosenIconAssetId(layerId: string): number | null {
+    return this.iconControls.controls[layerId]?.value ?? null;
+  }
+
+  protected colorFor(text: CardTextField): string {
+    return this.overrideGroup(text.key)?.controls.color.value ?? text.templateColor;
+  }
+
+  protected setColor(key: string, event: Event): void {
+    const control = this.overrideGroup(key)?.controls.color;
+
+    if (control) {
+      control.setValue((event.target as HTMLInputElement).value);
+      control.markAsDirty();
+    }
+  }
+
+  protected resetColor(key: string): void {
+    const control = this.overrideGroup(key)?.controls.color;
+
+    if (control) {
+      control.setValue(null);
+      control.markAsDirty();
+    }
+  }
+
+  protected resetFontSize(key: string): void {
+    const control = this.overrideGroup(key)?.controls.fontSize;
+
+    if (control) {
+      control.setValue(null);
+      control.markAsDirty();
+    }
+  }
+
+  protected flagFor(key: string, field: 'bold' | 'italic'): OverrideFlag {
+    return this.overrideGroup(key)?.controls[field].value ?? 'inherit';
+  }
+
+  protected setFlag(key: string, field: 'bold' | 'italic', value: OverrideFlag): void {
+    const control = this.overrideGroup(key)?.controls[field];
+
+    if (control) {
+      control.setValue(value);
+      control.markAsDirty();
+    }
+  }
+
+  protected chooseIcon(layerId: string, assetId: number): void {
+    const control = this.iconControls.controls[layerId];
+
+    if (!control) {
+      return;
+    }
+
+    control.setValue(control.value === assetId ? null : assetId);
+    control.markAsDirty();
+  }
+
+  /** Pfeiltasten bewegen Auswahl und Fokus — wie in einer Radiogruppe. */
+  protected onIconKeydown(event: KeyboardEvent, field: CardIconField, index: number): void {
+    const step = iconStepFor(event.key);
+
+    if (step === 0) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const count = field.choiceAssetIds.length;
+    const nextIndex = (index + step + count) % count;
+    const nextAssetId = field.choiceAssetIds[nextIndex];
+
+    if (nextAssetId === undefined) {
+      return;
+    }
+
+    this.chooseIcon(field.layerId, nextAssetId);
+
+    const group = (event.currentTarget as HTMLElement).parentElement;
+    const buttons = group?.querySelectorAll('button');
+    buttons?.item(nextIndex)?.focus();
+  }
+
+  protected async onTemplateChange(event: Event): Promise<void> {
+    const select = event.target as HTMLSelectElement;
+    const nextTemplateId = Number(select.value);
+    const previousTemplateId = this.selectedTemplateId();
+
+    if (previousTemplateId === nextTemplateId) {
+      return;
+    }
+
+    if (previousTemplateId !== null && this.hasEnteredValues()) {
+      const confirmed = await this.confirmTemplateSwitch();
+
+      if (!confirmed) {
+        select.value = String(previousTemplateId);
+        return;
+      }
+    }
+
+    this.mergeFormIntoDraft();
+    this.selectedTemplateId.set(nextTemplateId);
+    this.templateChanged.set(true);
+  }
+
+  protected onCardGroupChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.form.controls.cardGroupId.setValue(value === '' ? null : Number(value));
+    this.form.controls.cardGroupId.markAsDirty();
+  }
+
+  protected onImageChosen(layerId: string, file: File): void {
+    const templateId = this.selectedTemplateId();
+
+    if (templateId === null) {
+      return;
+    }
+
+    const id = this.cardId();
+
+    if (id !== null) {
+      this.cards.uploadImage(id, layerId, file);
+      return;
+    }
+
+    // Ein Bild braucht eine Karte, an der es hängt: die entsteht hier — der Effekt im
+    // Speicher schickt das Bild direkt hinterher und die Adresse wechselt auf /cards/{id}.
+    this.mergeFormIntoDraft();
+    this.submitting.set(true);
+    this.cards.create(this.buildInput(templateId), { layerId, file });
+  }
+
+  protected onImageRemoved(layerId: string): void {
+    const id = this.cardId();
+
+    if (id !== null) {
+      this.cards.removeImage(id, layerId);
+    }
+  }
+
+  protected removeOrphans(): void {
+    const orphans = this.orphanKeys();
+    const orphanTexts = new Set(orphans.texts);
+    const orphanIcons = new Set(orphans.icons);
+
+    this.draftValues.update((values: Record<string, string>) =>
+      withoutKeys(values, orphanTexts),
+    );
+    this.draftOverrides.update((overrides: Record<string, CardTextOverride>) =>
+      withoutKeys(overrides, orphanTexts),
+    );
+    this.draftIconChoices.update((choices: Record<string, number>) =>
+      withoutKeys(choices, orphanIcons),
+    );
+    this.form.markAsDirty();
+  }
+
+  protected submit(): void {
+    const templateId = this.selectedTemplateId();
+
+    if (templateId === null) {
+      this.formError.set('Bitte zuerst ein Template wählen.');
+      return;
+    }
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.formError.set('Bitte einen Kartennamen angeben.');
+      return;
+    }
+
+    this.formError.set(null);
+    this.mergeFormIntoDraft();
+    this.submitting.set(true);
+
+    const input = this.buildInput(templateId);
+    const id = this.cardId();
+
+    if (id === null) {
+      this.cards.create(input);
+      return;
+    }
+
+    // Der Server-Stand darf nach dem Speichern wieder ins Formular zurückfließen.
+    this.loadedCardId = null;
+    this.cards.save(id, input);
+  }
+
+  private adoptCard(card: Card): void {
+    if (this.loadedCardId === card.id) {
+      return;
+    }
+
+    this.loadedCardId = card.id;
+    this.form.patchValue({ name: card.name, cardGroupId: card.cardGroupId });
+    this.draftValues.set({ ...card.values });
+    this.draftIconChoices.set({ ...card.iconChoices });
+    this.draftOverrides.set({ ...card.textOverrides });
+    this.selectedTemplateId.set(card.templateId);
+    this.form.markAsPristine();
+    this.templateChanged.set(false);
+    this.submitting.set(false);
+  }
+
+  private rebuildDynamicControls(
+    fields: CardFormFields,
+    values: Record<string, string>,
+    iconChoices: Record<string, number>,
+    overrides: Record<string, CardTextOverride>,
+  ): void {
+    const valueRecord = this.valueControls;
+    const iconRecord = this.iconControls;
+    const overrideRecord = this.overrideControls;
+
+    Object.keys(valueRecord.controls).forEach((key: string) => valueRecord.removeControl(key));
+    Object.keys(iconRecord.controls).forEach((key: string) => iconRecord.removeControl(key));
+    Object.keys(overrideRecord.controls).forEach((key: string) =>
+      overrideRecord.removeControl(key),
+    );
+
+    for (const text of fields.texts) {
+      valueRecord.addControl(text.key, this.formBuilder.control(values[text.key] ?? ''));
+      overrideRecord.addControl(text.key, createOverrideGroup(overrides[text.key]));
+    }
+
+    for (const icon of fields.icons) {
+      iconRecord.addControl(
+        icon.layerId,
+        this.formBuilder.control<number | null>(iconChoices[icon.layerId] ?? null),
+      );
+    }
+  }
+
+  /** Formularwerte in den Entwurfsstand übernehmen, ohne fremde Schlüssel zu verlieren. */
+  private mergeFormIntoDraft(): void {
+    const values = { ...this.draftValues() };
+    const iconChoices = { ...this.draftIconChoices() };
+    const overrides = { ...this.draftOverrides() };
+
+    for (const [key, control] of Object.entries(this.valueControls.controls)) {
+      values[key] = control.value;
+    }
+
+    for (const [layerId, control] of Object.entries(this.iconControls.controls)) {
+      if (control.value === null) {
+        delete iconChoices[layerId];
+      } else {
+        iconChoices[layerId] = control.value;
+      }
+    }
+
+    for (const [key, group] of Object.entries(this.overrideControls.controls)) {
+      const override = toOverride(group);
+
+      if (override === null) {
+        delete overrides[key];
+      } else {
+        overrides[key] = override;
+      }
+    }
+
+    this.draftValues.set(values);
+    this.draftIconChoices.set(iconChoices);
+    this.draftOverrides.set(overrides);
+  }
+
+  private buildInput(templateId: number): CardInput {
+    const name = this.form.controls.name.value.trim();
+
+    return {
+      name: name === '' ? NEW_CARD_FALLBACK_NAME : name,
+      templateId,
+      cardGroupId: this.form.controls.cardGroupId.value,
+      values: this.draftValues(),
+      iconChoices: this.draftIconChoices(),
+      textOverrides: this.draftOverrides(),
+    };
+  }
+
+  private hasEnteredValues(): boolean {
+    const hasDraftValues = Object.values(this.draftValues()).some(
+      (value: string) => value.trim() !== '',
+    );
+    const hasFormValues = Object.values(this.valueControls.controls).some(
+      (control: FormControl<string>) => control.value.trim() !== '',
+    );
+
+    return (
+      hasDraftValues ||
+      hasFormValues ||
+      Object.keys(this.draftIconChoices()).length > 0 ||
+      Object.values(this.iconControls.controls).some(
+        (control: FormControl<number | null>) => control.value !== null,
+      )
+    );
+  }
+
+  private async confirmTemplateSwitch(): Promise<boolean> {
+    const dialogRef = this.dialog.open<boolean>(ConfirmDialog, {
+      data: {
+        title: 'Template wechseln',
+        message:
+          'Felder, die das neue Template nicht kennt, werden nicht mehr angezeigt. Ihre Werte ' +
+          'bleiben gespeichert. Fortfahren?',
+        confirmLabel: 'Wechseln',
+      },
+    });
+
+    return (await firstValueFrom(dialogRef.closed)) === true;
+  }
+}
+
+function createOverrideGroup(override: CardTextOverride | undefined): FormGroup<OverrideControls> {
+  return new FormGroup<OverrideControls>({
+    fontSize: new FormControl<number | null>(override?.fontSize ?? null, [
+      Validators.min(4),
+      Validators.max(200),
+    ]),
+    color: new FormControl<string | null>(override?.color ?? null),
+    bold: new FormControl<OverrideFlag>(toFlag(override?.bold), { nonNullable: true }),
+    italic: new FormControl<OverrideFlag>(toFlag(override?.italic), { nonNullable: true }),
+  });
+}
+
+function toFlag(value: boolean | undefined): OverrideFlag {
+  if (value === undefined) {
+    return 'inherit';
+  }
+
+  return value ? 'on' : 'off';
+}
+
+function fromFlag(flag: OverrideFlag): boolean | undefined {
+  if (flag === 'inherit') {
+    return undefined;
+  }
+
+  return flag === 'on';
+}
+
+/** Eine Abweichung ohne gesetztes Feld ist keine — die wird gar nicht erst gespeichert. */
+function toOverride(group: FormGroup<OverrideControls>): CardTextOverride | null {
+  const override: CardTextOverride = {};
+  const { fontSize, color, bold, italic } = group.getRawValue();
+
+  if (fontSize !== null) {
+    override.fontSize = fontSize;
+  }
+
+  if (color !== null) {
+    override.color = color;
+  }
+
+  const boldValue = fromFlag(bold);
+  const italicValue = fromFlag(italic);
+
+  if (boldValue !== undefined) {
+    override.bold = boldValue;
+  }
+
+  if (italicValue !== undefined) {
+    override.italic = italicValue;
+  }
+
+  return Object.keys(override).length === 0 ? null : override;
+}
+
+function withoutKeys<T>(source: Record<string, T>, keys: Set<string>): Record<string, T> {
+  return Object.fromEntries(
+    Object.entries(source).filter(([key]: [string, T]) => !keys.has(key)),
+  );
+}
+
+function iconStepFor(key: string): number {
+  if (key === 'ArrowRight' || key === 'ArrowDown') {
+    return 1;
+  }
+
+  if (key === 'ArrowLeft' || key === 'ArrowUp') {
+    return -1;
+  }
+
+  return 0;
 }

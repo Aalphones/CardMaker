@@ -28,13 +28,31 @@ Erledigte Punkte abhaken, nicht löschen.
       nicht neu an. Die Fassade liefert `summaries()`, `summariesLoading()`,
       `ensureLoaded()`, `duplicate(id)`, `remove(id)`; die Kurzfassung enthält
       `templateName` und `cardGroupName` — die Filter brauchen keinen zweiten Aufruf.
-- [ ] → Phase 6: `CardEditor.hasUnsavedChanges()` gibt im Rohbau hart `false` zurück. Der
+- [x] → Phase 6: `CardEditor.hasUnsavedChanges()` gibt im Rohbau hart `false` zurück. Der
       Riegel gegen ungespeicherte Änderungen hängt an den Routen, schützt aber nichts,
       bis Phase 6 die Methode an den echten Entwurfs-Zustand hängt.
-- [ ] → Phase 6: Anlegen und Ändern gehen über `create(input)` bzw.
+      Hängt jetzt an `form.dirty` **und** einem Merker für den Template-Wechsel — den
+      bekommt kein Formular-Control mit.
+- [x] → Phase 6: Anlegen und Ändern gehen über `create(input)` bzw.
       `save(id, changes)` — `save` schickt nur die übergebenen Felder (PATCH). Nach dem
       Anlegen springt der Effekt selbst auf `/cards/{id}`, die Komponente muss nicht
       navigieren.
+- [ ] → Phase 7: Welche Felder eine Karte hat, sagt `features/cards/card-editor/card-fields.ts`
+      (`describeCardFields(layers)`) — dieselbe Funktion für Formular und Vorschau, kein
+      zweiter Ableitungsweg. Bildflächen kommen aus **allen** Bildebenen, Text- und
+      Icon-Felder nur aus denen mit „Wird pro Karte …".
+- [ ] → Phase 7: Abweichungen werden nur gespeichert, wenn sie gesetzt sind — ein Eintrag in
+      `textOverrides` ohne Feld existiert nicht. Fehlt ein Schlüssel, gilt der Template-Wert.
+      Fett/Kursiv sind dreistufig (Template | An | Aus), im Datensatz also `undefined`/`true`/
+      `false`.
+- [ ] → Phase 7: Der Platz für die Vorschau steht: rechte Spalte, `card-editor__preview-frame`
+      im Seitenverhältnis 63:88. Nur den Platzhaltertext ersetzen.
+- [ ] → Phase 7: Der Editor hält **alle** je gesehenen Werte, auch die des aktuellen Templates
+      unbekannten. Die Vorschau zeichnet ausschließlich die Felder aus `describeCardFields` —
+      verwaiste Werte gehören nicht aufs Bild.
+- [ ] → Phase 8: `CardsActions.create` nimmt jetzt optional ein `pendingImage` mit; der Effekt
+      lädt es hoch, sobald die neue Karte eine Kennung hat. Beim Zurechtschieben in Phase 8
+      ist die Karte immer schon angelegt — dort reicht `updateImagePlacement`.
 - [ ] → Phase 8: Kartenbilder liegen nicht im Store, sondern im
       `CardImageLoader` (`shared/canvas/card-image-loader.ts`, Schlüssel `cardId:layerId`).
       Nach Hochladen und Entfernen hält der Effekt den Zwischenspeicher schon aktuell —

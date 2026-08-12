@@ -1,0 +1,61 @@
+:host {
+  display: block;
+}
+
+.image-drop {
+  &__zone {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    block-size: 10.625rem;
+    padding: var(--space-sm);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-sunken);
+    color: var(--color-text-muted);
+    font: inherit;
+    cursor: pointer;
+
+    &:hover:not(:disabled),
+    &--active {
+      border-color: var(--color-accent);
+      background: var(--color-accent-tint);
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.6;
+    }
+  }
+
+  &__preview {
+    max-inline-size: 100%;
+    max-block-size: 100%;
+    border-radius: var(--radius-sm);
+    object-fit: contain;
+  }
+
+  &__placeholder {
+    font-size: var(--font-size-sm);
+  }
+
+  &__input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-xs);
+  }
+
+  &__error {
+    margin-block-start: var(--space-xs);
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+  }
+}

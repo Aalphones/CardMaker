@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { concatLatestFrom } from '@ngrx/operators';
 import { Store } from '@ngrx/store';
-import { Observable, catchError, filter, map, of, switchMap, tap } from 'rxjs';
+import { Observable, catchError, filter, map, mergeMap, of, switchMap, tap } from 'rxjs';
 
 import { Api } from '../../core/services/api';
 import { CardImageLoader } from '../../shared/canvas/card-image-loader';
@@ -66,13 +66,32 @@ export class CardsEffects {
     );
   });
 
+  /**
+   * Ein im Editor abgelegtes Bild kann erst hochgeladen werden, wenn die Karte eine Kennung
+   * hat — deshalb reist es beim Anlegen mit und wird hier direkt hinterhergeschickt.
+   */
   create$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(CardsActions.create),
-      switchMap(({ input }) =>
+      switchMap(({ input, pendingImage }) =>
         this.api.post<Card>('/cards', input).pipe(
           tap((card: Card) => void this.router.navigateByUrl(`/cards/${card.id}`)),
-          map((card: Card) => CardsActions.createSuccess({ card })),
+          mergeMap((card: Card) => {
+            const success = CardsActions.createSuccess({ card });
+
+            if (!pendingImage) {
+              return of(success);
+            }
+
+            return of(
+              success,
+              CardsActions.uploadImage({
+                cardId: card.id,
+                layerId: pendingImage.layerId,
+                file: pendingImage.file,
+              }),
+            );
+          }),
           catchError((error: unknown) =>
             of(CardsActions.createFailure({ message: resolveErrorMessage(error) })),
           ),

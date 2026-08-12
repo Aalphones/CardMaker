@@ -63,6 +63,15 @@ export interface CardInput {
   textOverrides: Record<string, CardTextOverride>;
 }
 
+/**
+ * Ein Bild, das schon abgelegt wurde, bevor die Karte existierte. Es reist mit dem Anlegen
+ * mit und wird hochgeladen, sobald die Kennung der Karte da ist.
+ */
+export interface PendingCardImage {
+  layerId: string;
+  file: File;
+}
+
 export const CardsActions = createActionGroup({
   source: 'Cards',
   events: {
@@ -76,7 +85,7 @@ export const CardsActions = createActionGroup({
     'Load One': props<{ id: number }>(),
     'Load One Success': props<{ card: Card }>(),
     'Load One Failure': props<{ message: string }>(),
-    Create: props<{ input: CardInput }>(),
+    Create: props<{ input: CardInput; pendingImage?: PendingCardImage }>(),
     'Create Success': props<{ card: Card }>(),
     'Create Failure': props<{ message: string }>(),
     Save: props<{ id: number; changes: Partial<CardInput> }>(),

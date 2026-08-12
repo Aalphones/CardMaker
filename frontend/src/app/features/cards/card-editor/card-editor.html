@@ -1,6 +1,202 @@
-<section class="card-editor">
-  <h1 class="card-editor__title">Karte</h1>
-  <p class="card-editor__hint">
-    Formular, Live-Vorschau und Bildausschnitt entstehen in den nächsten Schritten.
-  </p>
-</section>
+<a class="card-editor__back" routerLink="/cards">← Zurück</a>
+
+<h1 class="card-editor__title">{{ title() }}</h1>
+
+@if (cards.error(); as message) {
+  <p class="card-editor__error" role="alert">{{ message }}</p>
+}
+
+@if (formError(); as message) {
+  <p class="card-editor__error" role="alert">{{ message }}</p>
+}
+
+<div class="card-editor__layout">
+  <form class="card-editor__form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field">
+      <label for="card-name">Kartenname</label>
+      <input id="card-name" class="input" type="text" formControlName="name" />
+    </div>
+
+    <div class="field">
+      <div class="card-editor__label-row">
+        <label for="card-template">Template</label>
+        <app-field-hint [text]="templateHint" />
+      </div>
+      <select id="card-template" class="input" (change)="onTemplateChange($event)">
+        <option value="" [selected]="selectedTemplateId() === null" disabled>
+          Template wählen
+        </option>
+        @for (template of templates.summaries(); track template.id) {
+          <option [value]="template.id" [selected]="template.id === selectedTemplateId()">
+            {{ template.name }}
+          </option>
+        }
+      </select>
+    </div>
+
+    @if (selectedTemplateId() === null) {
+      <p class="card-editor__note">Wähle ein Template — die Felder richten sich danach.</p>
+    } @else if (!templateLoaded()) {
+      <p class="card-editor__note">Template wird geladen …</p>
+    } @else {
+      @if (orphanCount() > 0) {
+        <div class="card-editor__orphans">
+          <p class="card-editor__note">
+            {{ orphanCount() }} gespeicherte Werte gehören zu Feldern, die dieses Template nicht
+            kennt.
+          </p>
+          <app-field-hint [text]="orphanHint" />
+          <button type="button" class="btn btn--ghost" (click)="removeOrphans()">
+            Werte entfernen
+          </button>
+        </div>
+      }
+
+      @for (image of fields().images; track image.layerId) {
+        <app-image-drop
+          [label]="image.label"
+          [imageUrl]="imageUrlFor(image.layerId)"
+          [busy]="submitting()"
+          (fileChosen)="onImageChosen(image.layerId, $event)"
+          (removed)="onImageRemoved(image.layerId)"
+        />
+      }
+
+      @for (text of fields().texts; track text.key) {
+        @if (valueControl(text.key); as valueField) {
+          <div class="card-editor__text-block">
+            <div class="field">
+              <label [for]="'card-text-' + text.key">{{ text.label }}</label>
+              <textarea
+                class="input"
+                [id]="'card-text-' + text.key"
+                [formControl]="valueField"
+                [placeholder]="text.defaultText"
+                rows="3"
+              ></textarea>
+            </div>
+
+            @if (overrideGroup(text.key); as override) {
+              <div class="card-editor__overrides">
+                <div class="field card-editor__size">
+                  <div class="card-editor__label-row">
+                    <label [for]="'card-size-' + text.key">Größe</label>
+                    <app-field-hint [text]="sizeHint" />
+                  </div>
+                  <div class="card-editor__inline">
+                    <input
+                      class="input card-editor__number"
+                      type="number"
+                      [id]="'card-size-' + text.key"
+                      [formControl]="override.controls.fontSize"
+                      [placeholder]="text.templateFontSize.toString()"
+                      min="4"
+                      max="200"
+                    />
+                    <button type="button" class="btn btn--ghost" (click)="resetFontSize(text.key)">
+                      Zurücksetzen
+                    </button>
+                  </div>
+                </div>
+
+                <div class="field card-editor__color">
+                  <div class="card-editor__label-row">
+                    <label [for]="'card-color-' + text.key">Farbe</label>
+                    <app-field-hint [text]="colorHint" />
+                  </div>
+                  <div class="card-editor__inline">
+                    <input
+                      class="card-editor__swatch"
+                      type="color"
+                      [id]="'card-color-' + text.key"
+                      [value]="colorFor(text)"
+                      (input)="setColor(text.key, $event)"
+                    />
+                    <button type="button" class="btn btn--ghost" (click)="resetColor(text.key)">
+                      Zurücksetzen
+                    </button>
+                  </div>
+                </div>
+
+                @for (flagField of flagFields; track flagField.field) {
+                  <div class="field">
+                    <span class="card-editor__label">{{ flagField.label }}</span>
+                    <div class="seg" role="group" [attr.aria-label]="flagField.label">
+                      @for (option of flagOptions; track option.value) {
+                        <button
+                          type="button"
+                          class="seg__option"
+                          [class.seg__option--active]="
+                            flagFor(text.key, flagField.field) === option.value
+                          "
+                          [attr.aria-pressed]="flagFor(text.key, flagField.field) === option.value"
+                          (click)="setFlag(text.key, flagField.field, option.value)"
+                        >
+                          {{ option.label }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+
+      @for (icon of fields().icons; track icon.layerId) {
+        <div class="field">
+          <span class="card-editor__label" [id]="'card-icon-' + icon.layerId">
+            {{ icon.label }}
+          </span>
+          <div
+            class="card-editor__icons"
+            role="radiogroup"
+            [attr.aria-labelledby]="'card-icon-' + icon.layerId"
+          >
+            @for (assetId of icon.choiceAssetIds; track assetId; let index = $index) {
+              <button
+                type="button"
+                class="tag"
+                role="radio"
+                [class.tag--accent]="chosenIconAssetId(icon.layerId) === assetId"
+                [attr.aria-checked]="chosenIconAssetId(icon.layerId) === assetId"
+                [tabindex]="iconTabIndex(icon.layerId, assetId, index)"
+                (keydown)="onIconKeydown($event, icon, index)"
+                (click)="chooseIcon(icon.layerId, assetId)"
+              >
+                {{ iconAssetsById().get(assetId)?.name ?? 'Bild ' + assetId }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+    }
+
+    <div class="field">
+      <label for="card-group">Kartengruppe</label>
+      <select id="card-group" class="input" (change)="onCardGroupChange($event)">
+        <option value="" [selected]="form.controls.cardGroupId.value === null">Keine</option>
+        @for (group of cardGroups.all(); track group.id) {
+          <option [value]="group.id" [selected]="group.id === form.controls.cardGroupId.value">
+            {{ group.name }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="card-editor__actions">
+      <a class="btn btn--secondary" routerLink="/cards">Abbrechen</a>
+      <button type="submit" class="btn btn--primary" [disabled]="submitting()">
+        Karte speichern
+      </button>
+    </div>
+  </form>
+
+  <aside class="card-editor__preview">
+    <p class="card-editor__preview-label">Live-Vorschau</p>
+    <div class="card-editor__preview-frame">
+      <p class="card-editor__note">Die Vorschau entsteht im nächsten Schritt.</p>
+    </div>
+  </aside>
+</div>

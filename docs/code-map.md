@@ -59,8 +59,14 @@ frontend/src/app/
       cards-list/          ← Route /cards: „Alle Karten" — Raster/Tabelle-Umschalter, Suche,
                              Template-Filter, Gruppen-Chips, Sortierung, Kachel zeigt das
                              Vorschaubild (`shared/canvas/preview-image-loader.ts`)
-      card-editor/         ← Routen /cards/new und /cards/:id: Formular, Live-Vorschau und
-                             Bildausschnitt (Rohbau, füllt Phase 6-8)
+      card-editor/         ← Routen /cards/new und /cards/:id: linke Formularspalte (Name,
+                             Template-Auswahl, je Bildfläche ein Ablagefeld, je Textfeld ein
+                             Block mit Größe/Farbe/Fett/Kursiv als Abweichung, Icon-Auswahl als
+                             Tags, Kartengruppe) und rechts der Platz für die Live-Vorschau
+                             (Phase 7). `card-fields.ts` leitet ohne Angular aus den
+                             Template-Ebenen ab, welche Felder das Formular zeigt — dieselbe
+                             Ableitung benutzt die Vorschau. `image-drop/` ist das Ablagefeld
+                             (Ziehen-und-Ablegen, Ersetzen, Entfernen, Klartext-Fehler)
     prompts/
       prompt-texts.ts       ← die Prompt-Texte als Konstanten (Zweitschrift der Doku)
       prompts-page/          ← Route /prompts: drei Reiter (Rahmen/Icons/Artwork), je
@@ -169,8 +175,8 @@ frontend/src/app/
 
 `print-projects/` und `admin/` aus der Tabelle oben existieren noch nicht — sie
 entstehen erst mit den jeweiligen Folgeplänen. `cards/`: die Liste (`cards-list/`) ist fertig,
-der Karteneditor (`card-editor/`) steht noch als Rohbau — Speicher, Routen und Bild-Lader sind
-fertig, die Oberfläche füllen die Phasen 6-8. `templates/` hat jetzt den vollständigen
+der Karteneditor (`card-editor/`) hat sein Formular — Live-Vorschau (Phase 7) und das
+Zurechtschieben des Bildes (Phase 8) fehlen noch. `templates/` hat jetzt den vollständigen
 Editor (Liste, Anlegen, Vorschau, Ebenenliste, Eigenschaften, direkte Bearbeitung im Bild).
 
 ## Backend-Layout (steht)

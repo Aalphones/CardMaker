@@ -1,7 +1,13 @@
 import { Injectable, Signal, inject } from '@angular/core';
 import { Store, createSelector } from '@ngrx/store';
 
-import { CardImagePlacement, CardInput, CardSummary, CardsActions } from './cards.actions';
+import {
+  CardImagePlacement,
+  CardInput,
+  CardSummary,
+  CardsActions,
+  PendingCardImage,
+} from './cards.actions';
 import { cardsFeature } from './cards.feature';
 
 @Injectable({
@@ -42,8 +48,8 @@ export class CardsFacade {
     return signal;
   }
 
-  create(input: CardInput): void {
-    this.store.dispatch(CardsActions.create({ input }));
+  create(input: CardInput, pendingImage?: PendingCardImage): void {
+    this.store.dispatch(CardsActions.create({ input, pendingImage }));
   }
 
   save(id: number, changes: Partial<CardInput>): void {

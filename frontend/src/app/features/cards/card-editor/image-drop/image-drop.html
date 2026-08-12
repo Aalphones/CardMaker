@@ -1,0 +1,45 @@
+<div class="field">
+  <label [for]="inputId">{{ label() }}</label>
+
+  <button
+    type="button"
+    class="image-drop__zone"
+    [class.image-drop__zone--active]="dragActive()"
+    [disabled]="busy()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+    (click)="picker.click()"
+  >
+    @if (imageUrl(); as url) {
+      <img class="image-drop__preview" [src]="url" alt="" />
+    } @else {
+      <span class="image-drop__placeholder">Bild ablegen</span>
+    }
+  </button>
+
+  <input
+    class="image-drop__input"
+    type="file"
+    #picker
+    [id]="inputId"
+    accept="image/png,image/jpeg"
+    [disabled]="busy()"
+    (change)="onFileSelected($event)"
+  />
+
+  @if (imageUrl() !== null) {
+    <div class="image-drop__actions">
+      <button type="button" class="btn btn--ghost" [disabled]="busy()" (click)="picker.click()">
+        Ersetzen
+      </button>
+      <button type="button" class="btn btn--ghost" [disabled]="busy()" (click)="remove()">
+        Entfernen
+      </button>
+    </div>
+  }
+
+  @if (fileError(); as message) {
+    <p class="image-drop__error" role="alert">{{ message }}</p>
+  }
+</div>

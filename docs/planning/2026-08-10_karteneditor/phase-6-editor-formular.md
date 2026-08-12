@@ -53,27 +53,47 @@
 
 ## Checkliste
 
-- [ ] `features/cards/card-editor/` anlegen. Formular über `NonNullableFormBuilder`,
+- [x] `features/cards/card-editor/` anlegen. Formular über `NonNullableFormBuilder`,
       die dynamischen Felder in einer `FormRecord` oder einer `FormGroup`, die beim
       Template-Wechsel neu aufgebaut wird.
-- [ ] Eine reine Funktion `features/cards/card-editor/card-fields.ts` schreiben, die aus
+- [x] Eine reine Funktion `features/cards/card-editor/card-fields.ts` schreiben, die aus
       `Layer[]` die Formularbeschreibung ableitet: Liste von Bildflächen, Textfeldern
       (Schlüssel, Beschriftung, Vorgabetext) und Icon-Feldern (Ebenen-Id, erlaubte
       Bilder). **Ohne Angular-Abhängigkeit**, damit sie nachvollziehbar bleibt und die
       Vorschau in Phase 7 dieselbe Ableitung benutzt.
-- [ ] Ablagefeld als eigene Komponente `features/cards/card-editor/image-drop/`:
+- [x] Ablagefeld als eigene Komponente `features/cards/card-editor/image-drop/`:
       nimmt Ziehen-und-Ablegen sowie Klick zum Auswählen, zeigt nach dem Hochladen eine
       kleine Vorschau plus „Ersetzen" und „Entfernen". Fehlermeldungen im Klartext
       (Format, Größe).
-- [ ] Hochladen läuft **sofort** gegen das Backend, nicht erst beim Speichern der Karte.
+- [x] Hochladen läuft **sofort** gegen das Backend, nicht erst beim Speichern der Karte.
       Bei einer neuen Karte heißt das: die Karte wird beim ersten Bild-Upload angelegt
       (Name „Neue Karte", falls leer) und der Editor arbeitet ab dann auf einer
       bestehenden Karte. Diese Umschaltung muss sichtbar sein — die Adresse wechselt von
       `cards/new` auf `cards/:id`.
-- [ ] Icon-Auswahl als Tag-Gruppe mit Tastaturbedienung (Pfeiltasten, Enter).
-- [ ] Rückfrage beim Template-Wechsel über den vorhandenen Bestätigungsdialog.
-- [ ] Hinweis auf verwaiste Werte samt Aufräum-Knopf.
-- [ ] Fragezeichen-Erklärungen für: Größe, Farbe, verwaiste Werte, Template-Wechsel.
-- [ ] `docs/code-map.md` nachziehen.
+- [x] Icon-Auswahl als Tag-Gruppe mit Tastaturbedienung (Pfeiltasten, Enter).
+- [x] Rückfrage beim Template-Wechsel über den vorhandenen Bestätigungsdialog.
+- [x] Hinweis auf verwaiste Werte samt Aufräum-Knopf.
+- [x] Fragezeichen-Erklärungen für: Größe, Farbe, verwaiste Werte, Template-Wechsel.
+- [x] `docs/code-map.md` nachziehen.
 
 ## Report-Back
+
+**Status:** complete (2026-08-12). `npm run lint` und `npm run build` grün, Live-Rundlauf
+im Browser steht aus.
+
+- Das Formular hält **alle je gesehenen Werte** in einem Entwurfsstand, nicht nur die des
+  aktuellen Templates. Angezeigt werden nur die passenden, gespeichert wird alles — dadurch
+  überlebt ein Template-Wechsel die Werte und der Hinweis auf verwaiste Werte kann sie
+  überhaupt zählen.
+- Das sofortige Hochladen bei einer **neuen** Karte brauchte eine kleine Erweiterung im
+  Speicher: `create` nimmt jetzt optional ein schon abgelegtes Bild mit
+  (`PendingCardImage`), und der Effekt schickt es hinterher, sobald die Karte eine Kennung
+  hat. Ohne das gäbe es keinen Moment, in dem Karte und Bild gleichzeitig existieren.
+- Abweichung vom Entwurf: Fett und Kursiv liegen als Dreier-Umschalter (Template | An | Aus)
+  im selben Block wie Größe und Farbe — der Entwurf zeigte sie gar nicht, der Plan verlangt
+  die Dreier-Logik.
+- Die drei veränderlichen Formularteile stehen als eigene Felder (`valueControls` usw.):
+  über `form.controls` gelesen verlieren sie ihren `FormRecord`-Typ und lassen sich zur
+  Laufzeit nicht mehr umbauen.
+- Nicht enthalten (Phase 7/8): die rechte Spalte trägt nur einen beschrifteten Platzhalter
+  in den richtigen Maßen.
