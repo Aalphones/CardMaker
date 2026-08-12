@@ -44,8 +44,9 @@ Trading Cards) zu bauen, ohne für jeden Kartentyp neue Software zu schreiben.
 - Kein i18n — Oberfläche fix in einer Sprache
 - Keine native Mobile-App (kein Capacitor/Cordova-Wrapper)
 - Keine automatische KI-Bildgenerierung im Tool selbst — Rahmen-/Motiv-Erzeugung bleibt ein
-  manueller externer Schritt (Prompt-Vorlagen dafür:
-  [`docs/design/master-prompt-sammelkarten-design.md`](design/master-prompt-sammelkarten-design.md))
+  manueller externer Schritt (Prompt-Vorlagen dafür: ChatGPT je einzeln für Rahmen, Icons
+  und Artwork in [`docs/design/prompts-chatgpt/`](design/prompts-chatgpt/README.md), lokale
+  Modelle in [`docs/design/master-prompt-sammelkarten-design.md`](design/master-prompt-sammelkarten-design.md))
 - Kein Offline-Modus / keine PWA — CardMaker ist ein Online-Tool, kein Sync-Layer nötig
 - Keine geteilte Datenbank oder API mit Promptigofant — eigenständige App, eigene Datenhaltung
   von Grund auf (ADR-002)

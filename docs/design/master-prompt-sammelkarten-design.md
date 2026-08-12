@@ -1,5 +1,10 @@
 # Master Prompt — Sammelkarten-Design
 
+> **Für ChatGPT gibt es die neuere, CardMaker-eigene Fassung** — je ein Prompt
+> für Rahmen, Icons und Artwork in
+> [`prompts-chatgpt/`](prompts-chatgpt/README.md). Diese Datei hier bleibt die
+> Quelle für die lokalen Modelle (FLUX.2 klein, Krea 2).
+
 Quelle: Questoria-Repo, `data/_authoring/image-prompts/CARDS.md`. Diese Datei
 war die alte, generische Fassung — ersetzt durch die aktuelle Version mit
 Positiv-Formulierung (kein Negativ-Prompt, die lokalen Modelle rechnen ihn
