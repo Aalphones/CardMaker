@@ -29,12 +29,12 @@ import {
   screenToCanvas,
 } from '../../../shared/canvas/rendering/units';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { PreviewUploadService } from '../../../shared/canvas/preview-upload.service';
 import { ComponentWithUnsavedChanges } from '../../../shared/guards/pending-changes-guard';
 import { Notification } from '../../../shared/services/notification';
 import { TemplateEditorStore } from '../../../signal-stores/template-editor';
 import { AssetsFacade } from '../../../store/assets/assets.facade';
 import { TemplatesFacade } from '../../../store/templates/templates.facade';
-import { TemplatePreview } from '../template-preview';
 import { AddLayerRequest } from './add-layer-menu/add-layer-menu';
 import { EditorAction, LayerAction, isTypingTarget, resolveShortcut } from './editor-shortcuts';
 import { LayerList } from './layer-list/layer-list';
@@ -69,7 +69,7 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
   protected readonly templates = inject(TemplatesFacade);
   protected readonly assets = inject(AssetsFacade);
   protected readonly editor = inject(TemplateEditorStore);
-  private readonly templatePreview = inject(TemplatePreview);
+  private readonly templatePreview = inject(PreviewUploadService);
   private readonly notification = inject(Notification);
 
   private readonly templateId = toSignal(
@@ -293,7 +293,7 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
         return;
       }
 
-      await firstValueFrom(this.templatePreview.upload(templateId, image));
+      await firstValueFrom(this.templatePreview.upload('templates', templateId, image));
     } catch {
       this.notification.show(PREVIEW_FAILED_MESSAGE, 'info');
     }

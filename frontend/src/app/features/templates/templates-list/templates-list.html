@@ -30,6 +30,13 @@
       @for (item of filteredItems(); track item.id) {
         <li class="card templates-list__card">
           <a class="templates-list__card-link" [routerLink]="['/templates', item.id]">
+            <div class="templates-list__preview">
+              @if (previewUrl(item); as url) {
+                <img class="templates-list__preview-image" [src]="url" alt="" />
+              } @else {
+                <p class="templates-list__preview-empty">Noch keine Vorschau — Template öffnen und speichern.</p>
+              }
+            </div>
             <p class="card__kicker">{{ layerCountLabel(item.layerCount) }}</p>
             <h2 class="card__title">{{ item.name }}</h2>
             @if (item.description) {

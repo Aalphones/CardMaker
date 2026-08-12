@@ -1,6 +1,6 @@
 # Phase 3 — Gemeinsamer Bild-Lader, Übersicht zeigt die Vorschau
 
-**Rating:** standard · **Status:** pending
+**Rating:** standard · **Status:** complete
 
 Die Kacheln der Template-Übersicht zeigen oben das Bild der Karte, darunter wie bisher Name,
 Ebenenzahl und Änderungsdatum.
@@ -38,13 +38,13 @@ greift denselben Baustein ab und soll ihn nicht nachrüsten müssen.
 
 ### Daten
 
-- [ ] `TemplateSummary` (`templates.actions.ts`) um `previewUpdatedAt: string | null` erweitern.
-- [ ] `Template` (dieselbe Datei) ebenso — sonst kann `toSummary()` das Feld nicht füllen.
-- [ ] `toSummary()` in `templates.feature.ts`: Feld durchreichen.
+- [x] `TemplateSummary` (`templates.actions.ts`) um `previewUpdatedAt: string | null` erweitern.
+- [x] `Template` (dieselbe Datei) ebenso — sonst kann `toSummary()` das Feld nicht füllen.
+- [x] `toSummary()` in `templates.feature.ts`: Feld durchreichen.
 
 ### Bild-Lader (für beide Sorten)
 
-- [ ] `frontend/src/app/shared/canvas/preview-image-loader.ts` — liegt in `shared/`, **nicht**
+- [x] `frontend/src/app/shared/canvas/preview-image-loader.ts` — liegt in `shared/`, **nicht**
       in `features/templates/`, weil die Kartenliste ihn ebenfalls benutzt.
       `@Injectable({ providedIn: 'root' })`, innen ein `BlobImageCache<string>`.
       - Öffentlicher Sorten-Typ: `export type PreviewKind = 'templates' | 'cards';` —
@@ -60,7 +60,7 @@ greift denselben Baustein ab und soll ihn nicht nachrüsten müssen.
         `images().get(key)?.src ?? null`.
       - Objekt-Adressen beim Zerstören freigeben (`releaseObjectUrls()`, wie im
         `AssetImageLoader`).
-- [ ] `frontend/src/app/shared/canvas/preview-upload.service.ts` — ebenfalls für beide Sorten:
+- [x] `frontend/src/app/shared/canvas/preview-upload.service.ts` — ebenfalls für beide Sorten:
       `upload(kind: PreviewKind, id: number, image: Blob): Observable<{ previewUpdatedAt: string }>`.
       **Das ersetzt die in Phase 2 angelegte `template-preview.service.ts`** — beim Umsetzen
       dieser Phase wird die Datei aus Phase 2 hierher verschoben und im Template-Editor der
@@ -68,15 +68,15 @@ greift denselben Baustein ab und soll ihn nicht nachrüsten müssen.
 
 ### Oberfläche
 
-- [ ] `templates-list.ts`: Lader injizieren; ein `effect()`, das für jeden Eintrag aus
+- [x] `templates-list.ts`: Lader injizieren; ein `effect()`, das für jeden Eintrag aus
       `filteredItems()` mit `previewUpdatedAt !== null` `load('templates', …)` anstößt.
       Eine geschützte Methode `previewUrl(item: TemplateSummary): string | null` für die
       Vorlage — keine Logik in der Vorlage.
-- [ ] `templates-list.html`: im Kachel-Link vor dem Kicker ein Block
+- [x] `templates-list.html`: im Kachel-Link vor dem Kicker ein Block
       `<div class="templates-list__preview">` mit `@if (previewUrl(item); as url) { <img
       class="templates-list__preview-image" [src]="url" alt="" /> } @else { <p
       class="templates-list__preview-empty">Noch keine Vorschau …</p> }`.
-- [ ] `templates-list.scss`: `&__preview` mit `aspect-ratio: 630 / 880`, abgerundeten Ecken
+- [x] `templates-list.scss`: `&__preview` mit `aspect-ratio: 630 / 880`, abgerundeten Ecken
       (`var(--radius-…)`), gedämpftem Hintergrund und `overflow: hidden`;
       `&__preview-image` mit `width: 100%`, `height: 100%`, `object-fit: contain`;
       `&__preview-empty` mittig, `var(--color-text-muted)`, kleine Schrift.
@@ -84,15 +84,30 @@ greift denselben Baustein ab und soll ihn nicht nachrüsten müssen.
 - [ ] Das Raster (`&__grid`) hat `minmax(17rem, 1fr)` — mit dem hohen Bild darüber prüfen, ob
       die Kacheln zu lang werden. **Falls ja, nur ergänzen, nicht ersetzen:** eine
       zusätzliche Regel für breite Fenster, die bestehende Regel bleibt stehen.
+      **Nicht geprüft** — ist eine Bildschirm-Beurteilung, keine Code-Prüfung; in die
+      Smoke-Checkliste aufgenommen (README, Punkt „Raster mit Vorschaubild").
 
 ### Doku
 
-- [ ] `docs/code-map.md` — `preview-image-loader.ts` und `preview-upload.service.ts` unter
+- [x] `docs/code-map.md` — `preview-image-loader.ts` und `preview-upload.service.ts` unter
       den geteilten Bausteinen (`shared/canvas/`), mit dem Hinweis, dass beide Listen sie
       benutzen.
-- [ ] `STATE.md` — Plan abgeschlossen, nächster Schritt: Karteneditor-Plan Phase 5;
+- [x] `STATE.md` — Plan abgeschlossen, nächster Schritt: Karteneditor-Plan Phase 5;
       Verweis auf die Smoke-Checkliste in der README.
 
 ## Report-Back
 
-_(vom Umsetzer zu füllen)_
+Bild-Lader (`preview-image-loader.ts`) und Upload-Dienst (`preview-upload.service.ts`) liegen
+wie geplant in `shared/canvas/`, sortenfähig für Templates und Karten. Die aus Phase 2
+gefundene Fehlbenennung wurde eingearbeitet: der alte `features/templates/template-preview.ts`
+(Klasse `TemplatePreview`) ist gelöscht, der Editor ruft jetzt `PreviewUploadService.upload(
+'templates', id, image)`.
+
+`TemplateSummary`/`Template` tragen `previewUpdatedAt`, `toSummary()` reicht es durch. Die
+Übersicht lädt pro sichtbarer Kachel per `effect()` das Bild und zeigt entweder `<img>` oder den
+Platzhaltersatz — beides über `previewUrl()`, keine Logik im Template.
+
+**Nicht geprüft, weil visuell:** ob das Raster bei hohen Kacheln (630:88-Bildformat) zu lang
+wird. Steht als Punkt in der Smoke-Checkliste der README, nicht blind abgehakt.
+
+`npm run lint` und `npm run build` liefen grün.

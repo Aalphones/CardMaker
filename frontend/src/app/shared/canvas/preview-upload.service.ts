@@ -2,9 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { Api } from '../../core/services/api';
+import { PreviewKind } from './preview-image-loader';
 
 /**
- * Lädt das im Editor erzeugte Vorschaubild eines Templates hoch.
+ * Lädt ein im Editor erzeugtes Vorschaubild hoch — für Templates und Karten gleichermaßen.
  *
  * Warum hier direkt der `Api`-Dienst statt eines NgRx-Effects (Abweichung von
  * `docs/conventions/state-management.md`, dieselbe Begründung wie beim Bild-Lader):
@@ -13,13 +14,13 @@ import { Api } from '../../core/services/api';
 @Injectable({
   providedIn: 'root',
 })
-export class TemplatePreview {
+export class PreviewUploadService {
   private readonly api = inject(Api);
 
-  upload(templateId: number, image: Blob): Observable<{ previewUpdatedAt: string }> {
+  upload(kind: PreviewKind, id: number, image: Blob): Observable<{ previewUpdatedAt: string }> {
     const form = new FormData();
     form.append('file', image, 'preview.png');
 
-    return this.api.postForm<{ previewUpdatedAt: string }>(`/templates/${templateId}/preview`, form);
+    return this.api.postForm<{ previewUpdatedAt: string }>(`/${kind}/${id}/preview`, form);
   }
 }

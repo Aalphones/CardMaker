@@ -26,6 +26,7 @@ function toSummary(template: Template): TemplateSummary {
     name: template.name,
     description: template.description,
     layerCount: template.layers.length,
+    previewUpdatedAt: template.previewUpdatedAt,
     createdAt: template.createdAt,
     updatedAt: template.updatedAt,
   };

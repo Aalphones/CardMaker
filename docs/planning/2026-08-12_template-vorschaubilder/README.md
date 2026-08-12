@@ -24,7 +24,7 @@ löst sich auf.
 |---|---|---|---|---|
 | 1 | Ablage und Endpunkte im Backend (Templates **und** Karten) | `phase-1-backend-ablage.md` | standard | complete |
 | 2 | Template-Editor erzeugt das Bild und lädt es hoch | `phase-2-editor-export.md` | heikel | complete |
-| 3 | Gemeinsamer Bild-Lader, Template-Übersicht zeigt die Vorschau | `phase-3-uebersicht.md` | standard | pending |
+| 3 | Gemeinsamer Bild-Lader, Template-Übersicht zeigt die Vorschau | `phase-3-uebersicht.md` | standard | complete |
 
 **Reihenfolge:** Dieser Plan läuft **vor** Phase 5 des Karteneditor-Plans. Sonst baut die
 Kartenliste ihre Kacheln auf einem Baustein, den es noch nicht gibt.
@@ -107,6 +107,10 @@ Zuerst die wackligen Stellen — dort steckt das Risiko:
 5. Template löschen: verschwindet aus der Liste, `backend/uploads/templates/` hat eine Datei
    weniger.
 6. Der Vorschau-Aufruf ohne Anmeldung (z.B. im privaten Fenster) liefert `401`, kein Bild.
+7. **Raster mit Vorschaubild.** Übersicht mit mehreren Templates ansehen: werden die Kacheln
+   durch das hochkant stehende Bild unangenehm lang? Falls ja, ist in
+   `templates-list.scss` (`&__grid`) eine zusätzliche Regel für breite Fenster fällig — nicht
+   automatisch umgesetzt, weil das eine Bildschirm-Beurteilung ist.
 
 ## Summary
 

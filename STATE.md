@@ -1,8 +1,11 @@
 # STATE
 
-**Aktiver Plan:** `docs/planning/2026-08-12_template-vorschaubilder/`
-**Phase:** 3/3 — Gemeinsamer Bild-Lader, Template-Übersicht zeigt die Vorschau (pending, standard)
-**Nächster Schritt:** `phase-3-uebersicht.md` öffnen und umsetzen.
+**Aktiver Plan:** Vorschaubilder-Plan ist fertig umgesetzt (alle 3 Phasen `complete`), noch
+nicht archiviert — die Smoke-Checkliste in
+`docs/planning/2026-08-12_template-vorschaubilder/README.md` steht noch aus (Sascha prüft).
+**Phase:** — (Plan-Ende erreicht)
+**Nächster Schritt:** Siehe „Umsetzungsreihenfolge" unten — Punkt 2, der Deploy-Lauf gegen
+Strato, braucht zuerst Saschas 🔴-Freigabe. Danach Smoke-Checkliste abhaken und archivieren.
 
 ## Umsetzungsreihenfolge (festgelegt 2026-08-12, freigegeben)
 

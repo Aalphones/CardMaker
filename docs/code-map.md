@@ -64,10 +64,8 @@ frontend/src/app/
       prompts-page/          ← Route /prompts: drei Reiter (Rahmen/Icons/Artwork), je
                                Erklärung, Prompt-Block mit Kopieren-Knopf und „Danach"-Liste
     templates/
-      template-preview.ts   ← lädt das im Editor erzeugte Vorschaubild hoch
-                               (`POST /templates/{id}/preview`), am Store vorbei wie die
-                               Bild-Lader — Bilddaten sind kein Server-Zustand
-      templates-list/       ← Raster, Suchfeld, Leerzustand, „Neues Template"
+      templates-list/       ← Raster, Suchfeld, Leerzustand, „Neues Template", Kachel zeigt das
+                               Vorschaubild (`shared/canvas/preview-image-loader.ts`)
       template-editor/       ← Route .../:id — Vollbild-Ebene über der App (fest positioniert,
                                Ebene 50): Kopfzeile (Zurück, Name direkt bearbeitbar,
                                Rückgängig/Wiederherstellen, Speichern), linke Ebenenspalte,
@@ -121,6 +119,14 @@ frontend/src/app/
       card-image-loader.ts ← lädt die Motivbilder einer Karte
                            (`/cards/{id}/images/{layerId}/file`), Schlüssel `cardId:layerId`;
                            `reload()`/`forget()` nach Austausch oder Entfernen eines Bildes
+      preview-image-loader.ts ← lädt Kachel-Vorschaubilder für Templates **und** Karten
+                           (`/{templates|cards}/{id}/preview/file`), Schlüssel
+                           `sorte:id:previewUpdatedAt` — ein neues Bild lädt dadurch automatisch
+                           neu. Benutzt von `templates-list` und (Karteneditor-Plan Phase 5) der
+                           Kartenliste
+      preview-upload.service.ts ← lädt ein im Editor erzeugtes Vorschaubild hoch, ebenfalls für
+                           beide Sorten. Benutzt vom Template-Editor und (Phase 7) vom
+                           Karteneditor
       font-loader.ts    ← fordert die Kartenschriften an und meldet, welche fertig geladen sind
                            (Konva zeichnet auf ein Bitmap — das zählt für den Browser nicht als
                            Schriftverwendung, ohne diese Anforderung bliebe still die

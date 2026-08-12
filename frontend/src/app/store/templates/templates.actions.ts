@@ -7,6 +7,7 @@ export interface TemplateSummary {
   name: string;
   description: string | null;
   layerCount: number;
+  previewUpdatedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -16,6 +17,7 @@ export interface Template {
   name: string;
   description: string | null;
   layers: Layer[];
+  previewUpdatedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
