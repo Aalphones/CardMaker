@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Http\Response;
 use App\Repositories\AssetRepository;
+use App\Repositories\CardRepository;
 use App\Repositories\FontRepository;
 use App\Repositories\TemplateRepository;
 use App\Validators\LayerValidator;
@@ -15,7 +16,8 @@ final class TemplateService
     public function __construct(
         private readonly TemplateRepository $templates,
         private readonly AssetRepository $assets,
-        private readonly FontRepository $fonts
+        private readonly FontRepository $fonts,
+        private readonly CardRepository $cards
     ) {
     }
 
@@ -68,6 +70,16 @@ final class TemplateService
 
     public function delete(int $id): bool
     {
+        $cardCount = $this->cards->countByTemplate($id);
+
+        if ($cardCount > 0) {
+            Response::error(
+                Response::ERROR_CONFLICT,
+                "Dieses Template wird noch von $cardCount Karten benutzt.",
+                409
+            );
+        }
+
         return $this->templates->delete($id);
     }
 

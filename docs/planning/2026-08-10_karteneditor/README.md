@@ -30,7 +30,7 @@ Karte jederzeit neu renderbar, auch wenn das Template sich später ändert
 | # | Phase | Rating | Status |
 |---|---|---|---|
 | 1 | [Entscheidungen und Datenmodell](phase-1-entscheidungen-und-datenmodell.md) | heikel | complete (Migrationslauf offen) |
-| 2 | [Backend: Karten](phase-2-backend-karten.md) | standard | pending |
+| 2 | [Backend: Karten](phase-2-backend-karten.md) | standard | complete (Live-Rundlauf offen, s. Phase-Datei) |
 | 3 | [Backend: Kartenbilder](phase-3-backend-kartenbilder.md) | standard | pending |
 | 4 | [Frontend: Speicher und Routen](phase-4-frontend-speicher.md) | standard | pending |
 | 5 | [Alle Karten](phase-5-kartenliste.md) | standard | pending |

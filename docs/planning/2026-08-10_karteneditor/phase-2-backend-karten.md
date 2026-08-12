@@ -38,31 +38,45 @@
 
 ## Checkliste
 
-- [ ] `backend/src/Repositories/CardRepository.php`: `all()` (Kurzfassung mit JOIN),
+- [x] `backend/src/Repositories/CardRepository.php`: `all()` (Kurzfassung mit JOIN),
       `find(int $id)`, `create(array $data)`, `update(int $id, array $data)`,
       `delete(int $id)`, `countByTemplate(int $templateId)`, `countByGroup(int $groupId)`.
       JSON-Spalten beim Lesen dekodieren, beim Schreiben kodieren.
       Formatierung fürs Wire-Format wie in `TemplateRepository::format()`.
-- [ ] `backend/src/Validators/CardValidator.php`: `validate()` (Anlegen),
+- [x] `backend/src/Validators/CardValidator.php`: `validate()` (Anlegen),
       `validateForUpdate()` (nur übergebene Felder), plus private Prüfer für die drei
       JSON-Blöcke.
-- [ ] `backend/src/Services/CardService.php`: Existenzprüfung von Template und Gruppe,
+- [x] `backend/src/Services/CardService.php`: Existenzprüfung von Template und Gruppe,
       Anlegen/Ändern/Löschen, `duplicate(int $id)` (Name mit Zusatz „ (Kopie)", Werte,
       Icon-Wahl und Abweichungen übernehmen — die **Bilder werden mitkopiert**, dazu
       Phase 3; hier eine Stelle vorsehen und mit `// Bilder: Phase 3` markieren).
-- [ ] `backend/src/Controllers/CardController.php`: `index`, `show`, `create`, `update`,
+- [x] `backend/src/Controllers/CardController.php`: `index`, `show`, `create`, `update`,
       `destroy`, `duplicate` — dünn, kein SQL.
-- [ ] `TemplateService::delete()` um die Sperre bei vorhandenen Karten erweitern
+- [x] `TemplateService::delete()` um die Sperre bei vorhandenen Karten erweitern
       (409 mit Anzahl). Analog zur bestehenden Sperre beim Löschen von Bildvorrats-Bildern.
-- [ ] Routen in `backend/public/index.php` registrieren, inklusive
+- [x] Routen in `backend/public/index.php` registrieren, inklusive
       `POST /api/cards/{id:\d+}/duplicate`. Dienste oben von Hand verdrahten, wie bei
       `templates`.
 - [ ] Von Hand gegen die laufende lokale API prüfen: anlegen, lesen, ändern, duplizieren,
       löschen, Template mit Karte löschen (muss scheitern), Gruppe mit Karten löschen
-      (Karten bleiben, Zuordnung wird leer).
-- [ ] `docs/routes.md` und `docs/clients.md` um die neuen Endpunkte ergänzen (Dateien
-      anlegen, falls noch nicht vorhanden).
-- [ ] `docs/code-map.md`: Zeile `cards` von „existiert noch nicht" auf den Ist-Stand
+      (Karten bleiben, Zuordnung wird leer). **Nicht durchführbar in dieser Phase** — es
+      gibt keine lokale Datenbank (siehe STATE.md, offen seit Phase 1), die beiden
+      Migrationen sind noch nicht gelaufen. Nur `php -l` auf allen neuen/geänderten
+      Dateien geprüft (fehlerfrei). Gehört in die Smoke-Checkliste am Plan-Ende, sobald
+      migriert ist.
+- [x] `docs/routes.md` und `docs/clients.md` um die neuen Endpunkte ergänzen (Dateien
+      angelegt, gab es noch nicht).
+- [x] `docs/code-map.md`: Zeile `cards` von „existiert noch nicht" auf den Ist-Stand
       umschreiben.
 
 ## Report-Back
+
+Alle Endpunkte aus dem Kontrakt außer den Bild-Endpunkten (Phase 3) sind angelegt und ans
+FastRoute-Setup in `backend/public/index.php` gehängt, Dienste dort von Hand verdrahtet wie
+beim Bestand. `TemplateService` bekommt neu `CardRepository` injiziert für die Löschsperre.
+
+**Offen, außerhalb dieser Phase:** Der Live-Rundlauf (anlegen/lesen/ändern/duplizieren/
+löschen, Sperren) konnte nicht gefahren werden — keine lokale Datenbank, die Migrationen
+`M008`/`M009` sind noch nicht auf Strato gelaufen (Freigabe steht bei Sascha aus, siehe
+STATE.md). Bis dahin ist der Code nur durch Lesen und `php -l` abgesichert, nicht durch
+einen echten Request.

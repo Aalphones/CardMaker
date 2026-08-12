@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\AssetController;
 use App\Controllers\AuthController;
+use App\Controllers\CardController;
 use App\Controllers\CardGroupController;
 use App\Controllers\FontController;
 use App\Controllers\HealthController;
@@ -19,6 +20,7 @@ use App\Middleware\Cors;
 use App\Repositories\AccessTokenRepository;
 use App\Repositories\AssetRepository;
 use App\Repositories\CardGroupRepository;
+use App\Repositories\CardRepository;
 use App\Repositories\FontRepository;
 use App\Repositories\SessionRepository;
 use App\Repositories\TemplateRepository;
@@ -27,6 +29,7 @@ use App\Services\AccessTokenService;
 use App\Services\AssetService;
 use App\Services\AuthService;
 use App\Services\CardGroupService;
+use App\Services\CardService;
 use App\Services\FontService;
 use App\Services\TemplateService;
 use App\Services\TokenService;
@@ -128,6 +131,7 @@ $cardGroupService = null;
 $assetService = null;
 $fontService = null;
 $templateService = null;
+$cardService = null;
 
 if ($database instanceof PDO) {
     $tokenService = new TokenService();
@@ -141,15 +145,18 @@ if ($database instanceof PDO) {
         new AccessTokenRepository($database),
         $tokenService
     );
-    $cardGroupService = new CardGroupService(new CardGroupRepository($database));
 
     // Reihenfolge bewusst: die Repositories zuerst, danach die Dienste, die sie teilen —
     // AssetService braucht das Template-Repository für die Löschsperre, TemplateService das
-    // Bild- und das Schrift-Repository für die Prüfung der Ebenen.
+    // Bild-, das Schrift- und das Karten-Repository (Löschsperre bei vorhandenen Karten),
+    // CardService alle drei Fach-Repositories für seine Existenzprüfungen.
     $assetRepository = new AssetRepository($database);
     $templateRepository = new TemplateRepository($database);
     $fontRepository = new FontRepository($database);
+    $cardGroupRepository = new CardGroupRepository($database);
+    $cardRepository = new CardRepository($database);
 
+    $cardGroupService = new CardGroupService($cardGroupRepository);
     $assetService = new AssetService(
         $assetRepository,
         $templateRepository,
@@ -162,7 +169,8 @@ if ($database instanceof PDO) {
         $backendRoot . '/uploads/fonts',
         $logger
     );
-    $templateService = new TemplateService($templateRepository, $assetRepository, $fontRepository);
+    $templateService = new TemplateService($templateRepository, $assetRepository, $fontRepository, $cardRepository);
+    $cardService = new CardService($cardRepository, $templateRepository, $cardGroupRepository, $assetRepository);
 }
 
 // Positivliste der offenen Pfade. Die Sperre ist die Vorgabe, nicht die Ausnahme: Ein
@@ -210,6 +218,12 @@ $dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes
     $routes->addRoute('GET', '/api/templates/{id:\d+}', [TemplateController::class, 'show']);
     $routes->addRoute('PATCH', '/api/templates/{id:\d+}', [TemplateController::class, 'update']);
     $routes->addRoute('DELETE', '/api/templates/{id:\d+}', [TemplateController::class, 'destroy']);
+    $routes->addRoute('GET', '/api/cards', [CardController::class, 'index']);
+    $routes->addRoute('POST', '/api/cards', [CardController::class, 'create']);
+    $routes->addRoute('GET', '/api/cards/{id:\d+}', [CardController::class, 'show']);
+    $routes->addRoute('PATCH', '/api/cards/{id:\d+}', [CardController::class, 'update']);
+    $routes->addRoute('DELETE', '/api/cards/{id:\d+}', [CardController::class, 'destroy']);
+    $routes->addRoute('POST', '/api/cards/{id:\d+}/duplicate', [CardController::class, 'duplicate']);
 });
 
 $migrationsDirectory = $backendRoot . '/src/Migrations';
@@ -226,7 +240,8 @@ $makeController = static function (string $controllerClass) use (
     $cardGroupService,
     $assetService,
     $fontService,
-    $templateService
+    $templateService,
+    $cardService
 ): object {
     return match ($controllerClass) {
         HealthController::class => new HealthController($database),
@@ -244,6 +259,7 @@ $makeController = static function (string $controllerClass) use (
         AssetController::class => new AssetController($request, $assetService),
         FontController::class => new FontController($request, $fontService),
         TemplateController::class => new TemplateController($request, $templateService),
+        CardController::class => new CardController($request, $cardService),
         default => throw new RuntimeException('Kein Bauplan für Controller: ' . $controllerClass),
     };
 };
