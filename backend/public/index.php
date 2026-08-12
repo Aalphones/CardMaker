@@ -168,7 +168,7 @@ if ($database instanceof PDO) {
     $cardRepository = new CardRepository($database);
     $cardImageRepository = new CardImageRepository($database);
 
-    $cardGroupService = new CardGroupService($cardGroupRepository);
+    $cardGroupService = new CardGroupService($cardGroupRepository, $cardRepository);
     $assetService = new AssetService(
         $assetRepository,
         $templateRepository,
