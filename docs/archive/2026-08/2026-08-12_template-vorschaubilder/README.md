@@ -114,20 +114,46 @@ Zuerst die wackligen Stellen — dort steckt das Risiko:
 
 ## Summary
 
-_(beim Archivieren füllen)_
+Templates und Karten haben jetzt eine gemeinsame Vorschaubild-Ablage im Backend (Phase 1),
+der Editor erzeugt beim Speichern ein PNG und lädt es hoch (Phase 2), und die
+Template-Übersicht zeigt das Bild statt nur Name/Ebenenzahl (Phase 3). Am 2026-08-12 live
+gegen Strato deployt, alle drei Migrationen (`M008`, `M009`, `M010`) angewendet, Smoke-Test
+von Sascha im Browser bestätigt.
 
 ## Files touched
 
-_(beim Archivieren füllen)_
+Backend: `PreviewImageStorage`, `TemplatePreviewService`/`CardPreviewService`,
+`TemplatePreviewController`/`CardPreviewController`, Migration `M010AddPreviewImages`,
+Erweiterungen an `TemplateRepository`/`CardRepository`, `TemplateService`/`CardService`,
+`backend/public/index.php` (Routing).
+Frontend: `template-preview.ts` (Export im Editor), `card-canvas.ts`/`.html` (Anfasser
+ausblenden fürs Bild), `shared/canvas/preview-image-loader.ts` +
+`shared/canvas/preview-upload.service.ts` (gemeinsamer Lader/Upload), `templates-list.ts`/
+`.html`/`.scss` (Anzeige + Platzhalter), Store-Erweiterungen in `templates.actions.ts`/
+`templates.feature.ts`.
+Docs: `docs/decisions/021-vorschaubilder.md`, `docs/code-map.md`, `docs/models.md`,
+`docs/routes.md`.
 
 ## Commits
 
-_(beim Archivieren füllen)_
+- `c1b2295` Ablage und Endpunkte für Vorschaubilder (Templates und Karten)
+- `721cd62` Template-Editor erzeugt das Bild und lädt es hoch
+- `638cf26` Vorschaubild in der Template-Übersicht anzeigen
+- `a53171e` Deploy gegen Strato, Migrationen M008-M010 angewendet
 
 ## Deviations from plan
 
-_(beim Archivieren füllen)_
+Der Frontend-Dienst heißt `template-preview.ts`, nicht `template-preview.service.ts` — im
+Frontend gibt es projektweit keine einzige `*.service.ts`-Datei, der Plan hatte das Suffix
+noch vorgesehen.
 
 ## Follow-ups
 
-_(beim Archivieren füllen)_
+- Kartenliste und Karteneditor-Bild-Erzeugung (Karteneditor-Plan, Phasen 5 und 7) bauen auf
+  den hier entstandenen Bausteinen auf — noch offen.
+- 🟡 Aus den finalen AK weiterhin gültig: Bestandskarten ohne Bild bleiben ohne Bild, bis sie
+  einmal gespeichert werden (kein Nachzieh-Lauf). Aktuell folgenlos, da die Kartentabelle bis
+  zum Deploy leer war.
+- Punkt 7 der Smoke-Checkliste (Raster-Layout bei vielen Kacheln) war Teil der von Sascha
+  bestätigten Prüfung — falls das Raster bei sehr vielen Templates doch unangenehm lang wirkt,
+  ist die Stelle `templates-list.scss` (`&__grid`).
