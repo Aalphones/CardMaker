@@ -1,0 +1,76 @@
+<section class="prompts">
+  <div class="prompts__heading">
+    <h1 class="prompts__title">Bild-Prompts</h1>
+    <span class="tag tag--outline">für ChatGPT</span>
+  </div>
+
+  <p class="prompts__lead">
+    Vorlagen für die drei Bildsorten, die eine Karte braucht. Jede geht an ChatGPT, das erst den
+    Entwurf beschreibt und danach im selben Chat das Bild erzeugt. Platzhalter in geschweiften
+    Klammern ersetzen, den Rest wörtlich lassen.
+  </p>
+
+  <div class="seg prompts__tabs" role="tablist" aria-label="Bildsorte">
+    @for (tab of tabs; track tab.id; let index = $index) {
+      <button
+        #tabButton
+        type="button"
+        class="seg__option"
+        role="tab"
+        [id]="'prompt-tab-' + tab.id"
+        [attr.aria-controls]="'prompt-panel-' + tab.id"
+        [attr.aria-selected]="tab.id === activeTabId()"
+        [attr.tabindex]="tab.id === activeTabId() ? 0 : -1"
+        (click)="selectTab(tab.id)"
+        (keydown)="moveThroughTabs($event, index)"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  @if (activeTab(); as tab) {
+    <div
+      class="prompts__panel"
+      role="tabpanel"
+      [id]="'prompt-panel-' + tab.id"
+      [attr.aria-labelledby]="'prompt-tab-' + tab.id"
+    >
+      <p class="prompts__target">Ergebnis: {{ tab.target }}</p>
+
+      @for (paragraph of tab.intro; track $index) {
+        <p class="prompts__intro">{{ paragraph }}</p>
+      }
+
+      @for (block of tab.blocks; track block.id) {
+        <article class="card prompts__block">
+          <div class="prompts__block-head">
+            <h2 class="card__title">{{ block.title }}</h2>
+            <button type="button" class="btn btn--primary" (click)="copyPrompt(block)">
+              @if (copiedBlockId() === block.id) {
+                Kopiert
+              } @else {
+                Kopieren
+              }
+            </button>
+          </div>
+          <p class="prompts__hint">{{ block.hint }}</p>
+          <pre class="prompts__code thin-scroll"><code>{{ block.text }}</code></pre>
+        </article>
+      }
+
+      <h2 class="prompts__after-title">Danach</h2>
+      <ol class="prompts__after">
+        @for (step of tab.afterwards; track $index) {
+          <li>{{ step }}</li>
+        }
+      </ol>
+    </div>
+  }
+
+  <p class="visually-hidden" role="status">
+    @if (copiedBlockId()) {
+      Prompt in die Zwischenablage kopiert
+    }
+  </p>
+</section>

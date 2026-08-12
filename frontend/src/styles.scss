@@ -102,6 +102,8 @@
 
   --font-family-base: var(--font-organic-body);
   --font-family-heading: var(--font-organic-heading);
+  /* Feste Zeichenbreite — für Textblöcke, die zeichengetreu kopiert werden (Prompts, Token) */
+  --font-family-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', monospace;
   --font-size-sm: 0.8125rem;
   --font-size-md: 0.9375rem;
   --font-size-lg: 1.25rem;

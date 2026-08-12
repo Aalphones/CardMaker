@@ -11,6 +11,11 @@ beschreibt und **im selben Chat** das Bild erzeugt. Platzhalter in
 | [icons.md](icons.md) | IconLayer — Auswahl im Template hinterlegt | 512×512 PNG, transparent |
 | [artwork.md](artwork.md) | Kartenbild der Karteninstanz | ≥1024 px lange Kante, deckend |
 
+**Dieselben Prompts stehen in der Anwendung** unter „Bild-Prompts" (`/prompts`),
+dort mit Kopieren-Knopf. Die Texte liegen doppelt: hier als Quelle und in
+`frontend/src/app/features/prompts/prompt-texts.ts` — wer hier etwas ändert,
+zieht sie dort nach.
+
 Die Varianten für die lokalen Modelle (FLUX.2 klein, Krea 2 in ComfyUI) stehen
 in [`../master-prompt-sammelkarten-design.md`](../master-prompt-sammelkarten-design.md)
 — dort nur für den Rahmen.

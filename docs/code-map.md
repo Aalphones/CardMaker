@@ -29,6 +29,7 @@ backend/src/Validators/<Feature>Validator.php
 | `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste, Kartenvorschau, Ebenenliste, Eigenschaftenspalte und direkte Bearbeitung im Bild (Anfasser zum Verschieben/Skalieren/Drehen) stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Die Schrift einer Textebene (`font_family`) ist dabei entweder eine eingebaute Schrift oder `cmfont-<Kennung>` einer hochgeladenen — welche hochgeladenen es gibt, holt `TemplateService` einmal pro Speichervorgang und reicht es dem Prüfer durch. Eine Textebene kennt zusätzlich `font_bold`/`font_italic` (Wahrheitswerte, künstlich vom Browser gerechnet statt aus einer zweiten Schriftdatei geladen). Meilenstein 2 ist abgeschlossen |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden. Backend komplett: Kartendaten (`CardController`/`CardService`/`CardRepository`/`CardValidator`) und Kartenbilder (`CardImageController`/`CardImageService`/`CardImageRepository`/`CardImageValidator`, eigener Ordner `backend/uploads/cards/`, ADR-017), Endpunkte `/api/cards*` inkl. `/api/cards/{id}/images*`. Noch keine Oberfläche |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
+| `prompts` | Reine Anzeigeseite unter `/prompts`: die ChatGPT-Bild-Prompts für Rahmen, Icons und Artwork in drei Reitern, je mit Kopieren-Knopf. Kein Backend, kein Store — die Texte stehen als Konstanten in `features/prompts/prompt-texts.ts` und müssen deckungsgleich zu `docs/design/prompts-chatgpt/` bleiben |
 
 ## Globale Styles
 
@@ -54,6 +55,10 @@ frontend/src/app/
     card-groups/
       card-groups-list/    ← Raster, Suchfeld, Leerzustand
       card-groups-detail/  ← Formular Anlegen/Bearbeiten (Routen .../new, .../:id)
+    prompts/
+      prompt-texts.ts       ← die Prompt-Texte als Konstanten (Zweitschrift der Doku)
+      prompts-page/          ← Route /prompts: drei Reiter (Rahmen/Icons/Artwork), je
+                               Erklärung, Prompt-Block mit Kopieren-Knopf und „Danach"-Liste
     templates/
       templates-list/       ← Raster, Suchfeld, Leerzustand, „Neues Template"
       template-editor/       ← Route .../:id — Vollbild-Ebene über der App (fest positioniert,

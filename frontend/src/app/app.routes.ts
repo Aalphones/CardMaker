@@ -53,6 +53,13 @@ export const routes: Routes = [
         canDeactivate: [pendingChangesGuard],
       },
       {
+        path: 'prompts',
+        loadComponent: () =>
+          import('./features/prompts/prompts-page/prompts-page').then(
+            (module) => module.PromptsPage,
+          ),
+      },
+      {
         path: 'tokens',
         loadComponent: () =>
           import('./features/auth/tokens/tokens-page/tokens-page').then(
