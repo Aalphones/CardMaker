@@ -1,11 +1,14 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-10_karteneditor/`
-**Phase:** 5/7 — Alle Karten (Kartenliste) (pending, Rating: standard)
-**Nächster Schritt:** Phase 5 umsetzen. `frontend/src/app/features/cards/cards-list/`
-existiert als Rohbau und wird gefüllt, nicht neu angelegt. Vorlage ist
-`features/templates/templates-list/` (dieselbe Kachel mit Vorschaubild), für Suche und
-Löschabfrage weiterhin `features/card-groups/card-groups-list/`.
+**Phase:** 6/7 — Karteneditor: Formular (pending, Rating: heikel)
+**Nächster Schritt:** Phase 6 umsetzen (`phase-6-editor-formular.md`) — Modellwahl
+`opusplan`, die Phase ist als heikel eingestuft.
+
+Phase 5 (Alle Karten) ist fertig, committet, `npm run lint`/`npm run build` grün. Live-Test
+im Browser (Suche/Filter/Sortierung/Duplizieren/Löschen mit echten Daten) steht noch aus —
+das ist derselbe offene Live-Rundlauf wie unten aus Phase 2-4, jetzt erstmals mit einer
+Oberfläche prüfbar.
 
 Der Vorschaubilder-Plan ist am 2026-08-12 fertig, deployt, per Smoke-Test bestätigt und
 archiviert: `docs/archive/2026-08/2026-08-12_template-vorschaubilder/`. Keine offenen Punkte
@@ -16,8 +19,7 @@ gelaufen (`M008CreateCards`, `M009CreateCardImages`) — die Tabellen existieren
 Live-Rundlauf von Phase 2 (`CardController`/`CardService`/`CardRepository`/`CardValidator`),
 Phase 3 (`CardImageController`/`CardImageService`, Endpunkte `/api/cards/{id}/images*`) und
 Phase 4 (Frontend-Speicher — Lint/Build waren grün, ein echter Server-Aufruf steht noch aus)
-ist damit erstmals möglich, aber noch nicht gefahren. Beim Arbeiten an Phase 5 (die diese
-Endpunkte benutzt) fällt das mit ab.
+ist damit erstmals möglich, aber noch nicht gefahren.
 
 Karten haben erst nach Phase 7 eigene Vorschaubilder; bis dahin zeigt die Kartenliste
 Platzhalter. Das ist so gewollt und kein Fehler.
