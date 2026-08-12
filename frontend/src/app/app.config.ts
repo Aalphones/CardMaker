@@ -21,6 +21,8 @@ import { authFeature } from './store/auth/auth.feature';
 import { AuthEffects } from './store/auth/auth.effects';
 import { cardGroupsFeature } from './store/card-groups/card-groups.feature';
 import { CardGroupsEffects } from './store/card-groups/card-groups.effects';
+import { cardsFeature } from './store/cards/cards.feature';
+import { CardsEffects } from './store/cards/cards.effects';
 import { fontsFeature } from './store/fonts/fonts.feature';
 import { FontsEffects } from './store/fonts/fonts.effects';
 import { templatesFeature } from './store/templates/templates.feature';
@@ -37,6 +39,7 @@ export const appConfig: ApplicationConfig = {
     provideState(authFeature),
     provideState(tokensFeature),
     provideState(cardGroupsFeature),
+    provideState(cardsFeature),
     provideState(templatesFeature),
     provideState(assetsFeature),
     provideState(fontsFeature),
@@ -44,6 +47,7 @@ export const appConfig: ApplicationConfig = {
       AuthEffects,
       TokensEffects,
       CardGroupsEffects,
+      CardsEffects,
       TemplatesEffects,
       AssetsEffects,
       FontsEffects,

@@ -55,6 +55,10 @@ frontend/src/app/
     card-groups/
       card-groups-list/    ← Raster, Suchfeld, Leerzustand
       card-groups-detail/  ← Formular Anlegen/Bearbeiten (Routen .../new, .../:id)
+    cards/
+      cards-list/          ← Route /cards: „Alle Karten" (Rohbau, füllt Phase 5)
+      card-editor/         ← Routen /cards/new und /cards/:id: Formular, Live-Vorschau und
+                             Bildausschnitt (Rohbau, füllt Phase 6-8)
     prompts/
       prompt-texts.ts       ← die Prompt-Texte als Konstanten (Zweitschrift der Doku)
       prompts-page/          ← Route /prompts: drei Reiter (Rahmen/Icons/Artwork), je
@@ -104,8 +108,14 @@ frontend/src/app/
                            `draw-items.ts` (Ebene → Konva-Konfiguration, inkl. Platzhalter für
                            fehlende Bilder und der Ziehbarkeits-/Namens-Zuordnung der
                            ausgewählten Ebene)
-      asset-image-loader.ts ← lädt hochgeladene Bilder als Blob hinter der Anmeldung und hält
-                           sie als fertige Bildelemente im Speicher
+      blob-image-cache.ts ← der gemeinsame Unterbau beider Bild-Lader: Blob holen,
+                           Bildelement bauen, alles in einem Signal halten, Objekt-Adressen
+                           beim Zerstören freigeben
+      asset-image-loader.ts ← lädt Bilder aus dem Vorrat (`/assets/{id}/file`), Schlüssel ist
+                           die Bild-Kennung
+      card-image-loader.ts ← lädt die Motivbilder einer Karte
+                           (`/cards/{id}/images/{layerId}/file`), Schlüssel `cardId:layerId`;
+                           `reload()`/`forget()` nach Austausch oder Entfernen eines Bildes
       font-loader.ts    ← fordert die Kartenschriften an und meldet, welche fertig geladen sind
                            (Konva zeichnet auf ein Bitmap — das zählt für den Browser nicht als
                            Schriftverwendung, ohne diese Anforderung bliebe still die
@@ -126,9 +136,11 @@ frontend/src/app/
                            sie wiederverwendet. Einzige Ausnahme: `measure-text.ts`, die
                            Messbrücke zu `Konva.Text`
     services/
-  store/               ← NgRx Classic Store Slices (auth, card-groups, templates, assets,
+  store/               ← NgRx Classic Store Slices (auth, card-groups, cards, templates, assets,
                           fonts, tokens — Facade Pflicht pro Domain-Slice, `auth` bislang ohne, da
-                          es keine eigene Domain-UI mit Zwischen-Zustand hat)
+                          es keine eigene Domain-UI mit Zwischen-Zustand hat). `cards` hält
+                          Kurzfassungen + die geöffnete Karte; die Bilddateien selbst nicht
+                          (die liegen im Render-Zwischenspeicher, s. `canvas/`)
   signal-stores/        ← NgRx Signal Stores für UI-Zustand. `template-editor.ts`: Arbeitskopie
                           der Ebenenliste, Auswahl, `dirty`, der Verlauf (zwei Stapel mit
                           Momentaufnahmen für Rückgängig/Wiederherstellen) und der Ansichts-Zustand der Bühne
@@ -143,8 +155,9 @@ frontend/src/app/
                            kein Link)
 ```
 
-`cards/`, `print-projects/`, `admin/` aus der Tabelle oben existieren noch nicht — sie
-entstehen erst mit den jeweiligen Folgeplänen. `templates/` hat jetzt den vollständigen
+`print-projects/` und `admin/` aus der Tabelle oben existieren noch nicht — sie
+entstehen erst mit den jeweiligen Folgeplänen. `cards/` steht als Rohbau: Speicher, Routen
+und Bild-Lader sind fertig, die beiden Oberflächen füllen die Phasen 5-8. `templates/` hat jetzt den vollständigen
 Editor (Liste, Anlegen, Vorschau, Ebenenliste, Eigenschaften, direkte Bearbeitung im Bild).
 
 ## Backend-Layout (steht)

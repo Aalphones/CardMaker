@@ -66,8 +66,22 @@ Canvas.
 | `patch` | `/templates/{id}` | `Template` |
 | `delete` | `/templates/{id}` | – |
 
-## Karten
+## Karten (`store/cards/cards.effects.ts`)
 
-Backend steht seit Phase 2 des Karteneditor-Plans (`docs/planning/2026-08-10_karteneditor/`),
-der Frontend-Slice (`store/cards/`, Effekt-Datei) kommt erst in Phase 4. Sobald er existiert,
-gehört hier eine Zeile pro Aufruf dazu — Kontrakt und Endpunkte: `docs/routes.md`.
+| Aufruf | Endpunkt | Antworttyp |
+|---|---|---|
+| `get` | `/cards` | `CardsListResponse` |
+| `get` | `/cards/{id}` | `Card` |
+| `post` | `/cards` | `Card` |
+| `patch` | `/cards/{id}` | `Card` |
+| `delete` | `/cards/{id}` | – |
+| `post` | `/cards/{id}/duplicate` | `Card` |
+| `postForm` | `/cards/{id}/images` | `CardImage` |
+| `patch` | `/cards/{id}/images/{layerId}` | `CardImage` |
+| `delete` | `/cards/{id}/images/{layerId}` | – |
+
+`shared/canvas/card-image-loader.ts` lädt zusätzlich
+`getBlob('/cards/{id}/images/{layerId}/file')` fürs Canvas.
+
+Die Liste wird nach Anlegen, Ändern und Duplizieren neu geholt: Ihre Kurzfassung enthält
+Template- und Gruppennamen, die keine Antwort einer Karten-Änderung mitliefert.

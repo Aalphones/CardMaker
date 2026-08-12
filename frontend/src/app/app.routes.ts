@@ -38,6 +38,23 @@ export const routes: Routes = [
         canDeactivate: [pendingChangesGuard],
       },
       {
+        path: 'cards',
+        loadComponent: () =>
+          import('./features/cards/cards-list/cards-list').then((module) => module.CardsList),
+      },
+      {
+        path: 'cards/new',
+        loadComponent: () =>
+          import('./features/cards/card-editor/card-editor').then((module) => module.CardEditor),
+        canDeactivate: [pendingChangesGuard],
+      },
+      {
+        path: 'cards/:id',
+        loadComponent: () =>
+          import('./features/cards/card-editor/card-editor').then((module) => module.CardEditor),
+        canDeactivate: [pendingChangesGuard],
+      },
+      {
         path: 'templates',
         loadComponent: () =>
           import('./features/templates/templates-list/templates-list').then(

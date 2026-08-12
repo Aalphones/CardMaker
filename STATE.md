@@ -1,9 +1,10 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-10_karteneditor/`
-**Phase:** 4/9 — Frontend: Speicher und Routen (pending, standard)
-**Nächster Schritt:** `phase-4-frontend-speicher.md` öffnen und umsetzen — Vorlage ist
-`frontend/src/app/store/templates/` (alle vier Dateien), 1:1 übertragen aufs Karten-Feature.
+**Phase:** 5/9 — Alle Karten (pending, standard)
+**Nächster Schritt:** `phase-5-kartenliste.md` öffnen und umsetzen — die Datei
+`frontend/src/app/features/cards/cards-list/` existiert als Rohbau und wird gefüllt,
+nicht neu angelegt. Vorlage ist `features/card-groups/card-groups-list/`.
 
 **Offen aus Phase 1/2/3:** Die beiden Migrationen (`M008CreateCards`, `M009CreateCardImages`)
 sind geschrieben, aber noch nicht gelaufen — es gibt keine lokale Datenbank, der Lauf geht
@@ -11,7 +12,9 @@ nur per `deploy.cmd` + `POST /api/migrate` gegen Strato. Sascha muss das freigeb
 konnte auch der Live-Rundlauf von Phase 2 (`CardController`/`CardService`/`CardRepository`/
 `CardValidator`) und Phase 3 (`CardImageController`/`CardImageService`, Endpunkte
 `/api/cards/{id}/images*`) noch nicht gefahren werden — nur `php -l` geprüft.
-Alles gehört in die Smoke-Checkliste am Plan-Ende.
+Dasselbe gilt jetzt für den Frontend-Speicher aus Phase 4: Lint und Build sind grün, ein
+echter Aufruf gegen den Server ist nie gelaufen. Alles gehört in die Smoke-Checkliste am
+Plan-Ende.
 
 Plan „Eigene Schriften hochladen" ist abgeschlossen und archiviert:
 `docs/archive/2026-08/2026-08-11_schriften-hochladen/`. Keine offenen Punkte.

@@ -32,7 +32,7 @@ Karte jederzeit neu renderbar, auch wenn das Template sich später ändert
 | 1 | [Entscheidungen und Datenmodell](phase-1-entscheidungen-und-datenmodell.md) | heikel | complete (Migrationslauf offen) |
 | 2 | [Backend: Karten](phase-2-backend-karten.md) | standard | complete (Live-Rundlauf offen, s. Phase-Datei) |
 | 3 | [Backend: Kartenbilder](phase-3-backend-kartenbilder.md) | standard | complete (Live-Rundlauf offen, s. Phase-Datei) |
-| 4 | [Frontend: Speicher und Routen](phase-4-frontend-speicher.md) | standard | pending |
+| 4 | [Frontend: Speicher und Routen](phase-4-frontend-speicher.md) | standard | complete |
 | 5 | [Alle Karten](phase-5-kartenliste.md) | standard | pending |
 | 6 | [Karteneditor: Formular](phase-6-editor-formular.md) | heikel | pending |
 | 7 | [Karteneditor: Live-Vorschau](phase-7-live-vorschau.md) | heikel | pending |
@@ -84,6 +84,7 @@ type CardImage = {
 | GET | `/api/cards/{id}` | Karte vollständig |
 | PATCH | `/api/cards/{id}` | Karte ändern (nur übergebene Felder) |
 | DELETE | `/api/cards/{id}` | Karte löschen, Bilder mit |
+| POST | `/api/cards/{id}/duplicate` | Karte kopieren (Name + „ (Kopie)"), Bilder mit — in Phase 2 gebaut, hier nachgetragen |
 | POST | `/api/cards/{id}/images` | Bild hochladen (mehrteilig: `layerId`, `file`), ersetzt ein vorhandenes derselben Ebene |
 | PATCH | `/api/cards/{id}/images/{layerId}` | Verschiebung und Maßstab ändern |
 | DELETE | `/api/cards/{id}/images/{layerId}` | Bild dieser Ebene entfernen |
