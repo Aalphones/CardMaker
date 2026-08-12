@@ -46,6 +46,12 @@ const SELECTION_STROKE = '#c67139';
 /** Der Rahmen liegt immer vollflächig — er hat keine eigene Geometrie (Kontrakt). */
 const FRAME_BOX: Geometry = { x: 0, y: 0, width: CANVAS_WIDTH, height: CANVAS_HEIGHT, rotation: 0 };
 
+/**
+ * Der Rahmen der bearbeiteten Bildfläche ist Bedienhilfe, kein Kartenbestandteil — beim
+ * Ausgeben als Bild wird er über diesen Namen gefunden und ausgeblendet (`exportPng`).
+ */
+export const ACTIVE_AREA_NAME = 'card-image-active-area';
+
 const PLACEHOLDER_FONT_SIZE = 28;
 const PLACEHOLDER_DASH = [12, 8];
 const SELECTION_DASH = [8, 6];
@@ -73,6 +79,13 @@ export interface DrawItem {
   children?: DrawItem[];
 }
 
+/** Was eine Ebene an Maus-Verhalten mitbringt — Name, Ziehbarkeit, Zuhören. */
+interface InteractionConfig {
+  name: string;
+  draggable: boolean;
+  listening: boolean;
+}
+
 export interface DrawContext {
   images: ReadonlyMap<number, HTMLImageElement>;
   /** Mitgelieferte Schriften, die fertig geladen sind (siehe `FontLoader`). */
@@ -86,6 +99,13 @@ export interface DrawContext {
   content?: CardContent | null;
   /** Die geladenen Kartenbilder, Schlüssel ist die Bildfläche (`layerId`). */
   cardImages?: ReadonlyMap<string, HTMLImageElement>;
+  /**
+   * Bildflächen hören auf Maus und Mausrad — der Karteneditor schaltet das ein, damit sich
+   * das Motiv in seiner Fläche zurechtschieben lässt (ADR-018).
+   */
+  imageEditing?: boolean;
+  /** Die Bildfläche, die gerade bearbeitet wird: nur sie ist ziehbar und bekommt den Rahmen. */
+  activeImageLayerId?: string | null;
 }
 
 /**
@@ -107,6 +127,14 @@ export function buildDrawItems(layers: Layer[], context: DrawContext): DrawItem[
   // gestrichelte Umriss bleibt dort die einzige Auswahlanzeige.
   if (selectedLayer && (!context.interactive || selectedLayer.type === 'frame')) {
     items.push(selectionItem(selectedLayer));
+  }
+
+  // Ganz zuletzt, damit der Rahmen der bearbeiteten Bildfläche über den Ebenen liegt, die im
+  // Template über ihr sitzen — sonst verdeckt ihn ausgerechnet der Kartenrahmen.
+  const activeArea = activeImageLayer(layers, context);
+
+  if (activeArea) {
+    items.push(activeAreaItem(activeArea));
   }
 
   return items;
@@ -174,14 +202,15 @@ function itemsForLayer(layer: Layer, context: DrawContext): DrawItem[] {
  * benutzen ("may produce bugs"), und empfiehlt `name`. Der Anfasser in `card-canvas` sucht
  * den Knoten entsprechend über den Namens-Selektor (`stage.findOne('.' + id)`).
  */
-function interactionConfig(
-  layer: Layer,
-  context: DrawContext,
-): { name: string; draggable: boolean } {
+function interactionConfig(layer: Layer, context: DrawContext): InteractionConfig {
   return {
     name: layer.id,
     draggable:
       context.interactive && context.selectedLayerId === layer.id && layer.type !== 'frame',
+    // In der Kartenvorschau hört ausschließlich die Bildfläche zu. Ohne das würde ein Klick
+    // neben das Motiv auf der nächstbesten Text- oder Rahmenebene landen statt auf der Bühne —
+    // und der Karteneditor bekäme nie mit, dass die Bearbeitung enden soll.
+    listening: (context.content ?? null) === null,
   };
 }
 
@@ -210,7 +239,7 @@ function imageAreaItems(layer: ImageLayer, context: DrawContext): DrawItem[] {
     return [];
   }
 
-  return [cardImageItem(layer, placement, image)];
+  return [cardImageItem(layer, placement, image, context)];
 }
 
 /**
@@ -223,9 +252,11 @@ function cardImageItem(
   layer: ImageLayer,
   placement: CardImagePlacement,
   image: HTMLImageElement,
+  context: DrawContext,
 ): DrawItem {
   const area = box(layer);
   const inner = cardImageBox(area, placement);
+  const editing = context.imageEditing === true;
 
   return {
     key: `${layer.id}:card-image`,
@@ -235,16 +266,54 @@ function cardImageItem(
       ...area,
       opacity: layer.opacity,
       clip: { x: 0, y: 0, width: area.width, height: area.height },
-      listening: false,
+      // Der Zuschnitt begrenzt auch, wo die Maus das Bild trifft: außerhalb der Fläche liegt
+      // das überstehende Motiv zwar im Speicher, aber für Klicks nicht mehr da.
+      listening: editing,
     },
     children: [
       {
         key: `${layer.id}:card-image-source`,
         layerId: layer.id,
         element: 'image',
-        config: { ...inner, image, listening: false },
+        config: {
+          ...inner,
+          image,
+          name: layer.id,
+          listening: editing,
+          // Ziehbar ist nur die bearbeitete Fläche — sonst verschöbe ein Klick-Zieher über
+          // einer fremden Fläche deren Motiv versehentlich mit.
+          draggable: editing && context.activeImageLayerId === layer.id,
+        },
       },
     ],
+  };
+}
+
+/** Findet die Bildfläche, die gerade bearbeitet wird — nur in der Kartenvorschau. */
+function activeImageLayer(layers: Layer[], context: DrawContext): ImageLayer | null {
+  if (context.imageEditing !== true || !context.activeImageLayerId) {
+    return null;
+  }
+
+  const layer = layers.find(
+    (candidate: Layer) => candidate.id === context.activeImageLayerId && candidate.visible,
+  );
+
+  return layer && layer.type === 'image' ? layer : null;
+}
+
+function activeAreaItem(layer: ImageLayer): DrawItem {
+  return {
+    key: `${layer.id}:active-area`,
+    layerId: layer.id,
+    element: 'rect',
+    config: {
+      ...box(layer),
+      name: ACTIVE_AREA_NAME,
+      stroke: SELECTION_STROKE,
+      strokeWidth: OUTLINE_WIDTH,
+      listening: false,
+    },
   };
 }
 
@@ -470,7 +539,7 @@ function placeholderItems(
   area: Geometry,
   label: string,
   opacity: number,
-  interaction: { name: string; draggable: boolean },
+  interaction: InteractionConfig,
 ): DrawItem[] {
   return [
     {

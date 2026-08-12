@@ -1,5 +1,5 @@
 @if (stageWidth() > 0) {
-  <ko-stage #stage class="card-canvas__stage" [config]="stageConfig()">
+  <ko-stage #stage class="card-canvas__stage" [config]="stageConfig()" (click)="onStageClick($event)">
     <ko-layer [config]="konvaLayerConfig()">
       @for (item of drawItems(); track item.key) {
         @switch (item.element) {
@@ -45,7 +45,15 @@
             <!-- Nur Kartenbilder: die Gruppe trägt den Zuschnitt, das Kind das Bild. -->
             <ko-group [config]="item.config">
               @for (child of item.children ?? []; track child.key) {
-                <ko-image [config]="child.config" />
+                <ko-image
+                  [config]="child.config"
+                  (click)="activateImageArea(child.layerId)"
+                  (mouseenter)="onCardImageHover(true)"
+                  (mouseleave)="onCardImageHover(false)"
+                  (wheel)="onCardImageWheel($event, child.layerId)"
+                  (dragmove)="onCardImageDragMove($event, child.layerId)"
+                  (dragend)="onCardImageDragEnd($event, child.layerId)"
+                />
               }
             </ko-group>
           }

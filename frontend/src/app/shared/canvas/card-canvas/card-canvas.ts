@@ -23,16 +23,33 @@ import { AssetImageLoader } from '../asset-image-loader';
 import { CardImageLoader, cardImageKey } from '../card-image-loader';
 import { FontLoader } from '../font-loader';
 import { geometryFromNodeSnapshot, offsetLinePoints } from '../rendering/apply-transform';
-import { CardContent } from '../rendering/card-content';
+import {
+  CardContent,
+  CardImagePlacement,
+  cardImageBox,
+  findCardImage,
+  placementFromBoxPosition,
+  zoomPlacementAt,
+} from '../rendering/card-content';
 import { FontFamily } from '../rendering/fonts';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, Layer, LayerPatch } from '../rendering/layer';
-import { DrawItem, buildDrawItems, requestedAssetIds, requestedFontFamilies } from './draw-items';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, Geometry, Layer, LayerPatch } from '../rendering/layer';
+import { Point } from '../rendering/units';
+import {
+  ACTIVE_AREA_NAME,
+  DrawItem,
+  buildDrawItems,
+  requestedAssetIds,
+  requestedFontFamilies,
+} from './draw-items';
 
 /** Bildschirmpunkte, nicht Canvas-Einheiten — werden unten durch den Bühnenmaßstab geteilt,
  *  damit Anfasser bei jeder Fenstergröße gleich groß aussehen. */
 const ANCHOR_SIZE_PX = 10;
 const BORDER_WIDTH_PX = 1.5;
 const ROTATE_ANCHOR_OFFSET_PX = 26;
+
+/** Ein Mausrad-Rasterschritt vergrößert um ein Zehntel — fein genug, um zu treffen. */
+const WHEEL_ZOOM_FACTOR = 1.1;
 
 /**
  * Konvas eigene Voreinstellung (`Transformer`-Quelltext, `ANCHORS_NAMES`) — hier fest
@@ -83,8 +100,20 @@ export class CardCanvas {
    */
   readonly panning = input(false);
 
+  /**
+   * Schaltet das Zurechtschieben der Kartenbilder frei (ADR-018). Die Zeichenfläche führt
+   * dabei nur die Geste aus und meldet das Ergebnis — welche Fläche gerade dran ist und wann
+   * gespeichert wird, entscheidet der Karteneditor.
+   */
+  readonly imageEditing = input(false);
+  readonly activeImageLayerId = input<string | null>(null);
+
   readonly layerClicked = output<string>();
   readonly layerTransformed = output<{ id: string; changes: LayerPatch }>();
+
+  /** Angeklickte Bildfläche — `null`, wenn daneben geklickt wurde. */
+  readonly imageAreaActivated = output<string | null>();
+  readonly imagePlacementChanged = output<CardImagePlacement>();
 
   /**
    * Beginn einer Zieh- oder Skaliergeste. Der Editor legt darauf seine Momentaufnahme für den
@@ -114,7 +143,11 @@ export class CardCanvas {
   protected readonly konvaLayerConfig: Signal<LayerConfig> = computed(() => {
     const scale = this.canvasScale();
 
-    return { scaleX: scale, scaleY: scale, listening: this.interactive() && !this.panning() };
+    return {
+      scaleX: scale,
+      scaleY: scale,
+      listening: (this.interactive() || this.imageEditing()) && !this.panning(),
+    };
   });
 
   /** Die geladenen Kartenbilder, umgeschlüsselt auf die Bildfläche — der Lader sortiert nach Karte. */
@@ -147,6 +180,8 @@ export class CardCanvas {
       interactive: this.interactive(),
       content: this.content(),
       cardImages: this.cardImages(),
+      imageEditing: this.imageEditing(),
+      activeImageLayerId: this.activeImageLayerId(),
     }),
   );
 
@@ -267,6 +302,11 @@ export class CardCanvas {
     // `afterRenderEffect` oben verwaltet — sie käme erst beim nächsten Lauf zurück.
     transformer?.hide();
 
+    // Der Rahmen der bearbeiteten Bildfläche ist eine Bedienhilfe. Ohne dieses Ausblenden
+    // brennt er sich in das Vorschaubild ein, das der Editor nach dem Speichern hochlädt.
+    const activeAreas = stage.find(`.${ACTIVE_AREA_NAME}`);
+    activeAreas.forEach((node: Konva.Node) => node.hide());
+
     try {
       // Der Maßstab der Bühne wechselt mit der Fensterbreite, das Bild soll das nicht tun:
       // Aus der gemessenen Breite wird der Faktor gerechnet, der genau `targetWidth`
@@ -288,6 +328,7 @@ export class CardCanvas {
       return exported instanceof Blob ? exported : null;
     } finally {
       transformer?.show();
+      activeAreas.forEach((node: Konva.Node) => node.show());
     }
   }
 
@@ -295,6 +336,121 @@ export class CardCanvas {
     if (this.interactive()) {
       this.layerClicked.emit(layerId);
     }
+  }
+
+  protected activateImageArea(layerId: string): void {
+    if (this.imageEditing()) {
+      this.imageAreaActivated.emit(layerId);
+    }
+  }
+
+  /**
+   * Ein Klick, der auf keiner Form gelandet ist, beendet die Bearbeitung. In der Kartenvorschau
+   * hört nur die Bildfläche zu (siehe `interactionConfig()` in draw-items.ts) — alles andere
+   * fällt bis auf die Bühne durch und ist damit „daneben".
+   */
+  protected onStageClick(event: NgKonvaEventObject<MouseEvent>): void {
+    if (this.imageEditing() && event.event.target === this.stageRef()?.getStage()) {
+      this.imageAreaActivated.emit(null);
+    }
+  }
+
+  /**
+   * Während des Ziehens wird der Knoten selbst in die Grenzen zurückgesetzt, statt auf das
+   * Ergebnis zu warten: So läuft das Motiv sichtbar gegen den Anschlag, statt erst nach dem
+   * Loslassen zurückzuspringen. Gespeichert wird trotzdem nur am Ende der Geste.
+   */
+  protected onCardImageDragMove(event: NgKonvaEventObject<MouseEvent>, layerId: string): void {
+    const node = event.event.target as Konva.Node;
+    const area = this.imageAreaFor(layerId);
+    const placement = this.placementFromNode(layerId, node);
+
+    if (area === null || placement === null) {
+      return;
+    }
+
+    const box = cardImageBox(area, placement);
+    node.position({ x: box.x, y: box.y });
+  }
+
+  protected onCardImageDragEnd(event: NgKonvaEventObject<MouseEvent>, layerId: string): void {
+    const placement = this.placementFromNode(layerId, event.event.target as Konva.Node);
+
+    if (placement !== null) {
+      this.imagePlacementChanged.emit(placement);
+    }
+  }
+
+  protected onCardImageWheel(event: NgKonvaEventObject<WheelEvent>, layerId: string): void {
+    if (!this.imageEditing() || this.activeImageLayerId() !== layerId) {
+      return;
+    }
+
+    const area = this.imageAreaFor(layerId);
+    const placement = findCardImage(layerId, this.content());
+
+    if (area === null || placement === null) {
+      return;
+    }
+
+    // Sonst scrollt die Seite unter der Karte weg, während man am Ausschnitt arbeitet.
+    event.event.evt.preventDefault();
+
+    const anchor = this.pointerInArea(event.event.target as Konva.Node, area);
+    const factor = event.event.evt.deltaY < 0 ? WHEEL_ZOOM_FACTOR : 1 / WHEEL_ZOOM_FACTOR;
+
+    this.imagePlacementChanged.emit(
+      zoomPlacementAt(area, placement, placement.scale * factor, anchor),
+    );
+  }
+
+  /** Die Bildfläche verrät erst beim Zeigen darauf, dass sie sich schieben lässt. */
+  protected onCardImageHover(hovering: boolean): void {
+    const container = this.stageRef()?.getStage().container();
+
+    if (container) {
+      container.style.cursor = hovering && this.imageEditing() ? 'grab' : '';
+    }
+  }
+
+  /**
+   * Die neue Verschiebung aus der Knotenposition. Der Knoten ist **Kind** der zugeschnittenen
+   * Gruppe, seine `x`/`y` zählen also schon ab der linken oberen Ecke der Fläche — die
+   * Verschiebung der Gruppe darf hier nicht noch einmal abgezogen werden, sonst wanderte der
+   * Ausschnitt doppelt. Genau deshalb steht hier `node.position()` und nicht
+   * `node.absolutePosition()` oder `getClientRect()`, die beide die Gruppe mit einrechnen.
+   */
+  private placementFromNode(layerId: string, node: Konva.Node): CardImagePlacement | null {
+    const area = this.imageAreaFor(layerId);
+    const placement = findCardImage(layerId, this.content());
+
+    if (area === null || placement === null) {
+      return null;
+    }
+
+    return placementFromBoxPosition(area, placement, { x: node.x(), y: node.y() });
+  }
+
+  private imageAreaFor(layerId: string): Geometry | null {
+    const layer = this.layers().find((candidate: Layer) => candidate.id === layerId);
+
+    if (!layer || layer.type !== 'image') {
+      return null;
+    }
+
+    return { x: layer.x, y: layer.y, width: layer.width, height: layer.height, rotation: layer.rotation };
+  }
+
+  /** Zeigerposition in Koordinaten der Fläche — die Gruppe rechnet Bühnenmaßstab und Lage heraus. */
+  private pointerInArea(node: Konva.Node, area: Geometry): Point {
+    const group = node.getParent();
+    const pointer = group?.getRelativePointerPosition() ?? null;
+
+    if (pointer === null) {
+      return { x: area.width / 2, y: area.height / 2 };
+    }
+
+    return { x: pointer.x, y: pointer.y };
   }
 
   protected onGestureStart(): void {

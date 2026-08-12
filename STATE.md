@@ -1,23 +1,23 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-10_karteneditor/`
-**Phase:** 8/9 — Bild ziehen und zoomen (pending, Rating: heikel)
-**Nächster Schritt:** Phase 8 umsetzen (`phase-8-bild-platzieren.md`) — Modellwahl `opusplan`,
-die Phase ist als heikel eingestuft.
+**Phase:** 9/9 — Verknüpfungen, Doku, Abnahme (pending, Rating: mechanisch)
+**Nächster Schritt:** Phase 9 umsetzen (`phase-9-abschluss.md`) — Modellwahl `sonnet`,
+die Phase ist als mechanisch eingestuft.
 
-Phase 7 (Live-Vorschau) ist fertig, committet, `npm run lint`/`npm run build` grün. Der
-Live-Test im Browser steht aus — er hängt am selben offenen Rundlauf wie die Phasen 2-6.
-Zwei Fragen, die nur der Bildschirm beantwortet, stehen im Report-Back der Phase 7:
-Tippt es sich flüssig, und ist das Vorschaubild scharf genug?
+Phase 8 (Bild ziehen und zoomen) ist fertig, committet, `npm run lint`/`npm run build` grün.
+Das Motiv lässt sich in seiner Fläche ziehen, mit Mausrad/Regler/Tastatur zoomen und
+zurücksetzen; gespeichert wird gesammelt nach 400 ms Ruhe und beim Verlassen des Editors.
+Der Bildschirm-Test steht aus — er hängt am selben offenen Rundlauf wie die Phasen 2-7.
+Die Handprüfliste dazu (Hoch-/Querformat, sehr kleines/großes Bild, Zoom bis Anschlag, alle
+vier Zieh-Grenzen, Zurücksetzen, Neuladen) steht in `phase-8-bild-platzieren.md` und ist als
+Finding für die Abnahme in Phase 9 vermerkt.
 
-**Offen aus dem Karteneditor-Plan, Phase 1-6:** Die Migrationen sind seit 2026-08-12 live
+**Offen aus dem Karteneditor-Plan, Phase 1-7:** Die Migrationen sind seit 2026-08-12 live
 gelaufen (`M008CreateCards`, `M009CreateCardImages`) — die Tabellen existieren. Ein echter
-Rundlauf gegen den Server (Karte anlegen, Bild hochladen, Kartenliste mit echten Daten,
-Suche/Filter/Sortierung/Duplizieren/Löschen) ist bisher nie gefahren worden, jetzt aber
-erstmals vollständig über die Oberfläche möglich.
-
-Karten haben erst nach Phase 7 eigene Vorschaubilder; bis dahin zeigt die Kartenliste
-Platzhalter. Das ist so gewollt und kein Fehler.
+Rundlauf gegen den Server (Karte anlegen, Bild hochladen, zurechtschieben, Kartenliste mit
+echten Daten, Suche/Filter/Sortierung/Duplizieren/Löschen) ist bisher nie gefahren worden,
+jetzt aber erstmals vollständig über die Oberfläche möglich.
 
 Der Vorschaubilder-Plan ist am 2026-08-12 fertig, deployt, per Smoke-Test bestätigt und
 archiviert: `docs/archive/2026-08/2026-08-12_template-vorschaubilder/`.

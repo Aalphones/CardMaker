@@ -123,7 +123,10 @@ frontend/src/app/
                            ausgewählten Ebene). Bekommt die Fläche einen Karteninhalt
                            (`content`), zeichnet dieselbe Stelle die Kartenwerte statt der
                            Template-Vorgaben — ohne Platzhalter, Kartenbilder in einer
-                           zuschneidenden Gruppe
+                           zuschneidenden Gruppe. Mit `imageEditing` (Phase 8) lässt sich das
+                           Motiv in seiner Fläche ziehen und mit dem Mausrad zoomen; die Fläche
+                           meldet nur das Ergebnis nach außen, wann gespeichert wird entscheidet
+                           der Karteneditor
       blob-image-cache.ts ← der gemeinsame Unterbau beider Bild-Lader: Blob holen,
                            Bildelement bauen, alles in einem Signal halten, Objekt-Adressen
                            beim Zerstören freigeben
@@ -156,7 +159,10 @@ frontend/src/app/
                            (automatisches Verkleinern von Text), `card-content.ts` (was eine
                            Karte zum Template beisteuert, plus die Regeln „Kartenwert schlägt
                            Template-Vorgabe" für Text, Größe, Farbe, Fett/Kursiv, Icon-Wahl
-                           und die Lage des Kartenbildes in seiner Fläche), `apply-transform.ts`
+                           und die Lage des Kartenbildes in seiner Fläche — dazu die Grenzen
+                           des Ausschnitts (`clampPlacement`, nie eine leere Ecke), die
+                           Umkehrung Bildecke → Verschiebung und das Zoomen um einen
+                           Ankerpunkt), `apply-transform.ts`
                            (Konva-Transform-Ergebnis → Geometrie-Patch in Canvas-Einheiten,
                            Linien-Punkte verschieben) — ADR-005, damit Meilenstein 4 (Drucken)
                            sie wiederverwendet. Einzige Ausnahme: `measure-text.ts`, die

@@ -2,6 +2,7 @@ import { Dialog } from '@angular/cdk/dialog';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   Signal,
   computed,
   effect,
@@ -28,8 +29,17 @@ import {
   PREVIEW_WIDTH_PX,
   PreviewUploadService,
 } from '../../../shared/canvas/preview-upload.service';
-import { CardContent } from '../../../shared/canvas/rendering/card-content';
-import { Layer } from '../../../shared/canvas/rendering/layer';
+import {
+  CardImagePlacement,
+  MAX_CARD_IMAGE_SCALE,
+  MIN_CARD_IMAGE_SCALE,
+  CardContent,
+  areaCenter,
+  clampPlacement,
+  resetPlacement,
+  zoomPlacementAt,
+} from '../../../shared/canvas/rendering/card-content';
+import { Geometry, Layer } from '../../../shared/canvas/rendering/layer';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { FieldHint } from '../../../shared/components/field-hint/field-hint';
 import { ComponentWithUnsavedChanges } from '../../../shared/guards/pending-changes-guard';
@@ -43,6 +53,7 @@ import { TemplatesFacade } from '../../../store/templates/templates.facade';
 import {
   CardFormFields,
   CardIconField,
+  CardImageField,
   CardTextField,
   EMPTY_CARD_FORM_FIELDS,
   describeCardFields,
@@ -85,6 +96,18 @@ const ORPHAN_HINT =
   'gespeichert und tauchen wieder auf, falls die Felder zurückkommen.';
 const PREVIEW_FAILED_MESSAGE = 'Das Vorschaubild konnte nicht gespeichert werden.';
 
+const PLACEMENT_HINT = 'Ziehen verschiebt das Bild, das Mausrad zoomt.';
+
+/**
+ * Eine Mausbewegung ist keine Speicherung wert: erst wenn so lange nichts mehr passiert,
+ * geht der neue Ausschnitt zum Server. Beim Verlassen des Editors sofort.
+ */
+const PLACEMENT_SAVE_DELAY_MS = 400;
+
+const ARROW_STEP = 5;
+const ARROW_STEP_LARGE = 25;
+const KEY_ZOOM_STEP = 0.25;
+
 const TEMPLATE_HINT =
   'Die Felder unten richten sich nach dem Template. Wechselst du es, verschwinden Felder, ' +
   'die das neue Template nicht kennt — ihre Werte bleiben trotzdem erhalten.';
@@ -123,6 +146,9 @@ export class CardEditor implements ComponentWithUnsavedChanges {
   protected readonly colorHint = COLOR_HINT;
   protected readonly orphanHint = ORPHAN_HINT;
   protected readonly templateHint = TEMPLATE_HINT;
+  protected readonly placementHint = PLACEMENT_HINT;
+  protected readonly minScale = MIN_CARD_IMAGE_SCALE;
+  protected readonly maxScale = MAX_CARD_IMAGE_SCALE;
 
   private readonly paramMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
@@ -155,8 +181,19 @@ export class CardEditor implements ComponentWithUnsavedChanges {
   private readonly draftIconChoices = signal<Record<string, number>>({});
   private readonly draftOverrides = signal<Record<string, CardTextOverride>>({});
 
+  /** Die Bildfläche, deren Motiv gerade zurechtgeschoben wird (ADR-018). */
+  protected readonly activeImageLayerId = signal<string | null>(null);
+
+  /**
+   * Zuletzt eingestellte Ausschnitte, solange der Server sie noch nicht bestätigt hat. Sie
+   * liegen über dem geladenen Stand — sonst spränge das Bild nach jedem Zug für einen
+   * Augenblick auf die alte Lage zurück.
+   */
+  private readonly pendingPlacements = signal<Record<string, CardImagePlacement>>({});
+
   private loadedCardId: number | null = null;
   private requestedTemplateId: number | null = null;
+  private placementSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   /**
    * Die drei veränderlichen Teile stehen als eigene Felder da: über `form.controls` gelesen
@@ -245,13 +282,40 @@ export class CardEditor implements ComponentWithUnsavedChanges {
 
     const draft = this.collectDraft();
 
+    const pending = this.pendingPlacements();
+
     return {
       cardId: this.cardId(),
       values: draft.values,
       iconChoices: draft.iconChoices,
       textOverrides: draft.overrides,
-      images: this.card()?.images ?? [],
+      images: (this.card()?.images ?? []).map(
+        (image: CardImagePlacement) => pending[image.layerId] ?? image,
+      ),
     };
+  });
+
+  /** Der Ausschnitt der bearbeiteten Fläche — Grundlage für Regler, Tastatur und Zurücksetzen. */
+  protected readonly activePlacement = computed<CardImagePlacement | null>(() => {
+    const layerId = this.activeImageLayerId();
+
+    if (layerId === null) {
+      return null;
+    }
+
+    return (
+      this.previewContent().images.find(
+        (image: CardImagePlacement) => image.layerId === layerId,
+      ) ?? null
+    );
+  });
+
+  protected readonly activeImageLabel = computed<string>(() => {
+    const layerId = this.activeImageLayerId();
+
+    return (
+      this.fields().images.find((image: CardImageField) => image.layerId === layerId)?.label ?? ''
+    );
   });
 
   /** Nach dem nächsten erfolgreichen Speichern ein Vorschaubild erzeugen. */
@@ -312,6 +376,18 @@ export class CardEditor implements ComponentWithUnsavedChanges {
         this.submitting.set(false);
       }
     });
+
+    // Verschwindet die bearbeitete Fläche — Bild entfernt, Template gewechselt —, endet die
+    // Bearbeitung von selbst; sonst zeigte die Leiste auf ein Bild, das es nicht mehr gibt.
+    effect(() => {
+      const layerId = this.activeImageLayerId();
+
+      if (layerId !== null && this.activePlacement() === null) {
+        untracked(() => this.activeImageLayerId.set(null));
+      }
+    });
+
+    inject(DestroyRef).onDestroy(() => this.savePlacementsNow());
   }
 
   hasUnsavedChanges(): boolean {
@@ -460,6 +536,84 @@ export class CardEditor implements ComponentWithUnsavedChanges {
     this.form.controls.cardGroupId.markAsDirty();
   }
 
+  protected onImageAreaActivated(layerId: string | null): void {
+    this.activeImageLayerId.set(layerId);
+  }
+
+  protected onPlacementChanged(placement: CardImagePlacement): void {
+    this.pendingPlacements.update((pending: Record<string, CardImagePlacement>) => ({
+      ...pending,
+      [placement.layerId]: placement,
+    }));
+
+    if (this.placementSaveTimer !== null) {
+      clearTimeout(this.placementSaveTimer);
+    }
+
+    this.placementSaveTimer = setTimeout(() => {
+      this.savePlacementsNow();
+      this.refreshPreviewImage();
+    }, PLACEMENT_SAVE_DELAY_MS);
+  }
+
+  protected onScaleInput(event: Event): void {
+    const placement = this.activePlacement();
+    const area = this.activeImageArea();
+
+    if (placement === null || area === null) {
+      return;
+    }
+
+    const nextScale = Number((event.target as HTMLInputElement).value);
+
+    this.onPlacementChanged(zoomPlacementAt(area, placement, nextScale, areaCenter(area)));
+  }
+
+  protected resetActivePlacement(): void {
+    const placement = this.activePlacement();
+    const area = this.activeImageArea();
+
+    if (placement === null || area === null) {
+      return;
+    }
+
+    this.onPlacementChanged(resetPlacement(area, placement));
+  }
+
+  /** Pfeiltasten verschieben, Plus und Minus zoomen — dieselbe Geste ohne Maus. */
+  protected onPreviewKeydown(event: KeyboardEvent): void {
+    const placement = this.activePlacement();
+    const area = this.activeImageArea();
+
+    if (placement === null || area === null) {
+      return;
+    }
+
+    const step = event.shiftKey ? ARROW_STEP_LARGE : ARROW_STEP;
+    const move = arrowStepFor(event.key);
+
+    if (move !== null) {
+      event.preventDefault();
+      this.onPlacementChanged(
+        clampPlacement(area, {
+          ...placement,
+          offsetX: placement.offsetX + move.x * step,
+          offsetY: placement.offsetY + move.y * step,
+        }),
+      );
+      return;
+    }
+
+    const zoom = zoomStepFor(event.key);
+
+    if (zoom !== 0) {
+      event.preventDefault();
+      this.onPlacementChanged(
+        zoomPlacementAt(area, placement, placement.scale + zoom, areaCenter(area)),
+      );
+    }
+  }
+
   protected onImageChosen(layerId: string, file: File): void {
     const templateId = this.selectedTemplateId();
 
@@ -468,6 +622,10 @@ export class CardEditor implements ComponentWithUnsavedChanges {
     }
 
     const id = this.cardId();
+
+    // Ein neues Motiv bringt eigene Maße mit — der gemerkte Ausschnitt des alten passt nicht
+    // mehr darauf und würde das frische Bild schief in die Fläche legen.
+    this.forgetPlacement(layerId);
 
     if (id !== null) {
       this.cards.uploadImage(id, layerId, file);
@@ -483,6 +641,8 @@ export class CardEditor implements ComponentWithUnsavedChanges {
 
   protected onImageRemoved(layerId: string): void {
     const id = this.cardId();
+
+    this.forgetPlacement(layerId);
 
     if (id !== null) {
       this.cards.removeImage(id, layerId);
@@ -536,6 +696,62 @@ export class CardEditor implements ComponentWithUnsavedChanges {
     // Der Server-Stand darf nach dem Speichern wieder ins Formular zurückfließen.
     this.loadedCardId = null;
     this.cards.save(id, input);
+  }
+
+  private activeImageArea(): Geometry | null {
+    const layerId = this.activeImageLayerId();
+    const layer = this.previewLayers().find((candidate: Layer) => candidate.id === layerId);
+
+    if (!layer || layer.type !== 'image') {
+      return null;
+    }
+
+    return { x: layer.x, y: layer.y, width: layer.width, height: layer.height, rotation: layer.rotation };
+  }
+
+  /**
+   * Schreibt alle offenen Ausschnitte sofort. Die gemerkten Werte bleiben danach stehen: die
+   * Antwort des Servers braucht einen Moment, und bis dahin ist der gemerkte Stand der
+   * richtigere. Erst ein neues Bild in derselben Fläche wirft ihn weg.
+   */
+  private savePlacementsNow(): void {
+    if (this.placementSaveTimer !== null) {
+      clearTimeout(this.placementSaveTimer);
+      this.placementSaveTimer = null;
+    }
+
+    const cardId = this.cardId();
+    const pending = this.pendingPlacements();
+
+    if (cardId === null) {
+      return;
+    }
+
+    for (const placement of Object.values(pending)) {
+      this.cards.updateImagePlacement(cardId, placement.layerId, {
+        offsetX: placement.offsetX,
+        offsetY: placement.offsetY,
+        scale: placement.scale,
+      });
+    }
+  }
+
+  /**
+   * Die Kachel in „Alle Karten" zeigt ein gespeichertes Bild — ohne diesen Nachschub bliebe
+   * dort der Ausschnitt von vor der Korrektur stehen, bis jemand die Karte erneut speichert.
+   */
+  private refreshPreviewImage(): void {
+    const cardId = this.cardId();
+
+    if (cardId !== null) {
+      void this.uploadPreview(cardId);
+    }
+  }
+
+  private forgetPlacement(layerId: string): void {
+    this.pendingPlacements.update((pending: Record<string, CardImagePlacement>) =>
+      withoutKeys(pending, new Set([layerId])),
+    );
   }
 
   private adoptCard(card: Card): void {
@@ -757,6 +973,33 @@ function withoutKeys<T>(source: Record<string, T>, keys: Set<string>): Record<st
   return Object.fromEntries(
     Object.entries(source).filter(([key]: [string, T]) => !keys.has(key)),
   );
+}
+
+function arrowStepFor(key: string): { x: number; y: number } | null {
+  switch (key) {
+    case 'ArrowLeft':
+      return { x: -1, y: 0 };
+    case 'ArrowRight':
+      return { x: 1, y: 0 };
+    case 'ArrowUp':
+      return { x: 0, y: -1 };
+    case 'ArrowDown':
+      return { x: 0, y: 1 };
+    default:
+      return null;
+  }
+}
+
+function zoomStepFor(key: string): number {
+  if (key === '+' || key === '=') {
+    return KEY_ZOOM_STEP;
+  }
+
+  if (key === '-') {
+    return -KEY_ZOOM_STEP;
+  }
+
+  return 0;
 }
 
 function iconStepFor(key: string): number {

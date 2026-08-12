@@ -195,12 +195,50 @@
 
   <aside class="card-editor__preview">
     <p class="card-editor__preview-label">Live-Vorschau</p>
-    <div class="card-editor__preview-frame">
+    <div
+      class="card-editor__preview-frame"
+      role="group"
+      tabindex="0"
+      aria-label="Kartenvorschau — bei ausgewählter Bildfläche verschieben die Pfeiltasten das Bild"
+      (keydown)="onPreviewKeydown($event)"
+    >
       @if (templateLoaded()) {
-        <app-card-canvas [layers]="previewLayers()" [content]="previewContent()" />
+        <app-card-canvas
+          [layers]="previewLayers()"
+          [content]="previewContent()"
+          [imageEditing]="cardId() !== null"
+          [activeImageLayerId]="activeImageLayerId()"
+          (imageAreaActivated)="onImageAreaActivated($event)"
+          (imagePlacementChanged)="onPlacementChanged($event)"
+        />
       } @else {
         <p class="card-editor__note">Wähle ein Template — dann erscheint die Karte hier.</p>
       }
     </div>
+
+    @if (activePlacement(); as placement) {
+      <div class="card-editor__placement">
+        <div class="card-editor__label-row">
+          <span class="card-editor__label">{{ activeImageLabel() }}</span>
+          <app-field-hint [text]="placementHint" />
+        </div>
+        <div class="card-editor__inline">
+          <label class="visually-hidden" for="card-image-scale">Zoom</label>
+          <input
+            id="card-image-scale"
+            class="card-editor__zoom"
+            type="range"
+            [min]="minScale"
+            [max]="maxScale"
+            step="0.05"
+            [value]="placement.scale"
+            (input)="onScaleInput($event)"
+          />
+          <button type="button" class="btn btn--ghost" (click)="resetActivePlacement()">
+            Zurücksetzen
+          </button>
+        </div>
+      </div>
+    }
   </aside>
 </div>

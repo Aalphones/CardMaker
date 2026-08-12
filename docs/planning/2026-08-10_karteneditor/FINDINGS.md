@@ -50,28 +50,36 @@ Erledigte Punkte abhaken, nicht löschen.
 - [x] → Phase 7: Der Editor hält **alle** je gesehenen Werte, auch die des aktuellen Templates
       unbekannten. Die Vorschau zeichnet ausschließlich die Felder aus `describeCardFields` —
       verwaiste Werte gehören nicht aufs Bild.
-- [ ] → Phase 8: `CardsActions.create` nimmt jetzt optional ein `pendingImage` mit; der Effekt
+- [x] → Phase 8: `CardsActions.create` nimmt jetzt optional ein `pendingImage` mit; der Effekt
       lädt es hoch, sobald die neue Karte eine Kennung hat. Beim Zurechtschieben in Phase 8
       ist die Karte immer schon angelegt — dort reicht `updateImagePlacement`.
-- [ ] → Phase 8: Kartenbilder liegen nicht im Store, sondern im
+- [x] → Phase 8: Kartenbilder liegen nicht im Store, sondern im
       `CardImageLoader` (`shared/canvas/card-image-loader.ts`, Schlüssel `cardId:layerId`).
       Nach Hochladen und Entfernen hält der Effekt den Zwischenspeicher schon aktuell —
       die Vorschau muss nur `load(cardId, layerId)` aufrufen und auf `images()` hören.
 - [x] → Phase 7: Der Vorbehalt zu Fett/Kursiv im README ist hinfällig — der Schriften-Plan
       ist durch, das Canvas zeichnet beides. Die Abweichungen wirken sofort.
-- [ ] → Phase 8: Die Umrechnung „Verschiebung + Maßstab → Zeichenkasten" steht als
+- [x] → Phase 8: Die Umrechnung „Verschiebung + Maßstab → Zeichenkasten" steht als
       `cardImageBox(area, placement)` in `shared/canvas/rendering/card-content.ts`. Maßstab 1
       heißt: das Bild füllt die Fläche gerade eben (kürzere Seite passt genau), von dort aus
       zentriert und um `offsetX/offsetY` versetzt. Die Ziehen-und-Zoomen-Geste muss ihre
       Werte in genau diese Größen umrechnen, sonst springt das Bild beim Neuladen.
-- [ ] → Phase 8: Die Bildgruppe in der Vorschau ist noch taub (`listening: false`, siehe
+- [x] → Phase 8: Die Bildgruppe in der Vorschau ist noch taub (`listening: false`, siehe
       `cardImageItem()` in `draw-items.ts`) — Phase 8 muss sie hörbar machen und die Gesten
       dort anhängen. Der Zuschnitt sitzt auf der Gruppe, das Bild darin trägt nur den Versatz.
-- [ ] → Phase 8: Das Vorschaubild der Kachel entsteht **nur** beim Klick auf „Karte speichern"
+- [x] → Phase 8: Das Vorschaubild der Kachel entsteht **nur** beim Klick auf „Karte speichern"
       (`uploadPreview()` im Karteneditor). Legt man bei einer neuen Karte zuerst ein Bild ab,
       entsteht die Karte ohne Vorschaubild — erst das nächste Speichern liefert eins nach.
       Wird in Phase 8 der Ausschnitt geändert, gehört dort dieselbe Frage gestellt.
+      Beantwortet: ja — nach jedem gesammelten Speichern des Ausschnitts entsteht auch ein
+      neues Kachelbild. Nicht beim Verlassen des Editors, dort wird die Zeichenfläche schon
+      abgebaut; ein Ausschnitt, der binnen 400 ms vor dem Weggehen entsteht, kommt erst mit
+      dem nächsten Speichern auf die Kachel.
 - [ ] → Phase 9: Der Doku-Abgleich muss `docs/code-map.md` gegen `card-content.ts` und die
-      Gruppen-Zeichnung prüfen — beide Zeilen sind in Phase 7 neu geschrieben worden.
+      Gruppen-Zeichnung prüfen — beide Zeilen sind in Phase 7 neu geschrieben worden und in
+      Phase 8 noch einmal (Ziehen/Zoomen, Grenzen des Ausschnitts).
+- [ ] → Phase 9: Die Handprüfung aus Phase 8 (Hoch-/Querformat, sehr kleines und sehr großes
+      Bild, Zoom bis Anschlag, alle vier Zieh-Grenzen, Zurücksetzen, Neuladen) ist noch offen
+      und gehört in die Abnahme-Checkliste.
 - [ ] → Phase 9: `docs/models.md` wurde in Phase 1 neu angelegt und deckt alle Tabellen ab.
       Beim Doku-Abgleich am Plan-Ende gegen den dann gebauten Stand prüfen.
