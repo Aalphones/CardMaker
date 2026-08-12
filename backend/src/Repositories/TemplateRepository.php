@@ -10,7 +10,8 @@ use PDO;
 
 final class TemplateRepository
 {
-    private const COLUMNS = 'id, name, description, layers, created_at, updated_at';
+    private const COLUMNS = 'id, name, description, layers, preview_file_name, preview_updated_at, '
+        . 'created_at, updated_at';
 
     public function __construct(private readonly PDO $database)
     {
@@ -20,7 +21,8 @@ final class TemplateRepository
     public function allSummaries(): array
     {
         $statement = $this->database->query(
-            'SELECT id, name, description, JSON_LENGTH(layers) AS layer_count, created_at, updated_at '
+            'SELECT id, name, description, JSON_LENGTH(layers) AS layer_count, preview_updated_at, '
+            . 'created_at, updated_at '
             . 'FROM templates ORDER BY name ASC'
         );
 
@@ -176,6 +178,41 @@ final class TemplateRepository
         );
     }
 
+    /** Für `TemplatePreviewService`: `null`, wenn der Datensatz fehlt oder kein Bild gesetzt ist. */
+    public function findPreviewFileName(int $id): ?string
+    {
+        $row = $this->find($id);
+        $fileName = $row['preview_file_name'] ?? null;
+
+        return is_string($fileName) && $fileName !== '' ? $fileName : null;
+    }
+
+    /** Setzt beide Vorschau-Spalten und liefert den neuen Zeitstempel als ISO-Text, `null` bei unbekanntem Datensatz. */
+    public function updatePreview(int $id, string $fileName): ?string
+    {
+        if ($this->find($id) === null) {
+            return null;
+        }
+
+        $statement = $this->database->prepare(
+            'UPDATE templates SET preview_file_name = :file_name, preview_updated_at = UTC_TIMESTAMP() '
+            . 'WHERE id = :id'
+        );
+        $statement->execute(['id' => $id, 'file_name' => $fileName]);
+
+        $row = $this->find($id);
+
+        return $row === null ? null : Timestamps::toIso((string) $row['preview_updated_at']);
+    }
+
+    public function clearPreview(int $id): void
+    {
+        $statement = $this->database->prepare(
+            'UPDATE templates SET preview_file_name = NULL, preview_updated_at = NULL WHERE id = :id'
+        );
+        $statement->execute(['id' => $id]);
+    }
+
     /**
      * @param array<string, mixed> $row
      * @return array{
@@ -183,6 +220,7 @@ final class TemplateRepository
      *     name: string,
      *     description: string|null,
      *     layerCount: int,
+     *     previewUpdatedAt: string|null,
      *     createdAt: string|null,
      *     updatedAt: string|null
      * }
@@ -190,12 +228,14 @@ final class TemplateRepository
     public static function formatSummary(array $row): array
     {
         $description = $row['description'] ?? null;
+        $previewUpdatedAt = $row['preview_updated_at'] ?? null;
 
         return [
             'id' => (int) $row['id'],
             'name' => (string) $row['name'],
             'description' => is_string($description) ? $description : null,
             'layerCount' => (int) $row['layer_count'],
+            'previewUpdatedAt' => is_string($previewUpdatedAt) ? Timestamps::toIso($previewUpdatedAt) : null,
             'createdAt' => Timestamps::toIso((string) $row['created_at']),
             'updatedAt' => Timestamps::toIso((string) $row['updated_at']),
         ];
@@ -209,12 +249,14 @@ final class TemplateRepository
     {
         $description = $row['description'] ?? null;
         $layers = json_decode((string) $row['layers'], true);
+        $previewUpdatedAt = $row['preview_updated_at'] ?? null;
 
         return [
             'id' => (int) $row['id'],
             'name' => (string) $row['name'],
             'description' => is_string($description) ? $description : null,
             'layers' => is_array($layers) ? array_map(self::formatLayer(...), $layers) : [],
+            'previewUpdatedAt' => is_string($previewUpdatedAt) ? Timestamps::toIso($previewUpdatedAt) : null,
             'createdAt' => Timestamps::toIso((string) $row['created_at']),
             'updatedAt' => Timestamps::toIso((string) $row['updated_at']),
         ];

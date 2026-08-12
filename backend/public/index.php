@@ -7,11 +7,13 @@ use App\Controllers\AuthController;
 use App\Controllers\CardController;
 use App\Controllers\CardGroupController;
 use App\Controllers\CardImageController;
+use App\Controllers\CardPreviewController;
 use App\Controllers\FontController;
 use App\Controllers\HealthController;
 use App\Controllers\MigrateController;
 use App\Controllers\SetupController;
 use App\Controllers\TemplateController;
+use App\Controllers\TemplatePreviewController;
 use App\Controllers\TokenController;
 use App\Database\Connection;
 use App\Http\Request;
@@ -32,8 +34,11 @@ use App\Services\AssetService;
 use App\Services\AuthService;
 use App\Services\CardGroupService;
 use App\Services\CardImageService;
+use App\Services\CardPreviewService;
 use App\Services\CardService;
 use App\Services\FontService;
+use App\Services\PreviewImageStorage;
+use App\Services\TemplatePreviewService;
 use App\Services\TemplateService;
 use App\Services\TokenService;
 use Dotenv\Dotenv;
@@ -136,6 +141,8 @@ $fontService = null;
 $templateService = null;
 $cardService = null;
 $cardImageService = null;
+$templatePreviewService = null;
+$cardPreviewService = null;
 
 if ($database instanceof PDO) {
     $tokenService = new TokenService();
@@ -174,7 +181,18 @@ if ($database instanceof PDO) {
         $backendRoot . '/uploads/fonts',
         $logger
     );
-    $templateService = new TemplateService($templateRepository, $assetRepository, $fontRepository, $cardRepository);
+    $templatePreviewStorage = new PreviewImageStorage($backendRoot . '/uploads/previews/templates', $logger);
+    $cardPreviewStorage = new PreviewImageStorage($backendRoot . '/uploads/previews/cards', $logger);
+    $templatePreviewService = new TemplatePreviewService($templateRepository, $templatePreviewStorage);
+    $cardPreviewService = new CardPreviewService($cardRepository, $cardPreviewStorage);
+
+    $templateService = new TemplateService(
+        $templateRepository,
+        $assetRepository,
+        $fontRepository,
+        $cardRepository,
+        $templatePreviewService
+    );
     $cardImageService = new CardImageService(
         $cardImageRepository,
         $cardRepository,
@@ -187,7 +205,8 @@ if ($database instanceof PDO) {
         $templateRepository,
         $cardGroupRepository,
         $assetRepository,
-        $cardImageService
+        $cardImageService,
+        $cardPreviewService
     );
 }
 
@@ -258,6 +277,10 @@ $dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes
         '/api/cards/{id:\d+}/images/{layerId:[a-zA-Z0-9\-]{1,64}}/file',
         [CardImageController::class, 'file']
     );
+    $routes->addRoute('POST', '/api/templates/{id:\d+}/preview', [TemplatePreviewController::class, 'upload']);
+    $routes->addRoute('GET', '/api/templates/{id:\d+}/preview/file', [TemplatePreviewController::class, 'file']);
+    $routes->addRoute('POST', '/api/cards/{id:\d+}/preview', [CardPreviewController::class, 'upload']);
+    $routes->addRoute('GET', '/api/cards/{id:\d+}/preview/file', [CardPreviewController::class, 'file']);
 });
 
 $migrationsDirectory = $backendRoot . '/src/Migrations';
@@ -276,7 +299,9 @@ $makeController = static function (string $controllerClass) use (
     $fontService,
     $templateService,
     $cardService,
-    $cardImageService
+    $cardImageService,
+    $templatePreviewService,
+    $cardPreviewService
 ): object {
     return match ($controllerClass) {
         HealthController::class => new HealthController($database),
@@ -296,6 +321,8 @@ $makeController = static function (string $controllerClass) use (
         TemplateController::class => new TemplateController($request, $templateService),
         CardController::class => new CardController($request, $cardService),
         CardImageController::class => new CardImageController($request, $cardImageService),
+        TemplatePreviewController::class => new TemplatePreviewController($request, $templatePreviewService),
+        CardPreviewController::class => new CardPreviewController($request, $cardPreviewService),
         default => throw new RuntimeException('Kein Bauplan für Controller: ' . $controllerClass),
     };
 };

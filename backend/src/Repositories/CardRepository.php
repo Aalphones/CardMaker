@@ -10,7 +10,7 @@ use PDO;
 final class CardRepository
 {
     private const COLUMNS = 'id, name, template_id, card_group_id, `values`, icon_choices, text_overrides, '
-        . 'created_at, updated_at';
+        . 'preview_file_name, preview_updated_at, created_at, updated_at';
 
     public function __construct(private readonly PDO $database)
     {
@@ -21,7 +21,7 @@ final class CardRepository
     {
         $statement = $this->database->query(
             'SELECT c.id, c.name, c.template_id, t.name AS template_name, c.card_group_id, '
-            . 'cg.name AS card_group_name, c.updated_at '
+            . 'cg.name AS card_group_name, c.preview_updated_at, c.updated_at '
             . 'FROM cards c '
             . 'JOIN templates t ON t.id = c.template_id '
             . 'LEFT JOIN card_groups cg ON cg.id = c.card_group_id '
@@ -168,6 +168,40 @@ final class CardRepository
         return $statement->rowCount() > 0;
     }
 
+    /** Für `CardPreviewService`: `null`, wenn der Datensatz fehlt oder kein Bild gesetzt ist. */
+    public function findPreviewFileName(int $id): ?string
+    {
+        $row = $this->find($id);
+        $fileName = $row['preview_file_name'] ?? null;
+
+        return is_string($fileName) && $fileName !== '' ? $fileName : null;
+    }
+
+    /** Setzt beide Vorschau-Spalten und liefert den neuen Zeitstempel als ISO-Text, `null` bei unbekanntem Datensatz. */
+    public function updatePreview(int $id, string $fileName): ?string
+    {
+        if ($this->find($id) === null) {
+            return null;
+        }
+
+        $statement = $this->database->prepare(
+            'UPDATE cards SET preview_file_name = :file_name, preview_updated_at = UTC_TIMESTAMP() WHERE id = :id'
+        );
+        $statement->execute(['id' => $id, 'file_name' => $fileName]);
+
+        $row = $this->find($id);
+
+        return $row === null ? null : Timestamps::toIso((string) $row['preview_updated_at']);
+    }
+
+    public function clearPreview(int $id): void
+    {
+        $statement = $this->database->prepare(
+            'UPDATE cards SET preview_file_name = NULL, preview_updated_at = NULL WHERE id = :id'
+        );
+        $statement->execute(['id' => $id]);
+    }
+
     /** Für die Löschsperre in `TemplateService::delete()`. */
     public function countByTemplate(int $templateId): int
     {
@@ -194,6 +228,7 @@ final class CardRepository
      *     templateName: string,
      *     cardGroupId: int|null,
      *     cardGroupName: string|null,
+     *     previewUpdatedAt: string|null,
      *     updatedAt: string|null
      * }
      */
@@ -201,6 +236,7 @@ final class CardRepository
     {
         $cardGroupId = $row['card_group_id'] ?? null;
         $cardGroupName = $row['card_group_name'] ?? null;
+        $previewUpdatedAt = $row['preview_updated_at'] ?? null;
 
         return [
             'id' => (int) $row['id'],
@@ -209,6 +245,7 @@ final class CardRepository
             'templateName' => (string) $row['template_name'],
             'cardGroupId' => $cardGroupId === null ? null : (int) $cardGroupId,
             'cardGroupName' => is_string($cardGroupName) ? $cardGroupName : null,
+            'previewUpdatedAt' => is_string($previewUpdatedAt) ? Timestamps::toIso($previewUpdatedAt) : null,
             'updatedAt' => Timestamps::toIso((string) $row['updated_at']),
         ];
     }
@@ -223,6 +260,7 @@ final class CardRepository
         $values = json_decode((string) $row['values'], true);
         $iconChoices = json_decode((string) $row['icon_choices'], true);
         $textOverrides = json_decode((string) $row['text_overrides'], true);
+        $previewUpdatedAt = $row['preview_updated_at'] ?? null;
 
         return [
             'id' => (int) $row['id'],
@@ -232,6 +270,7 @@ final class CardRepository
             'values' => is_array($values) ? $values : [],
             'iconChoices' => is_array($iconChoices) ? $iconChoices : [],
             'textOverrides' => is_array($textOverrides) ? self::formatTextOverrides($textOverrides) : [],
+            'previewUpdatedAt' => is_string($previewUpdatedAt) ? Timestamps::toIso($previewUpdatedAt) : null,
             'createdAt' => Timestamps::toIso((string) $row['created_at']),
             'updatedAt' => Timestamps::toIso((string) $row['updated_at']),
         ];

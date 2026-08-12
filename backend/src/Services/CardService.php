@@ -17,7 +17,8 @@ final class CardService
         private readonly TemplateRepository $templates,
         private readonly CardGroupRepository $cardGroups,
         private readonly AssetRepository $assets,
-        private readonly CardImageService $cardImages
+        private readonly CardImageService $cardImages,
+        private readonly CardPreviewService $previews
     ) {
     }
 
@@ -88,10 +89,11 @@ final class CardService
         return $row === null ? null : $this->withImages(CardRepository::format($row));
     }
 
-    /** Räumt vor dem Löschen der Zeile die Kartenbild-Dateien auf, damit keine liegen bleiben. */
+    /** Räumt vor dem Löschen der Zeile die Kartenbild- und Vorschau-Dateien auf, damit keine liegen bleiben. */
     public function delete(int $id): bool
     {
         $this->cardImages->deleteAllForCard($id);
+        $this->previews->delete($id);
 
         return $this->cards->delete($id);
     }
@@ -122,9 +124,16 @@ final class CardService
             'text_overrides' => $this->toSnakeTextOverrides($original['textOverrides']),
         ]);
 
-        $this->cardImages->duplicateForCard($id, (int) $created['id']);
+        $newCardId = (int) $created['id'];
 
-        return $this->withImages(CardRepository::format($created));
+        $this->cardImages->duplicateForCard($id, $newCardId);
+        $this->previews->duplicateFor($id, $newCardId);
+
+        // Neu laden: `duplicateFor()` hat gerade die Vorschau-Spalten der Kopie gesetzt,
+        // `$created` ist ab dem Zeitpunkt veraltet.
+        $freshRow = $this->cards->find($newCardId) ?? $created;
+
+        return $this->withImages(CardRepository::format($freshRow));
     }
 
     /** @param array<string, mixed> $card */

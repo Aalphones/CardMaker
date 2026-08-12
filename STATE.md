@@ -1,8 +1,8 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-12_template-vorschaubilder/`
-**Phase:** 1/3 — Ablage und Endpunkte im Backend (pending, standard)
-**Nächster Schritt:** `phase-1-backend-ablage.md` öffnen und umsetzen.
+**Phase:** 2/3 — Template-Editor erzeugt das Bild und lädt es hoch (pending, heikel)
+**Nächster Schritt:** `phase-2-editor-export.md` öffnen und umsetzen.
 
 ## Umsetzungsreihenfolge (festgelegt 2026-08-12, freigegeben)
 

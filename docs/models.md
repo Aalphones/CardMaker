@@ -85,6 +85,8 @@ Ebenentabelle (ADR-014); geprüft wird sie vollständig von `LayerValidator`.
 | `name` | VARCHAR(191) | Index |
 | `description` | TEXT NULL | |
 | `layers` | JSON | Array der Ebenen, Index 0 zuunterst = Zeichenreihenfolge |
+| `preview_file_name` | VARCHAR(191) NULL | Zufallsname des Vorschaubilds (M010, ADR-021) |
+| `preview_updated_at` | DATETIME NULL | `null` = es gibt noch kein Vorschaubild |
 | `created_at` / `updated_at` | DATETIME | |
 
 ## `fonts` (M007)
@@ -116,6 +118,8 @@ Die drei Sammlungen liegen als Datenblöcke an der Karte statt in Nebentabellen 
 | `values` | JSON | Feldschlüssel → Text |
 | `icon_choices` | JSON | Ebenen-Id → `assets.id` |
 | `text_overrides` | JSON | Feldschlüssel → `{font_size?, color?, bold?, italic?}` |
+| `preview_file_name` | VARCHAR(191) NULL | Zufallsname des Vorschaubilds (M010, ADR-021) |
+| `preview_updated_at` | DATETIME NULL | `null` = es gibt noch kein Vorschaubild |
 | `created_at` / `updated_at` | DATETIME | |
 
 Zu den Fremdschlüsseln: `RESTRICT` beim Template ist Absicht — ein Template mit Karten darf

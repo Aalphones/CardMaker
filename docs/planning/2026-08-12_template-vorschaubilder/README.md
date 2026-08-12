@@ -22,7 +22,7 @@ löst sich auf.
 
 | # | Phase | Datei | Rating | Status |
 |---|---|---|---|---|
-| 1 | Ablage und Endpunkte im Backend (Templates **und** Karten) | `phase-1-backend-ablage.md` | standard | pending |
+| 1 | Ablage und Endpunkte im Backend (Templates **und** Karten) | `phase-1-backend-ablage.md` | standard | complete |
 | 2 | Template-Editor erzeugt das Bild und lädt es hoch | `phase-2-editor-export.md` | heikel | pending |
 | 3 | Gemeinsamer Bild-Lader, Template-Übersicht zeigt die Vorschau | `phase-3-uebersicht.md` | standard | pending |
 

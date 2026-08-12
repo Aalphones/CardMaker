@@ -17,7 +17,8 @@ final class TemplateService
         private readonly TemplateRepository $templates,
         private readonly AssetRepository $assets,
         private readonly FontRepository $fonts,
-        private readonly CardRepository $cards
+        private readonly CardRepository $cards,
+        private readonly TemplatePreviewService $previews
     ) {
     }
 
@@ -79,6 +80,10 @@ final class TemplateService
                 409
             );
         }
+
+        // Erst nach der Sperr-Prüfung: sonst wäre das Bild weg, obwohl das Template
+        // wegen benutzender Karten stehen bleibt.
+        $this->previews->delete($id);
 
         return $this->templates->delete($id);
     }

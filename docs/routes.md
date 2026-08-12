@@ -54,11 +54,13 @@ Positivliste der offenen Pfade (ohne Anmeldung erreichbar): `/api/health`, `/api
 
 | Methode | Pfad | Zweck |
 |---|---|---|
-| GET | `/api/templates` | Kurzfassungen (ohne `layers`, mit `layerCount`) |
+| GET | `/api/templates` | Kurzfassungen (ohne `layers`, mit `layerCount` und `previewUpdatedAt`) |
 | POST | `/api/templates` | Anlegen (startet immer mit leerer Ebenenliste) |
-| GET | `/api/templates/{id}` | Vollständig, inklusive `layers` |
+| GET | `/api/templates/{id}` | Vollständig, inklusive `layers` und `previewUpdatedAt` |
 | PATCH | `/api/templates/{id}` | Ändern — `layers` wird komplett ersetzt und von `LayerValidator` geprüft |
-| DELETE | `/api/templates/{id}` | Löschen — 409, wenn noch Karten dieses Template benutzen |
+| DELETE | `/api/templates/{id}` | Löschen — 409, wenn noch Karten dieses Template benutzen (räumt danach auch das Vorschaubild auf) |
+| POST | `/api/templates/{id}/preview` | Vorschaubild hochladen (mehrteilig: `file`, nur PNG) — ersetzt ein vorhandenes Bild, Antwort `{ previewUpdatedAt }` (ADR-021) |
+| GET | `/api/templates/{id}/preview/file` | Vorschaubild-Datei, hinter der Anmeldung, `404` ohne Bild |
 
 ## Karten (`/api/cards`)
 
@@ -66,16 +68,18 @@ Kontrakt (Typen, Feldregeln): `docs/planning/2026-08-10_karteneditor/README.md`.
 
 | Methode | Pfad | Zweck |
 |---|---|---|
-| GET | `/api/cards` | Kurzfassungen aller Karten (`id, name, templateId, templateName, cardGroupId, cardGroupName, updatedAt`), für die Liste |
+| GET | `/api/cards` | Kurzfassungen aller Karten (`id, name, templateId, templateName, cardGroupId, cardGroupName, previewUpdatedAt, updatedAt`), für die Liste |
 | POST | `/api/cards` | Anlegen |
-| GET | `/api/cards/{id}` | Vollständig, inklusive `values`, `iconChoices`, `textOverrides`, `images` |
+| GET | `/api/cards/{id}` | Vollständig, inklusive `values`, `iconChoices`, `textOverrides`, `images`, `previewUpdatedAt` |
 | PATCH | `/api/cards/{id}` | Ändern (nur übergebene Felder) |
-| DELETE | `/api/cards/{id}` | Löschen (Kartenbild-Dateien werden vorher aufgeräumt, Zeilen fallen per `ON DELETE CASCADE` mit) |
-| POST | `/api/cards/{id}/duplicate` | Kopie anlegen (Name + „ (Kopie)", Werte/Icon-Wahl/Abweichungen übernommen, Kartenbilder mitkopiert mit neuen Zufallsnamen) |
+| DELETE | `/api/cards/{id}` | Löschen (Kartenbild- und Vorschau-Dateien werden vorher aufgeräumt, Zeilen fallen per `ON DELETE CASCADE` mit) |
+| POST | `/api/cards/{id}/duplicate` | Kopie anlegen (Name + „ (Kopie)", Werte/Icon-Wahl/Abweichungen und Vorschaubild übernommen, alles mit neuen Zufallsnamen) |
 | POST | `/api/cards/{id}/images` | Bild hochladen (mehrteilig: `layerId`, `file`) — ersetzt ein vorhandenes Bild derselben Ebene, Verschiebung/Maßstab werden dabei auf die Grundstellung zurückgesetzt |
 | PATCH | `/api/cards/{id}/images/{layerId}` | Verschiebung/Maßstab ändern (nur übergebene Felder: `offsetX`, `offsetY`, `scale`) |
 | DELETE | `/api/cards/{id}/images/{layerId}` | Bild dieser Ebene entfernen |
 | GET | `/api/cards/{id}/images/{layerId}/file` | Bilddatei, hinter der Anmeldung |
+| POST | `/api/cards/{id}/preview` | Vorschaubild hochladen (mehrteilig: `file`, nur PNG) — ersetzt ein vorhandenes Bild, Antwort `{ previewUpdatedAt }` (ADR-021, wird vom Karteneditor-Plan benutzt) |
+| GET | `/api/cards/{id}/preview/file` | Vorschaubild-Datei, hinter der Anmeldung, `404` ohne Bild |
 
 Prüfregeln zu den Bildern (`CardImageValidator`, Existenz-/Ebenenprüfung in `CardImageService`):
 
