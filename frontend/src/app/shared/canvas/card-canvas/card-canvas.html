@@ -41,6 +41,14 @@
               (dragend)="onDragEnd($event)"
             />
           }
+          @case ('group') {
+            <!-- Nur Kartenbilder: die Gruppe trägt den Zuschnitt, das Kind das Bild. -->
+            <ko-group [config]="item.config">
+              @for (child of item.children ?? []; track child.key) {
+                <ko-image [config]="child.config" />
+              }
+            </ko-group>
+          }
           @case ('text') {
             <ko-text
               [config]="item.config"

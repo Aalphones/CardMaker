@@ -4,6 +4,9 @@ import { Observable } from 'rxjs';
 import { Api } from '../../core/services/api';
 import { PreviewKind } from './preview-image-loader';
 
+/** Breite des Vorschaubildes in Bildpunkten; die Höhe folgt dem Kartenverhältnis (587). */
+export const PREVIEW_WIDTH_PX = 420;
+
 /**
  * Lädt ein im Editor erzeugtes Vorschaubild hoch — für Templates und Karten gleichermaßen.
  *

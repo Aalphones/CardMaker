@@ -2,11 +2,13 @@ import { Dialog } from '@angular/cdk/dialog';
 import {
   ChangeDetectionStrategy,
   Component,
+  Signal,
   computed,
   effect,
   inject,
   signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -20,10 +22,18 @@ import {
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
+import { CardCanvas } from '../../../shared/canvas/card-canvas/card-canvas';
 import { CardImageLoader, cardImageKey } from '../../../shared/canvas/card-image-loader';
+import {
+  PREVIEW_WIDTH_PX,
+  PreviewUploadService,
+} from '../../../shared/canvas/preview-upload.service';
+import { CardContent } from '../../../shared/canvas/rendering/card-content';
+import { Layer } from '../../../shared/canvas/rendering/layer';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { FieldHint } from '../../../shared/components/field-hint/field-hint';
 import { ComponentWithUnsavedChanges } from '../../../shared/guards/pending-changes-guard';
+import { Notification } from '../../../shared/services/notification';
 import { Asset } from '../../../store/assets/assets.actions';
 import { AssetsFacade } from '../../../store/assets/assets.facade';
 import { CardGroupsFacade } from '../../../store/card-groups/card-groups.facade';
@@ -57,6 +67,13 @@ interface OrphanKeys {
   icons: string[];
 }
 
+/** Der Entwurfsstand, wie ihn Formular und Vorschau gemeinsam sehen. */
+interface DraftState {
+  values: Record<string, string>;
+  iconChoices: Record<string, number>;
+  overrides: Record<string, CardTextOverride>;
+}
+
 const NEW_CARD_FALLBACK_NAME = 'Neue Karte';
 
 const SIZE_HINT =
@@ -66,13 +83,15 @@ const COLOR_HINT =
 const ORPHAN_HINT =
   'Das Template kennt diese Felder nicht mehr — umbenannt oder gelöscht. Die Werte bleiben ' +
   'gespeichert und tauchen wieder auf, falls die Felder zurückkommen.';
+const PREVIEW_FAILED_MESSAGE = 'Das Vorschaubild konnte nicht gespeichert werden.';
+
 const TEMPLATE_HINT =
   'Die Felder unten richten sich nach dem Template. Wechselst du es, verschwinden Felder, ' +
   'die das neue Template nicht kennt — ihre Werte bleiben trotzdem erhalten.';
 
 @Component({
   selector: 'app-card-editor',
-  imports: [ReactiveFormsModule, RouterLink, FieldHint, ImageDrop],
+  imports: [ReactiveFormsModule, RouterLink, CardCanvas, FieldHint, ImageDrop],
   templateUrl: './card-editor.html',
   styleUrl: './card-editor.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,6 +101,8 @@ export class CardEditor implements ComponentWithUnsavedChanges {
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(Dialog);
   private readonly cardImages = inject(CardImageLoader);
+  private readonly cardPreview = inject(PreviewUploadService);
+  private readonly notification = inject(Notification);
   protected readonly cards = inject(CardsFacade);
   protected readonly templates = inject(TemplatesFacade);
   protected readonly cardGroups = inject(CardGroupsFacade);
@@ -201,6 +222,40 @@ export class CardEditor implements ComponentWithUnsavedChanges {
   protected readonly orphanCount = computed(
     () => this.orphanKeys().texts.length + this.orphanKeys().icons.length,
   );
+
+  /** Die Zeichenfläche der Vorschau — sie liefert nach dem Speichern das Vorschaubild. */
+  private readonly canvas = viewChild(CardCanvas);
+
+  /**
+   * Jede Tastatureingabe meldet sich hier — Formular-Controls sind keine Signale, ohne
+   * diesen Anschluss stünde die Vorschau bis zum nächsten Speichern still.
+   */
+  private readonly formValue = toSignal(this.form.valueChanges);
+
+  protected readonly previewLayers: Signal<Layer[]> = computed(() => {
+    if (!this.templateLoaded()) {
+      return [];
+    }
+
+    return this.templates.current()?.layers ?? [];
+  });
+
+  protected readonly previewContent: Signal<CardContent> = computed(() => {
+    this.formValue();
+
+    const draft = this.collectDraft();
+
+    return {
+      cardId: this.cardId(),
+      values: draft.values,
+      iconChoices: draft.iconChoices,
+      textOverrides: draft.overrides,
+      images: this.card()?.images ?? [],
+    };
+  });
+
+  /** Nach dem nächsten erfolgreichen Speichern ein Vorschaubild erzeugen. */
+  private previewRequested = false;
 
   constructor() {
     this.cards.ensureLoaded();
@@ -468,6 +523,7 @@ export class CardEditor implements ComponentWithUnsavedChanges {
     this.formError.set(null);
     this.mergeFormIntoDraft();
     this.submitting.set(true);
+    this.previewRequested = true;
 
     const input = this.buildInput(templateId);
     const id = this.cardId();
@@ -496,6 +552,32 @@ export class CardEditor implements ComponentWithUnsavedChanges {
     this.form.markAsPristine();
     this.templateChanged.set(false);
     this.submitting.set(false);
+
+    if (this.previewRequested) {
+      this.previewRequested = false;
+      void this.uploadPreview(card.id);
+    }
+  }
+
+  /**
+   * Das Vorschaubild für die Kartenliste. Es entsteht aus der Live-Vorschau, die zu diesem
+   * Zeitpunkt bereits genau das zeigt, was gespeichert wurde — deshalb ist kein Warten auf
+   * ein erneutes Zeichnen nötig. Scheitert es, bleibt die Karte trotzdem gespeichert; die
+   * Kachel zeigt dann weiter den Platzhalter.
+   */
+  private async uploadPreview(cardId: number): Promise<void> {
+    try {
+      const image = await this.canvas()?.exportPng(PREVIEW_WIDTH_PX);
+
+      if (!image) {
+        this.notification.show(PREVIEW_FAILED_MESSAGE, 'info');
+        return;
+      }
+
+      await firstValueFrom(this.cardPreview.upload('cards', cardId, image));
+    } catch {
+      this.notification.show(PREVIEW_FAILED_MESSAGE, 'info');
+    }
   }
 
   private rebuildDynamicControls(
@@ -529,6 +611,18 @@ export class CardEditor implements ComponentWithUnsavedChanges {
 
   /** Formularwerte in den Entwurfsstand übernehmen, ohne fremde Schlüssel zu verlieren. */
   private mergeFormIntoDraft(): void {
+    const draft = this.collectDraft();
+
+    this.draftValues.set(draft.values);
+    this.draftIconChoices.set(draft.iconChoices);
+    this.draftOverrides.set(draft.overrides);
+  }
+
+  /**
+   * Entwurfsstand und Formular übereinandergelegt, ohne etwas zu ändern — die Vorschau
+   * zeichnet daraus, das Speichern übernimmt dasselbe Ergebnis.
+   */
+  private collectDraft(): DraftState {
     const values = { ...this.draftValues() };
     const iconChoices = { ...this.draftIconChoices() };
     const overrides = { ...this.draftOverrides() };
@@ -555,9 +649,7 @@ export class CardEditor implements ComponentWithUnsavedChanges {
       }
     }
 
-    this.draftValues.set(values);
-    this.draftIconChoices.set(iconChoices);
-    this.draftOverrides.set(overrides);
+    return { values, iconChoices, overrides };
   }
 
   private buildInput(templateId: number): CardInput {

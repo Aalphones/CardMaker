@@ -134,6 +134,15 @@
     background: var(--color-surface);
     box-shadow: var(--shadow-lg);
     text-align: center;
+
+    /* Steht die Karte selbst darin, ist sie der Rahmen: kein Innenabstand, und das
+       Seitenverhältnis bringt sie mit. Gedehnt statt zentriert — zentriert schrumpfte die
+       Zeichenfläche auf ihre Inhaltsbreite (null) und die Bühne erschiene nie. */
+    &:has(app-card-canvas) {
+      place-items: stretch;
+      aspect-ratio: auto;
+      padding: 0;
+    }
   }
 }
 

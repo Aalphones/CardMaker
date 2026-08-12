@@ -62,8 +62,10 @@ frontend/src/app/
       card-editor/         ← Routen /cards/new und /cards/:id: linke Formularspalte (Name,
                              Template-Auswahl, je Bildfläche ein Ablagefeld, je Textfeld ein
                              Block mit Größe/Farbe/Fett/Kursiv als Abweichung, Icon-Auswahl als
-                             Tags, Kartengruppe) und rechts der Platz für die Live-Vorschau
-                             (Phase 7). `card-fields.ts` leitet ohne Angular aus den
+                             Tags, Kartengruppe) und rechts die mitlaufende Live-Vorschau
+                             (dieselbe Zeichenfläche wie im Template-Editor, gefüttert aus
+                             Formular + Entwurfsstand; nach dem Speichern entsteht daraus das
+                             Vorschaubild der Kachel). `card-fields.ts` leitet ohne Angular aus den
                              Template-Ebenen ab, welche Felder das Formular zeigt — dieselbe
                              Ableitung benutzt die Vorschau. `image-drop/` ist das Ablagefeld
                              (Ziehen-und-Ablegen, Ersetzen, Entfernen, Klartext-Fehler)
@@ -118,7 +120,10 @@ frontend/src/app/
                            Breite zeichnen, wieder einblenden) und
                            `draw-items.ts` (Ebene → Konva-Konfiguration, inkl. Platzhalter für
                            fehlende Bilder und der Ziehbarkeits-/Namens-Zuordnung der
-                           ausgewählten Ebene)
+                           ausgewählten Ebene). Bekommt die Fläche einen Karteninhalt
+                           (`content`), zeichnet dieselbe Stelle die Kartenwerte statt der
+                           Template-Vorgaben — ohne Platzhalter, Kartenbilder in einer
+                           zuschneidenden Gruppe
       blob-image-cache.ts ← der gemeinsame Unterbau beider Bild-Lader: Blob holen,
                            Bildelement bauen, alles in einem Signal halten, Objekt-Adressen
                            beim Zerstören freigeben
@@ -148,7 +153,10 @@ frontend/src/app/
                            Schriften und `renderFontFamily()`, die einzige Stelle, die
                            entscheidet, welcher Schriftname ans Canvas geht),
                            `units.ts` (Canvas-Einheiten → Pixel), `auto-shrink.ts`
-                           (automatisches Verkleinern von Text), `apply-transform.ts`
+                           (automatisches Verkleinern von Text), `card-content.ts` (was eine
+                           Karte zum Template beisteuert, plus die Regeln „Kartenwert schlägt
+                           Template-Vorgabe" für Text, Größe, Farbe, Fett/Kursiv, Icon-Wahl
+                           und die Lage des Kartenbildes in seiner Fläche), `apply-transform.ts`
                            (Konva-Transform-Ergebnis → Geometrie-Patch in Canvas-Einheiten,
                            Linien-Punkte verschieben) — ADR-005, damit Meilenstein 4 (Drucken)
                            sie wiederverwendet. Einzige Ausnahme: `measure-text.ts`, die

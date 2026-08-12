@@ -1,3 +1,4 @@
+import { ContainerConfig } from 'konva/lib/Container';
 import { EllipseConfig } from 'konva/lib/shapes/Ellipse';
 import { ImageConfig } from 'konva/lib/shapes/Image';
 import { LineConfig } from 'konva/lib/shapes/Line';
@@ -5,6 +6,18 @@ import { RectConfig } from 'konva/lib/shapes/Rect';
 import { TextConfig } from 'konva/lib/shapes/Text';
 
 import { fitFontSize } from '../rendering/auto-shrink';
+import {
+  CardContent,
+  CardImagePlacement,
+  cardImageBox,
+  findCardImage,
+  resolveBold,
+  resolveColor,
+  resolveFontSize,
+  resolveIconAssetId,
+  resolveItalic,
+  resolveText,
+} from '../rendering/card-content';
 import { DEFAULT_FONT_FAMILY, FontFamily, renderFontFamily } from '../rendering/fonts';
 import {
   CANVAS_HEIGHT,
@@ -38,14 +51,26 @@ const PLACEHOLDER_DASH = [12, 8];
 const SELECTION_DASH = [8, 6];
 const OUTLINE_WIDTH = 2;
 
-export type DrawElement = 'image' | 'rect' | 'ellipse' | 'line' | 'text';
-export type DrawConfig = ImageConfig | RectConfig | EllipseConfig | LineConfig | TextConfig;
+export type DrawElement = 'image' | 'rect' | 'ellipse' | 'line' | 'text' | 'group';
+export type DrawConfig =
+  | ImageConfig
+  | RectConfig
+  | EllipseConfig
+  | LineConfig
+  | TextConfig
+  | ContainerConfig;
 
 export interface DrawItem {
   key: string;
   layerId: string;
   element: DrawElement;
   config: DrawConfig;
+  /**
+   * Nur bei `group` gesetzt, und dort ausschließlich Bilder: Zuschneiden kann in Konva nur
+   * ein Container, keine einzelne Form. Die Vorlage zeichnet die Kinder entsprechend als
+   * `ko-image` — wer hier andere Elemente einhängt, muss sie dort ergänzen.
+   */
+  children?: DrawItem[];
 }
 
 export interface DrawContext {
@@ -54,6 +79,13 @@ export interface DrawContext {
   loadedFonts: ReadonlySet<string>;
   selectedLayerId: string | null;
   interactive: boolean;
+  /**
+   * Was die Karte beisteuert. Fehlt es, zeichnet alles unten genau wie bisher — das ist der
+   * Template-Editor. Es gibt keinen zweiten Zeichenweg, nur diesen einen Unterschied.
+   */
+  content?: CardContent | null;
+  /** Die geladenen Kartenbilder, Schlüssel ist die Bildfläche (`layerId`). */
+  cardImages?: ReadonlyMap<string, HTMLImageElement>;
 }
 
 /**
@@ -80,13 +112,24 @@ export function buildDrawItems(layers: Layer[], context: DrawContext): DrawItem[
   return items;
 }
 
-/** Bildnummern, die die Vorschau braucht — Auftragsliste für den Bildlader. */
-export function requestedAssetIds(layers: Layer[]): number[] {
+/**
+ * Bildnummern, die die Vorschau braucht — Auftragsliste für den Bildlader. Mit Karteninhalt
+ * zählt bei Icon-Ebenen die Wahl der Karte, nicht das im Template hinterlegte Bild.
+ */
+export function requestedAssetIds(layers: Layer[], content: CardContent | null = null): number[] {
   const assetIds = new Set<number>();
 
   for (const layer of layers) {
-    if ((layer.type === 'icon' || layer.type === 'frame') && layer.assetId !== null) {
+    if (layer.type === 'frame' && layer.assetId !== null) {
       assetIds.add(layer.assetId);
+    }
+
+    if (layer.type === 'icon') {
+      const assetId = resolveIconAssetId(layer, content);
+
+      if (assetId !== null) {
+        assetIds.add(assetId);
+      }
     }
   }
 
@@ -143,27 +186,83 @@ function interactionConfig(
 }
 
 /**
- * Die Bildfläche bleibt im Template-Editor immer ein Platzhalter: Welches Bild dort landet,
- * entscheidet erst die Karteninstanz (Meilenstein 3) — das Template legt nur die Fläche fest.
+ * Ohne Karteninhalt bleibt die Bildfläche ein Platzhalter: Welches Bild dort landet,
+ * entscheidet erst die Karteninstanz — das Template legt nur die Fläche fest. Mit Inhalt
+ * zeigt sie das Kartenbild, zugeschnitten auf ihre Fläche.
  */
 function imageAreaItems(layer: ImageLayer, context: DrawContext): DrawItem[] {
-  return placeholderItems(
-    layer.id,
-    box(layer),
-    'Bildfläche',
-    layer.opacity,
-    interactionConfig(layer, context),
-  );
-}
+  const content = context.content ?? null;
 
-function iconItems(layer: IconLayer, context: DrawContext): DrawItem[] {
-  const image = pickImage(layer.assetId, context);
-
-  if (!image) {
+  if (content === null) {
     return placeholderItems(
       layer.id,
       box(layer),
-      layer.assetId === null ? 'Icon' : 'Icon lädt …',
+      'Bildfläche',
+      layer.opacity,
+      interactionConfig(layer, context),
+    );
+  }
+
+  const placement = findCardImage(layer.id, content);
+  const image = placement ? context.cardImages?.get(layer.id) : undefined;
+
+  if (!placement || !image) {
+    return [];
+  }
+
+  return [cardImageItem(layer, placement, image)];
+}
+
+/**
+ * Zugeschnitten wird über den Container, nicht über die Bilddaten: `clip` schneidet beim
+ * Zeichnen ab, das hochgeladene Original bleibt unangetastet. Die Fläche ist der Nullpunkt
+ * der Gruppe — deshalb sitzt der Zuschnitt auf (0,0) und das Bild trägt nur seinen Versatz
+ * innerhalb der Fläche.
+ */
+function cardImageItem(
+  layer: ImageLayer,
+  placement: CardImagePlacement,
+  image: HTMLImageElement,
+): DrawItem {
+  const area = box(layer);
+  const inner = cardImageBox(area, placement);
+
+  return {
+    key: `${layer.id}:card-image`,
+    layerId: layer.id,
+    element: 'group',
+    config: {
+      ...area,
+      opacity: layer.opacity,
+      clip: { x: 0, y: 0, width: area.width, height: area.height },
+      listening: false,
+    },
+    children: [
+      {
+        key: `${layer.id}:card-image-source`,
+        layerId: layer.id,
+        element: 'image',
+        config: { ...inner, image, listening: false },
+      },
+    ],
+  };
+}
+
+function iconItems(layer: IconLayer, context: DrawContext): DrawItem[] {
+  const content = context.content ?? null;
+  const assetId = resolveIconAssetId(layer, content);
+  const image = pickImage(assetId, context);
+
+  if (!image) {
+    // In der Kartenvorschau gibt es keine Platzhalter — eine Ebene ohne Inhalt bleibt leer.
+    if (content !== null) {
+      return [];
+    }
+
+    return placeholderItems(
+      layer.id,
+      box(layer),
+      assetId === null ? 'Icon' : 'Icon lädt …',
       layer.opacity,
       interactionConfig(layer, context),
     );
@@ -265,7 +364,15 @@ function shapeItem(layer: ShapeLayer, context: DrawContext): DrawItem {
 }
 
 function textItems(layer: TextLayer, context: DrawContext): DrawItem[] {
-  if (layer.defaultText.length === 0) {
+  const content = context.content ?? null;
+  const text = resolveText(layer, content);
+
+  if (text.length === 0) {
+    // In der Kartenvorschau gibt es keine Platzhalter — ein leeres Feld bleibt leer.
+    if (content !== null) {
+      return [];
+    }
+
     return placeholderItems(
       layer.id,
       box(layer),
@@ -276,7 +383,7 @@ function textItems(layer: TextLayer, context: DrawContext): DrawItem[] {
   }
 
   const fontFamily = renderFontFamily(layer.fontFamily, context.loadedFonts);
-  const fontStyle = konvaFontStyle(layer.bold, layer.italic);
+  const fontStyle = konvaFontStyle(resolveBold(layer, content), resolveItalic(layer, content));
 
   return [
     {
@@ -286,12 +393,12 @@ function textItems(layer: TextLayer, context: DrawContext): DrawItem[] {
       config: {
         ...box(layer),
         ...interactionConfig(layer, context),
-        text: layer.defaultText,
+        text,
         fontFamily,
         fontStyle,
-        fontSize: effectiveFontSize(layer, fontFamily, fontStyle),
+        fontSize: effectiveFontSize(layer, text, resolveFontSize(layer, content), fontFamily, fontStyle),
         lineHeight: layer.lineHeight,
-        fill: layer.color,
+        fill: resolveColor(layer, content),
         align: layer.align,
         verticalAlign: layer.verticalAlign,
         // Feste Höhe + ellipsis: Was auch bei der Mindestgröße nicht mehr passt, wird
@@ -312,21 +419,27 @@ function textItems(layer: TextLayer, context: DrawContext): DrawItem[] {
 }
 
 /**
- * `fontFamily` kommt von außen statt aus der Ebene: Gemessen werden muss dieselbe Schrift,
- * die auch gezeichnet wird — solange eine mitgelieferte Schrift noch lädt, ist das die
- * Ersatzschrift. Derselbe Grund gilt für `fontStyle`: ein fett geschalteter Text ist breiter
- * als derselbe Text normal, die Messung muss also denselben Schnitt verwenden wie die Anzeige.
+ * `text`, `fontSize`, `fontFamily` und `fontStyle` kommen von außen statt aus der Ebene:
+ * Gemessen werden muss genau das, was auch gezeichnet wird — also der Text der Karte in ihrer
+ * Schriftgröße, und solange eine mitgelieferte Schrift noch lädt, in der Ersatzschrift. Beim
+ * Schnitt gilt dasselbe: ein fett geschalteter Text ist breiter als derselbe Text normal.
  */
-function effectiveFontSize(layer: TextLayer, fontFamily: string, fontStyle: string): number {
+function effectiveFontSize(
+  layer: TextLayer,
+  text: string,
+  fontSize: number,
+  fontFamily: string,
+  fontStyle: string,
+): number {
   if (!layer.autoShrink) {
-    return layer.fontSize;
+    return fontSize;
   }
 
   return fitFontSize({
-    text: layer.defaultText,
+    text,
     boxWidth: layer.width,
     boxHeight: layer.height,
-    fontSize: layer.fontSize,
+    fontSize,
     minFontSize: layer.minFontSize,
     fontFamily,
     fontStyle,

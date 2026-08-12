@@ -29,7 +29,7 @@ import {
   screenToCanvas,
 } from '../../../shared/canvas/rendering/units';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
-import { PreviewUploadService } from '../../../shared/canvas/preview-upload.service';
+import { PREVIEW_WIDTH_PX, PreviewUploadService } from '../../../shared/canvas/preview-upload.service';
 import { ComponentWithUnsavedChanges } from '../../../shared/guards/pending-changes-guard';
 import { Notification } from '../../../shared/services/notification';
 import { TemplateEditorStore } from '../../../signal-stores/template-editor';
@@ -47,9 +47,6 @@ const WHEEL_ZOOM_SENSITIVITY = 0.0015;
 
 /** Elemente, die die Leertaste selbst brauchen — dort schaltet sie nicht das Verschieben ein. */
 const ACTIVATABLE_TAGS = ['BUTTON', 'A', 'SUMMARY'];
-
-/** Breite des Vorschaubildes in Bildpunkten; die Höhe folgt dem Kartenverhältnis (587). */
-const PREVIEW_WIDTH_PX = 420;
 
 const PREVIEW_FAILED_MESSAGE = 'Das Vorschaubild konnte nicht gespeichert werden.';
 

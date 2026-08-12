@@ -196,7 +196,11 @@
   <aside class="card-editor__preview">
     <p class="card-editor__preview-label">Live-Vorschau</p>
     <div class="card-editor__preview-frame">
-      <p class="card-editor__note">Die Vorschau entsteht im nächsten Schritt.</p>
+      @if (templateLoaded()) {
+        <app-card-canvas [layers]="previewLayers()" [content]="previewContent()" />
+      } @else {
+        <p class="card-editor__note">Wähle ein Template — dann erscheint die Karte hier.</p>
+      }
     </div>
   </aside>
 </div>

@@ -55,24 +55,25 @@ was ADR-005 verhindern soll.
 
 ## Checkliste
 
-- [ ] `shared/canvas/rendering/card-content.ts` anlegen: Typ plus reine Funktionen
+- [x] `shared/canvas/rendering/card-content.ts` anlegen: Typ plus reine Funktionen
       `resolveText(layer, content)`, `resolveFontSize(layer, content)`,
       `resolveColor(layer, content)`, `resolveIconAssetId(layer, content)`.
       Keine Konva-Abhängigkeit — sie werden von Meilenstein 4 (Drucken) wiederverwendet.
-- [ ] `draw-items.ts` um den optionalen Eingang erweitern und die Auflösung über die
+      Dazu `resolveBold`/`resolveItalic`, `findCardImage` und `cardImageBox`.
+- [x] `draw-items.ts` um den optionalen Eingang erweitern und die Auflösung über die
       neuen Funktionen führen. Keine Verzweigung „bin ich im Karteneditor?" — der
       Unterschied ist allein „Inhalt vorhanden oder nicht".
-- [ ] Das Zuschneiden der Bildfläche über die Zuschnitt-Eigenschaft der Konva-Gruppe
+- [x] Das Zuschneiden der Bildfläche über die Zuschnitt-Eigenschaft der Konva-Gruppe
       lösen, nicht durch Vorab-Beschneiden des Bildes — das Original bleibt unangetastet.
-- [ ] `card-canvas` um den Eingang `content` erweitern (Vorgabe: nichts) und das Laden
+- [x] `card-canvas` um den Eingang `content` erweitern (Vorgabe: nichts) und das Laden
       der Kartenbilder über den Lader aus Phase 4 anschließen.
-- [ ] Rechte Spalte im Karteneditor aufbauen.
-- [ ] 🟡 Messgetriebenes Nachrechnen: Automatisches Verkleinern misst über einen
+- [x] Rechte Spalte im Karteneditor aufbauen.
+- [x] 🟡 Messgetriebenes Nachrechnen: Automatisches Verkleinern misst über einen
       unsichtbaren Konva-Text. Wird bei jedem Tastendruck neu gemessen, ruckelt es.
       Messergebnisse pro Kombination aus Text, Schrift und Bereich zwischenspeichern und
       im Report-Back festhalten, ob es ohne Zwischenspeicher flüssig genug war — nicht
       vorsorglich optimieren, sondern erst messen.
-- [ ] **Vorschaubild der Karte beim Speichern erzeugen** (ergänzt 2026-08-12, Gegenstück zur
+- [x] **Vorschaubild der Karte beim Speichern erzeugen** (ergänzt 2026-08-12, Gegenstück zur
       Kachel in Phase 5): nach erfolgreichem Speichern `CardCanvas.exportPng(420)` aufrufen
       und über `PreviewUploadService.upload('cards', kartenId, bild)` hochladen — beides
       liegt fertig in `shared/canvas/` (Plan `2026-08-12_template-vorschaubilder`, Phasen 2
@@ -84,6 +85,31 @@ was ADR-005 verhindern soll.
       festhalten, ob es scharf genug aussieht.
 - [ ] Gegenprobe, dass der Template-Editor unverändert funktioniert: Ebene auswählen,
       verschieben, skalieren, drehen, Platzhalter für fehlende Bilder.
-- [ ] `docs/code-map.md` nachziehen.
+      🟡 Offen — am Code abgesichert (ohne `content` läuft jeder Zweig wie vorher), aber am
+      Bildschirm nicht nachgestellt. Gehört in den Smoke-Test am Plan-Ende.
+- [x] `docs/code-map.md` nachziehen.
 
 ## Report-Back
+
+**Status:** complete (`npm run lint` und `npm run build` grün), Live-Test offen.
+
+Der Unterschied zwischen Template-Ansicht und Kartenvorschau ist genau ein Feld: `content`
+im Zeichen-Kontext. Ohne das Feld läuft jeder Zweig wie bisher; mit ihm gewinnen die
+Kartenwerte, und Platzhalter entfallen — leere Felder bleiben leer, statt „Text"/„Icon"/
+„Bildfläche" aufs Bild zu schreiben.
+
+Das Formular treibt die Vorschau über `form.valueChanges` an (Formular-Controls sind keine
+Signale — ohne diesen Anschluss stünde das Bild bis zum Speichern still). Entwurfsstand und
+Formular werden in `collectDraft()` zusammengelegt, dieselbe Funktion, aus der auch das
+Speichern seine Werte zieht. Damit gibt es keinen zweiten Ableitungsweg.
+
+**Zwischenspeicher fürs Verkleinern: bewusst nicht gebaut.** Der Plan sagt „erst messen".
+Ich kann das nicht am Bildschirm beurteilen — die Frage geht damit in den Smoke-Test:
+Tippt es sich in einem Feld mit automatischem Verkleinern flüssig? Wenn nein, ist die Stelle
+`measureTextHeight()` und der Schlüssel Text + Breite + Größe + Schrift + Schnitt.
+
+**Ebenfalls offen für den Smoke-Test:** ob das aus 280 px hochgerechnete Vorschaubild
+(420 px) scharf genug aussieht.
+
+**Abweichung:** Die Bildgruppe hört noch nicht auf Zeigerereignisse (`listening: false`) —
+Ziehen und Zoomen ist Phase 8, ein hörender Knoten ohne Geste würde dort nur im Weg stehen.

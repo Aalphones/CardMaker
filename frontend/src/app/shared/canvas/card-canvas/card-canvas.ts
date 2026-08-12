@@ -20,8 +20,10 @@ import { TransformerConfig } from 'konva/lib/shapes/Transformer';
 import { CoreShapeComponent, NgKonvaEventObject, StageComponent } from 'ng2-konva';
 
 import { AssetImageLoader } from '../asset-image-loader';
+import { CardImageLoader, cardImageKey } from '../card-image-loader';
 import { FontLoader } from '../font-loader';
 import { geometryFromNodeSnapshot, offsetLinePoints } from '../rendering/apply-transform';
+import { CardContent } from '../rendering/card-content';
 import { FontFamily } from '../rendering/fonts';
 import { CANVAS_HEIGHT, CANVAS_WIDTH, Layer, LayerPatch } from '../rendering/layer';
 import { DrawItem, buildDrawItems, requestedAssetIds, requestedFontFamilies } from './draw-items';
@@ -60,11 +62,18 @@ const ALL_ANCHORS = [
 export class CardCanvas {
   private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
   private readonly imageLoader = inject(AssetImageLoader);
+  private readonly cardImageLoader = inject(CardImageLoader);
   private readonly fontLoader = inject(FontLoader);
 
   readonly layers = input.required<Layer[]>();
   readonly selectedLayerId = input<string | null>(null);
   readonly interactive = input(false);
+
+  /**
+   * Was die Karte zum Template beisteuert. Ohne diesen Eingang zeichnet die Fläche das
+   * Template selbst — mit Platzhaltern und Auswahl, also den Template-Editor.
+   */
+  readonly content = input<CardContent | null>(null);
 
   /**
    * Solange die Ansicht verschoben wird (Leertaste oder mittlere Maustaste), hört die
@@ -108,12 +117,36 @@ export class CardCanvas {
     return { scaleX: scale, scaleY: scale, listening: this.interactive() && !this.panning() };
   });
 
+  /** Die geladenen Kartenbilder, umgeschlüsselt auf die Bildfläche — der Lader sortiert nach Karte. */
+  private readonly cardImages: Signal<ReadonlyMap<string, HTMLImageElement>> = computed(() => {
+    const content = this.content();
+    const byLayer = new Map<string, HTMLImageElement>();
+
+    if (content === null || content.cardId === null) {
+      return byLayer;
+    }
+
+    const loaded = this.cardImageLoader.images();
+
+    for (const placement of content.images) {
+      const image = loaded.get(cardImageKey(content.cardId, placement.layerId));
+
+      if (image) {
+        byLayer.set(placement.layerId, image);
+      }
+    }
+
+    return byLayer;
+  });
+
   protected readonly drawItems: Signal<DrawItem[]> = computed(() =>
     buildDrawItems(this.layers(), {
       images: this.imageLoader.images(),
       loadedFonts: this.fontLoader.loaded(),
       selectedLayerId: this.selectedLayerId(),
       interactive: this.interactive(),
+      content: this.content(),
+      cardImages: this.cardImages(),
     }),
   );
 
@@ -155,10 +188,24 @@ export class CardCanvas {
 
   constructor() {
     effect(() => {
-      requestedAssetIds(this.layers()).forEach((assetId: number) => this.imageLoader.load(assetId));
+      requestedAssetIds(this.layers(), this.content()).forEach((assetId: number) =>
+        this.imageLoader.load(assetId),
+      );
       requestedFontFamilies(this.layers()).forEach((family: FontFamily) =>
         this.fontLoader.load(family),
       );
+    });
+
+    effect(() => {
+      const content = this.content();
+
+      if (content === null || content.cardId === null) {
+        return;
+      }
+
+      for (const placement of content.images) {
+        this.cardImageLoader.load(content.cardId, placement.layerId);
+      }
     });
 
     const sizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
