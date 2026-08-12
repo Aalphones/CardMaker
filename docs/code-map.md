@@ -56,7 +56,9 @@ frontend/src/app/
       card-groups-list/    ← Raster, Suchfeld, Leerzustand
       card-groups-detail/  ← Formular Anlegen/Bearbeiten (Routen .../new, .../:id)
     cards/
-      cards-list/          ← Route /cards: „Alle Karten" (Rohbau, füllt Phase 5)
+      cards-list/          ← Route /cards: „Alle Karten" — Raster/Tabelle-Umschalter, Suche,
+                             Template-Filter, Gruppen-Chips, Sortierung, Kachel zeigt das
+                             Vorschaubild (`shared/canvas/preview-image-loader.ts`)
       card-editor/         ← Routen /cards/new und /cards/:id: Formular, Live-Vorschau und
                              Bildausschnitt (Rohbau, füllt Phase 6-8)
     prompts/
@@ -122,8 +124,7 @@ frontend/src/app/
       preview-image-loader.ts ← lädt Kachel-Vorschaubilder für Templates **und** Karten
                            (`/{templates|cards}/{id}/preview/file`), Schlüssel
                            `sorte:id:previewUpdatedAt` — ein neues Bild lädt dadurch automatisch
-                           neu. Benutzt von `templates-list` und (Karteneditor-Plan Phase 5) der
-                           Kartenliste
+                           neu. Benutzt von `templates-list` und `cards-list`
       preview-upload.service.ts ← lädt ein im Editor erzeugtes Vorschaubild hoch, ebenfalls für
                            beide Sorten. Benutzt vom Template-Editor und (Phase 7) vom
                            Karteneditor
@@ -167,8 +168,9 @@ frontend/src/app/
 ```
 
 `print-projects/` und `admin/` aus der Tabelle oben existieren noch nicht — sie
-entstehen erst mit den jeweiligen Folgeplänen. `cards/` steht als Rohbau: Speicher, Routen
-und Bild-Lader sind fertig, die beiden Oberflächen füllen die Phasen 5-8. `templates/` hat jetzt den vollständigen
+entstehen erst mit den jeweiligen Folgeplänen. `cards/`: die Liste (`cards-list/`) ist fertig,
+der Karteneditor (`card-editor/`) steht noch als Rohbau — Speicher, Routen und Bild-Lader sind
+fertig, die Oberfläche füllen die Phasen 6-8. `templates/` hat jetzt den vollständigen
 Editor (Liste, Anlegen, Vorschau, Ebenenliste, Eigenschaften, direkte Bearbeitung im Bild).
 
 ## Backend-Layout (steht)

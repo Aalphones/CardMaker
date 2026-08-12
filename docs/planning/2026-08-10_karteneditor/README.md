@@ -38,7 +38,7 @@ Karte jederzeit neu renderbar, auch wenn das Template sich später ändert
 | 2 | [Backend: Karten](phase-2-backend-karten.md) | standard | complete (Live-Rundlauf offen, s. Phase-Datei) |
 | 3 | [Backend: Kartenbilder](phase-3-backend-kartenbilder.md) | standard | complete (Live-Rundlauf offen, s. Phase-Datei) |
 | 4 | [Frontend: Speicher und Routen](phase-4-frontend-speicher.md) | standard | complete |
-| 5 | [Alle Karten](phase-5-kartenliste.md) | standard | pending |
+| 5 | [Alle Karten](phase-5-kartenliste.md) | standard | complete (Live-Rundlauf offen, s. Phase-Datei) |
 | 6 | [Karteneditor: Formular](phase-6-editor-formular.md) | heikel | pending |
 | 7 | [Karteneditor: Live-Vorschau](phase-7-live-vorschau.md) | heikel | pending |
 | 8 | [Bild ziehen und zoomen](phase-8-bild-platzieren.md) | heikel | pending |

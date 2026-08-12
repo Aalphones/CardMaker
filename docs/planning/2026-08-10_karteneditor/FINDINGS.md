@@ -23,7 +23,7 @@ Erledigte Punkte abhaken, nicht löschen.
       knallt es auf Datenbankebene. (Betrifft `card_images`, nicht `cards` — Phase 3 baut
       den Bild-Upload.)
       Umgesetzt über `INSERT ... ON DUPLICATE KEY UPDATE` in `CardImageRepository::upsert()`.
-- [ ] → Phase 5: `features/cards/cards-list/` existiert als Rohbau (Überschrift + Knopf
+- [x] → Phase 5: `features/cards/cards-list/` existiert als Rohbau (Überschrift + Knopf
       „Neue Karte"), Route `/cards` hängt schon dran. Phase 5 füllt die Datei, legt sie
       nicht neu an. Die Fassade liefert `summaries()`, `summariesLoading()`,
       `ensureLoaded()`, `duplicate(id)`, `remove(id)`; die Kurzfassung enthält

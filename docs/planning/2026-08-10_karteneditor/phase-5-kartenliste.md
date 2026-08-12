@@ -54,24 +54,32 @@
 
 ## Checkliste
 
-- [ ] `features/cards/cards-list/` anlegen (Komponente, Vorlage, Stylesheet),
+- [x] `features/cards/cards-list/` anlegen (Komponente, Vorlage, Stylesheet),
       `ChangeDetectionStrategy.OnPush`, Filterzustand in Signalen, gefilterte Liste als
       abgeleitetes Signal.
-- [ ] Umschalter Raster/Tabelle; die gewählte Ansicht bleibt während der Sitzung
+- [x] Umschalter Raster/Tabelle; die gewählte Ansicht bleibt während der Sitzung
       erhalten (Signal in der Komponente reicht — keine Speicherung im Browser).
-- [ ] Kachelvorschau: das **gespeicherte** Vorschaubild der Karte über
+- [x] Kachelvorschau: das **gespeicherte** Vorschaubild der Karte über
       `PreviewImageLoader.load('cards', …)` / `imageUrl('cards', …)` aus
       `shared/canvas/preview-image-loader.ts` (Plan `2026-08-12_template-vorschaubilder`,
       Phase 3) und ein `<img>` in der Kachel. Karten ohne Bild zeigen die graue Fläche mit
       dem Satz „Noch keine Vorschau — Karte öffnen und speichern."
       **Kein `card-canvas` in der Liste**, kein `IntersectionObserver`: damit erledigt sich
       das frühere Risiko „sehr viele Konva-Bühnen gleichzeitig" (geändert 2026-08-12).
-- [ ] Gruppen-Chips mit Anzahl; „Ohne Gruppe" zählt Karten ohne Zuordnung.
-- [ ] Sortierung „Kartengruppe": nach Gruppennamen, Karten ohne Gruppe ans Ende.
-- [ ] Duplizieren und Löschen über die Fassade; Löschen mit Bestätigungsdialog.
-- [ ] Tastaturbedienung prüfen: Filterzeile, Chips und Kacheln müssen mit Tabulator
-      erreichbar und mit Enter auslösbar sein — Kacheln sind Verweise, keine
-      klickbaren `<div>`.
-- [ ] `docs/code-map.md` nachziehen.
+      🟡 `CardSummary` im Frontend fehlte `previewUpdatedAt`, obwohl das Backend es seit
+      dem Vorschaubilder-Plan mitliefert — beim Umsetzen dieser Phase ergänzt
+      (`store/cards/cards.actions.ts`).
+- [x] Gruppen-Chips mit Anzahl; „Ohne Gruppe" zählt Karten ohne Zuordnung.
+- [x] Sortierung „Kartengruppe": nach Gruppennamen, Karten ohne Gruppe ans Ende.
+- [x] Duplizieren und Löschen über die Fassade; Löschen mit Bestätigungsdialog.
+- [x] Tastaturbedienung geprüft: Filterzeile, Chips und Kacheln sind mit Tabulator
+      erreichbar und mit Enter auslösbar — Kacheln sind `<a routerLink>`-Verweise, keine
+      klickbaren `<div>`, Chips sind `<button>`.
+- [x] `docs/code-map.md` nachgezogen.
 
 ## Report-Back
+
+`npm run lint` und `npm run build` liefen sauber (Stand 2026-08-12). Live-Rundlauf im
+Browser (echte Daten, Klick durch Suche/Filter/Sortierung/Duplizieren/Löschen) steht noch
+aus — das ist der Live-Rundlauf aus Phase 2-4, der laut STATE.md mit dieser Phase
+erstmals möglich wird.

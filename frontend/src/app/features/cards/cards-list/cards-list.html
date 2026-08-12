@@ -2,10 +2,193 @@
   <div class="cards-list__heading">
     <div class="cards-list__heading-text">
       <h1 class="cards-list__title">Alle Karten</h1>
-      <p class="cards-list__subtitle">
-        Gespeicherte Karten mit Suche, Filtern und Sortierung — folgt in Kürze.
-      </p>
+      <p class="cards-list__subtitle">{{ cardCountLabel(filteredItems().length) }}</p>
     </div>
-    <a class="btn btn--primary" routerLink="/cards/new">Neue Karte</a>
+    <div class="cards-list__heading-actions">
+      @if (cards.summariesLoaded() && cards.summaries().length > 0) {
+        <button type="button" class="btn btn--secondary" (click)="toggleView()">
+          {{ view() === 'grid' ? 'Als Tabelle' : 'Als Raster' }}
+        </button>
+      }
+      <a class="btn btn--primary" routerLink="/cards/new">
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>
+        Neue Karte
+      </a>
+    </div>
   </div>
+
+  @if (cards.summariesLoaded() && cards.summaries().length === 0) {
+    <div class="card cards-list__empty">
+      <p class="cards-list__empty-text">
+        Eine Karte ist die Instanz eines Templates: Texte, Bild und Icon-Wahl ausgefüllt,
+        bereit fürs Druckprojekt. Lege deine erste Karte an, um loszulegen.
+      </p>
+      <a class="btn btn--primary" routerLink="/cards/new">Neue Karte</a>
+    </div>
+  } @else {
+    <div class="cards-list__filters">
+      <div class="field cards-list__filter-search">
+        <label for="cards-search">Suchen</label>
+        <input
+          id="cards-search"
+          class="input"
+          type="search"
+          [value]="searchTerm()"
+          (input)="onSearchInput($event)"
+          placeholder="Kartenname …"
+        />
+      </div>
+      <div class="field cards-list__filter-template">
+        <label for="cards-template-filter">Template</label>
+        <select id="cards-template-filter" class="input" (change)="onTemplateFilterChange($event)">
+          <option value="all">Alle Templates</option>
+          @for (template of templates.summaries(); track template.id) {
+            <option [value]="template.id">{{ template.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="field cards-list__filter-sort">
+        <label for="cards-sort">Sortierung</label>
+        <select id="cards-sort" class="input" (change)="onSortChange($event)">
+          <option value="recent">Zuletzt geändert</option>
+          <option value="name">Name A–Z</option>
+          <option value="group">Kartengruppe</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="cards-list__chips">
+      @for (chip of groupChips(); track chip.id) {
+        <button
+          type="button"
+          class="cards-list__chip"
+          [class.cards-list__chip--active]="groupFilter() === chip.id"
+          (click)="selectGroupChip(chip.id)"
+        >
+          {{ chip.label }}
+          <span class="cards-list__chip-count">{{ chip.count }}</span>
+        </button>
+      }
+    </div>
+
+    @if (view() === 'grid') {
+      <ul class="cards-list__grid">
+        @for (item of filteredItems(); track item.id) {
+          <li class="card cards-list__card">
+            <a class="cards-list__card-link" [routerLink]="['/cards', item.id]">
+              <div class="cards-list__preview">
+                @if (previewUrl(item); as url) {
+                  <img class="cards-list__preview-image" [src]="url" alt="" />
+                } @else {
+                  <p class="cards-list__preview-empty">
+                    Noch keine Vorschau — Karte öffnen und speichern.
+                  </p>
+                }
+              </div>
+              <h2 class="card__title">{{ item.name }}</h2>
+              <p class="card__meta">{{ item.cardGroupName ?? 'Ohne Gruppe' }} · {{ item.templateName }}</p>
+            </a>
+            <div class="cards-list__card-footer">
+              <button
+                type="button"
+                class="icon-button cards-list__icon-btn"
+                [attr.aria-label]="'Karte ' + item.name + ' duplizieren'"
+                (click)="duplicate(item)"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                class="icon-button cards-list__icon-btn cards-list__icon-btn--delete"
+                [attr.aria-label]="'Karte ' + item.name + ' löschen'"
+                (click)="remove(item)"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                  <line x1="10" x2="10" y1="11" y2="17" />
+                  <line x1="14" x2="14" y1="11" y2="17" />
+                </svg>
+              </button>
+            </div>
+          </li>
+        } @empty {
+          <li class="cards-list__no-results">Keine Karte passt zu Suche und Filter.</li>
+        }
+      </ul>
+    } @else {
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Karte</th>
+            <th>Kartengruppe</th>
+            <th>Template</th>
+            <th>Geändert</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filteredItems(); track item.id) {
+            <tr>
+              <td><a [routerLink]="['/cards', item.id]">{{ item.name }}</a></td>
+              <td>{{ item.cardGroupName ?? '—' }}</td>
+              <td>{{ item.templateName }}</td>
+              <td>{{ item.updatedAt | date: 'medium' }}</td>
+              <td class="cards-list__table-actions">
+                <button type="button" class="btn btn--ghost" (click)="duplicate(item)">Duplizieren</button>
+                <button
+                  type="button"
+                  class="btn btn--ghost cards-list__table-delete"
+                  (click)="remove(item)"
+                >
+                  Löschen
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="cards-list__no-results">Keine Karte passt zu Suche und Filter.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
 </section>

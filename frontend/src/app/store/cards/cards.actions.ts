@@ -36,6 +36,7 @@ export interface CardSummary {
   templateName: string;
   cardGroupId: number | null;
   cardGroupName: string | null;
+  previewUpdatedAt: string | null;
   updatedAt: string;
 }
 
