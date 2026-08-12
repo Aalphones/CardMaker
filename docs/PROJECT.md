@@ -131,5 +131,8 @@ Detail-Phasen entstehen im ersten Plan (`/plan`), nicht hier.
 
 ## Offene Fragen
 
-- Bild-Crop/Zoom-Interaktion im Karteneditor: direkt über Konva-Image-Transform lösen oder
-  zusätzliche Crop-UI nötig? — vor Meilenstein 3 klären.
+- _(keine offenen Fragen)_
+
+Zuletzt geschlossen: Bild-Crop/Zoom-Interaktion im Karteneditor — Ziehen und Zoomen direkt in
+der Live-Vorschau, ohne eigene Zuschneide-Oberfläche
+([ADR-018](decisions/018-bildausschnitt-in-der-vorschau.md), 2026-08-12).

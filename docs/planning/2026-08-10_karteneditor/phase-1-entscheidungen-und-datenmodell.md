@@ -15,10 +15,14 @@
 
 ## Abnahmekriterien
 
-- Zwei Migrationen liegen vor und laufen lokal durch: `M007CreateCards`,
-  `M008CreateCardImages`.
+- Zwei Migrationen liegen vor und laufen durch: `M008CreateCards`, `M009CreateCardImages`.
 - Drei ADRs sind geschrieben: 017 (Ablage der Kartenbilder), 018 (Bildausschnitt in der
-  Vorschau), 019 (Karteninhalt als Datenblock).
+  Vorschau), 020 (Karteninhalt als Datenblock).
+
+> **Nummern verschoben (2026-08-12).** Der Plan entstand vor dem Schriften-Plan, der
+> inzwischen `M007CreateFonts` und ADR-019 belegt hat. Die Migrationen heißen deshalb
+> `M008`/`M009` statt `M007`/`M008`, der Datenblock-ADR trägt die 020 statt der 019.
+> Inhaltlich ändert das nichts.
 - `docs/models.md` beschreibt beide Tabellen vollständig.
 - Kein Anwendungscode in dieser Phase — nur Schema, Entscheidungen, Doku.
 
@@ -63,32 +67,53 @@ Eindeutiger Schlüssel auf (`card_id`, `layer_id`) — je Bildfläche höchstens
 
 ## Checkliste
 
-- [ ] `backend/src/Migrations/M007CreateCards.php` nach dem Muster von `M006` anlegen.
-- [ ] `backend/src/Migrations/M008CreateCardImages.php` anlegen.
-- [ ] Beide Migrationen lokal ausführen (`POST /api/migrate`) und das Ergebnis in
-      phpMyAdmin gegenlesen.
-- [ ] `docs/decisions/017-kartenbilder-eigene-ablage.md`:
+- [x] `backend/src/Migrations/M008CreateCards.php` nach dem Muster von `M006` anlegen.
+- [x] `backend/src/Migrations/M009CreateCardImages.php` anlegen.
+- [ ] Beide Migrationen ausführen (`POST /api/migrate`) und das Ergebnis in
+      phpMyAdmin gegenlesen. **Offen — braucht Sascha:** es gibt keine lokale MySQL-Instanz
+      auf diesem Rechner, der Lauf geht nur über `deploy.cmd` gegen den Strato-Server. Das
+      ist ein Deploy auf die echte Anwendung und wird nicht ungefragt angestoßen.
+- [x] `docs/decisions/017-kartenbilder-eigene-ablage.md`:
       Kontext (Kartenbilder sind Einmal-Inhalt, Rahmen und Icons sind wiederverwendbares
       Layout-Material) · Optionen (in den Bildvorrat `assets` mit aufnehmen / eigene
       Tabelle plus eigener Ordner) · Entscheidung (eigene Tabelle `card_images`, Ablage
       in `backend/uploads/cards/`, Löschen zusammen mit der Karte) · Folgen (der
       Bildvorrat bleibt überschaubar, dafür zwei Upload-Wege im Backend — bewusst in Kauf
       genommen).
-- [ ] `docs/decisions/018-bildausschnitt-in-der-vorschau.md`:
+- [x] `docs/decisions/018-bildausschnitt-in-der-vorschau.md`:
       Kontext (offene Frage aus `docs/PROJECT.md`) · Optionen (eigener
       Zuschneide-Dialog / Zahlenfelder im Formular / Ziehen und Zoomen direkt in der
       Vorschau) · Entscheidung (direkt in der Vorschau, Technik wie beim Verschieben von
       Ebenen aus Meilenstein 2) · Folgen (kein zweiter Bildschirm, aber die Vorschau
       bekommt einen Bearbeitungszustand; das Bild wird nie beschnitten gespeichert,
       sondern immer im Original mit Verschiebung und Maßstab).
-- [ ] `docs/decisions/019-karteninhalt-als-datenblock.md`:
+- [x] `docs/decisions/020-karteninhalt-als-datenblock.md`:
       Werte, Icon-Wahl und Abweichungen liegen als JSON-Blöcke an der Karte statt in
       eigenen Tabellen — dieselbe Begründung wie ADR-014, geprüft wird im PHP-Prüfer.
-- [ ] `docs/models.md` um beide Tabellen ergänzen (existiert die Datei nicht, hier
-      anlegen — sie gehört laut Doku-Struktur ohnehin ins Projekt).
-- [ ] `docs/PROJECT.md`: die offene Frage zum Bildzuschnitt entfernen und durch den
-      Verweis auf ADR-018 ersetzen.
-- [ ] `docs/glossary.md`: Begriffe „Kartenbild", „Feldschlüssel", „Abweichung"
-      (Override) aufnehmen, falls noch nicht vorhanden.
+- [x] `docs/models.md` angelegt — mit **allen** Tabellen, nicht nur den zwei neuen. Eine
+      Datei namens „Datenmodell", die sieben von neun Tabellen verschweigt, wäre schlimmer
+      als keine.
+- [x] `docs/PROJECT.md`: die offene Frage zum Bildzuschnitt entfernt, Verweis auf ADR-018.
+- [x] `docs/glossary.md`: „Kartenbild" und „Abweichung" ergänzt. „Feldschlüssel" stand
+      bereits drin.
+- [x] `docs/decisions/README.md`: 017, 018, 020 in die Tabelle eingetragen.
+- [x] `AGENTS.md`: Zeiger auf `docs/models.md` im Abschnitt „Wo du mehr findest".
 
 ## Report-Back
+
+**Stand: fertig bis auf den Migrationslauf.** Beide Migrationsdateien sind angelegt und
+syntaktisch geprüft (`php -l`); der `MigrationRunner` findet sie von selbst über den
+Dateinamen, es gibt keine Registrierungsliste zu pflegen. Kein Anwendungscode, wie im Plan
+vorgesehen.
+
+Abweichungen vom Plan:
+
+- Nummern verschoben (siehe Kasten oben): `M008`/`M009`, ADR-020.
+- Die Schlüsselspalten sind `INT UNSIGNED` statt `INT` wie in der Plantabelle. Ein
+  Fremdschlüssel muss im Typ zur Zielspalte passen, und der ganze Bestand nutzt
+  `INT UNSIGNED` — mit `INT` wäre die Migration am Fremdschlüssel gescheitert.
+- `docs/models.md` deckt alle Tabellen ab, nicht nur die zwei neuen.
+
+Offen: `POST /api/migrate`. Auf diesem Rechner gibt es kein MySQL (PHP 8.3 ist da, `mysql`
+nicht), der Lauf geht nur über `deploy.cmd` gegen Strato — also gegen die echte Anwendung.
+Braucht Saschas Freigabe, siehe Checkliste.

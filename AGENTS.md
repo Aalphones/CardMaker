@@ -72,6 +72,7 @@ Weitere Regeln entstehen, sobald sie sich als nötig erweisen — nicht vorab er
 - **Projekt-Kontext, Scope, Nicht-Ziele, Meilensteine, offene Fragen:**
   [`docs/PROJECT.md`](docs/PROJECT.md)
 - **Architektur-Entscheidungen:** [`docs/decisions/`](docs/decisions/) — ADRs
+- **Datenmodell** (alle Tabellen, Spalten, Fremdschlüssel): [`docs/models.md`](docs/models.md)
 - **Aktive Planung:** [`docs/planning/`](docs/planning/)
 - **Archiv:** [`docs/archive/YYYY-MM/`](docs/archive/)
 - **Design-Quellen** (Konzept-Dokument, KI-Bildprompt-Vorlagen): [`docs/design/`](docs/design/)

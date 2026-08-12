@@ -29,7 +29,7 @@ Karte jederzeit neu renderbar, auch wenn das Template sich später ändert
 
 | # | Phase | Rating | Status |
 |---|---|---|---|
-| 1 | [Entscheidungen und Datenmodell](phase-1-entscheidungen-und-datenmodell.md) | heikel | pending |
+| 1 | [Entscheidungen und Datenmodell](phase-1-entscheidungen-und-datenmodell.md) | heikel | complete (Migrationslauf offen) |
 | 2 | [Backend: Karten](phase-2-backend-karten.md) | standard | pending |
 | 3 | [Backend: Kartenbilder](phase-3-backend-kartenbilder.md) | standard | pending |
 | 4 | [Frontend: Speicher und Routen](phase-4-frontend-speicher.md) | standard | pending |
@@ -94,13 +94,16 @@ Kurzfassung für die Liste (`GET /api/cards`):
 
 **Zu `bold`/`italic` in den Abweichungen (Entscheidung 2026-08-11):** Fett und Kursiv als
 Eigenschaft einer Textebene entstehen im Plan „Eigene Schriften hochladen"
-(`docs/planning/2026-08-11_schriften-hochladen/phase-5-fett-und-kursiv.md`). Dass eine
+(inzwischen umgesetzt und archiviert:
+`docs/archive/2026-08/2026-08-11_schriften-hochladen/phase-5-fett-und-kursiv.md`). Dass eine
 einzelne Karte sie überschreiben darf, steht hier bewusst schon im Kontrakt — es sind zwei
 Wahrheitswerte neben Schriftgröße und Farbe, die ohnehin überschreibbar sind. Sie jetzt
 mitzuführen kostet nichts; sie nachträglich zu ergänzen hieße, ein Datenformat zu ändern,
-in dem schon Karten liegen. Läuft dieser Plan **vor** dem Schriften-Plan, werden die zwei
-Felder trotzdem gespeichert und durchgereicht — nur zeichnen kann das Canvas sie erst,
-wenn dessen Phase 5 durch ist. Das ist keine Baustelle, sondern ein Feld, das noch nichts tut.
+in dem schon Karten liegen.
+
+**Erledigt (Stand 2026-08-12):** Der Schriften-Plan ist durch, das Canvas zeichnet Fett und
+Kursiv bereits. Der Vorbehalt „wird nur gespeichert, noch nicht gezeichnet" ist damit weg —
+die zwei Felder wirken ab Phase 7 wie Schriftgröße und Farbe auch.
 
 ## Finale Abnahmekriterien
 
@@ -110,8 +113,7 @@ wenn dessen Phase 5 durch ist. Das ist keine Baustelle, sondern ein Feld, das no
    mit „Wird pro Karte ausgefüllt/gewählt" tauchen auf, plus je ein Ablagefeld pro
    Bildfläche.
 3. Die Live-Vorschau zeigt jede Eingabe sofort, inklusive automatischem Verkleinern zu
-   langer Texte und der Abweichungen bei Schriftgröße und Farbe (Fett/Kursiv ebenfalls,
-   sobald der Schriften-Plan durch ist — vorher werden die Werte nur gespeichert).
+   langer Texte und der Abweichungen bei Schriftgröße, Farbe, Fett und Kursiv.
 4. Ein hochgeladenes Bild lässt sich in seiner Fläche ziehen und mit dem Mausrad zoomen;
    der Ausschnitt bleibt nach dem Speichern und erneuten Öffnen erhalten.
 5. „Alle Karten" listet alle Karten als Raster oder Tabelle, mit Suche nach Namen,

@@ -21,4 +21,7 @@ Kurskorrektur bekommt eine neue ADR, die auf die alte verweist, statt die alte z
 | 014 | [Template-Layout als Datenblock statt Ebenentabelle](014-template-layout-als-datenblock.md) | Akzeptiert |
 | 015 | [Bildablage außerhalb des Webbereichs, nur PNG](015-bildablage-und-dateiformate.md) | Akzeptiert |
 | 016 | [Organic-Gestaltung als verbindliches Erscheinungsbild](016-organic-design-system.md) | Akzeptiert |
+| 017 | [Kartenbilder liegen getrennt vom Bildvorrat](017-kartenbilder-eigene-ablage.md) | Akzeptiert |
+| 018 | [Bildausschnitt direkt in der Live-Vorschau](018-bildausschnitt-in-der-vorschau.md) | Akzeptiert |
 | 019 | [Eigene Schriften: berechneter Name, Blob statt CSS-Adresse](019-eigene-schriften.md) | Akzeptiert |
+| 020 | [Karteninhalt als Datenblock statt eigener Tabellen](020-karteninhalt-als-datenblock.md) | Akzeptiert |
