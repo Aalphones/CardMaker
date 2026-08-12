@@ -2,6 +2,10 @@
 
 **Rating:** standard
 
+> **Setzt den Plan `docs/planning/2026-08-12_template-vorschaubilder/` voraus** — die
+> Kachelvorschau benutzt dessen gespeicherte Vorschaubilder statt live zu zeichnen.
+> Läuft dieser Plan noch nicht, fehlt der Bild-Lader.
+
 ## Kontext — vorher lesen
 
 - [`docs/design/handoff-organic/README.md`](../../design/handoff-organic/README.md)
@@ -9,7 +13,8 @@
 - `frontend/src/app/features/card-groups/card-groups-list/` — Muster für Liste, Suche,
   Löschabfrage
 - `frontend/src/styles/_bausteine.scss` (aus dem Design-Plan)
-- `frontend/src/app/shared/canvas/card-canvas/` — für die Kachelvorschau
+- `frontend/src/app/shared/canvas/preview-image-loader.ts` — für die Kachelvorschau, und
+  `frontend/src/app/features/templates/templates-list/` als fertiges Muster derselben Kachel
 
 ## Abnahmekriterien
 
@@ -54,11 +59,13 @@
       abgeleitetes Signal.
 - [ ] Umschalter Raster/Tabelle; die gewählte Ansicht bleibt während der Sitzung
       erhalten (Signal in der Komponente reicht — keine Speicherung im Browser).
-- [ ] Kachelvorschau: `card-canvas` im nicht-bedienbaren Zustand mit den Ebenen des
-      Templates und den Werten der Karte. 🟡 Bei vielen Karten laufen sonst sehr viele
-      Konva-Bühnen gleichzeitig — Vorschau erst zeichnen, wenn die Kachel sichtbar wird
-      (`IntersectionObserver`), sonst nur die graue Fläche. Diese Grenze im
-      Report-Back mit der tatsächlich beobachteten Kartenzahl belegen.
+- [ ] Kachelvorschau: das **gespeicherte** Vorschaubild der Karte über
+      `PreviewImageLoader.load('cards', …)` / `imageUrl('cards', …)` aus
+      `shared/canvas/preview-image-loader.ts` (Plan `2026-08-12_template-vorschaubilder`,
+      Phase 3) und ein `<img>` in der Kachel. Karten ohne Bild zeigen die graue Fläche mit
+      dem Satz „Noch keine Vorschau — Karte öffnen und speichern."
+      **Kein `card-canvas` in der Liste**, kein `IntersectionObserver`: damit erledigt sich
+      das frühere Risiko „sehr viele Konva-Bühnen gleichzeitig" (geändert 2026-08-12).
 - [ ] Gruppen-Chips mit Anzahl; „Ohne Gruppe" zählt Karten ohne Zuordnung.
 - [ ] Sortierung „Kartengruppe": nach Gruppennamen, Karten ohne Gruppe ans Ende.
 - [ ] Duplizieren und Löschen über die Fassade; Löschen mit Bestätigungsdialog.

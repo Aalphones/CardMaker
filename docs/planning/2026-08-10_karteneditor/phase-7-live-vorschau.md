@@ -72,6 +72,16 @@ was ADR-005 verhindern soll.
       Messergebnisse pro Kombination aus Text, Schrift und Bereich zwischenspeichern und
       im Report-Back festhalten, ob es ohne Zwischenspeicher flüssig genug war — nicht
       vorsorglich optimieren, sondern erst messen.
+- [ ] **Vorschaubild der Karte beim Speichern erzeugen** (ergänzt 2026-08-12, Gegenstück zur
+      Kachel in Phase 5): nach erfolgreichem Speichern `CardCanvas.exportPng(420)` aufrufen
+      und über `PreviewUploadService.upload('cards', kartenId, bild)` hochladen — beides
+      liegt fertig in `shared/canvas/` (Plan `2026-08-12_template-vorschaubilder`, Phasen 2
+      und 3). Der Template-Editor macht genau dasselbe; dessen `uploadPreview()` ist die
+      Vorlage. Scheitert es, bleibt das Speichern erfolgreich und es gibt nur eine
+      Hinweismeldung.
+      🟡 Die Live-Vorschau ist nur 280 px breit — `exportPng` rechnet den Maßstab aus der
+      gemessenen Bühnenbreite hoch, das Bild wird trotzdem 420 px breit. Im Report-Back
+      festhalten, ob es scharf genug aussieht.
 - [ ] Gegenprobe, dass der Template-Editor unverändert funktioniert: Ebene auswählen,
       verschieben, skalieren, drehen, Platzhalter für fehlende Bilder.
 - [ ] `docs/code-map.md` nachziehen.

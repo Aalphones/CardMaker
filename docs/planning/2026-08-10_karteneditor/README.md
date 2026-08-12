@@ -8,6 +8,11 @@ in einer durchsuchbaren Liste wiederfinden.
 im neuen Aussehen und benutzt dessen Bausteinklassen. Wird er vorher umgesetzt, entfällt
 jedes Nachstylen.
 
+**Setzt ab Phase 5 den Vorschaubild-Plan voraus** (`2026-08-12_template-vorschaubilder/`,
+angelegt 2026-08-12): Karten-Kacheln zeigen ein gespeichertes Bild statt live zu zeichnen.
+Betroffen sind Phase 5 (Kachel zeigt das Bild) und Phase 7 (Bild beim Speichern erzeugen);
+beide Dateien sind entsprechend angepasst.
+
 ## Grundsatz
 
 Eine Karte speichert **nie** ein fertiges Bild, sondern nur: welches Template, welche
