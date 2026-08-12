@@ -1,8 +1,8 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-12_template-vorschaubilder/`
-**Phase:** 2/3 — Template-Editor erzeugt das Bild und lädt es hoch (pending, heikel)
-**Nächster Schritt:** `phase-2-editor-export.md` öffnen und umsetzen.
+**Phase:** 3/3 — Gemeinsamer Bild-Lader, Template-Übersicht zeigt die Vorschau (pending, standard)
+**Nächster Schritt:** `phase-3-uebersicht.md` öffnen und umsetzen.
 
 ## Umsetzungsreihenfolge (festgelegt 2026-08-12, freigegeben)
 

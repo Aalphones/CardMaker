@@ -86,6 +86,7 @@ export class CardCanvas {
   protected readonly stageWidth = signal(0);
 
   private readonly transformerRef = viewChild<CoreShapeComponent>('transformer');
+  private readonly stageRef = viewChild<StageComponent>('stage');
 
   /**
    * Die Bühne bekommt Bildschirmpunkte, alle Ebenenwerte bleiben in Canvas-Einheiten —
@@ -195,6 +196,52 @@ export class CardCanvas {
 
       transformer.nodes(target ? [target] : []);
     });
+  }
+
+  /**
+   * Zeichnet die Karte in ein PNG von `targetWidth` Breite — für das Vorschaubild, das der
+   * Editor nach dem Speichern hochlädt. `null`, wenn die Bühne noch nicht steht oder der
+   * Browser kein Bild liefert; der Aufrufer entscheidet, was das bedeutet.
+   */
+  async exportPng(targetWidth: number): Promise<Blob | null> {
+    const stage = this.stageRef()?.getStage();
+    const measuredWidth = this.stageWidth();
+
+    if (!stage || measuredWidth <= 0) {
+      return null;
+    }
+
+    const transformerComponent = this.transformerRef();
+    const transformer = transformerComponent
+      ? (transformerComponent.getNode() as Konva.Transformer)
+      : null;
+
+    // Ausblenden statt abhängen: `nodes([])` würde die Auswahl wegwerfen, die der
+    // `afterRenderEffect` oben verwaltet — sie käme erst beim nächsten Lauf zurück.
+    transformer?.hide();
+
+    try {
+      // Der Maßstab der Bühne wechselt mit der Fensterbreite, das Bild soll das nicht tun:
+      // Aus der gemessenen Breite wird der Faktor gerechnet, der genau `targetWidth`
+      // Bildpunkte ergibt. Der Ausschnitt kommt aus dem Kartenverhältnis statt aus der
+      // gerundeten Bühnenhöhe — sonst wäre die Bildhöhe je nach Fenster mal einen Punkt daneben.
+      const pixelRatio = targetWidth / measuredWidth;
+      const targetHeight = Math.round(targetWidth * (CANVAS_HEIGHT / CANVAS_WIDTH));
+
+      const exported = await stage.toBlob({
+        mimeType: 'image/png',
+        pixelRatio,
+        x: 0,
+        y: 0,
+        width: targetWidth / pixelRatio,
+        height: targetHeight / pixelRatio,
+      });
+
+      // Konva verspricht nur `Promise<unknown>` — geprüft statt behauptet.
+      return exported instanceof Blob ? exported : null;
+    } finally {
+      transformer?.show();
+    }
   }
 
   protected selectLayer(layerId: string): void {

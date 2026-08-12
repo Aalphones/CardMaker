@@ -26,7 +26,7 @@ backend/src/Validators/<Feature>Validator.php
 | `card-groups` | Kartengruppen — Organisationseinheit für gespeicherte Karten (z. B. „Spiderman-Serie"), keine Charakterverwaltung (ADR-011) |
 | `assets` | Bildvorrat — hochgeladene Rahmen- und Icon-Dateien, hinter der Anmeldung ausgeliefert (ADR-015). Backend und Speicher stehen, noch kein eigener UI-Screen (kommt mit dem Editor) |
 | `fonts` | Schriftvorrat — hochgeladene Schriftdateien (WOFF2/TTF/OTF, max. 2 MB), hinter der Anmeldung ausgeliefert. Der Name für CSS ist immer `cmfont-<Kennung>` und wird berechnet, nie gespeichert; der Wunschname des Nutzers ist reine Beschriftung. Backend und Speicher stehen, noch keine Oberfläche |
-| `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste, Kartenvorschau, Ebenenliste, Eigenschaftenspalte und direkte Bearbeitung im Bild (Anfasser zum Verschieben/Skalieren/Drehen) stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Die Schrift einer Textebene (`font_family`) ist dabei entweder eine eingebaute Schrift oder `cmfont-<Kennung>` einer hochgeladenen — welche hochgeladenen es gibt, holt `TemplateService` einmal pro Speichervorgang und reicht es dem Prüfer durch. Eine Textebene kennt zusätzlich `font_bold`/`font_italic` (Wahrheitswerte, künstlich vom Browser gerechnet statt aus einer zweiten Schriftdatei geladen). Vorschaubild-Ablage steht (`TemplatePreviewController`/`TemplatePreviewService`, gemeinsamer Baustein `PreviewImageStorage`, Endpunkte `/api/templates/{id}/preview*`, ADR-021) — der Export im Editor und die Anzeige in der Übersicht folgen in Phase 2/3 des Vorschaubilder-Plans. Meilenstein 2 ist abgeschlossen |
+| `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste, Kartenvorschau, Ebenenliste, Eigenschaftenspalte und direkte Bearbeitung im Bild (Anfasser zum Verschieben/Skalieren/Drehen) stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Die Schrift einer Textebene (`font_family`) ist dabei entweder eine eingebaute Schrift oder `cmfont-<Kennung>` einer hochgeladenen — welche hochgeladenen es gibt, holt `TemplateService` einmal pro Speichervorgang und reicht es dem Prüfer durch. Eine Textebene kennt zusätzlich `font_bold`/`font_italic` (Wahrheitswerte, künstlich vom Browser gerechnet statt aus einer zweiten Schriftdatei geladen). Vorschaubild-Ablage steht (`TemplatePreviewController`/`TemplatePreviewService`, gemeinsamer Baustein `PreviewImageStorage`, Endpunkte `/api/templates/{id}/preview*`, ADR-021). Der Editor erzeugt das Bild nach jedem erfolgreichen Speichern selbst: `CardCanvas.exportPng()` zeichnet die Bühne ohne Anfasser in ein PNG fester Breite, `features/templates/template-preview.ts` lädt es hoch — schlägt das fehl, bleibt es bei einer Hinweismeldung. Die Anzeige in der Übersicht folgt in Phase 3 des Vorschaubilder-Plans. Meilenstein 2 ist abgeschlossen |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden. Backend komplett: Kartendaten (`CardController`/`CardService`/`CardRepository`/`CardValidator`), Kartenbilder (`CardImageController`/`CardImageService`/`CardImageRepository`/`CardImageValidator`, eigener Ordner `backend/uploads/cards/`, ADR-017) und Vorschaubild-Ablage (`CardPreviewController`/`CardPreviewService`, derselbe `PreviewImageStorage`-Baustein wie bei Templates, Endpunkte `/api/cards/{id}/preview*`, ADR-021 — Erzeugen des Bildes beim Speichern und Anzeige in der Kartenliste kommen mit Phase 5/7 des Karteneditor-Plans), Endpunkte `/api/cards*` inkl. `/api/cards/{id}/images*`. Noch keine Oberfläche |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
 | `prompts` | Reine Anzeigeseite unter `/prompts`: die ChatGPT-Bild-Prompts für Rahmen, Icons und Artwork in drei Reitern, je mit Kopieren-Knopf. Kein Backend, kein Store — die Texte stehen als Konstanten in `features/prompts/prompt-texts.ts` und müssen deckungsgleich zu `docs/design/prompts-chatgpt/` bleiben |
@@ -64,6 +64,9 @@ frontend/src/app/
       prompts-page/          ← Route /prompts: drei Reiter (Rahmen/Icons/Artwork), je
                                Erklärung, Prompt-Block mit Kopieren-Knopf und „Danach"-Liste
     templates/
+      template-preview.ts   ← lädt das im Editor erzeugte Vorschaubild hoch
+                               (`POST /templates/{id}/preview`), am Store vorbei wie die
+                               Bild-Lader — Bilddaten sind kein Server-Zustand
       templates-list/       ← Raster, Suchfeld, Leerzustand, „Neues Template"
       template-editor/       ← Route .../:id — Vollbild-Ebene über der App (fest positioniert,
                                Ebene 50): Kopfzeile (Zurück, Name direkt bearbeitbar,
@@ -104,7 +107,9 @@ frontend/src/app/
                           canDeactivate bei ungespeicherten Formularen)
     canvas/            ← alles, was mit Konva zeichnet — Feature-Komponenten binden nur Daten
       card-canvas/      ← die Kartenvorschau: `card-canvas.*` (Bühne, Maßstab, Schachbrett,
-                           Auswahl-Umriss, ab Phase 7 der Konva-Transformer als Anfasser) und
+                           Auswahl-Umriss, ab Phase 7 der Konva-Transformer als Anfasser,
+                           dazu `exportPng()` — Anfasser ausblenden, Bühne in ein PNG fester
+                           Breite zeichnen, wieder einblenden) und
                            `draw-items.ts` (Ebene → Konva-Konfiguration, inkl. Platzhalter für
                            fehlende Bilder und der Ziehbarkeits-/Namens-Zuordnung der
                            ausgewählten Ebene)

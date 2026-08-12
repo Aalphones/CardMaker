@@ -30,9 +30,11 @@ import {
 } from '../../../shared/canvas/rendering/units';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { ComponentWithUnsavedChanges } from '../../../shared/guards/pending-changes-guard';
+import { Notification } from '../../../shared/services/notification';
 import { TemplateEditorStore } from '../../../signal-stores/template-editor';
 import { AssetsFacade } from '../../../store/assets/assets.facade';
 import { TemplatesFacade } from '../../../store/templates/templates.facade';
+import { TemplatePreview } from '../template-preview';
 import { AddLayerRequest } from './add-layer-menu/add-layer-menu';
 import { EditorAction, LayerAction, isTypingTarget, resolveShortcut } from './editor-shortcuts';
 import { LayerList } from './layer-list/layer-list';
@@ -45,6 +47,11 @@ const WHEEL_ZOOM_SENSITIVITY = 0.0015;
 
 /** Elemente, die die Leertaste selbst brauchen — dort schaltet sie nicht das Verschieben ein. */
 const ACTIVATABLE_TAGS = ['BUTTON', 'A', 'SUMMARY'];
+
+/** Breite des Vorschaubildes in Bildpunkten; die Höhe folgt dem Kartenverhältnis (587). */
+const PREVIEW_WIDTH_PX = 420;
+
+const PREVIEW_FAILED_MESSAGE = 'Das Vorschaubild konnte nicht gespeichert werden.';
 
 @Component({
   selector: 'app-template-editor',
@@ -62,6 +69,8 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
   protected readonly templates = inject(TemplatesFacade);
   protected readonly assets = inject(AssetsFacade);
   protected readonly editor = inject(TemplateEditorStore);
+  private readonly templatePreview = inject(TemplatePreview);
+  private readonly notification = inject(Notification);
 
   private readonly templateId = toSignal(
     this.route.paramMap.pipe(map((paramMap: ParamMap) => Number(paramMap.get('id')))),
@@ -85,6 +94,9 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
   protected readonly propertiesPanelOpen = signal(false);
 
   private readonly stageRef = viewChild<ElementRef<HTMLElement>>('stage');
+
+  /** Für das Vorschaubild nach dem Speichern — die Zeichenfläche liefert das PNG. */
+  private readonly canvas = viewChild(CardCanvas);
 
   /** Nur fürs Umbenennen per F2 — das Eingabefeld dafür gehört der Ebenenliste. */
   private readonly layerList = viewChild(LayerList);
@@ -129,6 +141,7 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
         this.editor.markSaved();
         this.originalName.set(template.name);
         this.saving.set(false);
+        void this.uploadPreview(template.id);
       }
     });
 
@@ -264,6 +277,26 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
 
     this.saving.set(true);
     this.templates.save(template.id, this.nameDraft().trim(), template.description, this.editor.layers());
+  }
+
+  /**
+   * Läuft neben dem Speichern her: Das Template ist zu diesem Zeitpunkt bereits gespeichert.
+   * Scheitert das Bild, bleibt es deshalb bei einer Hinweismeldung — kein Dialog, kein
+   * Zurückrollen, keine Sperre.
+   */
+  private async uploadPreview(templateId: number): Promise<void> {
+    try {
+      const image = await this.canvas()?.exportPng(PREVIEW_WIDTH_PX);
+
+      if (!image) {
+        this.notification.show(PREVIEW_FAILED_MESSAGE, 'info');
+        return;
+      }
+
+      await firstValueFrom(this.templatePreview.upload(templateId, image));
+    } catch {
+      this.notification.show(PREVIEW_FAILED_MESSAGE, 'info');
+    }
   }
 
   protected onAddLayer(request: AddLayerRequest): void {

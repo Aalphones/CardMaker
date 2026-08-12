@@ -1,6 +1,6 @@
 # Phase 2 — Editor erzeugt das Bild und lädt es hoch
 
-**Rating:** heikel · **Status:** pending
+**Rating:** heikel · **Status:** complete
 
 Nach jedem erfolgreichen Speichern im Template-Editor entsteht aus der gezeichneten Karte ein
 PNG, das an das Backend geht. Heikel ist die Stelle, weil die gezeichnete Bühne auch die
@@ -43,9 +43,9 @@ Bedien-Elemente des Editors trägt — die dürfen nicht ins Bild.
 
 ### Export aus der Zeichenfläche
 
-- [ ] `card-canvas.html`: der `<ko-stage>` bekommt eine Vorlagen-Referenz `#stage`.
-- [ ] `card-canvas.ts`: `private readonly stageRef = viewChild<StageComponent>('stage');`
-- [ ] Neue öffentliche Methode `async exportPng(targetWidth: number): Promise<Blob | null>`:
+- [x] `card-canvas.html`: der `<ko-stage>` bekommt eine Vorlagen-Referenz `#stage`.
+- [x] `card-canvas.ts`: `private readonly stageRef = viewChild<StageComponent>('stage');`
+- [x] Neue öffentliche Methode `async exportPng(targetWidth: number): Promise<Blob | null>`:
       - Bühne holen (`this.stageRef()?.getStage()`); fehlt sie, `null` zurückgeben.
       - Anfasser vor dem Zeichnen ausblenden und danach wieder einblenden:
         `transformer.hide()` … `transformer.show()` im `finally`.
@@ -62,13 +62,15 @@ Bedien-Elemente des Editors trägt — die dürfen nicht ins Bild.
 
 ### Hochladen
 
-- [ ] `frontend/src/app/features/templates/template-preview.service.ts` — Name nach dem
-      Feature-Schema aus `docs/code-map.md`. Eine Methode:
+- [x] `frontend/src/app/features/templates/template-preview.ts` — **Abweichung:** der Plan
+      schrieb `template-preview.service.ts`; im ganzen Frontend gibt es keine einzige
+      `*.service.ts` (`api.ts`, `notification.ts`, `asset-image-loader.ts`), und die
+      Angular-21-CLI erzeugt den kurzen Namen. Bestand schlägt Plan. Eine Methode:
       `upload(templateId: number, image: Blob): Observable<{ previewUpdatedAt: string }>`,
       baut ein `FormData` mit dem Feld `file` (Dateiname `preview.png`) und ruft
       `api.postForm()`. Kopfkommentar: warum kein NgRx (dieselbe Begründung wie beim
       Bild-Lader — Bilddaten sind kein Server-Zustand im Store).
-- [ ] `template-editor.ts`:
+- [x] `template-editor.ts`:
       - `private readonly canvas = viewChild(CardCanvas);`
       - In dem Effekt, der das erfolgreiche Speichern erkennt (Zeile 125–133), nach
         `this.saving.set(false)` das Hochladen anstoßen — als eigene, klar benannte private
@@ -79,10 +81,28 @@ Bedien-Elemente des Editors trägt — die dürfen nicht ins Bild.
 
 ### Doku
 
-- [ ] `docs/code-map.md` — `template-preview.service.ts` und die Export-Methode der
+- [x] `docs/code-map.md` — `template-preview.ts` und die Export-Methode der
       Zeichenfläche in der `templates`-Zeile erwähnen.
-- [ ] `STATE.md` — Phase 2 abgehakt, nächster Schritt Phase 3.
+- [x] `STATE.md` — Phase 2 abgehakt, nächster Schritt Phase 3.
 
 ## Report-Back
 
-_(vom Umsetzer zu füllen)_
+Umgesetzt wie geplant, mit zwei bewussten Abweichungen:
+
+1. **Dateiname** `template-preview.ts` statt `template-preview.service.ts` (Begründung oben
+   in der Checkliste).
+2. **Bildausschnitt statt nur `pixelRatio`.** Der Plan wollte allein den Maßstabsfaktor
+   setzen. Die Bühnenhöhe ist aber gerundet (`Math.round`), dadurch wäre die Bildhöhe je nach
+   Fensterbreite mal 586, mal 587 Punkte. `exportPng()` gibt deshalb zusätzlich den
+   Ausschnitt (`x/y/width/height` in Bühnenpunkten) mit, abgeleitet aus dem Kartenverhältnis
+   — das Ergebnis ist immer 420 × 587.
+3. **Kein `.subscribe()`** im Editor (Konventions-Regel): das Hochladen läuft über
+   `firstValueFrom`, wie das Löschen der Ebene über `firstValueFrom(dialogRef.closed)`.
+
+Gates: `npm run lint` und `npm run build` grün.
+
+**Wo ich mir am wenigsten sicher bin:** dass `transformer.hide()` vor dem Zeichnen wirklich
+greift — Konva zeichnet den Export in eine eigene Fläche, und die Annahme ist, dass diese
+Zeichnung synchron innerhalb von `toBlob()` passiert (also nach dem `hide()` und vor dem
+`show()` im `finally`). Wäre das nicht so, stünden die Anfasser im Bild. Ein Browser-Blick
+klärt es sofort: Ebene auswählen, speichern, Bild ansehen — Punkt 1 der Smoke-Checkliste.

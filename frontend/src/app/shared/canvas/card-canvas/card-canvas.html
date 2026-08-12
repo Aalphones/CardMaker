@@ -1,5 +1,5 @@
 @if (stageWidth() > 0) {
-  <ko-stage class="card-canvas__stage" [config]="stageConfig()">
+  <ko-stage #stage class="card-canvas__stage" [config]="stageConfig()">
     <ko-layer [config]="konvaLayerConfig()">
       @for (item of drawItems(); track item.key) {
         @switch (item.element) {
