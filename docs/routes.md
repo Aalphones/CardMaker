@@ -63,7 +63,6 @@ Positivliste der offenen Pfade (ohne Anmeldung erreichbar): `/api/health`, `/api
 ## Karten (`/api/cards`)
 
 Kontrakt (Typen, Feldregeln): `docs/planning/2026-08-10_karteneditor/README.md`.
-Bild-Endpunkte (`.../images*`) kommen erst mit Phase 3 dieses Plans.
 
 | Methode | Pfad | Zweck |
 |---|---|---|
@@ -71,8 +70,19 @@ Bild-Endpunkte (`.../images*`) kommen erst mit Phase 3 dieses Plans.
 | POST | `/api/cards` | Anlegen |
 | GET | `/api/cards/{id}` | Vollständig, inklusive `values`, `iconChoices`, `textOverrides`, `images` |
 | PATCH | `/api/cards/{id}` | Ändern (nur übergebene Felder) |
-| DELETE | `/api/cards/{id}` | Löschen (Kartenbilder fallen per `ON DELETE CASCADE` mit) |
-| POST | `/api/cards/{id}/duplicate` | Kopie anlegen (Name + „ (Kopie)", Werte/Icon-Wahl/Abweichungen übernommen; Bilder ab Phase 3) |
+| DELETE | `/api/cards/{id}` | Löschen (Kartenbild-Dateien werden vorher aufgeräumt, Zeilen fallen per `ON DELETE CASCADE` mit) |
+| POST | `/api/cards/{id}/duplicate` | Kopie anlegen (Name + „ (Kopie)", Werte/Icon-Wahl/Abweichungen übernommen, Kartenbilder mitkopiert mit neuen Zufallsnamen) |
+| POST | `/api/cards/{id}/images` | Bild hochladen (mehrteilig: `layerId`, `file`) — ersetzt ein vorhandenes Bild derselben Ebene, Verschiebung/Maßstab werden dabei auf die Grundstellung zurückgesetzt |
+| PATCH | `/api/cards/{id}/images/{layerId}` | Verschiebung/Maßstab ändern (nur übergebene Felder: `offsetX`, `offsetY`, `scale`) |
+| DELETE | `/api/cards/{id}/images/{layerId}` | Bild dieser Ebene entfernen |
+| GET | `/api/cards/{id}/images/{layerId}/file` | Bilddatei, hinter der Anmeldung |
+
+Prüfregeln zu den Bildern (`CardImageValidator`, Existenz-/Ebenenprüfung in `CardImageService`):
+
+- Erlaubte Formate: PNG und JPEG, doppelt geprüft (Mime-Typ **und** `getimagesize()`)
+- Größenlimit über `UPLOAD_MAX_BYTES`, Rückfallwert 8 MiB
+- `layerId` muss im Template der Karte als Bildebene existieren, sonst 422
+- `offsetX`/`offsetY`: −2000 bis 2000 Canvas-Einheiten, `scale`: 0.1–10
 
 Prüfregeln (`CardValidator`, Existenzprüfungen in `CardService`):
 

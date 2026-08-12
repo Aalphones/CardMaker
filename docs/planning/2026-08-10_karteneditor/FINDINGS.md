@@ -18,10 +18,11 @@ Erledigte Punkte abhaken, nicht löschen.
 - [x] → Phase 2: `values` ist in MySQL reserviert. Jede Abfrage, die die Spalte anfasst,
       braucht Backticks — auch das `INSERT`, auch das `SELECT`. (`CardRepository` benutzt
       überall Backticks um `values`.)
-- [ ] → Phase 3: `card_images` hat einen eindeutigen Schlüssel auf (`card_id`, `layer_id`).
+- [x] → Phase 3: `card_images` hat einen eindeutigen Schlüssel auf (`card_id`, `layer_id`).
       Ein zweiter Upload in dieselbe Bildfläche muss also ersetzen, nicht einfügen, sonst
       knallt es auf Datenbankebene. (Betrifft `card_images`, nicht `cards` — Phase 3 baut
       den Bild-Upload.)
+      Umgesetzt über `INSERT ... ON DUPLICATE KEY UPDATE` in `CardImageRepository::upsert()`.
 - [ ] → Phase 7: Der Vorbehalt zu Fett/Kursiv im README ist hinfällig — der Schriften-Plan
       ist durch, das Canvas zeichnet beides. Die Abweichungen wirken sofort.
 - [ ] → Phase 9: `docs/models.md` wurde in Phase 1 neu angelegt und deckt alle Tabellen ab.

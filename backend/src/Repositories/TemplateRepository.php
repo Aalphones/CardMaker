@@ -126,6 +126,38 @@ final class TemplateRepository
     }
 
     /**
+     * Für `CardImageService::guardImageLayer()`: existiert diese Ebene im Template und ist
+     * sie vom Typ „image"? Geprüft wird roh im JSON-Datenblock, genau wie bei den anderen
+     * Löschsperren hier — eine Bildebene ist per Fremdschlüssel nicht absicherbar (ADR-014).
+     */
+    public function hasImageLayer(int $id, string $layerId): bool
+    {
+        $row = $this->find($id);
+
+        if ($row === null) {
+            return false;
+        }
+
+        $layers = json_decode((string) $row['layers'], true);
+
+        if (!is_array($layers)) {
+            return false;
+        }
+
+        foreach ($layers as $layer) {
+            if (!is_array($layer)) {
+                continue;
+            }
+
+            if (($layer['id'] ?? null) === $layerId && ($layer['type'] ?? null) === 'image') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Für die Löschsperre in `FontService::delete()`: dieselben Layout-Blöcke, aber mit dem
      * Templatenamen daneben — die Ablehnung soll sagen, wo die Schrift noch steckt.
      *

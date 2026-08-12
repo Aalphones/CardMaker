@@ -16,7 +16,8 @@ final class CardService
         private readonly CardRepository $cards,
         private readonly TemplateRepository $templates,
         private readonly CardGroupRepository $cardGroups,
-        private readonly AssetRepository $assets
+        private readonly AssetRepository $assets,
+        private readonly CardImageService $cardImages
     ) {
     }
 
@@ -34,7 +35,7 @@ final class CardService
     {
         $row = $this->cards->find($id);
 
-        return $row === null ? null : CardRepository::format($row);
+        return $row === null ? null : $this->withImages(CardRepository::format($row));
     }
 
     /**
@@ -54,7 +55,7 @@ final class CardService
         $this->guardCardGroupExists($data['card_group_id']);
         $this->guardIconAssetsExist($data['icon_choices']);
 
-        return CardRepository::format($this->cards->create($data));
+        return $this->withImages(CardRepository::format($this->cards->create($data)));
     }
 
     /**
@@ -84,17 +85,21 @@ final class CardService
 
         $row = $this->cards->update($id, $data);
 
-        return $row === null ? null : CardRepository::format($row);
+        return $row === null ? null : $this->withImages(CardRepository::format($row));
     }
 
+    /** Räumt vor dem Löschen der Zeile die Kartenbild-Dateien auf, damit keine liegen bleiben. */
     public function delete(int $id): bool
     {
+        $this->cardImages->deleteAllForCard($id);
+
         return $this->cards->delete($id);
     }
 
     /**
-     * Name, Werte, Icon-Wahl und Abweichungen werden übernommen. Die Bilder werden
-     * mitkopiert: Phase 3.
+     * Name, Werte, Icon-Wahl und Abweichungen werden übernommen. Die Kartenbilder auch —
+     * mit neuen Zufallsnamen, damit das Löschen der einen Karte die Datei der anderen nicht
+     * beschädigt (siehe Phase-3-Abnahmekriterien).
      *
      * @return array<string, mixed>|null
      */
@@ -117,9 +122,17 @@ final class CardService
             'text_overrides' => $this->toSnakeTextOverrides($original['textOverrides']),
         ]);
 
-        // Bilder: Phase 3.
+        $this->cardImages->duplicateForCard($id, (int) $created['id']);
 
-        return CardRepository::format($created);
+        return $this->withImages(CardRepository::format($created));
+    }
+
+    /** @param array<string, mixed> $card */
+    private function withImages(array $card): array
+    {
+        $card['images'] = $this->cardImages->listForCard((int) $card['id']);
+
+        return $card;
     }
 
     private function guardTemplateExists(int $templateId): void

@@ -44,6 +44,25 @@ final class CardRepository
         return is_array($row) ? $row : null;
     }
 
+    /** Leichte Existenzprüfung für `CardImageController`, ohne die drei JSON-Blöcke zu laden. */
+    public function exists(int $id): bool
+    {
+        $statement = $this->database->prepare('SELECT 1 FROM cards WHERE id = :id');
+        $statement->execute(['id' => $id]);
+
+        return $statement->fetchColumn() !== false;
+    }
+
+    /** Für `CardImageService::guardImageLayer()`: welches Template diese Karte benutzt. */
+    public function findTemplateId(int $id): ?int
+    {
+        $statement = $this->database->prepare('SELECT template_id FROM cards WHERE id = :id');
+        $statement->execute(['id' => $id]);
+        $value = $statement->fetchColumn();
+
+        return $value === false ? null : (int) $value;
+    }
+
     /**
      * @param array{
      *     name: string,

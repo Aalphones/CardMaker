@@ -37,28 +37,53 @@
 
 ## Checkliste
 
-- [ ] `backend/uploads/cards/` anlegen; sicherstellen, dass der Ordner vom Hochladen
-      ausgenommen ist (`deploy.cmd` prüfen, wie es für `uploads/` schon geregelt ist) und
-      auf dem Server beim ersten Upload angelegt wird, falls er fehlt.
-- [ ] `backend/src/Repositories/CardImageRepository.php`: `findByCard(int $cardId)`,
-      `findOne(int $cardId, string $layerId)`, `upsert(...)`, `updatePlacement(...)`,
-      `delete(...)`, `deleteByCard(int $cardId)` (gibt die Dateinamen zurück, damit der
-      Dienst die Dateien löschen kann).
-- [ ] `backend/src/Services/CardImageService.php`: Upload (Prüfen, Speichern, Ersetzen,
+- [x] `backend/uploads/cards/` — kein Ordner im Repo nötig (`.gitignore` schließt schon
+      den ganzen `backend/uploads/`-Baum aus, `deploy.cmd` sichert `uploads/` per Filemask
+      komplett gegen den Abgleich ab); `CardImageService::ensureUploadsDirectory()` legt
+      ihn beim ersten Upload selbst an, gleiches Muster wie bei Schriften/Bildvorrat.
+- [x] `backend/src/Repositories/CardImageRepository.php`: `findByCard`, `findOne`,
+      `upsert` (Ersetzen über `ON DUPLICATE KEY UPDATE`, setzt Verschiebung/Maßstab
+      zurück), `copy` (fürs Duplizieren, übernimmt Verschiebung/Maßstab 1:1),
+      `updatePlacement` (nur übergebene Felder), `delete`, `deleteByCard` (liefert die
+      Dateinamen zurück).
+- [x] `backend/src/Services/CardImageService.php`: Upload (Prüfen, Speichern, Ersetzen,
       alte Datei löschen), Platzierung ändern, Löschen, Aufräumen beim Löschen einer
       Karte, Kopieren beim Duplizieren.
-- [ ] `backend/src/Validators/CardImageValidator.php`: `layerId` (Zeichenkette, 1–64),
+- [x] `backend/src/Validators/CardImageValidator.php`: `layerId` (Zeichenkette, 1–64),
       Platzierungswerte mit den oben genannten Grenzen.
-- [ ] Controller-Methoden in `CardController` ergänzen (`uploadImage`, `updateImage`,
-      `deleteImage`, `imageFile`) oder — falls die Datei dadurch unübersichtlich wird —
-      einen eigenen `CardImageController`. **Entscheidung: eigener Controller**, damit
-      die Kartenverwaltung und die Dateiverwaltung getrennt bleiben.
-- [ ] Die in Phase 2 markierte Stelle im Duplizieren fertigstellen.
-- [ ] `CardService::delete()` ruft vor dem Löschen der Zeile das Aufräumen der Dateien.
-- [ ] Routen registrieren.
+- [x] **Entscheidung umgesetzt: eigener `CardImageController`**, damit die
+      Kartenverwaltung und die Dateiverwaltung getrennt bleiben.
+- [x] Die in Phase 2 markierte Stelle im Duplizieren fertiggestellt
+      (`CardService::duplicate()` ruft jetzt `CardImageService::duplicateForCard()`).
+- [x] `CardService::delete()` ruft vor dem Löschen der Zeile das Aufräumen der Dateien.
+- [x] Routen registriert (`POST/PATCH/DELETE/GET .../images*`).
 - [ ] Von Hand prüfen: PNG hochladen, JPEG hochladen, zu große Datei (muss scheitern),
       GIF (muss scheitern), Ebene ersetzen (alte Datei ist von der Platte verschwunden),
       Karte löschen (Dateien weg), Karte duplizieren (zwei eigenständige Dateien).
-- [ ] `docs/routes.md`, `docs/models.md`, `docs/code-map.md` nachziehen.
+      **Offen — braucht eine laufende Datenbank** (siehe Report-Back): auf diesem Rechner
+      nicht möglich, geht in die Smoke-Checkliste am Plan-Ende.
+- [x] `docs/routes.md`, `docs/code-map.md` nachgezogen. `docs/models.md` deckte
+      `card_images` schon aus Phase 1 vollständig ab, keine Änderung nötig.
 
 ## Report-Back
+
+**Stand: Code fertig, nur `php -l` geprüft — kein Live-Rundlauf.** Wie schon in Phase 1/2:
+keine lokale MySQL-Instanz auf diesem Rechner, ein echter Testlauf ginge nur über
+`deploy.cmd` gegen den Strato-Server. Bleibt Teil der Smoke-Checkliste am Plan-Ende,
+zusammen mit dem noch offenen Migrationslauf.
+
+**Card-Kontrakt nachgezogen:** `CardService::find()`/`create()`/`update()`/`duplicate()`
+hängen jetzt über `withImages()` das `images`-Array an — das stand zwar schon im Kontrakt,
+aber `card_images` gab es vor dieser Phase noch nicht zu befüllen. Ohne diese Änderung
+hätte jede Karten-Antwort dem Kontrakt widersprochen.
+
+**Design-Entscheidung, die der Plan offenließ:** Ersetzt ein neuer Upload ein Bild
+derselben Ebene, werden Verschiebung und Maßstab auf die Grundstellung (0, 0, 1)
+zurückgesetzt — die alten Werte bezogen sich auf die alte Bildgröße und könnten beim neuen
+Bild einen falschen Ausschnitt zeigen. Beim Duplizieren einer Karte dagegen bleiben
+Verschiebung und Maßstab erhalten, weil es dort wortwörtlich dasselbe Bild ist, nur unter
+neuem Dateinamen.
+
+**Abweichung vom Plan:** `CardController` bekam keine neuen Methoden (wie im Kontext
+„oder falls die Datei unübersichtlich wird" angedeutet) — der eigene
+`CardImageController` war von Anfang an klar die bessere Trennung, siehe ADR-017-Folgen.

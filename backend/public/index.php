@@ -6,6 +6,7 @@ use App\Controllers\AssetController;
 use App\Controllers\AuthController;
 use App\Controllers\CardController;
 use App\Controllers\CardGroupController;
+use App\Controllers\CardImageController;
 use App\Controllers\FontController;
 use App\Controllers\HealthController;
 use App\Controllers\MigrateController;
@@ -20,6 +21,7 @@ use App\Middleware\Cors;
 use App\Repositories\AccessTokenRepository;
 use App\Repositories\AssetRepository;
 use App\Repositories\CardGroupRepository;
+use App\Repositories\CardImageRepository;
 use App\Repositories\CardRepository;
 use App\Repositories\FontRepository;
 use App\Repositories\SessionRepository;
@@ -29,6 +31,7 @@ use App\Services\AccessTokenService;
 use App\Services\AssetService;
 use App\Services\AuthService;
 use App\Services\CardGroupService;
+use App\Services\CardImageService;
 use App\Services\CardService;
 use App\Services\FontService;
 use App\Services\TemplateService;
@@ -132,6 +135,7 @@ $assetService = null;
 $fontService = null;
 $templateService = null;
 $cardService = null;
+$cardImageService = null;
 
 if ($database instanceof PDO) {
     $tokenService = new TokenService();
@@ -155,6 +159,7 @@ if ($database instanceof PDO) {
     $fontRepository = new FontRepository($database);
     $cardGroupRepository = new CardGroupRepository($database);
     $cardRepository = new CardRepository($database);
+    $cardImageRepository = new CardImageRepository($database);
 
     $cardGroupService = new CardGroupService($cardGroupRepository);
     $assetService = new AssetService(
@@ -170,7 +175,20 @@ if ($database instanceof PDO) {
         $logger
     );
     $templateService = new TemplateService($templateRepository, $assetRepository, $fontRepository, $cardRepository);
-    $cardService = new CardService($cardRepository, $templateRepository, $cardGroupRepository, $assetRepository);
+    $cardImageService = new CardImageService(
+        $cardImageRepository,
+        $cardRepository,
+        $templateRepository,
+        $backendRoot . '/uploads/cards',
+        $logger
+    );
+    $cardService = new CardService(
+        $cardRepository,
+        $templateRepository,
+        $cardGroupRepository,
+        $assetRepository,
+        $cardImageService
+    );
 }
 
 // Positivliste der offenen Pfade. Die Sperre ist die Vorgabe, nicht die Ausnahme: Ein
@@ -224,6 +242,22 @@ $dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes
     $routes->addRoute('PATCH', '/api/cards/{id:\d+}', [CardController::class, 'update']);
     $routes->addRoute('DELETE', '/api/cards/{id:\d+}', [CardController::class, 'destroy']);
     $routes->addRoute('POST', '/api/cards/{id:\d+}/duplicate', [CardController::class, 'duplicate']);
+    $routes->addRoute('POST', '/api/cards/{id:\d+}/images', [CardImageController::class, 'upload']);
+    $routes->addRoute(
+        'PATCH',
+        '/api/cards/{id:\d+}/images/{layerId:[a-zA-Z0-9\-]{1,64}}',
+        [CardImageController::class, 'update']
+    );
+    $routes->addRoute(
+        'DELETE',
+        '/api/cards/{id:\d+}/images/{layerId:[a-zA-Z0-9\-]{1,64}}',
+        [CardImageController::class, 'destroy']
+    );
+    $routes->addRoute(
+        'GET',
+        '/api/cards/{id:\d+}/images/{layerId:[a-zA-Z0-9\-]{1,64}}/file',
+        [CardImageController::class, 'file']
+    );
 });
 
 $migrationsDirectory = $backendRoot . '/src/Migrations';
@@ -241,7 +275,8 @@ $makeController = static function (string $controllerClass) use (
     $assetService,
     $fontService,
     $templateService,
-    $cardService
+    $cardService,
+    $cardImageService
 ): object {
     return match ($controllerClass) {
         HealthController::class => new HealthController($database),
@@ -260,6 +295,7 @@ $makeController = static function (string $controllerClass) use (
         FontController::class => new FontController($request, $fontService),
         TemplateController::class => new TemplateController($request, $templateService),
         CardController::class => new CardController($request, $cardService),
+        CardImageController::class => new CardImageController($request, $cardImageService),
         default => throw new RuntimeException('Kein Bauplan für Controller: ' . $controllerClass),
     };
 };
