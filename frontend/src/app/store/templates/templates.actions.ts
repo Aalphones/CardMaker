@@ -7,6 +7,7 @@ export interface TemplateSummary {
   name: string;
   description: string | null;
   layerCount: number;
+  cardCount: number;
   previewUpdatedAt: string | null;
   createdAt: string;
   updatedAt: string;

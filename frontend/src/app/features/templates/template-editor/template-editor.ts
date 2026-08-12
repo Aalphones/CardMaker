@@ -316,6 +316,20 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
     }
   }
 
+  /**
+   * Navigation über den Router, nicht `window.location` — nur so greift `pendingChangesGuard`
+   * (an dieser Route registriert) automatisch und fragt bei ungespeicherten Änderungen nach.
+   */
+  protected createCard(): void {
+    const template = this.templates.current();
+
+    if (!template) {
+      return;
+    }
+
+    void this.router.navigate(['/cards/new'], { queryParams: { template: template.id } });
+  }
+
   protected openShortcuts(): void {
     this.dialog.open(ShortcutsDialog, { autoFocus: 'first-tabbable', restoreFocus: true });
   }

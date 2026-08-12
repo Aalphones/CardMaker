@@ -121,7 +121,8 @@ Kompositing, kein Imagick-Verfügbarkeitscheck auf Strato nötig.
 
 3. **Karteneditor** — Karteninstanz erstellen/bearbeiten: Template-Textfelder per Formular
    befüllen, Bild hochladen/verschieben/zoomen/zuschneiden, Schriftgröße/-farbe überschreiben,
-   Auto-Shrink, Zuordnung zu einer Kartengruppe
+   Auto-Shrink, Zuordnung zu einer Kartengruppe. **Erledigt** (2026-08-12), siehe
+   `docs/archive/2026-08/2026-08-10_karteneditor/`
 4. **Rendering-Engine** — Rendern einer Karte in Zielauflösung (300 DPI) im Browser (ADR-005),
    Render-Reihenfolge Image→Shape→Icon→Frame→Text
 5. **Druckprojekt & Export** — Druckbögen (A4, 3×3), Schnittmarken/Beschnitt, PDF/PNG-Export

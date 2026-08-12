@@ -27,7 +27,7 @@ backend/src/Validators/<Feature>Validator.php
 | `assets` | Bildvorrat — hochgeladene Rahmen- und Icon-Dateien, hinter der Anmeldung ausgeliefert (ADR-015). Backend und Speicher stehen, noch kein eigener UI-Screen (kommt mit dem Editor) |
 | `fonts` | Schriftvorrat — hochgeladene Schriftdateien (WOFF2/TTF/OTF, max. 2 MB), hinter der Anmeldung ausgeliefert. Der Name für CSS ist immer `cmfont-<Kennung>` und wird berechnet, nie gespeichert; der Wunschname des Nutzers ist reine Beschriftung. Backend und Speicher stehen, noch keine Oberfläche |
 | `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste, Kartenvorschau, Ebenenliste, Eigenschaftenspalte und direkte Bearbeitung im Bild (Anfasser zum Verschieben/Skalieren/Drehen) stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Die Schrift einer Textebene (`font_family`) ist dabei entweder eine eingebaute Schrift oder `cmfont-<Kennung>` einer hochgeladenen — welche hochgeladenen es gibt, holt `TemplateService` einmal pro Speichervorgang und reicht es dem Prüfer durch. Eine Textebene kennt zusätzlich `font_bold`/`font_italic` (Wahrheitswerte, künstlich vom Browser gerechnet statt aus einer zweiten Schriftdatei geladen). Vorschaubild-Ablage steht (`TemplatePreviewController`/`TemplatePreviewService`, gemeinsamer Baustein `PreviewImageStorage`, Endpunkte `/api/templates/{id}/preview*`, ADR-021). Der Editor erzeugt das Bild nach jedem erfolgreichen Speichern selbst: `CardCanvas.exportPng()` zeichnet die Bühne ohne Anfasser in ein PNG fester Breite, `features/templates/template-preview.ts` lädt es hoch — schlägt das fehl, bleibt es bei einer Hinweismeldung. Die Anzeige in der Übersicht folgt in Phase 3 des Vorschaubilder-Plans. Meilenstein 2 ist abgeschlossen |
-| `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zuschneiden. Backend komplett: Kartendaten (`CardController`/`CardService`/`CardRepository`/`CardValidator`), Kartenbilder (`CardImageController`/`CardImageService`/`CardImageRepository`/`CardImageValidator`, eigener Ordner `backend/uploads/cards/`, ADR-017) und Vorschaubild-Ablage (`CardPreviewController`/`CardPreviewService`, derselbe `PreviewImageStorage`-Baustein wie bei Templates, Endpunkte `/api/cards/{id}/preview*`, ADR-021 — Erzeugen des Bildes beim Speichern und Anzeige in der Kartenliste kommen mit Phase 5/7 des Karteneditor-Plans), Endpunkte `/api/cards*` inkl. `/api/cards/{id}/images*`. Noch keine Oberfläche |
+| `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zurechtschieben/zoomen, Schriftgröße/-farbe/Fett/Kursiv überschreiben, Kartengruppe zuordnen. Backend komplett: Kartendaten (`CardController`/`CardService`/`CardRepository`/`CardValidator`), Kartenbilder (`CardImageController`/`CardImageService`/`CardImageRepository`/`CardImageValidator`, eigener Ordner `backend/uploads/cards/`, ADR-017) und Vorschaubild-Ablage (`CardPreviewController`/`CardPreviewService`, derselbe `PreviewImageStorage`-Baustein wie bei Templates, Endpunkte `/api/cards/{id}/preview*`, ADR-021). Frontend komplett: Liste (`cards-list/`, mit Suche/Filter/Sortierung/Duplizieren/Löschen) und Editor (`card-editor/`, Formular + Live-Vorschau + Bild ziehen/zoomen). Meilenstein 3 ist abgeschlossen |
 | `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
 | `prompts` | Reine Anzeigeseite unter `/prompts`: die ChatGPT-Bild-Prompts für Rahmen, Icons und Artwork in drei Reitern, je mit Kopieren-Knopf. Kein Backend, kein Store — die Texte stehen als Konstanten in `features/prompts/prompt-texts.ts` und müssen deckungsgleich zu `docs/design/prompts-chatgpt/` bleiben |
 
@@ -41,7 +41,7 @@ per `@use` eingebunden; Komponenten bauen keine eigenen Button-/Feld-Grundregeln
 die Karten** (nicht für die Oberfläche); die Dateien liegen in `frontend/public/fonts/`,
 Herkunft und Lizenz in `frontend/public/fonts/LIZENZ.md`.
 
-## Frontend-Layout (Kartengruppen seit Meilenstein 1, Template-Editor vollständig seit Meilenstein 2)
+## Frontend-Layout (Kartengruppen seit Meilenstein 1, Template-Editor seit Meilenstein 2, Karteneditor seit Meilenstein 3)
 
 ```
 frontend/src/app/
@@ -182,16 +182,13 @@ frontend/src/app/
   layout/
     shell/               ← App-Shell: Kopfzeile (Wortmarke, Konto-E-Mail, Zugriffstoken-Link,
                            Abmelden) + Seitenspalte mit vier Einträgen (Alle Karten,
-                           Kartengruppen, Templates, Druckprojekte) — die ersten und letzten
-                           beiden davon bis Meilenstein 3 bzw. 5 gesperrt (aria-disabled,
-                           kein Link)
+                           Kartengruppen, Templates, Druckprojekte) — nur „Druckprojekte" ist
+                           noch gesperrt (aria-disabled, kein Link), bis Meilenstein 5
 ```
 
 `print-projects/` und `admin/` aus der Tabelle oben existieren noch nicht — sie
-entstehen erst mit den jeweiligen Folgeplänen. `cards/`: die Liste (`cards-list/`) ist fertig,
-der Karteneditor (`card-editor/`) hat sein Formular — Live-Vorschau (Phase 7) und das
-Zurechtschieben des Bildes (Phase 8) fehlen noch. `templates/` hat jetzt den vollständigen
-Editor (Liste, Anlegen, Vorschau, Ebenenliste, Eigenschaften, direkte Bearbeitung im Bild).
+entstehen erst mit den jeweiligen Folgeplänen. `cards/` und `templates/` sind beide
+vollständig (Liste, Editor, Vorschau).
 
 ## Backend-Layout (steht)
 

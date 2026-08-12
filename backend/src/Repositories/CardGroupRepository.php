@@ -23,6 +23,20 @@ final class CardGroupRepository
         return $statement->fetchAll();
     }
 
+    /** @return array<int, array<string, mixed>> Wie {@see all()}, aber mit `card_count` je Gruppe. */
+    public function allWithCardCount(): array
+    {
+        $statement = $this->database->query(
+            'SELECT g.id, g.name, g.description, g.created_at, g.updated_at, COUNT(c.id) AS card_count '
+            . 'FROM card_groups g '
+            . 'LEFT JOIN cards c ON c.card_group_id = g.id '
+            . 'GROUP BY g.id '
+            . 'ORDER BY g.name ASC'
+        );
+
+        return $statement->fetchAll();
+    }
+
     /** @return array<string, mixed>|null */
     public function find(int $id): ?array
     {
@@ -116,5 +130,21 @@ final class CardGroupRepository
             'createdAt' => Timestamps::toIso((string) $row['created_at']),
             'updatedAt' => Timestamps::toIso((string) $row['updated_at']),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     * @return array{
+     *     id: int,
+     *     name: string,
+     *     description: string|null,
+     *     cardCount: int,
+     *     createdAt: string|null,
+     *     updatedAt: string|null
+     * }
+     */
+    public static function formatWithCardCount(array $row): array
+    {
+        return [...self::format($row), 'cardCount' => (int) $row['card_count']];
     }
 }

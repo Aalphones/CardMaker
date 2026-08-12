@@ -11,6 +11,7 @@ import { TemplatesFacade } from '../../../store/templates/templates.facade';
 
 const DEFAULT_TEMPLATE_NAME = 'Neues Template';
 const layerCountPluralRules = new Intl.PluralRules('de');
+const cardCountPluralRules = new Intl.PluralRules('de');
 
 @Component({
   selector: 'app-templates-list',
@@ -68,6 +69,12 @@ export class TemplatesList {
   layerCountLabel(layerCount: number): string {
     const category = layerCountPluralRules.select(layerCount);
     return category === 'one' ? `${layerCount} Ebene` : `${layerCount} Ebenen`;
+  }
+
+  kickerLabel(item: TemplateSummary): string {
+    const cardCategory = cardCountPluralRules.select(item.cardCount);
+    const cardLabel = cardCategory === 'one' ? `${item.cardCount} Karte` : `${item.cardCount} Karten`;
+    return `${this.layerCountLabel(item.layerCount)} · ${cardLabel}`;
   }
 
   async remove(item: TemplateSummary): Promise<void> {

@@ -42,7 +42,7 @@ Karte jederzeit neu renderbar, auch wenn das Template sich später ändert
 | 6 | [Karteneditor: Formular](phase-6-editor-formular.md) | heikel | complete (Live-Rundlauf offen, s. Phase-Datei) |
 | 7 | [Karteneditor: Live-Vorschau](phase-7-live-vorschau.md) | heikel | complete (Live-Rundlauf offen, s. Phase-Datei) |
 | 8 | [Bild ziehen und zoomen](phase-8-bild-platzieren.md) | heikel | complete (Live-Rundlauf offen, s. Phase-Datei) |
-| 9 | [Verknüpfungen, Doku, Abnahme](phase-9-abschluss.md) | mechanisch | pending |
+| 9 | [Verknüpfungen, Doku, Abnahme](phase-9-abschluss.md) | mechanisch | complete (Bildschirm-Rundlauf gegen die finalen AK offen, s. Phase-Datei) |
 
 ## Kontrakt zwischen Backend und Frontend
 
@@ -134,20 +134,45 @@ die zwei Felder wirken ab Phase 7 wie Schriftgröße und Farbe auch.
 
 ## Summary
 
-_(beim Archivieren füllen)_
+Meilenstein 3 ist fertig: eine Karte lässt sich von Grund auf anlegen (Template wählen,
+Textfelder befüllen, Bild hochladen/zurechtschieben/zoomen, Gruppe zuordnen, speichern), alle
+gespeicherten Karten finden sich durchsuchbar/filterbar/sortierbar in „Alle Karten" wieder,
+und die Verknüpfungen aus den anderen Screens (Gruppen-Kachel, Template-Überzeile,
+„Karte erstellen" im Template-Editor) sind scharf geschaltet.
 
 ## Files touched
 
-_(beim Archivieren füllen)_
+Backend: `Controllers/CardController.php`, `Controllers/CardImageController.php`,
+`Services/CardService.php`, `Services/CardImageService.php`, `Services/CardGroupService.php`,
+`Services/TemplateService.php`, `Repositories/CardRepository.php`,
+`Repositories/CardImageRepository.php`, `Repositories/CardGroupRepository.php`,
+`Repositories/TemplateRepository.php`, `Validators/CardValidator.php`,
+`Validators/CardImageValidator.php`, `Migrations/M008CreateCards.php`,
+`Migrations/M009CreateCardImages.php`.
+
+Frontend: `features/cards/` (komplett neu — `cards-list/`, `card-editor/`, `image-drop/`),
+`store/cards/`, `shared/canvas/card-image-loader.ts`,
+`shared/canvas/rendering/card-content.ts`, `shared/canvas/card-canvas/*` (Kartenbild-Modus,
+Zieh-/Zoom-Geste), `layout/shell/shell.html`, `features/card-groups/card-groups-list/*`,
+`features/templates/templates-list/*`, `features/templates/template-editor/*`.
+
+Doku: `docs/PROJECT.md`, `docs/code-map.md`, `docs/routes.md`, `docs/models.md`,
+`docs/decisions/017…`, `docs/decisions/018…`.
 
 ## Commits
 
-_(beim Archivieren füllen)_
+`da0bdf9` … `f26ebe3` (Phasen 1–8, siehe `git log --oneline`) plus der Abschluss-Commit dieser
+Phase 9.
 
 ## Deviations from plan
 
-_(beim Archivieren füllen)_
+Keine wesentlichen Abweichungen vom README-Kontrakt. Phase 9 hat zusätzlich die
+`CardGroupService`/`TemplateService`-Einzelabfragen (`find`/`create`/`update`) um `cardCount`
+ergänzt, damit die Kachel nach dem Bearbeiten einer Gruppe nicht kurz eine falsche Zahl zeigt
+— im Plan stand nur der Listen-Endpunkt, das war eine notwendige Konsequenz daraus.
 
 ## Follow-ups
 
-_(beim Archivieren füllen)_
+Der komplette Bildschirm-Rundlauf gegen die acht finalen Abnahmekriterien ist nie gefahren
+worden (zieht sich seit Phase 2 durch die STATE.md-Historie) — steht beim Nutzer aus, siehe
+Prüfliste im Abschluss-Bericht des Chats.

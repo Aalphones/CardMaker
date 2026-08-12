@@ -36,7 +36,9 @@
           @if (item.description) {
             <p class="card__body">{{ item.description }}</p>
           }
-          <p class="card__meta">Karten anzeigen →</p>
+          <a class="card__meta" [routerLink]="['/cards']" [queryParams]="{ group: item.id }">
+            {{ cardCountLabel(item.cardCount) }} anzeigen →
+          </a>
           <div class="card-groups-list__card-actions">
             <a class="btn btn--ghost" [routerLink]="['/card-groups', item.id]">Bearbeiten</a>
             <button

@@ -7,6 +7,8 @@ import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm
 import { CardGroup } from '../../../store/card-groups/card-groups.actions';
 import { CardGroupsFacade } from '../../../store/card-groups/card-groups.facade';
 
+const cardCountPluralRules = new Intl.PluralRules('de');
+
 @Component({
   selector: 'app-card-groups-list',
   imports: [RouterLink],
@@ -37,6 +39,11 @@ export class CardGroupsList {
 
   onSearchInput(event: Event): void {
     this.searchTerm.set((event.target as HTMLInputElement).value);
+  }
+
+  cardCountLabel(cardCount: number): string {
+    const category = cardCountPluralRules.select(cardCount);
+    return category === 'one' ? `${cardCount} Karte` : `${cardCount} Karten`;
   }
 
   async remove(item: CardGroup): Promise<void> {

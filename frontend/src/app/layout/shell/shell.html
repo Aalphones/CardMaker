@@ -33,10 +33,10 @@
     <nav class="shell__sidebar" aria-label="Hauptnavigation">
       <ul class="shell__nav-list">
         <li>
-          <span
-            class="shell__nav-link shell__nav-link--disabled"
-            aria-disabled="true"
-            title="kommt mit dem Karteneditor"
+          <a
+            class="shell__nav-link"
+            routerLink="/cards"
+            routerLinkActive="shell__nav-link--active"
           >
             <svg
               width="15"
@@ -55,7 +55,7 @@
               <rect width="7" height="7" x="3" y="14" rx="1" />
             </svg>
             Alle Karten
-          </span>
+          </a>
         </li>
         <li>
           <a

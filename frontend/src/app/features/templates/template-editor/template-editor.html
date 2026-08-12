@@ -87,7 +87,12 @@
         </svg>
       </button>
 
-      <button type="button" class="btn btn--secondary" disabled title="kommt mit dem Karteneditor">
+      <button
+        type="button"
+        class="btn btn--secondary"
+        [disabled]="!templates.current()"
+        (click)="createCard()"
+      >
         Karte erstellen
       </button>
 

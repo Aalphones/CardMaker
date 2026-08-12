@@ -4,6 +4,7 @@ export interface CardGroup {
   id: number;
   name: string;
   description: string | null;
+  cardCount: number;
   createdAt: string;
   updatedAt: string;
 }

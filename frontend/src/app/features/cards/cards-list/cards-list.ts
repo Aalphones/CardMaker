@@ -1,7 +1,7 @@
 import { Dialog } from '@angular/cdk/dialog';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { PreviewImageLoader } from '../../../shared/canvas/preview-image-loader';
@@ -34,6 +34,7 @@ const cardCountPluralRules = new Intl.PluralRules('de');
 export class CardsList {
   private readonly dialog = inject(Dialog);
   private readonly previewImages = inject(PreviewImageLoader);
+  private readonly route = inject(ActivatedRoute);
   protected readonly cards = inject(CardsFacade);
   protected readonly cardGroups = inject(CardGroupsFacade);
   protected readonly templates = inject(TemplatesFacade);
@@ -92,6 +93,13 @@ export class CardsList {
     this.cards.ensureLoaded();
     this.cardGroups.ensureLoaded();
     this.templates.ensureLoaded();
+
+    const groupParam = this.route.snapshot.queryParamMap.get('group');
+    const groupId = groupParam === null ? NaN : Number(groupParam);
+
+    if (Number.isInteger(groupId)) {
+      this.groupFilter.set(groupId);
+    }
 
     effect(() => {
       for (const item of this.cards.summaries()) {

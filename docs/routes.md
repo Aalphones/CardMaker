@@ -25,10 +25,10 @@ Positivliste der offenen Pfade (ohne Anmeldung erreichbar): `/api/health`, `/api
 
 | Methode | Pfad | Zweck |
 |---|---|---|
-| GET | `/api/card-groups` | Alle Kartengruppen |
-| POST | `/api/card-groups` | Anlegen |
-| GET | `/api/card-groups/{id}` | Einzeln |
-| PATCH | `/api/card-groups/{id}` | Ändern (nur übergebene Felder) |
+| GET | `/api/card-groups` | Alle Kartengruppen, je mit `cardCount` |
+| POST | `/api/card-groups` | Anlegen (`cardCount` immer `0`) |
+| GET | `/api/card-groups/{id}` | Einzeln, mit `cardCount` |
+| PATCH | `/api/card-groups/{id}` | Ändern (nur übergebene Felder), mit `cardCount` |
 | DELETE | `/api/card-groups/{id}` | Löschen — Karten der Gruppe verlieren nur die Zuordnung (`ON DELETE SET NULL`) |
 
 ## Bildvorrat (`/api/assets`)
@@ -54,7 +54,7 @@ Positivliste der offenen Pfade (ohne Anmeldung erreichbar): `/api/health`, `/api
 
 | Methode | Pfad | Zweck |
 |---|---|---|
-| GET | `/api/templates` | Kurzfassungen (ohne `layers`, mit `layerCount` und `previewUpdatedAt`) |
+| GET | `/api/templates` | Kurzfassungen (ohne `layers`, mit `layerCount`, `cardCount` und `previewUpdatedAt`) |
 | POST | `/api/templates` | Anlegen (startet immer mit leerer Ebenenliste) |
 | GET | `/api/templates/{id}` | Vollständig, inklusive `layers` und `previewUpdatedAt` |
 | PATCH | `/api/templates/{id}` | Ändern — `layers` wird komplett ersetzt und von `LayerValidator` geprüft |

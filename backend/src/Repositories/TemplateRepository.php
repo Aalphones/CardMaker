@@ -17,13 +17,16 @@ final class TemplateRepository
     {
     }
 
-    /** @return array<int, array<string, mixed>> Ohne `layers`, dafür mit `layer_count`. */
+    /** @return array<int, array<string, mixed>> Ohne `layers`, dafür mit `layer_count` und `card_count`. */
     public function allSummaries(): array
     {
         $statement = $this->database->query(
-            'SELECT id, name, description, JSON_LENGTH(layers) AS layer_count, preview_updated_at, '
-            . 'created_at, updated_at '
-            . 'FROM templates ORDER BY name ASC'
+            'SELECT t.id, t.name, t.description, JSON_LENGTH(t.layers) AS layer_count, '
+            . 't.preview_updated_at, t.created_at, t.updated_at, COUNT(c.id) AS card_count '
+            . 'FROM templates t '
+            . 'LEFT JOIN cards c ON c.template_id = t.id '
+            . 'GROUP BY t.id '
+            . 'ORDER BY t.name ASC'
         );
 
         return $statement->fetchAll();
@@ -220,6 +223,7 @@ final class TemplateRepository
      *     name: string,
      *     description: string|null,
      *     layerCount: int,
+     *     cardCount: int,
      *     previewUpdatedAt: string|null,
      *     createdAt: string|null,
      *     updatedAt: string|null
@@ -235,6 +239,7 @@ final class TemplateRepository
             'name' => (string) $row['name'],
             'description' => is_string($description) ? $description : null,
             'layerCount' => (int) $row['layer_count'],
+            'cardCount' => (int) $row['card_count'],
             'previewUpdatedAt' => is_string($previewUpdatedAt) ? Timestamps::toIso($previewUpdatedAt) : null,
             'createdAt' => Timestamps::toIso((string) $row['created_at']),
             'updatedAt' => Timestamps::toIso((string) $row['updated_at']),

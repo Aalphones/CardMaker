@@ -331,6 +331,15 @@ export class CardEditor implements ComponentWithUnsavedChanges {
 
     if (id !== null) {
       this.cards.loadOne(id);
+    } else {
+      // Kommt der Aufruf aus dem Template-Editor („Karte erstellen"), steht das Template
+      // schon fest — kein Wechsel-Dialog nötig, hier gibt es noch nichts zu verlieren.
+      const templateParam = this.route.snapshot.queryParamMap.get('template');
+      const templateId = templateParam === null ? NaN : Number(templateParam);
+
+      if (Number.isInteger(templateId)) {
+        this.selectedTemplateId.set(templateId);
+      }
     }
 
     effect(() => {

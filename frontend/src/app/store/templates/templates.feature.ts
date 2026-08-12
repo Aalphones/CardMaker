@@ -20,12 +20,14 @@ const initialState: TemplatesState = {
   error: null,
 };
 
-function toSummary(template: Template): TemplateSummary {
+/** `cardCount` steht nicht im Voll-Datensatz (kein Feld, das Speichern/Anlegen ändert). */
+function toSummary(template: Template, cardCount: number): TemplateSummary {
   return {
     id: template.id,
     name: template.name,
     description: template.description,
     layerCount: template.layers.length,
+    cardCount,
     previewUpdatedAt: template.previewUpdatedAt,
     createdAt: template.createdAt,
     updatedAt: template.updatedAt,
@@ -61,7 +63,7 @@ export const templatesFeature = createFeature({
     })),
     on(TemplatesActions.createSuccess, (state, { template }): TemplatesState => ({
       ...state,
-      summaries: [...state.summaries, toSummary(template)],
+      summaries: [...state.summaries, toSummary(template, 0)],
       current: template,
     })),
     on(TemplatesActions.createFailure, (state, { message }): TemplatesState => ({ ...state, error: message })),
@@ -69,7 +71,7 @@ export const templatesFeature = createFeature({
       ...state,
       current: template,
       summaries: state.summaries.map((summary: TemplateSummary) =>
-        summary.id === template.id ? toSummary(template) : summary,
+        summary.id === template.id ? toSummary(template, summary.cardCount) : summary,
       ),
     })),
     on(TemplatesActions.saveFailure, (state, { message }): TemplatesState => ({ ...state, error: message })),
