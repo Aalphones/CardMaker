@@ -1,14 +1,20 @@
 # STATE
 
-**Aktiver Plan:** keiner.
+**Aktiver Plan:** `docs/planning/2026-08-13_rendering-engine/` — Meilenstein 4,
+Rendering-Engine. Freigegeben am 2026-08-13, geparkt, noch keine Phase begonnen.
 
-Der Karteneditor-Plan (Meilenstein 3) ist fertig, committet und archiviert:
-`docs/archive/2026-08/2026-08-10_karteneditor/`. `npm run lint`/`npm run build` grün,
-`php -l` auf allen geänderten Backend-Dateien grün.
+**Nächster Schritt:** `/implement` in einer frischen Session. Phase 1 (Der Render-Motor)
+ist die erste; README lesen, dann `phase-1-render-motor.md` — die Phasen-Dateien sind
+self-contained, der Planungs-Chat wird nicht gebraucht.
 
-**Offen beim Nutzer:** Der vollständige Bildschirm-Rundlauf gegen die acht finalen
-Abnahmekriterien der Plan-README ist nie gefahren worden (zieht sich seit Phase 2 durch die
-Historie dieses Plans). Prüfliste dafür steht im Abschluss-Bericht des Chats bzw. in
+**Worum es geht:** eine fertige Karte in Druckauflösung (744 × 1039 Bildpunkte, PNG)
+erzeugen, ohne dass ein Editor offen sein muss — plus den Knopf „Als Bild herunterladen"
+im Karteneditor und in der Kartenliste. Grundlage für die Druckbögen in Meilenstein 5.
+
+**Offen beim Nutzer (aus Meilenstein 3):** Der vollständige Bildschirm-Rundlauf gegen die
+acht Abnahmekriterien des Karteneditor-Plans ist nie gefahren worden. Prüfliste in
 `docs/archive/2026-08/2026-08-10_karteneditor/phase-9-abschluss.md` → Report-Back.
 
-Meilenstein 4 (Rendering-Engine) hat noch keinen Plan — nächster Schritt wäre `/plan`.
+**Offene Frage aus der Planung:** Beim Export könnte geprüft werden, ob ein hochgeladenes
+Motiv genug Bildpunkte für 300 DPI hat (zu kleine Bilder werden im Druck unscharf, am
+Bildschirm sieht man das nie). Bewusst nicht eingeplant — Entscheidung steht aus.
