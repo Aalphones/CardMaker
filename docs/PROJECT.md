@@ -130,7 +130,8 @@ Kompositing, kein Imagick-Verfügbarkeitscheck auf Strato nötig.
    **Erledigt** (2026-08-13), siehe
    `docs/archive/2026-08/2026-08-13_druckprojekt-und-export/`
 6. **MCP-Server** — lokaler Assistant-Tool-Zugriff auf die CardMaker-API, darüber befüllt
-   Claude Template-Textfelder einer Karte mit Text (zweiter Weg neben dem Formular)
+   Claude Template-Textfelder einer Karte mit Text (zweiter Weg neben dem Formular).
+   **Erledigt** (2026-08-13), siehe `docs/archive/2026-08/2026-08-13_mcp-server/`
 
 Detail-Phasen entstehen im ersten Plan (`/plan`), nicht hier.
 

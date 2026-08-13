@@ -8,7 +8,7 @@ nichts (einzige Ausnahme: die Auskunftsroute `GET /api/meta`).
 Einrichtung, Token setzen und die vollständige Werkzeugliste: `mcp/README.md`.
 Aufbau in der Landkarte: `docs/code-map.md` → „MCP-Server".
 
-## Stand (Phase 4 von `docs/planning/2026-08-13_mcp-server/`)
+## Stand (Meilenstein 6, `docs/archive/2026-08/2026-08-13_mcp-server/` — abgeschlossen)
 
 - **Paket** `cardmaker_mcp`, Projektname `cardmaker-mcp`, Abhängigkeit `mcp[cli]>=2.0.0`,
   `requires-python >=3.10`, Build über `hatchling`.
@@ -38,14 +38,22 @@ Aufbau in der Landkarte: `docs/code-map.md` → „MCP-Server".
 | `create_card(name, template_id, values, card_group_id, icon_choices, text_overrides)` | 4 | Karte anlegen und befüllen |
 | `update_card(card_id, …)` | 4 | Karte ändern — nur übergebene Felder |
 | `duplicate_card(card_id)` | 4 | Karte kopieren |
-
-Bilder (Phase 5) kommen hier dazu, sobald umgesetzt.
+| `upload_card_image(card_id, layer_id, file_path)` | 5 | Motivbild hochladen/ersetzen |
+| `set_card_image_placement(card_id, layer_id, offset_x, offset_y, scale)` | 5 | Verschiebung/Maßstab ändern |
+| `remove_card_image(card_id, layer_id)` | 5 | Bild dieser Ebene entfernen |
 
 ### Bewusst nicht vorhanden
 
-- **Kein `delete_*`.** Ein Zugriffstoken kann alles, was der Nutzer kann; ein irrtümliches
-  Löschen über einen Assistenten ist unumkehrbar und nicht der Zweck des Servers. Entfernt
-  wird im Frontend.
+- **Kein `delete_*`** außer `remove_card_image` — das leert nur eine Bildfläche, es entfernt
+  kein Datenobjekt, und die Karte bleibt ohne Bild weiterhin vollständig (dasselbe, was der
+  Editor mit einem Klick tut). Ein Zugriffstoken kann alles, was der Nutzer kann; ein
+  irrtümliches Löschen einer Karte oder Kartengruppe über einen Assistenten ist unumkehrbar
+  und nicht der Zweck des Servers. Entfernt wird im Frontend.
+- **Layer-Kennungen sind Zeichenketten**, nicht Zahlen — wie `iconChoices`-Schlüssel folgen
+  sie demselben Muster (`layers.fieldKeyPattern` aus `/api/meta`). Ein `layer_id`, der im
+  Template der Karte keine Bildfläche ist, wird vor dem Senden abgefangen
+  (`server._check_image_layer`) — mit den vorhandenen Bildflächen samt Beschriftung in der
+  Fehlermeldung.
 - **Kein Weg, eine Zuordnung zu leeren.** `update_card` kann eine Karte in eine andere
   Gruppe schieben, aber nicht aus ihrer Gruppe lösen; `update_card_group` kann eine
   Beschreibung nicht wieder leeren. Grund: ein weggelassenes Argument heißt „unverändert",
@@ -68,6 +76,11 @@ Alle vier gehören zusammen; fehlt eine, ist der Fehler still:
    nicht übergebenes Feld löscht Daten.
 4. **Vorschaubild-Hinweis anhängen** (`server._with_hints`): über MCP angelegte Karten
    haben keine Kachel, bis sie einmal im Editor gespeichert wurden (ADR-026).
+
+Bild-Werkzeuge zusätzlich: Datei **vor** dem Hochladen gegen `/api/meta` prüfen
+(`meta.validate_image_file` — Existenz, Größe, Format) und Verschiebung/Maßstab gegen
+`cards.imagePlacement` (`meta.validate_image_placement`) — dieselbe Klartext-vor-`422`-Regel
+wie bei den übrigen Schreib-Werkzeugen.
 
 Die Muster aus `/api/meta` tragen ihre **PHP-Trennzeichen** (`/^…$/`), weil sie unverändert
 aus den Prüfklassen stammen — vor dem Übersetzen nach Python durch `meta.compile_pattern`

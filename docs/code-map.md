@@ -308,7 +308,8 @@ mcp/
     search.py               ← Teilzeichenketten-Suche über die Kurzfassungen im Zustandsbild
     card_fields.py          ← Kartenfelder aus Template-Ebenen ableiten, 1:1 nach card-fields.ts
     meta.py                 ← Prüfung der Nutzlast gegen /api/meta vor dem Senden (Schlüsselmuster,
-                               Längen, Schriftgröße, Farbe) — Klartext-Fehler statt 422
+                               Längen, Schriftgröße, Farbe, Bilddatei, Verschiebung/Maßstab) —
+                               Klartext-Fehler statt 422
     server.py               ← Server-Instanz, Fehlerabbildung (api_tool/invalidates_state),
                                Werkzeug-Registrierung, Start auf stdio
     __main__.py             ← python -m cardmaker_mcp

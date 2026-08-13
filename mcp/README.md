@@ -56,7 +56,7 @@ Store-Platzhalter.
 
 macOS/Linux: `command` auf `mcp/.venv/bin/python` ändern.
 
-## Werkzeuge (Stand Phase 4)
+## Werkzeuge
 
 ### Lesen
 
@@ -81,6 +81,9 @@ macOS/Linux: `command` auf `mcp/.venv/bin/python` ändern.
 | `create_card(name, template_id, values, card_group_id, icon_choices, text_overrides)` | Karte zu einem Template anlegen und ihre Felder befüllen. |
 | `update_card(card_id, name, values, card_group_id, icon_choices, text_overrides)` | Karte ändern — nur die übergebenen Felder. |
 | `duplicate_card(card_id)` | Karte kopieren (Name mit „ (Kopie)"). |
+| `upload_card_image(card_id, layer_id, file_path)` | Motivbild hochladen — ersetzt ein vorhandenes Bild derselben Ebene. |
+| `set_card_image_placement(card_id, layer_id, offset_x, offset_y, scale)` | Verschiebung/Maßstab eines Kartenbilds ändern. |
+| `remove_card_image(card_id, layer_id)` | Bild dieser Ebene entfernen — die Karte bleibt vollständig. |
 
 Drei Dinge, die beim Schreiben gelten:
 
@@ -88,10 +91,9 @@ Drei Dinge, die beim Schreiben gelten:
   gespeichert wurde — das Bild entsteht im Browser, nicht im Backend. Jede Antwort sagt das.
 - **Ganze Sätze:** `values`, `icon_choices` und `text_overrides` ersetzen den kompletten Satz.
   Ein einzelnes Feld ändern heißt: `get_card`, ergänzen, zurückschicken.
-- **Kein Löschen:** Karten, Gruppen und Zuordnungen werden in der Oberfläche entfernt, nicht
-  hier (Begründung: `docs/conventions/mcp.md`).
-
-Bild-Werkzeuge kommen in Phase 5 dazu (`docs/planning/2026-08-13_mcp-server/`).
+- **Kein Löschen** außer `remove_card_image`: Karten, Gruppen und Zuordnungen werden in der
+  Oberfläche entfernt, nicht hier (Begründung: `docs/conventions/mcp.md`). Eine Bildfläche zu
+  leeren ist keine Ausnahme davon — es entfernt kein Datenobjekt.
 
 ## Aufbau
 

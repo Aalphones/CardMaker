@@ -39,23 +39,23 @@ tut, und ohne Bild ist die Karte weiterhin vollständig.
 
 ## Checkliste
 
-- [ ] `client.py`: `post_card_image` (mehrteilig), `patch_card_image_placement`,
+- [x] `client.py`: `post_card_image` (mehrteilig), `patch_card_image_placement`,
       `delete_card_image`.
-- [ ] Vorabprüfungen nach AK 2–4 im Werkzeug, Meldungen im Klartext.
-- [ ] Werkzeuge in `server.py` registrieren; alle drei verwerfen den Zwischenspeicher.
-- [ ] **ADR-025** `docs/decisions/025-mcp-zustandsbild-im-client.md` — das Zustandsbild des
+- [x] Vorabprüfungen nach AK 2–4 im Werkzeug, Meldungen im Klartext.
+- [x] Werkzeuge in `server.py` registrieren; alle drei verwerfen den Zwischenspeicher.
+- [x] **ADR-025** `docs/decisions/025-mcp-zustandsbild-im-client.md` — das Zustandsbild des
       MCP-Servers wird aus den vorhandenen Listenrouten zusammengesetzt statt über eine neue
       Backend-Route; Kontext, betrachtete Optionen (eigene `/api/state`-Route), Entscheidung,
       Konsequenzen (drei Anfragen statt einer, dafür keine zweite Datenquelle im Backend).
-- [ ] **ADR-026** `docs/decisions/026-keine-vorschaubilder-ueber-mcp.md` — über MCP angelegte
+- [x] **ADR-026** `docs/decisions/026-keine-vorschaubilder-ueber-mcp.md` — über MCP angelegte
       Karten bekommen kein Vorschaubild, weil gerendert wird, wo ein Browser steht
       (ADR-005/ADR-022); Konsequenz: leere Kachel bis zum ersten Speichern im Editor,
       Werkzeuge sagen das.
-- [ ] `docs/decisions/README.md` um beide ADRs ergänzen.
-- [ ] Doku-Abgleich zum Schluss: `docs/conventions/mcp.md` (vollständige Werkzeug-Tabelle,
+- [x] `docs/decisions/README.md` um beide ADRs ergänzen.
+- [x] Doku-Abgleich zum Schluss: `docs/conventions/mcp.md` (vollständige Werkzeug-Tabelle,
       Drift-Regeln auf den gebauten Stand), `docs/routes.md`, `docs/code-map.md`,
       `mcp/README.md`, `AGENTS.md` (Stack-Zeile: `mcp/` existiert jetzt wirklich).
-- [ ] `docs/PROJECT.md`: Meilenstein 6 als **erledigt** markieren mit Datum und Archivpfad.
+- [x] `docs/PROJECT.md`: Meilenstein 6 als **erledigt** markieren mit Datum und Archivpfad.
 - [ ] Smoke-Checkliste unten abarbeiten lassen (macht der Nutzer), dann Plan nach
       `docs/archive/2026-08/2026-08-13_mcp-server/` verschieben und `STATE.md` aktualisieren.
 

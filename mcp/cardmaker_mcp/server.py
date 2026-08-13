@@ -13,6 +13,7 @@ from __future__ import annotations
 import functools
 import sys
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any, TypeVar
 
 from mcp.server.mcpserver import MCPServer
@@ -325,6 +326,93 @@ def duplicate_card(card_id: int) -> dict:
         card_id: Kennung der Vorlage (`find_card`).
     """
     return _with_hints(get_client().post_card_duplicate(card_id), "card")
+
+
+@mcp.tool()
+@api_tool
+@invalidates_state
+def upload_card_image(card_id: int, layer_id: str, file_path: str) -> dict:
+    """Motivbild hochladen — ersetzt ein vorhandenes Bild derselben Ebene.
+
+    Verschiebung und Maßstab der Ebene werden dabei auf die Grundstellung zurückgesetzt.
+
+    Args:
+        card_id: Kennung der Karte (`find_card`).
+        layer_id: Bildebene des Templates (`describe_card_fields`).
+        file_path: Pfad zu einer PNG- oder JPEG-Datei auf diesem Rechner.
+    """
+    _check_image_layer(card_id, layer_id)
+
+    path = Path(file_path).expanduser()
+    meta.validate_image_file(state_cache.load_meta(get_client()), path)
+
+    return _with_hints(get_client().post_card_image(card_id, layer_id, path), "image")
+
+
+@mcp.tool()
+@api_tool
+@invalidates_state
+def set_card_image_placement(
+    card_id: int,
+    layer_id: str,
+    offset_x: float | None = None,
+    offset_y: float | None = None,
+    scale: float | None = None,
+) -> dict:
+    """Verschiebung/Maßstab eines Kartenbilds ändern — nur die übergebenen Werte.
+
+    Args:
+        card_id: Kennung der Karte (`find_card`).
+        layer_id: Bildebene, deren Bild verschoben/skaliert wird.
+        offset_x: Verschiebung in Canvas-Einheiten entlang X, weglassen heißt unverändert.
+        offset_y: Verschiebung in Canvas-Einheiten entlang Y, weglassen heißt unverändert.
+        scale: Maßstab, weglassen heißt unverändert.
+    """
+    payload = _payload(offsetX=offset_x, offsetY=offset_y, scale=scale)
+
+    if not payload:
+        raise ValueError("Nichts zu ändern: weder Verschiebung noch Maßstab übergeben.")
+
+    meta.validate_image_placement(state_cache.load_meta(get_client()), payload)
+
+    saved = get_client().patch_card_image_placement(card_id, layer_id, payload)
+    return _with_hints(saved, "image")
+
+
+@mcp.tool()
+@api_tool
+@invalidates_state
+def remove_card_image(card_id: int, layer_id: str) -> dict:
+    """Bild dieser Ebene entfernen. Die Karte bleibt vollständig — die Fläche ist danach leer.
+
+    Args:
+        card_id: Kennung der Karte (`find_card`).
+        layer_id: Bildebene, deren Bild entfernt wird.
+    """
+    get_client().delete_card_image(card_id, layer_id)
+    return {"entfernt": True, "hinweise": [PREVIEW_HINT]}
+
+
+def _check_image_layer(card_id: int, layer_id: str) -> None:
+    """Bricht vor dem Senden ab, wenn `layer_id` im Template der Karte keine Bildfläche ist."""
+    template_id = get_client().get_card(card_id).get("templateId")
+
+    if not isinstance(template_id, int):
+        return
+
+    known = _known_image_layers(template_id)
+    if layer_id not in known:
+        listing = ", ".join(f'{lid} ("{label}")' for lid, label in known.items()) or "keine"
+        raise ValueError(
+            f"Ebene {layer_id!r} ist im Template dieser Karte keine Bildfläche. "
+            f"Vorhandene Bildflächen: {listing}."
+        )
+
+
+def _known_image_layers(template_id: int) -> dict[str, str]:
+    layers = get_client().get_template(template_id).get("layers", [])
+    fields = card_fields.describe_card_fields(layers)
+    return {field["layerId"]: field["label"] for field in fields["images"]}
 
 
 def _payload(**candidates: Any) -> dict:

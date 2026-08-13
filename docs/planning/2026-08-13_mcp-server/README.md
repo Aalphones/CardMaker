@@ -21,7 +21,7 @@ Auskunfts-Route `GET /api/meta`.
 | 2 | [MCP-Gerüst](phase-2-mcp-geruest.md) | `mcp/`-Subprojekt, HTTP-Client, Serverstart, `.mcp.json`, Werkzeuge `get_meta`/`get_state` | standard | complete |
 | 3 | [Such- und Lese-Werkzeuge](phase-3-lese-werkzeuge.md) | `find_*`, `get_card`, `get_template`, `describe_card_fields` | mechanisch | complete |
 | 4 | [Schreib-Werkzeuge](phase-4-schreib-werkzeuge.md) | Karten anlegen/ändern/duplizieren, Kartengruppen, Meta-Prüfung, Zwischenspeicher-Verfall | heikel | complete |
-| 5 | [Bilder & Abschluss](phase-5-bilder-und-abschluss.md) | Motivbild hochladen/platzieren/entfernen, Doku, ADRs, Meilenstein-Abschluss | standard | pending |
+| 5 | [Bilder & Abschluss](phase-5-bilder-und-abschluss.md) | Motivbild hochladen/platzieren/entfernen, Doku, ADRs, Meilenstein-Abschluss | standard | complete |
 
 ## Kontrakt: `GET /api/meta`
 

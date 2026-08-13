@@ -209,6 +209,22 @@ class Client:
     def post_card_duplicate(self, card_id: int) -> dict:
         return self.request("POST", f"cards/{card_id}/duplicate")  # type: ignore[return-value]
 
+    def post_card_image(self, card_id: int, layer_id: str, file_path: Path) -> dict:
+        """Bild hochladen. Das Feld heißt auf der Leitung `layerId` — die Grenze der API
+        wandelt `$_POST`-Schlüssel genau wie den JSON-Rumpf nach snake_case (`Request::form()`).
+        """
+        return self.post_multipart(
+            f"cards/{card_id}/images", fields={"layerId": layer_id}, files={"file": file_path}
+        )
+
+    def patch_card_image_placement(self, card_id: int, layer_id: str, payload: dict) -> dict:
+        return self.request(  # type: ignore[return-value]
+            "PATCH", f"cards/{card_id}/images/{layer_id}", payload
+        )
+
+    def delete_card_image(self, card_id: int, layer_id: str) -> None:
+        self.request("DELETE", f"cards/{card_id}/images/{layer_id}")
+
 
 def _to_api_error(error: urllib.error.HTTPError) -> ApiError:
     """Fehlerkörper `{ error, message, fields? }` auslesen, sonst auf den HTTP-Grund zurückfallen."""

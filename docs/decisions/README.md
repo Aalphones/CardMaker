@@ -29,3 +29,5 @@ Kurskorrektur bekommt eine neue ADR, die auf die alte verweist, statt die alte z
 | 022 | [Kopfloser Renderer: Bühne im Speicher](022-kopfloser-renderer.md) | Akzeptiert |
 | 023 | [PDF-Erzeugung mit jsPDF, nur beim Klick geladen](023-pdf-erzeugung-mit-jspdf.md) | Akzeptiert |
 | 024 | [Genau ein Druckprojekt statt vieler](024-ein-druckprojekt-statt-vieler.md) | Akzeptiert |
+| 025 | [Zustandsbild des MCP-Servers entsteht im Client](025-mcp-zustandsbild-im-client.md) | Akzeptiert |
+| 026 | [Keine Vorschaubilder über MCP](026-keine-vorschaubilder-ueber-mcp.md) | Akzeptiert |

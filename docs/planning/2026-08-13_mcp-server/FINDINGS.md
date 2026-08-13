@@ -19,14 +19,14 @@ Erledigte Punkte abhaken, nicht löschen.
 - [x] → Phase 4: Der Zwischenspeicher trennt Auskunft und Zustandsbild. `invalidate()`
       trifft nur das Zustandsbild; ein Schrift-Upload muss zusätzlich `invalidate_meta()`
       rufen, sonst zeigt `get_meta` die neue Schrift bis zum Neustart nicht.
-- [ ] → Phase 5: Die Muster aus `/api/meta` tragen ihre PHP-Trennzeichen (`/^…$/`) —
+- [x] → Phase 5: Die Muster aus `/api/meta` tragen ihre PHP-Trennzeichen (`/^…$/`) —
       `meta.compile_pattern` streift sie ab. Wer in Phase 5 gegen `imagePlacement`
       (Verschiebung/Maßstab) prüft, nimmt dieselbe Funktion, nicht `re.compile` direkt.
-- [ ] → Phase 5: Bausteine für die Bild-Werkzeuge stehen in `server.py` bereit:
+- [x] → Phase 5: Bausteine für die Bild-Werkzeuge stehen in `server.py` bereit:
       `_payload(**candidates)` (keine Nullwerte für Weggelassenes), `_with_hints(saved,
       kind, warnings)` (Antwort mit Vorschaubild-Hinweis) und die Dekorator-Reihenfolge
       `@mcp.tool()` / `@api_tool` / `@invalidates_state`.
-- [ ] → Phase 5: `Client.post_multipart(path, fields, files)` nimmt neben der Datei auch
+- [x] → Phase 5: `Client.post_multipart(path, fields, files)` nimmt neben der Datei auch
       Textfelder — für `POST /api/cards/{id}/images` also `fields={"layerId": …}`.
       Erlaubte Endungen sind dort auf PNG/JPEG begrenzt (`MULTIPART_CONTENT_TYPES`),
       passend zu `CardImageValidator`.

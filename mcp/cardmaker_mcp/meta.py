@@ -11,7 +11,10 @@ Backend nicht (Grundsatz in `docs/routes.md`). Dafür gibt es die Warnung in `se
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from typing import Any
+
+from cardmaker_mcp.client import MULTIPART_CONTENT_TYPES
 
 TEXT_OVERRIDE_KEYS = ("fontSize", "color", "bold", "italic")
 
@@ -172,6 +175,62 @@ def _check_font_size(
             raise ValueError(
                 f"Die Schriftgröße zu „{key}“ ist {font_size}, erlaubt ist {minimum} bis "
                 f"{maximum} (Regel aus /api/meta)."
+            )
+
+
+def validate_image_file(meta: dict, file_path: Path) -> None:
+    """Bilddatei vor dem Hochladen prüfen: Existenz, Größe, Dateiformat. Wirft `ValueError`.
+
+    Ersetzt keine Serverprüfung (das Backend liest die echten Bildbytes über `finfo` und
+    `getimagesize()`) — fängt nur die Fälle ab, die sich ohne Anfrage klären lassen: eine
+    falsche Endung oder eine zu große Datei müssen nicht erst gegen die API laufen.
+    """
+    if not file_path.is_file():
+        raise ValueError(f"Datei nicht gefunden: {file_path}")
+
+    rules = meta.get("uploads", {})
+    max_bytes = rules.get("imageMaxBytes")
+    size = file_path.stat().st_size
+
+    if isinstance(max_bytes, int) and size > max_bytes:
+        raise ValueError(
+            f"Die Datei ist {size} Bytes groß, erlaubt sind höchstens {max_bytes} Bytes "
+            "(Regel aus /api/meta)."
+        )
+
+    extension = file_path.suffix.lower().lstrip(".")
+    content_type = MULTIPART_CONTENT_TYPES.get(extension)
+    allowed = set(rules.get("imageMimeTypes", [])) or set(MULTIPART_CONTENT_TYPES.values())
+
+    if content_type is None or content_type not in allowed:
+        raise ValueError(
+            f"{file_path.name}: nicht unterstütztes Bildformat "
+            f"{extension or '(keine Endung)'}. Erlaubt: {sorted(allowed)} (Regel aus /api/meta)."
+        )
+
+
+def validate_image_placement(meta: dict, payload: dict[str, Any]) -> None:
+    """Verschiebung/Maßstab eines Kartenbilds gegen `/api/meta` prüfen. Wirft `ValueError`."""
+    rules = meta.get("cards", {}).get("imagePlacement", {})
+
+    for key, label in (("offsetX", "Verschiebung X"), ("offsetY", "Verschiebung Y")):
+        if key in payload:
+            _check_placement_range(
+                payload[key], rules.get("offsetMin"), rules.get("offsetMax"), label
+            )
+
+    if "scale" in payload:
+        _check_placement_range(payload["scale"], rules.get("scaleMin"), rules.get("scaleMax"), "Maßstab")
+
+
+def _check_placement_range(value: Any, minimum: Any, maximum: Any, label: str) -> None:
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise ValueError(f"„{label}“ muss eine Zahl sein, übergeben wurde {value!r}.")
+
+    if isinstance(minimum, (int, float)) and isinstance(maximum, (int, float)):
+        if value < minimum or value > maximum:
+            raise ValueError(
+                f"„{label}“ ist {value}, erlaubt ist {minimum} bis {maximum} (Regel aus /api/meta)."
             )
 
 
