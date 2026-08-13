@@ -16,7 +16,7 @@ zu wenig Bildpunkte haben.
 | 1 | [Backend: Druckprojekt speichern](phase-1-backend.md) | standard | **complete** |
 | 2 | [Store, Route, Seitenspalte](phase-2-store-und-navigation.md) | standard | **complete** |
 | 3 | [Der Druckprojekt-Bildschirm](phase-3-bildschirm.md) | standard | **complete** |
-| 4 | [Bogen-Aufbau und Vorschau](phase-4-bogen-aufbau.md) | heikel | pending |
+| 4 | [Bogen-Aufbau und Vorschau](phase-4-bogen-aufbau.md) | heikel | **complete** |
 | 5 | [Export als PDF und PNG](phase-5-export.md) | heikel | pending |
 | 6 | [Schärfe-Hinweis und Abschluss](phase-6-schaerfe-und-abschluss.md) | standard | pending |
 
@@ -41,10 +41,22 @@ Namen und Kachelbild, ohne dass das Frontend alle Karten nachlädt. `POST items`
 bereits enthaltenen Karte erhöht deren Anzahl um 1 und gibt die vorhandene Position zurück
 (200 statt 201) — genau das Verhalten aus dem Prototyp („Im Druckprojekt +1").
 
-**Geometrie-Kontrakt** (Phase 4 legt ihn fest, Phase 5 rechnet damit): eine reine Funktion
+**Geometrie-Kontrakt** (Phase 4 hat ihn festgelegt, Phase 5 rechnet damit): eine reine Funktion
 `buildSheets(items, options)` liefert Bögen mit Positionen in **Millimetern**. PDF- und
 PNG-Ausgabe teilen sich diese eine Rechnung — es gibt keine zweite Stelle, die Ränder oder
-Schnittmarken kennt.
+Schnittmarken kennt. `frontend/src/app/shared/canvas/rendering/sheet-layout.ts` exportiert:
+
+```
+buildSheets(items, options): PrintSheet[]     PrintSheet = { index, slots }
+                                              slot       = { cardId, xMm, yMm, widthMm, heightMm }
+sheetFrames(options): SheetFrame[]            die neun Plätze, auch die leeren
+sheetGeometry(options)                        { widthMm, heightMm, marginXMm, marginYMm }
+sheetMarks(options): SheetMark[]              { x1Mm, y1Mm, x2Mm, y2Mm }, leer wenn ausgeschaltet
+mmToPx(millimeters, dpi): number              die einzige Umrechnung in Bildpunkte
+```
+
+`items` braucht nur `{ cardId, quantity }`, `options` nur `{ cutMarks, bleed }` — beides
+strukturgleich zum Store, aber ohne Abhängigkeit dorthin.
 
 ## Finale Abnahmekriterien
 

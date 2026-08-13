@@ -5,16 +5,20 @@
       <p class="print-project__subtitle">{{ summary() }}</p>
     </div>
     <div class="print-project__heading-actions">
-      <button type="button" class="btn btn--secondary" [disabled]="cartEmpty()">PNG exportieren</button>
-      <button type="button" class="btn btn--primary" [disabled]="cartEmpty()">Als PDF drucken</button>
+      <button type="button" class="btn btn--secondary" [disabled]="cartEmpty()">
+        PNG exportieren
+      </button>
+      <button type="button" class="btn btn--primary" [disabled]="cartEmpty()">
+        Als PDF drucken
+      </button>
     </div>
   </div>
 
   @if (cartEmpty()) {
     <div class="card print-project__empty">
       <p class="print-project__empty-text">
-        Noch keine Karten im Druckprojekt. Füge über „Alle Karten" fertige Karten hinzu — hier
-        wird dann nur noch gedruckt.
+        Noch keine Karten im Druckprojekt. Füge über „Alle Karten" fertige Karten hinzu — hier wird
+        dann nur noch gedruckt.
       </p>
       <a class="btn btn--primary" routerLink="/cards">Zu allen Karten</a>
     </div>
@@ -78,7 +82,11 @@
           <h3 class="card__kicker">Druckoptionen</h3>
           <div class="print-project__option">
             <label class="radio">
-              <input type="checkbox" [checked]="printProject.options().cutMarks" (change)="setCutMarks($event)" />
+              <input
+                type="checkbox"
+                [checked]="printProject.options().cutMarks"
+                (change)="setCutMarks($event)"
+              />
               <span class="radio__dot"></span>
               Schnittmarken
             </label>
@@ -86,7 +94,11 @@
           </div>
           <div class="print-project__option">
             <label class="radio">
-              <input type="checkbox" [checked]="printProject.options().bleed" (change)="setBleed($event)" />
+              <input
+                type="checkbox"
+                [checked]="printProject.options().bleed"
+                (change)="setBleed($event)"
+              />
               <span class="radio__dot"></span>
               Beschnitt
             </label>
@@ -99,7 +111,13 @@
       </div>
 
       <div class="print-project__preview">
-        <p class="print-project__preview-text">Vorschau folgt</p>
+        @for (sheet of sheets(); track sheet.index) {
+          <app-print-sheet
+            [sheet]="sheet"
+            [options]="printProject.options()"
+            [previews]="previewsByCardId()"
+          />
+        }
       </div>
     </div>
   }

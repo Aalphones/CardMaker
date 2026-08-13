@@ -1,29 +1,54 @@
 import { Dialog } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
+import { PreviewImageLoader } from '../../../shared/canvas/preview-image-loader';
+import { PrintSheet, buildSheets } from '../../../shared/canvas/rendering/sheet-layout';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { FieldHint } from '../../../shared/components/field-hint/field-hint';
-import { PRINT_ITEM_MAX_QUANTITY, PrintItem } from '../../../store/print-project/print-project.actions';
+import {
+  PRINT_ITEM_MAX_QUANTITY,
+  PrintItem,
+} from '../../../store/print-project/print-project.actions';
 import { PrintProjectFacade } from '../../../store/print-project/print-project.facade';
+import { PrintSheetPreview, SheetPreviewCard } from '../print-sheet/print-sheet';
 
-const CARDS_PER_SHEET = 9;
 const pluralRules = new Intl.PluralRules('de');
 
 @Component({
   selector: 'app-print-project-page',
-  imports: [RouterLink, FieldHint],
+  imports: [RouterLink, FieldHint, PrintSheetPreview],
   templateUrl: './print-project-page.html',
   styleUrl: './print-project-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrintProjectPage {
   private readonly dialog = inject(Dialog);
+  private readonly previewImages = inject(PreviewImageLoader);
   protected readonly printProject = inject(PrintProjectFacade);
   protected readonly maxQuantity = PRINT_ITEM_MAX_QUANTITY;
 
   protected readonly cartEmpty = computed(() => this.printProject.items().length === 0);
+
+  /** Dieselbe Rechnung, die später auch PDF und PNG füllt — hier nur zum Anschauen. */
+  protected readonly sheets = computed<PrintSheet[]>(() =>
+    buildSheets(this.printProject.items(), this.printProject.options()),
+  );
+
+  /** Name und Kachelbild je Karte, damit die Bogen-Vorschau selbst nichts nachladen muss. */
+  protected readonly previewsByCardId = computed<ReadonlyMap<number, SheetPreviewCard>>(() => {
+    const previews = new Map<number, SheetPreviewCard>();
+
+    for (const item of this.printProject.items()) {
+      previews.set(item.cardId, {
+        cardName: item.cardName,
+        imageUrl: this.previewUrl(item),
+      });
+    }
+
+    return previews;
+  });
 
   protected readonly summary = computed(() => {
     const totalQuantity = this.printProject.totalQuantity();
@@ -32,12 +57,19 @@ export class PrintProjectPage {
       return 'Noch keine Karten im Druckprojekt.';
     }
 
-    const sheetCount = Math.ceil(totalQuantity / CARDS_PER_SHEET);
-    return `${this.quantityLabel(totalQuantity)} auf ${this.sheetLabel(sheetCount)}`;
+    return `${this.quantityLabel(totalQuantity)} auf ${this.sheetLabel(this.sheets().length)}`;
   });
 
   constructor() {
     this.printProject.ensureLoaded();
+
+    effect(() => {
+      for (const item of this.printProject.items()) {
+        if (item.previewUpdatedAt !== null) {
+          this.previewImages.load('cards', item.cardId, item.previewUpdatedAt);
+        }
+      }
+    });
   }
 
   protected decrement(item: PrintItem): void {
@@ -52,6 +84,14 @@ export class PrintProjectPage {
       return;
     }
     this.printProject.setQuantity(item.id, item.quantity + 1);
+  }
+
+  private previewUrl(item: PrintItem): string | null {
+    if (item.previewUpdatedAt === null) {
+      return null;
+    }
+
+    return this.previewImages.imageUrl('cards', item.cardId, item.previewUpdatedAt);
   }
 
   protected removeItem(item: PrintItem): void {

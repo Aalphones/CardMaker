@@ -1,0 +1,20 @@
+<figure class="print-sheet">
+  <div class="print-sheet__paper">
+    @for (cell of cells(); track cell.position) {
+      <div
+        class="print-sheet__slot"
+        [class.print-sheet__slot--marked]="options().cutMarks"
+        [class.print-sheet__slot--filled]="cell.imageUrl !== null"
+        [style.left.%]="cell.leftPercent"
+        [style.top.%]="cell.topPercent"
+        [style.width.%]="cell.widthPercent"
+        [style.height.%]="cell.heightPercent"
+      >
+        @if (cell.imageUrl !== null) {
+          <img class="print-sheet__image" [src]="cell.imageUrl" [alt]="cell.cardName" />
+        }
+      </div>
+    }
+  </div>
+  <figcaption class="print-sheet__label">Bogen {{ sheet().index + 1 }}</figcaption>
+</figure>

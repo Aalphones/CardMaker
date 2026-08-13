@@ -8,6 +8,12 @@ Erkenntnisse während der Umsetzung, die eine spätere Phase betreffen. Format:
 
 Erledigte Einträge abhaken, nicht löschen.
 
+- [ ] → Phase 5: Die Karte wird bei 300 DPI 744 × 1039 Bildpunkte groß — `mmToPx(63, 300)`
+  liefert genau die 744 aus `PRINT_WIDTH_PX`, die Rechnungen passen also zusammen. Mit
+  Beschnitt sind es 65 × 90 mm; das Kartenbild wird dann schlicht größer skaliert, es gibt
+  kein zusätzliches Material am Rand.
+- [ ] → Phase 5: `sheetMarks(options)` liefert bei ausgeschalteten Schnittmarken eine leere
+  Liste — der Ausgabeweg muss die Option nicht selbst abfragen, nur über die Striche laufen.
 - [ ] → Phase 5: ADR-024 steht schon im Index von `docs/decisions/README.md`, die Zeile für
   ADR-023 (jsPDF) fehlt noch — beim Schreiben **oberhalb** von 024 einsortieren, sonst steht
   der Index nicht mehr in der Reihenfolge.

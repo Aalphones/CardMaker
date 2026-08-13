@@ -12,6 +12,7 @@
   --color-organic-ink: #201e1d;
 
   /* RAW — Farbleitern, gemeinsame Helligkeitsskala */
+  --color-white: #ffffff;
   --color-neutral-100: #f9f4ed;
   --color-neutral-200: #eee7db;
   --color-neutral-300: #dcd3c4;
@@ -84,6 +85,9 @@
   --color-accent-tint: var(--color-accent-200);
   --color-accent-text: var(--color-accent-700);
   --color-danger: var(--color-error);
+  /* Papierweiß der Bogen-Vorschau — echtes Weiß, weil der Drucker auch weißes Papier bekommt */
+  --color-print-paper: var(--color-white);
+  --color-print-slot-empty: var(--color-neutral-100);
 
   --space-xs: var(--space-1);
   --space-sm: var(--space-2);

@@ -55,19 +55,46 @@ zeilenweise von links oben. Ein angefangener letzter Bogen bleibt teilweise leer
 
 ## Checkliste
 
-- [ ] `frontend/src/app/shared/canvas/rendering/sheet-layout.ts` mit den Konstanten
+- [x] `frontend/src/app/shared/canvas/rendering/sheet-layout.ts` mit den Konstanten
       (`SHEET_WIDTH_MM = 210`, `SHEET_HEIGHT_MM = 297`, `CARD_WIDTH_MM = 63`,
       `CARD_HEIGHT_MM = 88`, `BLEED_MM = 1`, `MARK_LENGTH_MM = 5`, `MARK_WIDTH_MM = 0.2`,
       `COLUMNS = 3`, `ROWS = 3`), `buildSheets()` und `sheetMarks()`. Kommentar im Kopf: warum
       Beschnitt hier Vergrößern heißt (das interne Canvas endet exakt an der Kartenkante, es
       gibt kein Material über den Rand hinaus).
-- [ ] Millimeter → Bildpunkte als eine Funktion `mmToPx(mm, dpi)` im selben Modul — jede
+- [x] Millimeter → Bildpunkte als eine Funktion `mmToPx(mm, dpi)` im selben Modul — jede
       spätere Umrechnung geht dort durch.
-- [ ] Bogen-Vorschau in `print-project-page` (eigene Unterkomponente `print-sheet/`),
+- [x] Bogen-Vorschau in `print-project-page` (eigene Unterkomponente `print-sheet/`),
       gefüttert aus `buildSheets`.
-- [ ] Zusammenfassungstext auf die echte Bogenzahl umstellen.
-- [ ] `docs/code-map.md`: `sheet-layout.ts` in der `rendering/`-Aufzählung ergänzen.
+- [x] Zusammenfassungstext auf die echte Bogenzahl umstellen.
+- [x] `docs/code-map.md`: `sheet-layout.ts` in der `rendering/`-Aufzählung ergänzen.
 
 ## Report-Back
 
-_(beim Abschluss der Phase füllen)_
+Status: **complete**.
+
+Die Rechnung steht in `sheet-layout.ts` und ist gegen die Tabelle im Plan durchgerechnet
+worden (Bündel gebaut, Zahlen ausgegeben): ohne Beschnitt Ränder 10,5 / 16,5 mm und
+Schnittlinien bei 10,5 · 73,5 · 136,5 · 199,5 bzw. 16,5 · 104,5 · 192,5 · 280,5; mit
+Beschnitt Ränder 7,5 / 13,5 mm, Karten 65 × 90 mm und je zwei Linien pro Karte
+(8,5 · 71,5 · 73,5 · 136,5 · 138,5 · 201,5). Zwölf Exemplare ergeben 9 + 3, null Exemplare
+null Bögen. `mmToPx(210, 300)` / `mmToPx(297, 300)` = 2480 × 3508, eine Karte 744 × 1039 —
+deckungsgleich mit `PRINT_WIDTH_PX` aus Meilenstein 4.
+
+**Abweichungen vom Plan:**
+
+- Zusätzlich exportiert: `sheetFrames(options)` (die neun Plätze, auch die leeren) und
+  `sheetGeometry(options)` (Kartengröße + Ränder). Die Vorschau braucht die leeren Felder,
+  und ohne diese Aufteilung hätte `sheetMarks` die Ränder ein zweites Mal hergeleitet — genau
+  die zweite Rechnung, die der Kontrakt verbietet. `buildSheets` sitzt selbst auf `sheetFrames`.
+- `sheetMarks(options)` gibt bei ausgeschalteten Schnittmarken eine leere Liste zurück, statt
+  die Entscheidung dem Aufrufer zu überlassen.
+- Die Optionen kommen als eigener Typ `SheetOptions` statt als `PrintOptions` aus dem Store —
+  strukturgleich, aber so bleibt das Modul frei von der Zustandsverwaltung. Ebenso
+  `SheetItem` (nur `cardId` + `quantity`) statt `PrintItem`.
+- Statt eines Rasters mit Abstand (Entwurf: `grid` + 8 px gap, 24 px Innenrand) sitzen die
+  Felder absolut in Prozent der Blattmaße — das ist die Vorgabe „die Vorschau rechnet nicht
+  selbst" und zeigt die echte Anordnung, nicht eine hübschere.
+- Neue Farb-Tokens `--color-print-paper` (Papierweiß) und `--color-print-slot-empty`, damit im
+  Komponenten-Stylesheet kein roher Farbwert steht.
+- Die Komponentenklasse heißt `PrintSheetPreview`, nicht `PrintSheet` — der Name war schon vom
+  Datentyp aus `sheet-layout.ts` belegt.

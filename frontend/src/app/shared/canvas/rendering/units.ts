@@ -1,7 +1,7 @@
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from './layer';
 
 const UNITS_PER_MM = 10;
-const MM_PER_INCH = 25.4;
+export const MM_PER_INCH = 25.4;
 
 // Rechenprobe (es gibt keine Tests, die das sonst absichern):
 // 630 Einheiten bei 300 DPI ergeben 744 Pixel, 880 Einheiten ergeben 1039.
