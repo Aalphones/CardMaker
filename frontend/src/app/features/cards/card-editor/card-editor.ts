@@ -754,7 +754,7 @@ export class CardEditor implements ComponentWithUnsavedChanges {
     this.downloadingImage.set(true);
 
     try {
-      const result = await this.cardRenderer.renderPng(
+      const result = await this.cardRenderer.render(
         { layers: this.previewLayers(), content: this.previewContent() },
         PRINT_WIDTH_PX,
       );
@@ -859,7 +859,7 @@ export class CardEditor implements ComponentWithUnsavedChanges {
    */
   private async uploadPreview(cardId: number): Promise<void> {
     try {
-      const result = await this.cardRenderer.renderPng(
+      const result = await this.cardRenderer.render(
         { layers: this.previewLayers(), content: this.previewContent() },
         PREVIEW_WIDTH_PX,
       );

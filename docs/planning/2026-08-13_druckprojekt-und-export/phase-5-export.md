@@ -75,16 +75,18 @@ Netzwerkdrucker und Druckerwarteschlangen brechen dort ab oder brauchen ewig. De
 
 ## Checkliste
 
-- [ ] `npm install jspdf` im `frontend/` (siehe `mode-dependencies`), Version in
-      `docs/conventions/stack.md` nachtragen.
-- [ ] `docs/decisions/023-pdf-erzeugung-mit-jspdf.md` — Kontext, Optionen (`jspdf` /
+- [x] `npm install jspdf` im `frontend/` (siehe `mode-dependencies`), Version in
+      `docs/conventions/stack.md` nachtragen. — `jspdf@4.2.1`.
+- [x] `docs/decisions/023-pdf-erzeugung-mit-jspdf.md` — Kontext, Optionen (`jspdf` /
       `pdf-lib` / Browser-Druckdialog über HTML), Entscheidung, Folgen.
-- [ ] `card-renderer.service.ts` um Ausgabeformat erweitern: `renderPng` bekommt einen
+- [x] `card-renderer.service.ts` um Ausgabeformat erweitern: `renderPng` bekommt einen
       zweiten, optionalen Parameter `{ mimeType, quality, opaqueBackground }`. Bei
       `opaqueBackground` zeichnet der Renderer zuerst ein weißes Rechteck über die volle
       Kartenfläche. Voreinstellung bleibt PNG mit Durchsichtigkeit — bestehende Aufrufer
       (Karteneditor, Kartenliste, Vorschaubilder) ändern sich nicht.
-- [ ] `frontend/src/app/features/print-project/print-export.service.ts`:
+      **Abweichung:** Die Methode heißt jetzt `render` statt `renderPng` — sie gibt nicht mehr
+      zwingend PNG aus, der alte Name hätte gelogen. Vier Aufrufstellen mitgezogen.
+- [x] `frontend/src/app/features/print-project/print-export.service.ts`:
   - `renderCards(items, options, fortschritt)` → `Map<cardId, Blob>`, über
     `CardRenderSource` + `CardRenderer` als JPEG mit weißem Grund, je Kennung einmal,
     sequenziell (nicht parallel — neun gleichzeitige Bühnen in Druckauflösung sind der
@@ -95,10 +97,38 @@ Netzwerkdrucker und Druckerwarteschlangen brechen dort ab oder brauchen ewig. De
     weiß füllen, `drawImage`, Marken als Rechtecke, `toBlob`, herunterladen, Fläche freigeben
     (`canvas.width = 0`), erst dann den nächsten Bogen.
   - Marken-Zeichnen einmal je Ausgabeweg, Koordinaten immer aus `sheetMarks`.
-- [ ] Fortschritt als Signal in der Seite anbinden, Knöpfe während des Laufs sperren.
-- [ ] Fehlende Karten sammeln und am Ende über `notification.ts` melden.
-- [ ] `docs/code-map.md`: `print-export.service.ts` in der Feature-Beschreibung nennen.
+- [x] Fortschritt als Signal in der Seite anbinden, Knöpfe während des Laufs sperren.
+- [x] Fehlende Karten sammeln und am Ende über `notification.ts` melden.
+- [x] `docs/code-map.md`: `print-export.service.ts` in der Feature-Beschreibung nennen.
 
 ## Report-Back
 
-_(beim Abschluss der Phase füllen)_
+Status: **complete** (2026-08-13).
+
+Beide Ausgabewege stehen und teilen sich eine Rechnung: Der Dienst zeichnet jede Karte genau
+einmal als JPEG mit weißem Grund (Breite aus `sheetGeometry` × Auflösung, also 744 bzw. 768
+Bildpunkte), legt sie in eine Map und setzt sie anschließend entweder per jsPDF in Millimetern
+auf A4-Seiten oder auf eine Leinwand von 2480 × 3508 Punkten. Schnittmarken kommen in beiden
+Fällen aus `sheetMarks` — im PDF als Linien mit 0,2 mm Stärke, im PNG als schmale Rechtecke.
+
+Der Kopf der Seite zeigt nach dem Lauf die Dateigröße in Klartext; über 20 MB erscheint
+„Kleinere Datei erzeugen (200 dpi)", der denselben Weg mit 200 dpi und Güte 0,8 wiederholt.
+Karten, die nicht geladen werden können, lassen ihren Platz leer und werden am Ende namentlich
+gemeldet — der Lauf bricht nicht ab.
+
+**Bündelgröße geprüft:** `npx ng build` meldet „Initial total" 363,35 kB (vorher 358 kB — der
+Zuwachs ist der neue Seiten- und Dienst-Code). jsPDF liegt mit 411 kB in einem eigenen Stück,
+`html2canvas`, `canvg` und `dompurify` ebenfalls; nichts davon wird beim Start geladen.
+
+**Abweichungen vom Plan:**
+- `CardRenderer.renderPng` heißt jetzt `render` (siehe oben).
+- `exportPdf` gibt die Datei zurück, statt sie selbst zu speichern — die Seite braucht die
+  Größe für die 20-MB-Entscheidung. `exportPngSheets` speichert selbst (mehrere Dateien) und
+  gibt die Summe der Größen zurück.
+- Die Kartenbilder gehen als `ImageBitmap` auf die PNG-Leinwand (`createImageBitmap` +
+  `close()`), nicht über ein `<img>` mit Objekt-Adresse — weniger Schritte, und das Freigeben
+  ist ausdrücklich statt dem Aufräumer überlassen.
+
+**Nicht geprüft (braucht den Bildschirm):** ob eine Karte im PDF wirklich 63 × 88 mm misst, wie
+groß die Datei tatsächlich wird und ob der Netzwerkdrucker sie schluckt. Steht als Punkt 1–5 in
+der Smoke-Checkliste der README.

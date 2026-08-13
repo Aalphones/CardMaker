@@ -198,7 +198,7 @@ export class CardsList {
 
     try {
       const input = await this.cardRenderSource.inputForCard(item.id);
-      const result = await this.cardRenderer.renderPng(input, PRINT_WIDTH_PX);
+      const result = await this.cardRenderer.render(input, PRINT_WIDTH_PX);
 
       downloadBlob(result.image, cardFileName(item.name));
 

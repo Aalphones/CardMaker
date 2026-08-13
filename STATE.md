@@ -1,8 +1,9 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-13_druckprojekt-und-export/`
-**Phase:** 4/6 — Bogen-Aufbau und Vorschau (complete)
-**Nächster Schritt:** Phase 5 — Export als PDF und PNG (`phase-5-export.md`), Rating **heikel**.
+**Phase:** 5/6 — Export als PDF und PNG (complete)
+**Nächster Schritt:** Phase 6 — Schärfe-Hinweis und Abschluss (`phase-6-schaerfe-und-abschluss.md`),
+Rating **standard**.
 
 **Offen aus Phase 1:** Migration und Endpunkte sind lokal nicht lauffähig (örtliches PHP 8.3,
 `vendor/` gegen 8.5 gebaut). Erster echter Beleg ist der nächste Deploy mit `POST /api/migrate`.

@@ -283,7 +283,7 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
    */
   private async uploadPreview(templateId: number): Promise<void> {
     try {
-      const result = await this.cardRenderer.renderPng(
+      const result = await this.cardRenderer.render(
         { layers: this.editor.layers(), content: EMPTY_CARD_CONTENT },
         PREVIEW_WIDTH_PX,
       );

@@ -27,4 +27,5 @@ Kurskorrektur bekommt eine neue ADR, die auf die alte verweist, statt die alte z
 | 020 | [Karteninhalt als Datenblock statt eigener Tabellen](020-karteninhalt-als-datenblock.md) | Akzeptiert |
 | 021 | [Vorschaubilder beim Speichern erzeugen](021-vorschaubilder.md) | Akzeptiert |
 | 022 | [Kopfloser Renderer: Bühne im Speicher](022-kopfloser-renderer.md) | Akzeptiert |
+| 023 | [PDF-Erzeugung mit jsPDF, nur beim Klick geladen](023-pdf-erzeugung-mit-jspdf.md) | Akzeptiert |
 | 024 | [Genau ein Druckprojekt statt vieler](024-ein-druckprojekt-statt-vieler.md) | Akzeptiert |

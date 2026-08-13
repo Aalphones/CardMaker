@@ -5,14 +5,40 @@
       <p class="print-project__subtitle">{{ summary() }}</p>
     </div>
     <div class="print-project__heading-actions">
-      <button type="button" class="btn btn--secondary" [disabled]="cartEmpty()">
-        PNG exportieren
+      <button
+        type="button"
+        class="btn btn--secondary"
+        [disabled]="cartEmpty() || exportRunning()"
+        (click)="startPngExport()"
+      >
+        {{ pngLabel() }}
       </button>
-      <button type="button" class="btn btn--primary" [disabled]="cartEmpty()">
-        Als PDF drucken
+      <button
+        type="button"
+        class="btn btn--primary"
+        [disabled]="cartEmpty() || exportRunning()"
+        (click)="startPdfExport()"
+      >
+        {{ pdfLabel() }}
       </button>
     </div>
   </div>
+
+  @if (finishedText() !== null) {
+    <p class="print-project__export-result">
+      {{ finishedText() }}
+      @if (offersSmallerFile()) {
+        <button
+          type="button"
+          class="btn btn--ghost"
+          [disabled]="exportRunning()"
+          (click)="retrySmaller()"
+        >
+          Kleinere Datei erzeugen (200 dpi)
+        </button>
+      }
+    </p>
+  }
 
   @if (cartEmpty()) {
     <div class="card print-project__empty">

@@ -28,7 +28,7 @@ backend/src/Validators/<Feature>Validator.php
 | `fonts` | Schriftvorrat — hochgeladene Schriftdateien (WOFF2/TTF/OTF, max. 2 MB), hinter der Anmeldung ausgeliefert. Der Name für CSS ist immer `cmfont-<Kennung>` und wird berechnet, nie gespeichert; der Wunschname des Nutzers ist reine Beschriftung. Backend und Speicher stehen, noch keine Oberfläche |
 | `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste, Kartenvorschau, Ebenenliste, Eigenschaftenspalte und direkte Bearbeitung im Bild (Anfasser zum Verschieben/Skalieren/Drehen) stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Die Schrift einer Textebene (`font_family`) ist dabei entweder eine eingebaute Schrift oder `cmfont-<Kennung>` einer hochgeladenen — welche hochgeladenen es gibt, holt `TemplateService` einmal pro Speichervorgang und reicht es dem Prüfer durch. Eine Textebene kennt zusätzlich `font_bold`/`font_italic` (Wahrheitswerte, künstlich vom Browser gerechnet statt aus einer zweiten Schriftdatei geladen). Vorschaubild-Ablage steht (`TemplatePreviewController`/`TemplatePreviewService`, gemeinsamer Baustein `PreviewImageStorage`, Endpunkte `/api/templates/{id}/preview*`, ADR-021). Der Editor erzeugt das Bild nach jedem erfolgreichen Speichern selbst: `CardRenderer.renderPng()` zeichnet die Ebenen ohne Editor-Bühne in ein PNG fester Breite (Motor aus Meilenstein 4, kein `CardCanvas.exportPng()` mehr), `PreviewUploadService` lädt es hoch — schlägt das fehl, bleibt es bei einer Hinweismeldung. Meilenstein 2 ist abgeschlossen |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zurechtschieben/zoomen, Schriftgröße/-farbe/Fett/Kursiv überschreiben, Kartengruppe zuordnen. Backend komplett: Kartendaten (`CardController`/`CardService`/`CardRepository`/`CardValidator`), Kartenbilder (`CardImageController`/`CardImageService`/`CardImageRepository`/`CardImageValidator`, eigener Ordner `backend/uploads/cards/`, ADR-017) und Vorschaubild-Ablage (`CardPreviewController`/`CardPreviewService`, derselbe `PreviewImageStorage`-Baustein wie bei Templates, Endpunkte `/api/cards/{id}/preview*`, ADR-021). Frontend komplett: Liste (`cards-list/`, mit Suche/Filter/Sortierung/Duplizieren/Löschen) und Editor (`card-editor/`, Formular + Live-Vorschau + Bild ziehen/zoomen). Meilenstein 3 ist abgeschlossen |
-| `print-project` | Druckprojekt-Verwaltung (genau ein Projekt, ADR-024), Druckbogen-Export (PDF/PNG). Backend (Meilenstein 5, Phase 1), Store/Route/Seitenspalten-Eintrag (Phase 2) und der Bildschirm — Positionsliste, Druckoptionen, „Drucken"-Knopf in der Kartenliste (Phase 3) — stehen, dazu Bogen-Geometrie und Vorschau (Phase 4); der Export folgt in Phase 5 |
+| `print-project` | Druckprojekt-Verwaltung (genau ein Projekt, ADR-024), Druckbogen-Export (PDF/PNG). Backend (Meilenstein 5, Phase 1), Store/Route/Seitenspalten-Eintrag (Phase 2) und der Bildschirm — Positionsliste, Druckoptionen, „Drucken"-Knopf in der Kartenliste (Phase 3) — stehen, dazu Bogen-Geometrie und Vorschau (Phase 4) sowie der Export als PDF und PNG (Phase 5); offen ist der Schärfe-Hinweis (Phase 6) |
 | `prompts` | Reine Anzeigeseite unter `/prompts`: die ChatGPT-Bild-Prompts für Rahmen, Icons und Artwork in drei Reitern, je mit Kopieren-Knopf. Kein Backend, kein Store — die Texte stehen als Konstanten in `features/prompts/prompt-texts.ts` und müssen deckungsgleich zu `docs/design/prompts-chatgpt/` bleiben |
 
 ## Globale Styles
@@ -76,10 +76,15 @@ frontend/src/app/
                              `image-drop/` ist das Ablagefeld (Ziehen-und-Ablegen, Ersetzen,
                              Entfernen, Klartext-Fehler)
     print-project/
+      print-export.service.ts ← setzt die gezeichneten Karten auf die Bögen: jede Karte einmal
+                               als JPEG auf weißem Grund, daraus ein PDF (jsPDF, erst beim Klick
+                               geladen, ADR-023) oder ein PNG je Bogen. Koordinaten kommen aus
+                               `sheet-layout.ts`, gerechnet wird nichts Eigenes
       print-project-page/    ← Route /print-project: Positionsliste (Anzahl-Stepper, Entfernen,
                                Alles-entfernen-Rückfrage), Druckoptionen (Schnittmarken/Beschnitt
-                               mit Fragezeichen-Hinweis), Leerzustand, rechts die Bogen-Vorschau
-                               — der Export folgt in Phase 5
+                               mit Fragezeichen-Hinweis), Leerzustand, rechts die Bogen-Vorschau,
+                               oben die Export-Knöpfe mit Fortschritt, Dateigröße und dem
+                               200-dpi-Ausweg für zu große Dateien
       print-sheet/           ← ein Blatt der Vorschau: A4-Seitenverhältnis, die neun Plätze
                                absolut in Prozent aus `sheet-layout.ts`, belegte mit Kachelbild.
                                Rechnet selbst nichts
@@ -145,9 +150,9 @@ frontend/src/app/
                            meldet nur das Ergebnis nach außen, wann gespeichert wird entscheidet
                            der Karteneditor
       card-renderer.service.ts ← zeichnet eine Karte in Druckauflösung, ohne dass ein Editor
-                           offen ist: Bühne auf einem nie eingehängten `div`, PNG raus, Bühne
-                           abgeräumt (ADR-022). Grundlage für „Als Bild herunterladen" und die
-                           Druckbögen
+                           offen ist: Bühne auf einem nie eingehängten `div`, Bild raus, Bühne
+                           abgeräumt (ADR-022). Vorgabe PNG mit Durchsichtigkeit; für den
+                           Druckbogen auf JPEG mit weißem Grund umstellbar
       card-render-source.service.ts ← besorgt einer **gespeicherten** Karte ihren
                            `CardRenderInput`, ohne dass ein Editor offen sein muss: Karte und
                            Template über die Facades laden und über den `Actions`-Strom
@@ -237,8 +242,8 @@ frontend/src/app/
 ```
 
 `admin/` aus der Tabelle oben existiert noch nicht — es entsteht erst mit einem Folgeplan.
-`print-project/` hat jetzt den Bildschirm samt Bogen-Vorschau; der eigentliche Export folgt in
-Phase 5. `cards/` (inkl. „Drucken"-Knopf in Grid-
+`print-project/` hat jetzt den Bildschirm samt Bogen-Vorschau und den Export als PDF und PNG;
+offen ist nur noch der Schärfe-Hinweis (Phase 6). `cards/` (inkl. „Drucken"-Knopf in Grid-
 und Tabellenansicht) und `templates/` sind beide vollständig (Liste, Editor, Vorschau).
 
 ## Backend-Layout (steht)

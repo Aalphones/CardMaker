@@ -18,6 +18,7 @@
 | Frontend state | NgRx Store (Server-State) + NgRx Signals (UI-State) — nie mischen |
 | Styling | Semantic CSS — SCSS + BEM, CSS Custom Properties als Tokens, kein Utility-Framework (ADR-010) |
 | Canvas-Rendering | Konva.js 10.x + `ng2-konva` 12.x |
+| PDF-Erzeugung | `jspdf` 4.2.x — nur dynamisch importiert, nie am Dateikopf (ADR-023) |
 | A11y / Overlays | Angular Aria (headless Primitives) + `@angular/cdk` (Drag-and-Drop, Overlays) |
 | Auth | Zufallstoken in der Datenbank — Sitzungen + Personal Access Tokens (ADR-008) |
 | Tooling | Husky + lint-staged, ESLint + `@ngrx/eslint-plugin`, Prettier |

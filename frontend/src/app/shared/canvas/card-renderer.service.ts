@@ -8,11 +8,25 @@ import { drawItemsToStage } from './render-stage';
 import { RenderResourceLoader, RenderResources } from './render-resources.service';
 
 export interface RenderResult {
-  /** Das fertige Bild, immer PNG. */
+  /** Das fertige Bild im angeforderten Format. */
   image: Blob;
   /** Bildflächen/Icons, deren Datei nicht geladen werden konnte — leer heißt vollständig. */
   missing: readonly string[];
 }
+
+/** Wie das fertige Bild aussehen soll. Ohne Angabe: PNG mit Durchsichtigkeit. */
+export interface RenderOutput {
+  mimeType: string;
+  /** Nur bei verlustbehafteten Formaten wirksam, 0 bis 1. */
+  quality?: number;
+  /**
+   * Weißes Rechteck unter die Karte legen. Pflicht für JPEG: das Format kennt keine
+   * Durchsichtigkeit, ohne Grund werden durchsichtige Stellen schwarz.
+   */
+  opaqueBackground?: boolean;
+}
+
+const PNG_OUTPUT: RenderOutput = { mimeType: 'image/png' };
 
 /**
  * Zeichnet eine Karte in Druckauflösung, ohne dass ein Editor offen sein muss: Die Bühne
@@ -26,7 +40,11 @@ export class CardRenderer {
   private readonly document = inject(DOCUMENT);
   private readonly resources = inject(RenderResourceLoader);
 
-  async renderPng(input: CardRenderInput, targetWidthPx: number): Promise<RenderResult> {
+  async render(
+    input: CardRenderInput,
+    targetWidthPx: number,
+    output: RenderOutput = PNG_OUTPUT,
+  ): Promise<RenderResult> {
     // Erst die Vorräte, dann zeichnen: Wer sofort zeichnet, brennt Platzhalter und
     // Ersatzschriften ins Bild (siehe `render-resources.service.ts`).
     const resources = await this.resources.collect(input);
@@ -43,13 +61,17 @@ export class CardRenderer {
     });
 
     try {
-      drawItemsToStage(
-        stage,
-        buildDrawItems(input.layers, exportContext(input, resources)),
-        scale,
-      );
+      if (output.opaqueBackground) {
+        addWhiteBackground(stage);
+      }
 
-      const exported = await stage.toBlob({ mimeType: 'image/png', pixelRatio: 1 });
+      drawItemsToStage(stage, buildDrawItems(input.layers, exportContext(input, resources)), scale);
+
+      const exported = await stage.toBlob({
+        mimeType: output.mimeType,
+        quality: output.quality,
+        pixelRatio: 1,
+      });
 
       // Konva verspricht nur `Promise<unknown>` — geprüft statt behauptet.
       if (!(exported instanceof Blob)) {
@@ -61,6 +83,23 @@ export class CardRenderer {
       stage.destroy();
     }
   }
+}
+
+/** Eigene Ebene ganz unten — sie liegt vor der Zeichenebene auf der Bühne, also darunter. */
+function addWhiteBackground(stage: Konva.Stage): void {
+  const layer = new Konva.Layer({ listening: false });
+
+  layer.add(
+    new Konva.Rect({
+      x: 0,
+      y: 0,
+      width: stage.width(),
+      height: stage.height(),
+      fill: '#ffffff',
+    }),
+  );
+
+  stage.add(layer);
 }
 
 /**
