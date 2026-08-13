@@ -1,7 +1,9 @@
 # STATE
 
 **Aktiver Plan:** (kein aktiver Plan)
-**Nächster Schritt:** Meilenstein 6 (MCP-Server) planen — `/plan`.
+**Im Backlog:** Meilenstein 6 (MCP-Server), fünf Phasen, freigegeben und geparkt —
+`docs/planning/2026-08-13_mcp-server/`.
+**Nächster Schritt:** Umsetzung mit Phase 1 (`GET /api/meta`) starten — `/implement`.
 
 **Offen beim Nutzer:** Bildschirm-Rundlauf gegen die Smoke-Checklisten von Meilenstein 3
 (`docs/archive/2026-08/2026-08-10_karteneditor/phase-9-abschluss.md`), Meilenstein 4
