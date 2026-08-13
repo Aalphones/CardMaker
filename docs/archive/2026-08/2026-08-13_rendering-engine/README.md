@@ -140,20 +140,45 @@ war (siehe „Wackelstellen" unten).
 
 ## Zusammenfassung
 
-_(beim Archivieren füllen)_
+Ein kopfloser Render-Motor (`CardRenderer`) zeichnet eine Karte in Druckauflösung, ohne dass
+ein Editor offen sein muss — auf einer nie eingehängten Konva-Bühne, aus derselben
+`buildDrawItems()`-Zeichenliste wie die sichtbare Vorschau. Er wartet auf Bilder und
+Schriften, bevor er zeichnet (max. 10 Sekunden), und meldet, was nicht geladen werden konnte.
+Der Knopf „Als Bild herunterladen" nutzt ihn im Karteneditor und in der Kartenliste; die
+Kachel-Vorschaubilder (Karten und Templates) laufen seit Phase 5 über denselben Motor statt
+über die sichtbare Editor-Bühne — ein Zeichenweg statt zwei.
 
 ## Berührte Dateien
 
-_(beim Archivieren füllen)_
+- `frontend/src/app/shared/canvas/rendering/render-input.ts`, `print.ts` — der Kontrakt
+- `frontend/src/app/shared/canvas/card-renderer.service.ts` — der Motor
+- `frontend/src/app/shared/canvas/render-resources.service.ts` — Bilder/Schriften abwarten
+- `frontend/src/app/shared/canvas/card-render-source.service.ts` — Render-Input für eine
+  gespeicherte Karte ohne offenen Editor
+- `frontend/src/app/features/cards/cards-list/`, `card-editor/` — Herunterladen-Knopf
+- `frontend/src/app/features/templates/template-editor/` — Vorschaubild über den Motor
+- `frontend/src/app/shared/canvas/card-canvas/card-canvas.ts` — `exportPng()` entfernt
+- `frontend/src/app/shared/canvas/rendering/card-content.ts` — `EMPTY_CARD_CONTENT`
+- `docs/code-map.md`, `docs/PROJECT.md`, `docs/decisions/021-vorschaubilder.md` — nachgezogen
 
 ## Commits
 
-_(beim Archivieren füllen)_
+- `1afad77` docs(rendering): plan fuer meilenstein 4 (rendering-engine) anlegen
+- `a5dbeac` feat(rendering): kopfloser render-motor fuer karten in druckaufloesung
+- `e519383` feat(rendering): renderer wartet auf bilder und schriften
+- `868dd1c` feat(rendering): gespeicherte karte ohne offenen editor rendern
+- `9f7dfd2` feat(rendering): knopf "als bild herunterladen" im editor und in der kartenliste
+- `9126116` refactor(rendering): kachel-vorschaubilder ueber den kopflosen renderer statt der
+  editor-buehne
 
 ## Abweichungen vom Plan
 
-_(beim Archivieren füllen)_
+Keine — alle fünf Phasen wie geplant umgesetzt, Kontrakt aus der Planung unverändert.
 
 ## Folgearbeiten
 
-_(beim Archivieren füllen)_
+- Der Bildschirm-Rundlauf gegen die Smoke-Checkliste oben ist beim Archivieren **noch nicht**
+  gefahren — steht beim Nutzer aus (Report-Back folgt).
+- Offene Frage aus der Planung unverändert offen: ob beim Export die Bildpunktdichte eines
+  hochgeladenen Motivs geprüft werden soll (zu kleine Bilder wirken im Druck unscharf).
+  Bewusst nicht Teil dieses Meilensteins.
