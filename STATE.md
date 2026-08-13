@@ -14,11 +14,16 @@ Plan" setzen.
 (`docs/planning/2026-08-13_mcp-server/phase-5-bilder-und-abschluss.md` → Smoke-Checkliste)
 ist nie gefahren worden.
 
-**Offen technisch:** Migration und Endpunkte von Meilenstein 5 sind lokal nicht lauffähig
-(örtliches PHP 8.3, `vendor/` gegen 8.5 gebaut). Erster echter Beleg ist der nächste Deploy
-mit `POST /api/migrate`. Dasselbe gilt für `GET /api/meta` (Phase 1) — und damit für den
-gesamten MCP-Server: der stdio-Handschlag und die Fehlermeldung ohne Token sind belegt, ein
-echter Werkzeugaufruf gegen die API nicht (Route nicht hochgeladen, `CM_TOKEN` lokal nicht
-gesetzt). Alle Schreib- und Bild-Werkzeuge (Phase 4 + 5) sind nur syntaktisch geprüft und
-gegen `meta.py`-Regeln trocken durchgespielt (`.venv` läuft lokal) — kein einziger echter
-Schreibvorgang oder Bild-Upload gegen die laufende API ist gelaufen.
+**Deploy & Migration (2026-08-13):** `deploy.cmd all` gelaufen (Backend + Frontend live),
+`POST /api/migrate` aufgerufen → `{"applied":[]}` (keine ausstehenden Migrationen). Live
+gegengeprüft: `GET /api/health` → `200`, `GET /api/meta` ohne Token → `401`, mit Token →
+`200` mit exakt dem Vertrag aus der Plan-README (inklusive PHP-Trennzeichen in den
+Mustern). Damit ist `GET /api/meta` (Phase 1) erstmals live belegt.
+
+**Offen technisch:** Der stdio-Handschlag des MCP-Servers und die Fehlermeldung ohne Token
+sind belegt, ein echter Werkzeugaufruf **über den MCP-Server** gegen die jetzt laufende API
+noch nicht (lokal kein `CM_TOKEN` gesetzt) — die Bausteine darunter (`client.py`, `meta.py`-
+Prüfregeln) sind einzeln gegen die reale Antwort von `/api/meta` verifizierbar, aber der
+Durchstich über ein MCP-Werkzeug ist noch offen. Alle Schreib- und Bild-Werkzeuge
+(Phase 4 + 5) sind nur syntaktisch geprüft und gegen `meta.py`-Regeln trocken durchgespielt
+(`.venv` läuft lokal) — kein einziger echter Schreibvorgang oder Bild-Upload ist gelaufen.
