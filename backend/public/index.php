@@ -10,6 +10,7 @@ use App\Controllers\CardImageController;
 use App\Controllers\CardPreviewController;
 use App\Controllers\FontController;
 use App\Controllers\HealthController;
+use App\Controllers\MetaController;
 use App\Controllers\MigrateController;
 use App\Controllers\PrintProjectController;
 use App\Controllers\SetupController;
@@ -39,6 +40,7 @@ use App\Services\CardImageService;
 use App\Services\CardPreviewService;
 use App\Services\CardService;
 use App\Services\FontService;
+use App\Services\MetaService;
 use App\Services\PreviewImageStorage;
 use App\Services\PrintProjectService;
 use App\Services\TemplatePreviewService;
@@ -147,6 +149,7 @@ $cardImageService = null;
 $templatePreviewService = null;
 $cardPreviewService = null;
 $printProjectService = null;
+$metaService = null;
 
 if ($database instanceof PDO) {
     $tokenService = new TokenService();
@@ -216,6 +219,7 @@ if ($database instanceof PDO) {
         new PrintProjectRepository($database),
         $cardRepository
     );
+    $metaService = new MetaService($fontRepository);
 }
 
 // Positivliste der offenen Pfade. Die Sperre ist die Vorgabe, nicht die Ausnahme: Ein
@@ -236,6 +240,7 @@ if (!in_array($request->path(), $openPaths, true)) {
 
 $dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes): void {
     $routes->addRoute('GET', '/api/health', [HealthController::class, 'show']);
+    $routes->addRoute('GET', '/api/meta', [MetaController::class, 'show']);
     $routes->addRoute('POST', '/api/migrate', [MigrateController::class, 'run']);
     $routes->addRoute('POST', '/api/setup', [SetupController::class, 'create']);
     $routes->addRoute('POST', '/api/auth/login', [AuthController::class, 'login']);
@@ -317,10 +322,12 @@ $makeController = static function (string $controllerClass) use (
     $cardImageService,
     $templatePreviewService,
     $cardPreviewService,
-    $printProjectService
+    $printProjectService,
+    $metaService
 ): object {
     return match ($controllerClass) {
         HealthController::class => new HealthController($database),
+        MetaController::class => new MetaController($metaService),
         MigrateController::class => new MigrateController(
             $request,
             $database,

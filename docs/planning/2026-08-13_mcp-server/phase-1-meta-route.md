@@ -30,7 +30,7 @@ Backend, zieht der MCP-Server ohne Codeänderung nach.
 
 ## Checkliste
 
-- [ ] Die von `MetaService` benötigten Konstanten in den Prüfklassen von `private const` auf
+- [x] Die von `MetaService` benötigten Konstanten in den Prüfklassen von `private const` auf
       `public const` heben — **nur** die im Kontrakt genannten, keine Umbenennung:
       `LayerValidator::MAX_LAYERS`, `TYPES`, `SHAPES`, `ICON_SOURCES`, `ALIGNS`,
       `VERTICAL_ALIGNS`, `BUILT_IN_FONT_FAMILIES`, `HEX_PATTERN`, `KEY_PATTERN`.
@@ -38,23 +38,41 @@ Backend, zieht der MCP-Server ohne Codeänderung nach.
       Bildplatzierung, Anzahlgrenzen im Druckprojekt, Schrift-Höchstgröße), **erst eine
       benannte `public const` in der zuständigen Prüfklasse anlegen und die vorhandene
       Prüfung darauf umstellen** — nicht die Zahl in `MetaService` wiederholen.
-- [ ] `backend/src/Services/MetaService.php` anlegen: baut das Antwort-Array aus diesen
+- [x] `backend/src/Services/MetaService.php` anlegen: baut das Antwort-Array aus diesen
       Konstanten zusammen; einzige Abhängigkeit ist `FontRepository` (für `fonts.uploaded`)
       und `UPLOAD_MAX_BYTES` aus der Umgebung (Rückfallwert wie in `CardImageValidator`).
       Kein Repository, kein Validator, kein HTTP-Wissen.
-- [ ] `backend/src/Controllers/MetaController.php` anlegen — dünn: Service aufrufen,
+- [x] `backend/src/Controllers/MetaController.php` anlegen — dünn: Service aufrufen,
       `Response::json(...)`. Muster: `HealthController`.
-- [ ] Route in `backend/public/index.php` registrieren: `GET /api/meta`, hinter der
+- [x] Route in `backend/public/index.php` registrieren: `GET /api/meta`, hinter der
       Auth-Middleware (also **nicht** in die Positivliste der offenen Pfade aufnehmen),
       Dienst wie die übrigen Controller verdrahten.
-- [ ] Canvas-Konstanten (630×880, 10 Einheiten/mm, 63×88 mm, 300 dpi): existiert im Backend
+- [x] Canvas-Konstanten (630×880, 10 Einheiten/mm, 63×88 mm, 300 dpi): existiert im Backend
       keine Stelle, die sie schon hält, in `MetaService` als benannte Klassenkonstanten
       anlegen (sie sind Domänenkonstanten, `docs/PROJECT.md` → Randbedingungen) und im
       Kommentar auf `frontend/src/app/shared/canvas/rendering/layer.ts` und `print.ts` als
       Gegenstück verweisen.
-- [ ] Doku: `docs/routes.md` — neuer Abschnitt „Auskunft (`/api/meta`)" mit Zweck und dem
+- [x] Doku: `docs/routes.md` — neuer Abschnitt „Auskunft (`/api/meta`)" mit Zweck und dem
       Hinweis, dass die Antwortstruktur der Kontrakt für `mcp/` ist.
-- [ ] Doku: `docs/code-map.md` — Backend-Layout um `MetaController`/`MetaService` ergänzen
+- [x] Doku: `docs/code-map.md` — Backend-Layout um `MetaController`/`MetaService` ergänzt
       (eine Zeile, ordner-grob).
+
+## Abweichung vom Plan
+
+`uploads.imageMaxBytes`/`imageMimeTypes` kommen nicht aus einem Validator, sondern aus
+`CardImageService` (`FALLBACK_MAX_BYTES`, `MIME_TO_IMAGETYPE` — dort `private const` auf
+`public const` gehoben, gleiches Muster). Der Plan-Kontext nannte nur die Validatoren; die
+Bild-Grenzwerte liegen aber im Service, nicht im `CardImageValidator`. `FontValidator` bekam
+zusätzlich `NAME_MAX_LENGTH` (191) als `public const`, obwohl der Kontrakt kein
+`fonts.nameMaxLength` verlangt — Konsistenz mit den anderen Namensfeldern, ungenutzt in
+`MetaService`.
+
+## Nicht lokal geprüft
+
+`GET /api/meta` konnte nicht gegen einen laufenden Server getestet werden — lokales PHP ist
+8.3, `vendor/` ist gegen PHP 8.5 gebaut (`composer.json` verlangt `>= 8.5.0`), siehe
+`STATE.md` → „Offen technisch". Geprüft wurde `php -l` auf allen geänderten Dateien (keine
+Syntaxfehler). Der erste echte Beleg für Struktur, `401` ohne Anmeldung und `200` mit
+Zugriffstoken ist der nächste Deploy.
 
 ## Report-Back

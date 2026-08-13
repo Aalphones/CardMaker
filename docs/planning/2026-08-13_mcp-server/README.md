@@ -17,7 +17,7 @@ Auskunfts-Route `GET /api/meta`.
 
 | # | Phase | Inhalt | Rating | Status |
 |---|---|---|---|---|
-| 1 | [Auskunfts-Route](phase-1-meta-route.md) | `GET /api/meta` — Prüfregeln und Enums der laufenden API als eine Antwort | standard | pending |
+| 1 | [Auskunfts-Route](phase-1-meta-route.md) | `GET /api/meta` — Prüfregeln und Enums der laufenden API als eine Antwort | standard | complete |
 | 2 | [MCP-Gerüst](phase-2-mcp-geruest.md) | `mcp/`-Subprojekt, HTTP-Client, Serverstart, `.mcp.json`, Werkzeuge `get_meta`/`get_state` | standard | pending |
 | 3 | [Such- und Lese-Werkzeuge](phase-3-lese-werkzeuge.md) | `find_*`, `get_card`, `get_template`, `describe_card_fields` | mechanisch | pending |
 | 4 | [Schreib-Werkzeuge](phase-4-schreib-werkzeuge.md) | Karten anlegen/ändern/duplizieren, Kartengruppen, Meta-Prüfung, Zwischenspeicher-Verfall | heikel | pending |

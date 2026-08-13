@@ -12,6 +12,7 @@ Positivliste der offenen Pfade (ohne Anmeldung erreichbar): `/api/health`, `/api
 | Methode | Pfad | Zweck |
 |---|---|---|
 | GET | `/api/health` | Diagnose |
+| GET | `/api/meta` | Auskunft über Enums/Grenzwerte der laufenden API, hinter der Anmeldung |
 | POST | `/api/setup` | Erstes Konto anlegen, danach versiegelt |
 | POST | `/api/auth/login` | Anmelden |
 | POST | `/api/auth/logout` | Abmelden |
@@ -20,6 +21,16 @@ Positivliste der offenen Pfade (ohne Anmeldung erreichbar): `/api/health`, `/api
 | POST | `/api/tokens` | Zugriffstoken anlegen |
 | DELETE | `/api/tokens/{id}` | Zugriffstoken widerrufen |
 | POST | `/api/migrate` | Ausstehende Migrationen ausführen (Migrate-Token) |
+
+## Auskunft (`/api/meta`)
+
+`GET /api/meta` liefert Canvas-Maße, Ebenen-Enums, Schriftliste, Karten-/Kartengruppen-Grenzwerte,
+Bild-/Schrift-Uploadgrenzen und die Druckprojekt-Anzahlgrenze in einer Antwort — hinter der
+Anmeldung, mit Zugriffstoken erreichbar. Jeder Wert stammt aus der Prüfklasse, die ihn ohnehin
+durchsetzt (`MetaService` tippt nichts neu ab). Struktur: `docs/planning/2026-08-13_mcp-server/README.md`
+→ „Kontrakt: `GET /api/meta`". Zweck: Die Werkzeug-Schemas des lokalen MCP-Servers werden zur
+Laufzeit aus dieser Antwort abgeleitet — ändert sich eine Prüfregel im Backend, zieht der
+MCP-Server ohne Codeänderung nach.
 
 ## Kartengruppen (`/api/card-groups`)
 

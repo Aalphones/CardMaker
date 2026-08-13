@@ -12,7 +12,8 @@ use Throwable;
 
 final class FontService
 {
-    private const MAX_BYTES = 2097152;
+    /** Von {@see MetaService} als `uploads.fontMaxBytes` verwendet. */
+    public const MAX_BYTES = 2097152;
 
     /**
      * Die ersten vier Bytes entscheiden, welche Schriftart vorliegt — die Dateiendung nie.

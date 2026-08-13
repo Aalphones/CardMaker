@@ -9,6 +9,11 @@ use Respect\Validation\ValidatorBuilder as v;
 
 final class CardGroupValidator
 {
+    /** Von {@see \App\Services\MetaService} als `cardGroups.nameMaxLength` verwendet. */
+    public const NAME_MAX_LENGTH = 191;
+    /** Von {@see \App\Services\MetaService} als `cardGroups.descriptionMaxLength` verwendet. */
+    public const DESCRIPTION_MAX_LENGTH = 2000;
+
     /**
      * @param array<string, mixed> $body
      * @return array{name: string, description: ?string}
@@ -60,8 +65,8 @@ final class CardGroupValidator
     {
         $name = is_string($body['name'] ?? null) ? trim($body['name']) : '';
 
-        if (!v::stringType()->length(v::between(1, 191))->isValid($name)) {
-            $fields['name'] = 'Bitte einen Namen mit höchstens 191 Zeichen angeben.';
+        if (!v::stringType()->length(v::between(1, self::NAME_MAX_LENGTH))->isValid($name)) {
+            $fields['name'] = 'Bitte einen Namen mit höchstens ' . self::NAME_MAX_LENGTH . ' Zeichen angeben.';
         }
 
         return $name;
@@ -82,8 +87,9 @@ final class CardGroupValidator
             return null;
         }
 
-        if (!v::stringType()->length(v::lessThanOrEqual(2000))->isValid($description)) {
-            $fields['description'] = 'Die Beschreibung darf höchstens 2000 Zeichen haben.';
+        if (!v::stringType()->length(v::lessThanOrEqual(self::DESCRIPTION_MAX_LENGTH))->isValid($description)) {
+            $fields['description'] = 'Die Beschreibung darf höchstens '
+                . self::DESCRIPTION_MAX_LENGTH . ' Zeichen haben.';
         }
 
         return $description;

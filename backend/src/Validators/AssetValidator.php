@@ -9,7 +9,8 @@ use Respect\Validation\ValidatorBuilder as v;
 
 final class AssetValidator
 {
-    private const KINDS = ['frame', 'icon'];
+    /** Von {@see \App\Services\MetaService} als `assets.kinds` verwendet. */
+    public const KINDS = ['frame', 'icon'];
 
     /**
      * @param array<string, mixed> $body

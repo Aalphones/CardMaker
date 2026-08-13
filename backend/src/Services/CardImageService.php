@@ -14,13 +14,15 @@ use Throwable;
 
 final class CardImageService
 {
-    private const FALLBACK_MAX_BYTES = 8388608;
+    /** Von {@see MetaService} als Rückfallwert für `uploads.imageMaxBytes` verwendet. */
+    public const FALLBACK_MAX_BYTES = 8388608;
 
     /**
      * Kartenmotive sind meist Fotos oder KI-Bilder und kommen als JPEG — anders als der
      * Bildvorrat (nur PNG, wegen Transparenz für Rahmen/Icons), siehe ADR-015/017.
+     * Die Schlüssel sind von {@see MetaService} als `uploads.imageMimeTypes` verwendet.
      */
-    private const MIME_TO_IMAGETYPE = [
+    public const MIME_TO_IMAGETYPE = [
         'image/png' => IMAGETYPE_PNG,
         'image/jpeg' => IMAGETYPE_JPEG,
     ];

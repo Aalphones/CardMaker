@@ -20,20 +20,27 @@ use App\Support\WireFormat;
  */
 final class LayerValidator
 {
-    private const MAX_LAYERS = 100;
-    private const TYPES = ['image', 'shape', 'icon', 'frame', 'text'];
-    private const SHAPES = ['rect', 'circle', 'line'];
-    private const ICON_SOURCES = ['static', 'user'];
+    /** Von {@see \App\Services\MetaService} als `layers.maxLayers` verwendet. */
+    public const MAX_LAYERS = 100;
+    /** Von {@see \App\Services\MetaService} als `layers.types` verwendet. */
+    public const TYPES = ['image', 'shape', 'icon', 'frame', 'text'];
+    /** Von {@see \App\Services\MetaService} als `layers.shapeKinds` verwendet. */
+    public const SHAPES = ['rect', 'circle', 'line'];
+    /** Von {@see \App\Services\MetaService} als `layers.sources` verwendet. */
+    public const ICON_SOURCES = ['static', 'user'];
     private const TEXT_SOURCES = ['static', 'user'];
-    private const ALIGNS = ['left', 'center', 'right'];
-    private const VERTICAL_ALIGNS = ['top', 'middle', 'bottom'];
+    /** Von {@see \App\Services\MetaService} als `layers.textAligns` verwendet. */
+    public const ALIGNS = ['left', 'center', 'right'];
+    /** Von {@see \App\Services\MetaService} als `layers.textVerticalAligns` verwendet. */
+    public const VERTICAL_ALIGNS = ['top', 'middle', 'bottom'];
     /**
      * Die eingebauten Schriften: vom Gerät und mitgeliefert. Muss deckungsgleich mit
      * `frontend/src/app/shared/canvas/rendering/fonts.ts` bleiben — fehlt eine Schrift hier,
      * lässt sich ein Template mit ihr nicht speichern. Hochgeladene Schriften stehen nicht
      * hier, sondern kommen als `cmfont-<Kennung>` über den Konstruktor dazu.
+     * Von {@see \App\Services\MetaService} als `fonts.builtIn` verwendet.
      */
-    private const BUILT_IN_FONT_FAMILIES = [
+    public const BUILT_IN_FONT_FAMILIES = [
         // Vom Gerät
         'Arial', 'Verdana', 'Trebuchet MS', 'Georgia', 'Times New Roman', 'Courier New', 'Impact',
         // Mitgeliefert (frontend/public/fonts)
@@ -42,8 +49,10 @@ final class LayerValidator
         'Bangers', 'Luckiest Guy', 'Bungee',
         'Merriweather', 'Lato',
     ];
-    private const HEX_PATTERN = '/^#[0-9a-fA-F]{6}$/';
-    private const KEY_PATTERN = '/^[a-z][a-z0-9_]{0,39}$/';
+    /** Von {@see \App\Services\MetaService} als `layers.colorPattern` verwendet. */
+    public const HEX_PATTERN = '/^#[0-9a-fA-F]{6}$/';
+    /** Von {@see \App\Services\MetaService} als `layers.fieldKeyPattern` verwendet. */
+    public const KEY_PATTERN = '/^[a-z][a-z0-9_]{0,39}$/';
 
     /**
      * Der Prüfer selbst bleibt ohne Datenbankwissen: welche Schriften hochgeladen wurden,

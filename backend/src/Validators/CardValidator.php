@@ -15,8 +15,20 @@ use Respect\Validation\ValidatorBuilder as v;
  */
 final class CardValidator
 {
-    private const KEY_PATTERN = '/^[a-z][a-z0-9_]{0,39}$/';
-    private const HEX_PATTERN = '/^#[0-9a-fA-F]{6}$/';
+    /** Von {@see \App\Services\MetaService} als `cards.valueKeyPattern` verwendet. */
+    public const KEY_PATTERN = '/^[a-z][a-z0-9_]{0,39}$/';
+    /** Von {@see \App\Services\MetaService} als `cards.textOverrides.colorPattern` verwendet. */
+    public const HEX_PATTERN = '/^#[0-9a-fA-F]{6}$/';
+    /** Von {@see \App\Services\MetaService} als `cards.nameMaxLength` verwendet. */
+    public const NAME_MAX_LENGTH = 191;
+    /** Von {@see \App\Services\MetaService} als `cards.valueMaxLength` verwendet. */
+    public const VALUE_MAX_LENGTH = 2000;
+    /** Von {@see \App\Services\MetaService} als `cards.textOverrides.fontSizeMin` verwendet. */
+    public const TEXT_OVERRIDE_FONT_SIZE_MIN = 4;
+    /** Von {@see \App\Services\MetaService} als `cards.textOverrides.fontSizeMax` verwendet. */
+    public const TEXT_OVERRIDE_FONT_SIZE_MAX = 200;
+    /** Von {@see \App\Services\MetaService} als `cards.textOverrides.flags` verwendet. */
+    public const TEXT_OVERRIDE_FLAGS = ['bold', 'italic'];
 
     /**
      * @param array<string, mixed> $body
@@ -108,8 +120,8 @@ final class CardValidator
     {
         $name = is_string($body['name'] ?? null) ? trim($body['name']) : '';
 
-        if (!v::stringType()->length(v::between(1, 191))->isValid($name)) {
-            $fields['name'] = 'Bitte einen Namen mit höchstens 191 Zeichen angeben.';
+        if (!v::stringType()->length(v::between(1, self::NAME_MAX_LENGTH))->isValid($name)) {
+            $fields['name'] = 'Bitte einen Namen mit höchstens ' . self::NAME_MAX_LENGTH . ' Zeichen angeben.';
         }
 
         return $name;
@@ -170,8 +182,8 @@ final class CardValidator
                 return [];
             }
 
-            if (!is_string($text) || mb_strlen($text) > 2000) {
-                $fields['values'] = "Der Wert zu „$key\" darf höchstens 2000 Zeichen haben.";
+            if (!is_string($text) || mb_strlen($text) > self::VALUE_MAX_LENGTH) {
+                $fields['values'] = "Der Wert zu „$key\" darf höchstens " . self::VALUE_MAX_LENGTH . ' Zeichen haben.';
 
                 return [];
             }
@@ -269,8 +281,13 @@ final class CardValidator
         if (array_key_exists('font_size', $override)) {
             $fontSize = $override['font_size'];
 
-            if ((!is_int($fontSize) && !is_float($fontSize)) || $fontSize < 4 || $fontSize > 200) {
-                $fields['textOverrides'] = "Die Schriftgröße zu „$fieldKey\" muss zwischen 4 und 200 liegen.";
+            if (
+                (!is_int($fontSize) && !is_float($fontSize))
+                || $fontSize < self::TEXT_OVERRIDE_FONT_SIZE_MIN
+                || $fontSize > self::TEXT_OVERRIDE_FONT_SIZE_MAX
+            ) {
+                $fields['textOverrides'] = "Die Schriftgröße zu „$fieldKey\" muss zwischen "
+                    . self::TEXT_OVERRIDE_FONT_SIZE_MIN . ' und ' . self::TEXT_OVERRIDE_FONT_SIZE_MAX . ' liegen.';
             } else {
                 $result['font_size'] = $fontSize;
             }

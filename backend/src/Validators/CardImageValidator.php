@@ -9,6 +9,15 @@ use Respect\Validation\ValidatorBuilder as v;
 
 final class CardImageValidator
 {
+    /** Von {@see \App\Services\MetaService} als `cards.imagePlacement.offsetMin` verwendet. */
+    public const OFFSET_MIN = -2000;
+    /** Von {@see \App\Services\MetaService} als `cards.imagePlacement.offsetMax` verwendet. */
+    public const OFFSET_MAX = 2000;
+    /** Von {@see \App\Services\MetaService} als `cards.imagePlacement.scaleMin` verwendet. */
+    public const SCALE_MIN = 0.1;
+    /** Von {@see \App\Services\MetaService} als `cards.imagePlacement.scaleMax` verwendet. */
+    public const SCALE_MAX = 10;
+
     public static function validateLayerId(?string $layerId): string
     {
         $value = $layerId !== null ? trim($layerId) : '';
@@ -33,15 +42,29 @@ final class CardImageValidator
         $result = [];
 
         if (array_key_exists('offset_x', $body)) {
-            $result['offset_x'] = self::numberInRange($body, 'offset_x', 'offsetX', -2000, 2000, $fields);
+            $result['offset_x'] = self::numberInRange(
+                $body,
+                'offset_x',
+                'offsetX',
+                self::OFFSET_MIN,
+                self::OFFSET_MAX,
+                $fields
+            );
         }
 
         if (array_key_exists('offset_y', $body)) {
-            $result['offset_y'] = self::numberInRange($body, 'offset_y', 'offsetY', -2000, 2000, $fields);
+            $result['offset_y'] = self::numberInRange(
+                $body,
+                'offset_y',
+                'offsetY',
+                self::OFFSET_MIN,
+                self::OFFSET_MAX,
+                $fields
+            );
         }
 
         if (array_key_exists('scale', $body)) {
-            $result['scale'] = self::numberInRange($body, 'scale', 'scale', 0.1, 10, $fields);
+            $result['scale'] = self::numberInRange($body, 'scale', 'scale', self::SCALE_MIN, self::SCALE_MAX, $fields);
         }
 
         if ($fields !== []) {

@@ -8,8 +8,10 @@ use App\Http\Response;
 
 final class PrintProjectValidator
 {
-    private const QUANTITY_MIN = 1;
-    private const QUANTITY_MAX = 99;
+    /** Von {@see \App\Services\MetaService} als `printProject.quantityMin` verwendet. */
+    public const QUANTITY_MIN = 1;
+    /** Von {@see \App\Services\MetaService} als `printProject.quantityMax` verwendet. */
+    public const QUANTITY_MAX = 99;
 
     /**
      * @param array<string, mixed> $body
