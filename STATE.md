@@ -1,15 +1,16 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-13_rendering-engine/` — Meilenstein 4,
-Rendering-Engine. Freigegeben am 2026-08-13, geparkt, noch keine Phase begonnen.
+Rendering-Engine. Freigegeben am 2026-08-13.
 
-**Nächster Schritt:** `/implement` in einer frischen Session. Phase 1 (Der Render-Motor)
-ist die erste; README lesen, dann `phase-1-render-motor.md` — die Phasen-Dateien sind
-self-contained, der Planungs-Chat wird nicht gebraucht.
+**Phase:** 1/5 — Der Render-Motor (complete). Der Motor zeichnet eine Karte in Druckauflösung
+ohne offenen Editor; gemessen 744 × 1039.
 
-**Worum es geht:** eine fertige Karte in Druckauflösung (744 × 1039 Bildpunkte, PNG)
-erzeugen, ohne dass ein Editor offen sein muss — plus den Knopf „Als Bild herunterladen"
-im Karteneditor und in der Kartenliste. Grundlage für die Druckbögen in Meilenstein 5.
+**Nächster Schritt:** Phase 2 — `phase-2-bilder-und-schriften-abwarten.md`: `renderPng` lädt
+Bilder und Schriften selbst und wartet auf sie, bevor gezeichnet wird. Die Nahtstelle sind die
+drei leeren Vorräte in `exportContext()` in
+`frontend/src/app/shared/canvas/card-renderer.service.ts`. Phase 2 ist als **heikel**
+eingestuft — `opusplan` oder `opus`.
 
 **Offen beim Nutzer (aus Meilenstein 3):** Der vollständige Bildschirm-Rundlauf gegen die
 acht Abnahmekriterien des Karteneditor-Plans ist nie gefahren worden. Prüfliste in

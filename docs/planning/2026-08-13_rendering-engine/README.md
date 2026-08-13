@@ -31,7 +31,7 @@ des Templates, nicht aus einer neuen Sortierung.
 
 | # | Phase | Rating | Status |
 |---|---|---|---|
-| 1 | [Der Render-Motor](phase-1-render-motor.md) | heikel | pending |
+| 1 | [Der Render-Motor](phase-1-render-motor.md) | heikel | complete |
 | 2 | [Bilder und Schriften abwarten](phase-2-bilder-und-schriften-abwarten.md) | heikel | pending |
 | 3 | [Eine gespeicherte Karte ohne Editor rendern](phase-3-karte-ohne-editor.md) | standard | pending |
 | 4 | [Als Bild herunterladen](phase-4-herunterladen.md) | standard | pending |
@@ -107,10 +107,10 @@ war (siehe „Wackelstellen" unten).
 
 ## Wackelstellen (Konfidenz-Ausweis)
 
-- 🟡 **Konva-Bühne ohne sichtbaren Container.** Der Motor baut die Bühne auf einem `div`, das
-  nie im Dokument hängt. Das ist gängige Praxis, aber ich habe es in diesem Projekt nicht
-  belegt. *Check in Phase 1:* das erzeugte PNG durch `createImageBitmap` schicken und
-  `width`/`height` in der Konsole ausgeben — 744 × 1039 oder es funktioniert nicht.
+- ✅ **Konva-Bühne ohne sichtbaren Container.** Erledigt in Phase 1: gemessen 744 × 1039 am
+  Kopfsatz der erzeugten PNG-Datei, im kopflosen Browser mit dem echten Zeichenweg. Der
+  Maßstab sitzt dabei auf der Konva-Ebene statt auf `pixelRatio` (Begründung im Report-Back
+  von Phase 1).
 - 🟡 **Zuschnitt der Bildflächen beim hochskalierten Export.** Kartenbilder liegen in einer
   zuschneidenden Gruppe. Ob der Zuschnitt beim erhöhten Pixelverhältnis exakt mitwandert,
   ist Konva-Verhalten, das ich nicht aus dem Code ablesen kann. *Check:* Punkt 3 der

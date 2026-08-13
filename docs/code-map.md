@@ -127,6 +127,13 @@ frontend/src/app/
                            Motiv in seiner Fläche ziehen und mit dem Mausrad zoomen; die Fläche
                            meldet nur das Ergebnis nach außen, wann gespeichert wird entscheidet
                            der Karteneditor
+      card-renderer.service.ts ← zeichnet eine Karte in Druckauflösung, ohne dass ein Editor
+                           offen ist: Bühne auf einem nie eingehängten `div`, PNG raus, Bühne
+                           abgeräumt (ADR-022). Grundlage für „Als Bild herunterladen" und die
+                           Druckbögen
+      render-stage.ts   ← die eine Stelle, die die Zeichenliste ohne Angular in Konva-Knoten
+                           übersetzt — Gegenstück zu `card-canvas.html`, muss mit ihr
+                           gleichziehen
       blob-image-cache.ts ← der gemeinsame Unterbau beider Bild-Lader: Blob holen,
                            Bildelement bauen, alles in einem Signal halten, Objekt-Adressen
                            beim Zerstören freigeben
@@ -155,7 +162,10 @@ frontend/src/app/
                            dazu der Namensschlüssel `cmfont-<Kennung>` für hochgeladene
                            Schriften und `renderFontFamily()`, die einzige Stelle, die
                            entscheidet, welcher Schriftname ans Canvas geht),
-                           `units.ts` (Canvas-Einheiten → Pixel), `auto-shrink.ts`
+                           `units.ts` (Canvas-Einheiten → Pixel), `print.ts` (Druckauflösung
+                           und die daraus folgende Zielbreite von 744 Bildpunkten),
+                           `render-input.ts` (was der Renderer über eine Karte braucht:
+                           Ebenen + Karteninhalt), `auto-shrink.ts`
                            (automatisches Verkleinern von Text), `card-content.ts` (was eine
                            Karte zum Template beisteuert, plus die Regeln „Kartenwert schlägt
                            Template-Vorgabe" für Text, Größe, Farbe, Fett/Kursiv, Icon-Wahl
