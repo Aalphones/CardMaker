@@ -18,6 +18,7 @@ import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm
 import { FieldHint } from '../../../shared/components/field-hint/field-hint';
 import { downloadBlob } from '../../../shared/services/download-file';
 import { Notification } from '../../../shared/services/notification';
+import { printPdfBlob } from '../../../shared/services/print-blob';
 import {
   PRINT_ITEM_MAX_QUANTITY,
   PrintItem,
@@ -46,6 +47,8 @@ type ExportKind = 'pdf' | 'png';
 interface FinishedExport {
   kind: ExportKind;
   bytes: number;
+  /** Nur beim PDF: Druckdialog ging auf (`true`) oder es blieb beim Download (`false`). */
+  printed: boolean;
 }
 
 @Component({
@@ -81,9 +84,7 @@ export class PrintProjectPage {
       return null;
     }
 
-    const what = finished.kind === 'pdf' ? 'PDF erstellt' : 'Bögen erstellt';
-
-    return `${what} — ${megabyteFormat.format(finished.bytes / 1_000_000)} MB`;
+    return `${finishedWhat(finished)} — ${megabyteFormat.format(finished.bytes / 1_000_000)} MB`;
   });
 
   protected readonly offersSmallerFile = computed(() => {
@@ -307,8 +308,15 @@ export class PrintProjectPage {
           showProgress,
         );
 
-        downloadBlob(pdf, PDF_FILE_NAME);
-        this.finishedExport.set({ kind, bytes: pdf.size });
+        // Erst der kurze Weg in den Druckdialog; wo der Browser das nicht mitmacht, bleibt
+        // der Download der verlässliche Ausgang.
+        const printed = await printPdfBlob(pdf);
+
+        if (!printed) {
+          downloadBlob(pdf, PDF_FILE_NAME);
+        }
+
+        this.finishedExport.set({ kind, bytes: pdf.size, printed });
       } else {
         const bytes = await this.printExport.exportPngSheets(
           sheets,
@@ -318,7 +326,7 @@ export class PrintProjectPage {
           showProgress,
         );
 
-        this.finishedExport.set({ kind, bytes });
+        this.finishedExport.set({ kind, bytes, printed: false });
       }
     } catch {
       this.notification.show(EXPORT_FAILED_MESSAGE, 'error');
@@ -336,6 +344,19 @@ export class PrintProjectPage {
     const category = pluralRules.select(count);
     return category === 'one' ? '1 Bogen' : `${count} Bögen`;
   }
+}
+
+/** Sagt, was tatsächlich passiert ist — Dialog offen, Datei im Download-Ordner oder Bögen. */
+function finishedWhat(finished: FinishedExport): string {
+  if (finished.kind === 'png') {
+    return 'Bögen erstellt';
+  }
+
+  if (finished.printed) {
+    return 'Druckdialog geöffnet';
+  }
+
+  return 'PDF heruntergeladen';
 }
 
 function progressText(progress: ExportProgress): string {

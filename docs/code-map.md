@@ -84,7 +84,9 @@ frontend/src/app/
       print-project-page/    ← Route /print-project: Positionsliste (Anzahl-Stepper, Entfernen,
                                Alles-entfernen-Rückfrage), Druckoptionen (Schnittmarken/Beschnitt
                                mit Fragezeichen-Hinweis), Leerzustand, rechts die Bogen-Vorschau,
-                               oben die Export-Knöpfe mit Fortschritt, Dateigröße, dem
+                               oben die Export-Knöpfe mit Fortschritt (PDF geht über
+                               `printPdfBlob()` direkt in den Druckdialog, Download nur als
+                               Auffangnetz), Dateigröße, dem
                                200-dpi-Ausweg für zu große Dateien und — daneben im selben
                                Hinweis-Block — dem Schärfe-Hinweis (Karten mit Motiv unter
                                300 dpi, lädt den Karteninhalt einmal je Karte über
@@ -139,7 +141,10 @@ frontend/src/app/
     services/          ← kleine, Angular-freie Helfer ohne eigenen Zustand: `notification.ts`
                           (globaler Meldungsdienst, angezeigt von `notification-list`),
                           `download-file.ts` (`downloadBlob()` — Objekt-Adresse, unsichtbarer
-                          `<a download>`-Klick, Freigabe), `card-file-name.ts`
+                          `<a download>`-Klick, Freigabe), `print-blob.ts` (`printPdfBlob()` —
+                          PDF in einen unsichtbaren Rahmen, dessen `print()` öffnet den
+                          Druckdialog direkt; meldet `false` in Firefox/Safari, dann greift der
+                          Download), `card-file-name.ts`
                           (`cardFileName()` — Kartenname → Dateiname, Umlaute ausgeschrieben)
     canvas/            ← alles, was mit Konva zeichnet — Feature-Komponenten binden nur Daten
       card-canvas/      ← die Kartenvorschau: `card-canvas.*` (Bühne, Maßstab, Schachbrett,
