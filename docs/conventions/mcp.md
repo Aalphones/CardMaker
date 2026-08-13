@@ -1,38 +1,44 @@
-# MCP Server (Assistant Tool Access) — CardMaker
+# MCP-Server (Werkzeug-Zugriff für den Assistenten) — CardMaker
 
 `mcp/` ist ein versioniertes Python-Subprojekt, das die CardMaker-REST-API als typisierte
-MCP-Tools exponiert. Läuft **nur lokal**, neben Claude Code — nie auf Strato. Gleiche
-REST-API, gleiche PAT-Auth wie das Web-Frontend, nichts am Backend ändert sich dadurch.
+MCP-Werkzeuge bereitstellt. Läuft **nur lokal**, neben Claude Code — nie auf Strato. Dieselbe
+REST-API, dieselbe Zugriffstoken-Anmeldung wie das Frontend; am Backend ändert sich dadurch
+nichts (einzige Ausnahme: die Auskunftsroute `GET /api/meta`).
 
-Analog zu Promptigofants `mcp/`-Subprojekt (siehe `docs/decisions/033-mcp-server-for-assistant-access.md`
-dort als Referenzmuster) — noch nicht gescaffoldet, entsteht in Meilenstein 6
-(siehe `docs/PROJECT.md`).
+Einrichtung, Token setzen und die vollständige Werkzeugliste: `mcp/README.md`.
+Aufbau in der Landkarte: `docs/code-map.md` → „MCP-Server".
 
-## Geplanter Aufbau
+## Stand (Phase 2 von `docs/planning/2026-08-13_mcp-server/`)
 
-- **Setup:** venv, `CM_TOKEN`-Env-Var (Personal Access Token), Registrierung in `.mcp.json`
-  am Repo-Root — kein Token-Literal dort
-- **Tool-Schemas aus `GET /api/meta` zur Laufzeit ableiten**, nicht aus einer
-  hand-kopierten Feldliste — ein Backend-Änderung an Enum/Required-Feld muss dann nicht im
-  MCP-Code nachgezogen werden
-- **Tools grob nach Domäne**: Read (`get_state`, `get_meta`), Search (`find_template`,
-  `find_card`, `find_card_group`), Write (`create_card_group`/`update_card_group`,
-  `create_template`, `create_card`/`update_card` — befüllt die Textfelder eines Templates
-  mit Text, gleichwertig zum Formular im Frontend (ADR-011) —, `upload_image`)
+- **Paket** `cardmaker_mcp`, Projektname `cardmaker-mcp`, Abhängigkeit `mcp[cli]>=2.0.0`,
+  `requires-python >=3.10`, Build über `hatchling`.
+- **Umgebungsvariablen:** `CM_TOKEN` (Zugriffstoken, Pflicht — Ausweichweg: Datei `.cm_token`
+  im Arbeitsverzeichnis oder Paketordner), `CM_BASE` (Basisadresse, Vorgabe
+  `https://quantum-canvas.de/api`).
+- **Werkzeuge:** `get_meta` (Prüfregeln/Enums der laufenden API), `get_state`
+  (Kartengruppen + Templates + Karten). Die Werkzeuge der Phasen 3–5 (Suchen, Lesen,
+  Schreiben, Bilder) kommen dort dazu.
+- **Kein Zustandsbild im Backend:** `get_state` wird im MCP-Server aus drei Listenabrufen
+  zusammengesetzt (ADR-025) und prozessweit zwischengespeichert.
+- **SDK-Namen:** Ab SDK 2.0 heißt die Server-Klasse `MCPServer` (`mcp.server.mcpserver`),
+  in 1.x hieß sie `FastMCP` — die Referenz-Umsetzung bei Promptigofant steht noch auf 1.x.
 
 ## Drift-Regeln (was still veralten kann)
 
-Sobald implementiert, gelten dieselben Regeln wie bei Promptigofant:
-
-- Tool-Schemas aus der Laufzeit-Meta-Route ableiten, nicht hand-pflegen
-- Jedes neue Write-Tool braucht eine Cache-Invalidierungs-Markierung, sonst liefern
-  `find_*`/`get_state`-Lookups nach einem Write veraltete Daten bis zum Prozess-Neustart
-- Route-Inventar im MCP-Code muss mit der tatsächlichen API-Oberfläche synchron bleiben —
-  neue PAT-erreichbare Routes brauchen ein Tool oder eine explizite „out of scope"-Notiz
+- **Werkzeug-Schemas aus der Laufzeit-Auskunft ableiten, nicht hand-pflegen** — ändert sich
+  eine Prüfregel im Backend, darf das keine Codeänderung im MCP-Server erzwingen.
+- **Jedes neue Schreib-Werkzeug muss den Zwischenspeicher verwerfen**
+  (`invalidates_state`), sonst antworten `find_*`/`get_state` nach einem Schreibvorgang mit
+  veralteten Daten bis zum Neustart des Prozesses.
+- **Routen-Bestand im MCP-Code muss mit der API-Oberfläche mitlaufen** — neue Routen, die
+  mit Zugriffstoken erreichbar sind, brauchen ein Werkzeug oder eine ausdrückliche Notiz
+  „bewusst außen vor".
 
 ## Critical Rules
 
-1. **Nie deployen** — `mcp/` läuft ausschließlich lokal neben Claude Code.
-2. **Kein Token-Literal in `.mcp.json`** — Token kommt aus der Umgebung.
-3. **Tool-Schemas aus der Laufzeit ableiten, nicht hand-kopieren** — sonst driftet die
-   Doku vom tatsächlichen API-Vertrag weg, ohne dass es auffällt.
+1. **Nie hochladen** — `mcp/` läuft ausschließlich lokal neben Claude Code.
+2. **Kein Token-Literal in `.mcp.json`** — der Token kommt aus der Umgebung (`${CM_TOKEN}`).
+3. **Werkzeug-Schemas zur Laufzeit ableiten, nicht abschreiben** — sonst driftet die
+   Beschreibung vom tatsächlichen API-Vertrag weg, ohne dass es auffällt.
+4. **Templates bleiben lesend** — das Ebenen-Layout entsteht im Editor, nicht als blind
+   geschriebener JSON-Block (Entscheidung 2026-08-13).

@@ -3,6 +3,11 @@ vendor/
 node_modules/
 mcp/.venv/
 
+# ── Python (MCP-Server) ──────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+
 # ── Build output ─────────────────────────────────────────────────────────────
 deploy/
 frontend/dist/
@@ -13,6 +18,9 @@ frontend/.angular/
 .env.*
 !.env.example
 deploy.env
+.cm_token
+mcp/.cm_token
+mcp/cardmaker_mcp/.cm_token
 
 # ── Scratch ──────────────────────────────────────────────────────────────────
 .commit_msg.tmp

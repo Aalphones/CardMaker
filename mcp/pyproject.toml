@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cardmaker-mcp"
+version = "0.1.0"
+description = "MCP-Server, der die CardMaker-REST-API als typisierte Werkzeuge bereitstellt"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=2.0.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["cardmaker_mcp"]

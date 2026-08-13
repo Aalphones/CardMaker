@@ -288,6 +288,29 @@ api-bridge/       ← drei Dateien, die im ausgelieferten Bereich landen und das
                      Backend von nebenan einbinden (ADR-013)
 ```
 
+## MCP-Server (`mcp/`)
+
+Python-Subprojekt, das die REST-API als Werkzeuge für Claude Code bereitstellt — **läuft nur
+lokal und wird nie hochgeladen** (`deploy.cmd` gleicht nur `backend/`, `api-bridge/` und den
+Frontend-Build ab, `mcp/` ist von keinem Muster erfasst). Einrichtung und Werkzeugliste:
+`mcp/README.md`, Regeln: `docs/conventions/mcp.md`.
+
+```
+mcp/
+  pyproject.toml            ← Paket cardmaker-mcp, Abhängigkeit mcp[cli]
+  .venv/                    ← nicht im Git
+  cardmaker_mcp/
+    client.py               ← HTTP-Strecke: Token-Auflösung (CM_TOKEN → .cm_token), Basisadresse
+                               aus CM_BASE, Wiederholung bei Drosselung, Fehlerformat
+                               { error, message, fields? } → ApiError, mehrteiliger Upload
+    state_cache.py          ← prozessweiter Zwischenspeicher für Auskunft und Zustandsbild;
+                               jedes Schreib-Werkzeug muss ihn verwerfen
+    server.py               ← Server-Instanz, Fehlerabbildung (api_tool/invalidates_state),
+                               Werkzeug-Registrierung, Start auf stdio
+    __main__.py             ← python -m cardmaker_mcp
+.mcp.json                   ← Registrierung im Repo-Root, Token nur als ${CM_TOKEN}
+```
+
 ## Hochladen
 
 | Datei | Zweck |
