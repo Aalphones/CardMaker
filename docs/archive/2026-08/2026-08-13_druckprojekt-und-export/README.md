@@ -18,7 +18,7 @@ zu wenig Bildpunkte haben.
 | 3 | [Der Druckprojekt-Bildschirm](phase-3-bildschirm.md) | standard | **complete** |
 | 4 | [Bogen-Aufbau und Vorschau](phase-4-bogen-aufbau.md) | heikel | **complete** |
 | 5 | [Export als PDF und PNG](phase-5-export.md) | heikel | **complete** |
-| 6 | [Schärfe-Hinweis und Abschluss](phase-6-schaerfe-und-abschluss.md) | standard | pending |
+| 6 | [Schärfe-Hinweis und Abschluss](phase-6-schaerfe-und-abschluss.md) | standard | **complete** |
 
 ## Kontrakt (Backend ↔ Frontend)
 
@@ -103,20 +103,44 @@ strukturgleich zum Store, aber ohne Abhängigkeit dorthin.
 
 ## Summary
 
-_(beim Archivieren füllen)_
+Meilenstein 5 ist abgeschlossen: genau ein Druckprojekt (Warenkorb) im Backend, Seitenspalten-
+Eintrag mit Plakette, „Drucken"-Knopf in der Kartenliste, der Druckprojekt-Bildschirm
+(Positionsliste, Druckoptionen, Bogen-Vorschau), die gemeinsame Millimeter-Geometrie für
+Vorschau/PDF/PNG, der Export selbst (PDF und PNG, JPEG-Kompression, 200-dpi-Ausweg für zu
+große Dateien) sowie der Schärfe-Hinweis für zu grobe Motive vor dem Export.
 
 ## Files touched
 
-_(beim Archivieren füllen)_
+- Backend: `PrintProjectController`/`Service`/`Repository`/`Validator`, Migration
+  `print_project_items`/`print_project_options`
+- Frontend Store: `store/print-project/*` (actions, effects, feature, facade)
+- Frontend Rendering: `shared/canvas/rendering/sheet-layout.ts`, `print.ts`,
+  `image-sharpness.ts` (neu, Phase 6)
+- Frontend Features: `features/print-project/*` (Seite, Bogen-Vorschau, Export-Service)
+- Docs: `docs/code-map.md`, `docs/models.md`, `docs/routes.md`, `docs/decisions/023-*.md`,
+  `docs/PROJECT.md`
 
 ## Commits
 
-_(beim Archivieren füllen)_
+- `d011a8e` Backend: Druckprojekt speichern
+- `9388655` Store, Route, Seitenspalten-Eintrag
+- `2732aa6` Druckprojekt-Bildschirm und „Drucken"-Knopf
+- `1363a42` Bogen-Geometrie und Vorschau
+- `0a6a111` Export als PDF und PNG
+- Phase 6 (Schärfe-Hinweis, dieser Commit)
 
 ## Deviations from plan
 
-_(beim Archivieren füllen)_
+Keine — alle sechs Phasen wie geplant umgesetzt.
 
 ## Follow-ups
 
-_(beim Archivieren füllen)_
+- Smoke-Checkliste oben ist noch nicht vom Nutzer gefahren worden (neuer Meilenstein, keine
+  Regression-Historie).
+- Weiterhin offen aus früheren Meilensteinen: der Bildschirm-Rundlauf gegen die
+  Smoke-Checklisten von Meilenstein 3 und 4 ist nie gefahren worden (siehe
+  `docs/archive/2026-08/2026-08-10_karteneditor/phase-9-abschluss.md` und
+  `docs/archive/2026-08/2026-08-13_rendering-engine/README.md`).
+- Backend-Migration/Endpunkte dieses Meilensteins waren lokal nicht lauffähig (PHP-
+  Versionsdifferenz `vendor/`) — erster echter Beleg ist der nächste Deploy mit
+  `POST /api/migrate`.

@@ -20,11 +20,13 @@ Erledigte Einträge abhaken, nicht löschen.
 - [ ] → Phase 3: Die Anzahl je Position ist im Backend auf **99** gedeckelt (Validator und
   „schon drin → +1"). Der Plus-Knopf sollte bei 99 nicht weiterzählen, sonst antwortet das
   Backend mit 422 statt still zu deckeln.
-- [ ] → Phase 6: Der Kopfbereich der Seite trägt jetzt schon eine Ergebniszeile („PDF erstellt
+- [x] → Phase 6: Der Kopfbereich der Seite trägt jetzt schon eine Ergebniszeile („PDF erstellt
   — 7,4 MB" samt 200-dpi-Knopf, `print-project__export-result`). Der Schärfe-Hinweis gehört
   daneben und nicht in einen dritten Block, sonst stapeln sich drei Zeilen über der Vorschau.
-- [ ] → Phase 6: `CardRenderer.renderPng` heißt jetzt `render` und nimmt als dritten Parameter
-  das Ausgabeformat. Alte Aufrufe im Plan-Text sind damit veraltet.
+  → Beide Zeilen stecken jetzt in einem gemeinsamen Wrapper (`print-project__hints`).
+- [x] → Phase 6: `CardRenderer.renderPng` heißt jetzt `render` und nimmt als dritten Parameter
+  das Ausgabeformat. Alte Aufrufe im Plan-Text sind damit veraltet. → Phase 6 ruft `render`
+  nirgends auf (nutzt `CardRenderSource.inputForCard`), betrifft diese Phase nicht.
 - [ ] → Phase 2/3: Das Backend liefert `previewUpdatedAt` je Position, aber **keine**
   Bild-Adresse — das Kachelbild kommt wie in der Kartenliste über
   `shared/canvas/preview-image-loader.ts` aus `cardId` + Zeitstempel.

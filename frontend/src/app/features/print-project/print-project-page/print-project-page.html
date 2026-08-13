@@ -24,20 +24,27 @@
     </div>
   </div>
 
-  @if (finishedText() !== null) {
-    <p class="print-project__export-result">
-      {{ finishedText() }}
-      @if (offersSmallerFile()) {
-        <button
-          type="button"
-          class="btn btn--ghost"
-          [disabled]="exportRunning()"
-          (click)="retrySmaller()"
-        >
-          Kleinere Datei erzeugen (200 dpi)
-        </button>
+  @if (finishedText() !== null || sharpnessHintText() !== null) {
+    <div class="print-project__hints">
+      @if (finishedText() !== null) {
+        <p class="print-project__export-result">
+          {{ finishedText() }}
+          @if (offersSmallerFile()) {
+            <button
+              type="button"
+              class="btn btn--ghost"
+              [disabled]="exportRunning()"
+              (click)="retrySmaller()"
+            >
+              Kleinere Datei erzeugen (200 dpi)
+            </button>
+          }
+        </p>
       }
-    </p>
+      @if (sharpnessHintText() !== null) {
+        <p class="print-project__sharpness-hint">{{ sharpnessHintText() }}</p>
+      }
+    </div>
   }
 
   @if (cartEmpty()) {

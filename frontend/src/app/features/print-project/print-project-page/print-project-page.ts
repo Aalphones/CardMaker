@@ -10,7 +10,9 @@ import {
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
+import { CardRenderSource } from '../../../shared/canvas/card-render-source.service';
 import { PreviewImageLoader } from '../../../shared/canvas/preview-image-loader';
+import { lowResolutionLayers } from '../../../shared/canvas/rendering/image-sharpness';
 import { PrintSheet, buildSheets } from '../../../shared/canvas/rendering/sheet-layout';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { FieldHint } from '../../../shared/components/field-hint/field-hint';
@@ -56,6 +58,7 @@ interface FinishedExport {
 export class PrintProjectPage {
   private readonly dialog = inject(Dialog);
   private readonly previewImages = inject(PreviewImageLoader);
+  private readonly renderSource = inject(CardRenderSource);
   private readonly printExport = inject(PrintExport);
   private readonly notification = inject(Notification);
   protected readonly printProject = inject(PrintProjectFacade);
@@ -64,6 +67,8 @@ export class PrintProjectPage {
   private readonly runningExport = signal<ExportKind | null>(null);
   private readonly progressLabel = signal<string>('');
   private readonly finishedExport = signal<FinishedExport | null>(null);
+  /** Je Karten-Kennung: hat sie mindestens eine Bildebene unter 300 dpi? Einmal geladen, gecacht. */
+  private readonly lowResolutionByCardId = signal<ReadonlyMap<number, boolean>>(new Map());
 
   protected readonly cartEmpty = computed(() => this.printProject.items().length === 0);
   protected readonly exportRunning = computed(() => this.runningExport() !== null);
@@ -85,6 +90,36 @@ export class PrintProjectPage {
     const finished = this.finishedExport();
 
     return finished !== null && finished.bytes > SMALLER_FILE_THRESHOLD_BYTES;
+  });
+
+  /** Namen der Karten mit zu grobem Motiv, in Projekt-Reihenfolge. */
+  private readonly lowResolutionCardNames = computed<string[]>(() => {
+    const flags = this.lowResolutionByCardId();
+
+    return this.printProject
+      .items()
+      .filter((item: PrintItem) => flags.get(item.cardId) === true)
+      .map((item: PrintItem) => item.cardName);
+  });
+
+  /** „3 Karten haben ein Motiv, das für sauberen Druck zu grob ist: …" — blockiert nichts. */
+  protected readonly sharpnessHintText = computed<string | null>(() => {
+    const names = this.lowResolutionCardNames();
+
+    if (names.length === 0) {
+      return null;
+    }
+
+    const shown = names.slice(0, 5);
+    const remaining = names.length - shown.length;
+    const list = remaining > 0 ? `${shown.join(', ')} und ${remaining} weitere` : shown.join(', ');
+    const noun = pluralRules.select(names.length) === 'one' ? 'Karte hat' : 'Karten haben';
+
+    return (
+      `${names.length} ${noun} ein Motiv, das für sauberen Druck zu grob ist ` +
+      `(unter 300 Bildpunkte je Zoll): ${list}. Der Druck ist trotzdem möglich, diese Motive ` +
+      'wirken unscharf.'
+    );
   });
 
   /** Dieselbe Rechnung, die später auch PDF und PNG füllt — hier nur zum Anschauen. */
@@ -126,6 +161,32 @@ export class PrintProjectPage {
         }
       }
     });
+
+    effect(() => {
+      const known = this.lowResolutionByCardId();
+
+      for (const item of this.printProject.items()) {
+        if (!known.has(item.cardId)) {
+          void this.checkSharpness(item.cardId);
+        }
+      }
+    });
+  }
+
+  /** Lädt den Karteninhalt einmal je Karten-Kennung und prüft ihn auf zu grobe Motive. */
+  private async checkSharpness(cardId: number): Promise<void> {
+    let isLowResolution = false;
+
+    try {
+      const input = await this.renderSource.inputForCard(cardId);
+      isLowResolution = lowResolutionLayers(input).length > 0;
+    } catch {
+      // Karte konnte nicht geladen werden — kein Schärfe-Hinweis, aber auch kein Fehlschlag hier.
+    }
+
+    this.lowResolutionByCardId.update(
+      (map: ReadonlyMap<number, boolean>) => new Map(map).set(cardId, isLowResolution),
+    );
   }
 
   protected decrement(item: PrintItem): void {

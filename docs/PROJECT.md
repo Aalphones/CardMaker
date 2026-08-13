@@ -126,7 +126,9 @@ Kompositing, kein Imagick-Verfügbarkeitscheck auf Strato nötig.
 4. **Rendering-Engine** — Rendern einer Karte in Zielauflösung (300 DPI) im Browser (ADR-005),
    Render-Reihenfolge Image→Shape→Icon→Frame→Text. **Erledigt** (2026-08-13), siehe
    `docs/archive/2026-08/2026-08-13_rendering-engine/`
-5. **Druckprojekt & Export** — Druckbögen (A4, 3×3), Schnittmarken/Beschnitt, PDF/PNG-Export
+5. **Druckprojekt & Export** — Druckbögen (A4, 3×3), Schnittmarken/Beschnitt, PDF/PNG-Export.
+   **Erledigt** (2026-08-13), siehe
+   `docs/archive/2026-08/2026-08-13_druckprojekt-und-export/`
 6. **MCP-Server** — lokaler Assistant-Tool-Zugriff auf die CardMaker-API, darüber befüllt
    Claude Template-Textfelder einer Karte mit Text (zweiter Weg neben dem Formular)
 

@@ -35,20 +35,26 @@ bereits im Karteninhalt.
 
 ## Checkliste
 
-- [ ] `frontend/src/app/shared/canvas/rendering/image-sharpness.ts` — reine Funktion
+- [x] `frontend/src/app/shared/canvas/rendering/image-sharpness.ts` — reine Funktion
       `lowResolutionLayers(input: CardRenderInput): string[]` (Ebenennamen) samt
       `effectiveDpi()`; Kommentar mit der Herleitung der 254.
-- [ ] In der Druckprojekt-Seite über alle Positionen prüfen (der Karteninhalt kommt über
+- [x] In der Druckprojekt-Seite über alle Positionen prüfen (der Karteninhalt kommt über
       `CardRenderSource`, einmal je Karten-Kennung, beim Laden der Seite) und die Hinweiszeile
       bauen.
-- [ ] Doc-Abgleich zum Plan-Ende: `docs/code-map.md`, `docs/models.md`, `docs/routes.md`,
+- [x] Doc-Abgleich zum Plan-Ende: `docs/code-map.md`, `docs/models.md`, `docs/routes.md`,
       `docs/conventions/stack.md` gegen den Ist-Stand lesen — nichts Veraltetes stehen lassen.
-- [ ] `docs/PROJECT.md`: Meilenstein 5 als erledigt markieren (mit Datum und Archivpfad), die
-      offene Frage zur Druckauflösung aus `STATE.md` als geschlossen vermerken.
-- [ ] `STATE.md` auf Meilenstein 6 (MCP-Server) als nächsten Schritt zeigen lassen.
-- [ ] Plan-Ordner nach `docs/archive/2026-08/` verschieben, Bottom-Sektionen der README
+      (Nur `code-map.md` betroffen — Backend/Routen/Stack unverändert in dieser Phase.)
+- [x] `docs/PROJECT.md`: Meilenstein 5 als erledigt markieren (mit Datum und Archivpfad). Die
+      „offene Frage zur Druckauflösung" existierte in `STATE.md` zum Zeitpunkt dieses Checklisten-
+      Punkts nicht mehr (Abschnitt „Offene Fragen" stand bereits auf „keine offenen Fragen") —
+      nichts zu schließen.
+- [x] `STATE.md` auf Meilenstein 6 (MCP-Server) als nächsten Schritt zeigen lassen.
+- [x] Plan-Ordner nach `docs/archive/2026-08/` verschieben, Bottom-Sektionen der README
       füllen.
 
 ## Report-Back
 
-_(beim Abschluss der Phase füllen)_
+Schärfe-Hinweis steht: `image-sharpness.ts` rechnet die effektive DPI je Bildebene aus
+Originalmaß und gezeichneter Größe, die Druckprojekt-Seite lädt den Karteninhalt einmal je
+Karte und zeigt eine Klartext-Zeile neben dem Export-Ergebnis, wenn mindestens eine Karte
+betroffen ist. Build, Typen und Lint sind grün; keine Abweichungen vom Plan.
