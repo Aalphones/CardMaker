@@ -30,21 +30,42 @@ später der Druckbogen) rendern kann.
 
 ## Checkliste
 
-- [ ] `shared/canvas/rendering/card-render-input.ts` anlegen:
+- [x] `shared/canvas/rendering/card-render-input.ts` anlegen:
       `export function buildRenderInput(card: Card, template: Template): CardRenderInput` —
       `layers` aus `template.layers`, `content` aus `card` (`cardId`, `values`, `iconChoices`,
       `textOverrides`, `images`). Eins zu eins wie `previewContent` im Editor, nur ohne
       Entwurfsstand.
-- [ ] `shared/canvas/card-render-source.service.ts` anlegen (`providedIn: 'root'`):
+- [x] `shared/canvas/card-render-source.service.ts` anlegen (`providedIn: 'root'`):
       `await inputForCard(cardId: number): Promise<CardRenderInput>` — Karte und Template über
       die Facades besorgen (`ensureLoaded()` abwarten, dann auswählen) und durch
       `buildRenderInput` schicken. Fehlt eines von beiden, wirft die Methode einen Fehler mit
       Klartext-Meldung („Die Karte oder ihr Template konnte nicht geladen werden.").
-- [ ] `card-editor.ts`: `previewContent` benutzt weiterhin den Entwurfsstand, **aber** die
+- [x] `card-editor.ts`: `previewContent` benutzt weiterhin den Entwurfsstand, **aber** die
       Feld-für-Feld-Zuordnung kommt aus `buildRenderInput`, damit es nur eine Stelle gibt, die
       weiß, wie eine Karte in einen `CardContent` fällt. Wenn sich das nicht ohne Verrenkung
       machen lässt: bestehen lassen und in `FINDINGS.md` notieren — der Editor ist hier nicht
       das Ziel der Phase.
-- [ ] `docs/code-map.md`: beide neuen Dateien eintragen.
+      → nicht ohne Verrenkung möglich, in `FINDINGS.md` notiert; `previewContent` unverändert
+      gelassen (Begründung dort).
+- [x] `docs/code-map.md`: beide neuen Dateien eintragen.
 
 ## Report-Back
+
+`buildRenderInput(card, template)` liegt in `shared/canvas/rendering/card-render-input.ts`,
+reine Funktion ohne Angular/Konva-Bezug. `CardRenderSource.inputForCard(cardId)` besorgt Karte
+und Template über die bestehenden Facades — statt auf die `current`-Signale zu pollen, wartet
+sie auf den `Actions`-Strom von `@ngrx/effects` (`loadOneSuccess`/`loadOneFailure`, gefiltert
+auf die angefragte Kennung), damit ein Fehlschlag die Promise sauber ablehnt statt für immer
+zu hängen. `lint` und `build` sind grün.
+
+Abweichung vom Plan: `previewContent` im Editor bleibt bei seiner eigenen Zuordnung —
+`buildRenderInput` erwartet den **gespeicherten** Card-Typ, der Editor zeigt den Entwurf
+(Formularwerte + unbestätigte Bildausschnitte). Ein gemeinsamer Weg hätte einen synthetischen
+`Card` aus dem Entwurf gebraucht — mehr Umbau als die Phase wert ist. Notiert in
+`FINDINGS.md`.
+
+**Wackelstelle:** Läuft parallel zu `inputForCard` ein zweiter, unabhängiger `loadOne`-Aufruf
+für eine andere Karte/ein anderes Template (z. B. gleichzeitig geöffneter Editor), kann dessen
+`loadOneFailure` die hier wartende Promise fälschlich ablehnen — die Fehlschlag-Aktion trägt
+keine Kennung. In der Praxis unwahrscheinlich (ein Nutzer, eine Ansicht), aber nicht durch
+Typen ausgeschlossen. Aufgefallen beim Schreiben, nicht geprüft.

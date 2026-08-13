@@ -33,7 +33,7 @@ des Templates, nicht aus einer neuen Sortierung.
 |---|---|---|---|
 | 1 | [Der Render-Motor](phase-1-render-motor.md) | heikel | complete |
 | 2 | [Bilder und Schriften abwarten](phase-2-bilder-und-schriften-abwarten.md) | heikel | complete |
-| 3 | [Eine gespeicherte Karte ohne Editor rendern](phase-3-karte-ohne-editor.md) | standard | pending |
+| 3 | [Eine gespeicherte Karte ohne Editor rendern](phase-3-karte-ohne-editor.md) | standard | complete |
 | 4 | [Als Bild herunterladen](phase-4-herunterladen.md) | standard | pending |
 | 5 | [Vorschaubilder auf denselben Motor legen](phase-5-vorschaubilder.md) | standard | pending |
 

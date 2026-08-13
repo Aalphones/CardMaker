@@ -131,6 +131,12 @@ frontend/src/app/
                            offen ist: Bühne auf einem nie eingehängten `div`, PNG raus, Bühne
                            abgeräumt (ADR-022). Grundlage für „Als Bild herunterladen" und die
                            Druckbögen
+      card-render-source.service.ts ← besorgt einer **gespeicherten** Karte ihren
+                           `CardRenderInput`, ohne dass ein Editor offen sein muss: Karte und
+                           Template über die Facades laden und über den `Actions`-Strom
+                           abwarten (Erfolg/Fehlschlag je Kennung), dann durch
+                           `buildRenderInput` schicken. Grundlage für den
+                           Herunterladen-Knopf in der Kartenliste (Phase 4)
       render-resources.service.ts ← besorgt für den Renderer alle Bilder und Schriften einer
                            Karte und **wartet** auf sie, bevor gezeichnet wird (in der Vorschau
                            darf ein Bild nachkommen, im Export brennt sich sonst der
@@ -172,7 +178,10 @@ frontend/src/app/
                            `units.ts` (Canvas-Einheiten → Pixel), `print.ts` (Druckauflösung
                            und die daraus folgende Zielbreite von 744 Bildpunkten),
                            `render-input.ts` (was der Renderer über eine Karte braucht:
-                           Ebenen + Karteninhalt), `auto-shrink.ts`
+                           Ebenen + Karteninhalt), `card-render-input.ts`
+                           (`buildRenderInput(card, template)` — reine Funktion, übersetzt eine
+                           **gespeicherte** Karte in genau das; die Entwurfs-Fassung im
+                           Karteneditor bleibt eigenständig), `auto-shrink.ts`
                            (automatisches Verkleinern von Text), `card-content.ts` (was eine
                            Karte zum Template beisteuert, plus die Regeln „Kartenwert schlägt
                            Template-Vorgabe" für Text, Größe, Farbe, Fett/Kursiv, Icon-Wahl

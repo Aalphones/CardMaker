@@ -32,3 +32,10 @@ Erledigte Punkte abhaken, nicht löschen.
       wartet, kann sich daran hängen statt an einer eigenen Zeitschaltung.
 - [ ] → Phase 5: Der Renderer erzeugt Bilder in jeder Zielbreite (`targetWidthPx`), die
       Kachel-Vorschaubilder können ihn also ohne Sonderweg benutzen.
+- [x] Phase 3: `card-editor.ts` bleibt bei seiner eigenen `previewContent`-Zuordnung.
+      `buildRenderInput(card, template)` nimmt den **gespeicherten** Stand entgegen — der
+      Editor zeigt aber den Entwurf (Formularwerte, unbestätigte Bildausschnitte in
+      `pendingPlacements`). Beides auf eine Funktion zu ziehen hieße, aus dem Entwurf einen
+      synthetischen `Card` zu bauen — mehr Verrenkung als Nutzen für eine Phase, deren Ziel
+      der editorlose Weg ist. `previewContent` bleibt bestehen, wie im Plan als Ausweg
+      vorgesehen.
