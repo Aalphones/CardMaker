@@ -35,7 +35,7 @@ des Templates, nicht aus einer neuen Sortierung.
 | 2 | [Bilder und Schriften abwarten](phase-2-bilder-und-schriften-abwarten.md) | heikel | complete |
 | 3 | [Eine gespeicherte Karte ohne Editor rendern](phase-3-karte-ohne-editor.md) | standard | complete |
 | 4 | [Als Bild herunterladen](phase-4-herunterladen.md) | standard | complete |
-| 5 | [Vorschaubilder auf denselben Motor legen](phase-5-vorschaubilder.md) | standard | pending |
+| 5 | [Vorschaubilder auf denselben Motor legen](phase-5-vorschaubilder.md) | standard | complete |
 
 ## Kontrakt (gilt ab Phase 1 als festgenagelt)
 

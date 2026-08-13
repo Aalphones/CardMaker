@@ -9,7 +9,6 @@ import {
   inject,
   signal,
   untracked,
-  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -271,9 +270,6 @@ export class CardEditor implements ComponentWithUnsavedChanges {
   protected readonly orphanCount = computed(
     () => this.orphanKeys().texts.length + this.orphanKeys().icons.length,
   );
-
-  /** Die Zeichenfläche der Vorschau — sie liefert nach dem Speichern das Vorschaubild. */
-  private readonly canvas = viewChild(CardCanvas);
 
   /**
    * Jede Tastatureingabe meldet sich hier — Formular-Controls sind keine Signale, ohne
@@ -863,14 +859,12 @@ export class CardEditor implements ComponentWithUnsavedChanges {
    */
   private async uploadPreview(cardId: number): Promise<void> {
     try {
-      const image = await this.canvas()?.exportPng(PREVIEW_WIDTH_PX);
+      const result = await this.cardRenderer.renderPng(
+        { layers: this.previewLayers(), content: this.previewContent() },
+        PREVIEW_WIDTH_PX,
+      );
 
-      if (!image) {
-        this.notification.show(PREVIEW_FAILED_MESSAGE, 'info');
-        return;
-      }
-
-      await firstValueFrom(this.cardPreview.upload('cards', cardId, image));
+      await firstValueFrom(this.cardPreview.upload('cards', cardId, result.image));
     } catch {
       this.notification.show(PREVIEW_FAILED_MESSAGE, 'info');
     }

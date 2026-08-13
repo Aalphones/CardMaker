@@ -27,11 +27,14 @@ Erledigte Punkte abhaken, nicht löschen.
 - [x] → Phase 4/5: Ein Export wartet jetzt auf Bilder und Schriften — im schlechtesten Fall
       10 Sekunden. Der Knopf braucht also einen Wartezustand (gesperrt/„wird erzeugt"), und
       Phase 5 darf das Vorschaubild nicht synchron im Speicher-Ablauf erwarten.
-- [ ] → Phase 5: Der Schriftlader meldet jetzt auch Fehlschläge (`FontLoader.failed`), der
+- [x] → Phase 5: Der Schriftlader meldet jetzt auch Fehlschläge (`FontLoader.failed`), der
       Vorratslader seine Fehlliste (`AssetImageLoader.failedKeys`). Wer sonst noch auf Bilder
-      wartet, kann sich daran hängen statt an einer eigenen Zeitschaltung.
-- [ ] → Phase 5: Der Renderer erzeugt Bilder in jeder Zielbreite (`targetWidthPx`), die
-      Kachel-Vorschaubilder können ihn also ohne Sonderweg benutzen.
+      wartet, kann sich daran hängen statt an einer eigenen Zeitschaltung. — Gebraucht: gar
+      nicht extra, `CardRenderer.renderPng()` wartet das intern schon ab; die Vorschaubilder
+      rufen nur noch `renderPng()` auf statt selbst zu warten.
+- [x] → Phase 5: Der Renderer erzeugt Bilder in jeder Zielbreite (`targetWidthPx`), die
+      Kachel-Vorschaubilder können ihn also ohne Sonderweg benutzen. — Bestätigt: beide
+      Vorschau-Uploads rufen `renderPng(..., PREVIEW_WIDTH_PX)` ohne Sonderfall auf.
 - [x] Phase 3: `card-editor.ts` bleibt bei seiner eigenen `previewContent`-Zuordnung.
       `buildRenderInput(card, template)` nimmt den **gespeicherten** Stand entgegen — der
       Editor zeigt aber den Entwurf (Formularwerte, unbestätigte Bildausschnitte in

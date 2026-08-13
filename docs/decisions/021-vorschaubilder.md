@@ -36,3 +36,5 @@ Templates gebraucht würde.
   dafür einen Platzhalter statt einer kaputten Bild-Ikone.
 - Bild und Ablage liegen getrennt von Bildvorrat (ADR-015) und Kartenbildern (ADR-017), analog
   begründet: eigener Zweck, eigenes Aufräumen beim Löschen.
+- Seit Meilenstein 4 kommt das Bild aus dem kopflosen Renderer (`CardRenderer`, ADR-022) statt
+  aus der sichtbaren Editor-Bühne — derselbe Export-Weg wie beim „Als Bild herunterladen".

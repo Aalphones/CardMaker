@@ -18,7 +18,9 @@ import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { firstValueFrom, map } from 'rxjs';
 
 import { CardCanvas } from '../../../shared/canvas/card-canvas/card-canvas';
+import { CardRenderer } from '../../../shared/canvas/card-renderer.service';
 import { offsetLinePoints } from '../../../shared/canvas/rendering/apply-transform';
+import { EMPTY_CARD_CONTENT } from '../../../shared/canvas/rendering/card-content';
 import { CANVAS_WIDTH, Layer, LayerPatch } from '../../../shared/canvas/rendering/layer';
 import {
   Point,
@@ -67,6 +69,7 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
   protected readonly assets = inject(AssetsFacade);
   protected readonly editor = inject(TemplateEditorStore);
   private readonly templatePreview = inject(PreviewUploadService);
+  private readonly cardRenderer = inject(CardRenderer);
   private readonly notification = inject(Notification);
 
   private readonly templateId = toSignal(
@@ -91,9 +94,6 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
   protected readonly propertiesPanelOpen = signal(false);
 
   private readonly stageRef = viewChild<ElementRef<HTMLElement>>('stage');
-
-  /** Für das Vorschaubild nach dem Speichern — die Zeichenfläche liefert das PNG. */
-  private readonly canvas = viewChild(CardCanvas);
 
   /** Nur fürs Umbenennen per F2 — das Eingabefeld dafür gehört der Ebenenliste. */
   private readonly layerList = viewChild(LayerList);
@@ -283,14 +283,12 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
    */
   private async uploadPreview(templateId: number): Promise<void> {
     try {
-      const image = await this.canvas()?.exportPng(PREVIEW_WIDTH_PX);
+      const result = await this.cardRenderer.renderPng(
+        { layers: this.editor.layers(), content: EMPTY_CARD_CONTENT },
+        PREVIEW_WIDTH_PX,
+      );
 
-      if (!image) {
-        this.notification.show(PREVIEW_FAILED_MESSAGE, 'info');
-        return;
-      }
-
-      await firstValueFrom(this.templatePreview.upload('templates', templateId, image));
+      await firstValueFrom(this.templatePreview.upload('templates', templateId, result.image));
     } catch {
       this.notification.show(PREVIEW_FAILED_MESSAGE, 'info');
     }

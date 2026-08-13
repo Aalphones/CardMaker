@@ -47,8 +47,9 @@ const SELECTION_STROKE = '#c67139';
 const FRAME_BOX: Geometry = { x: 0, y: 0, width: CANVAS_WIDTH, height: CANVAS_HEIGHT, rotation: 0 };
 
 /**
- * Der Rahmen der bearbeiteten Bildfläche ist Bedienhilfe, kein Kartenbestandteil — beim
- * Ausgeben als Bild wird er über diesen Namen gefunden und ausgeblendet (`exportPng`).
+ * Der Rahmen der bearbeiteten Bildfläche ist Bedienhilfe, kein Kartenbestandteil. Der Export
+ * zeichnet ihn erst gar nicht (`activeImageLayerId: null`); der Name dient nur noch dem
+ * Auffinden auf der sichtbaren Bühne.
  */
 export const ACTIVE_AREA_NAME = 'card-image-active-area';
 

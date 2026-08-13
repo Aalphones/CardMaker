@@ -34,13 +34,7 @@ import {
 import { FontFamily } from '../rendering/fonts';
 import { CANVAS_HEIGHT, CANVAS_WIDTH, Geometry, Layer, LayerPatch } from '../rendering/layer';
 import { Point } from '../rendering/units';
-import {
-  ACTIVE_AREA_NAME,
-  DrawItem,
-  buildDrawItems,
-  requestedAssetIds,
-  requestedFontFamilies,
-} from './draw-items';
+import { DrawItem, buildDrawItems, requestedAssetIds, requestedFontFamilies } from './draw-items';
 
 /** Bildschirmpunkte, nicht Canvas-Einheiten — werden unten durch den Bühnenmaßstab geteilt,
  *  damit Anfasser bei jeder Fenstergröße gleich groß aussehen. */
@@ -278,58 +272,6 @@ export class CardCanvas {
 
       transformer.nodes(target ? [target] : []);
     });
-  }
-
-  /**
-   * Zeichnet die Karte in ein PNG von `targetWidth` Breite — für das Vorschaubild, das der
-   * Editor nach dem Speichern hochlädt. `null`, wenn die Bühne noch nicht steht oder der
-   * Browser kein Bild liefert; der Aufrufer entscheidet, was das bedeutet.
-   */
-  async exportPng(targetWidth: number): Promise<Blob | null> {
-    const stage = this.stageRef()?.getStage();
-    const measuredWidth = this.stageWidth();
-
-    if (!stage || measuredWidth <= 0) {
-      return null;
-    }
-
-    const transformerComponent = this.transformerRef();
-    const transformer = transformerComponent
-      ? (transformerComponent.getNode() as Konva.Transformer)
-      : null;
-
-    // Ausblenden statt abhängen: `nodes([])` würde die Auswahl wegwerfen, die der
-    // `afterRenderEffect` oben verwaltet — sie käme erst beim nächsten Lauf zurück.
-    transformer?.hide();
-
-    // Der Rahmen der bearbeiteten Bildfläche ist eine Bedienhilfe. Ohne dieses Ausblenden
-    // brennt er sich in das Vorschaubild ein, das der Editor nach dem Speichern hochlädt.
-    const activeAreas = stage.find(`.${ACTIVE_AREA_NAME}`);
-    activeAreas.forEach((node: Konva.Node) => node.hide());
-
-    try {
-      // Der Maßstab der Bühne wechselt mit der Fensterbreite, das Bild soll das nicht tun:
-      // Aus der gemessenen Breite wird der Faktor gerechnet, der genau `targetWidth`
-      // Bildpunkte ergibt. Der Ausschnitt kommt aus dem Kartenverhältnis statt aus der
-      // gerundeten Bühnenhöhe — sonst wäre die Bildhöhe je nach Fenster mal einen Punkt daneben.
-      const pixelRatio = targetWidth / measuredWidth;
-      const targetHeight = Math.round(targetWidth * (CANVAS_HEIGHT / CANVAS_WIDTH));
-
-      const exported = await stage.toBlob({
-        mimeType: 'image/png',
-        pixelRatio,
-        x: 0,
-        y: 0,
-        width: targetWidth / pixelRatio,
-        height: targetHeight / pixelRatio,
-      });
-
-      // Konva verspricht nur `Promise<unknown>` — geprüft statt behauptet.
-      return exported instanceof Blob ? exported : null;
-    } finally {
-      transformer?.show();
-      activeAreas.forEach((node: Konva.Node) => node.show());
-    }
   }
 
   protected selectLayer(layerId: string): void {

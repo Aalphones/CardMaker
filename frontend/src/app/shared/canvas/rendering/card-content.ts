@@ -35,6 +35,19 @@ export interface CardContent {
   images: CardImagePlacement[];
 }
 
+/**
+ * Was der Template-Editor dem Renderer mitgibt: kein Karteninhalt, nur die Ebenen. Der
+ * `CardRenderInput`-Kontrakt verlangt `CardContent`, kein `null` — diese Konstante ist die
+ * leere Ausprägung davon.
+ */
+export const EMPTY_CARD_CONTENT: CardContent = {
+  cardId: null,
+  values: {},
+  iconChoices: {},
+  textOverrides: {},
+  images: [],
+};
+
 export function resolveText(layer: TextLayer, content: CardContent | null): string {
   const value = valueFor(layer, content);
 

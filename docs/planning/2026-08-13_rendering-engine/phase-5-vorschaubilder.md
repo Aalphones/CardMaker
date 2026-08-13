@@ -42,26 +42,35 @@ Bedienhilfen gar nicht erst (`selectedLayerId: null`, `interactive: false`). Des
 
 ## Checkliste
 
-- [ ] `card-editor.ts`: `uploadPreview` benutzt `CardRenderer.renderPng({ layers:
+- [x] `card-editor.ts`: `uploadPreview` benutzt `CardRenderer.renderPng({ layers:
       previewLayers(), content: previewContent() }, PREVIEW_WIDTH_PX)` statt
       `this.canvas()?.exportPng(...)`. Der Hochlade-Teil bleibt unverändert.
-- [ ] Dasselbe im Template-Editor — dort ohne Karteninhalt, also `content: null` bzw. der
-      leere Inhalt, den `buildDrawItems` schon kennt.
-- [ ] `CardCanvas.exportPng()` löschen, dazu das `viewChild` auf den Transformer prüfen: wird
-      es nur noch für die Anfasser gebraucht, bleibt es; wurde es nur für den Export gehalten,
-      geht es mit.
-- [ ] `viewChild(CardCanvas)` in beiden Editoren entfernen, falls es danach nichts mehr tut.
-- [ ] Prüfen, dass `ACTIVE_AREA_NAME` weiterhin von `draw-items.ts` benutzt wird — nur der
-      Kommentar dort, der aufs Ausblenden in `exportPng` verweist, muss angepasst werden.
-- [ ] `docs/code-map.md`: bei `card-canvas/` den `exportPng()`-Halbsatz entfernen, bei den
-      Feature-Zeilen `templates` und `cards` den Satz zur Vorschau-Erzeugung auf den Motor
-      umschreiben.
-- [ ] `docs/PROJECT.md`: Meilenstein 4 als erledigt markieren (Datum + Archivpfad), Muster wie
-      bei den Meilensteinen 1–3.
-- [ ] `docs/decisions/021-vorschaubilder.md`: eine Zeile in den Konsequenzen ergänzen, dass die
-      Bilder seit Meilenstein 4 aus dem kopflosen Renderer kommen.
+- [x] Dasselbe im Template-Editor — dort ohne Karteninhalt: neue Konstante
+      `EMPTY_CARD_CONTENT` in `card-content.ts` (der `CardRenderInput`-Kontrakt verlangt
+      `CardContent`, kein `null`).
+- [x] `CardCanvas.exportPng()` gelöscht. Der Transformer-`viewChild` bleibt — er wird weiter
+      für die Anfasser gebraucht (`afterRenderEffect`).
+- [x] `viewChild(CardCanvas)` in beiden Editoren entfernt — er tat danach nichts mehr.
+- [x] `ACTIVE_AREA_NAME` wird weiterhin von `draw-items.ts` benutzt (Name für den Rahmen der
+      aktiven Bildfläche); der Kommentar dort verweist jetzt auf `activeImageLayerId: null`
+      im Export statt auf `exportPng`.
+- [x] `docs/code-map.md`: `exportPng()`-Halbsatz bei `card-canvas/` entfernt, `templates`- und
+      `cards`-Zeilen auf `CardRenderer.renderPng()` umgeschrieben.
+- [x] `docs/PROJECT.md`: Meilenstein 4 als erledigt markiert (2026-08-13, Archivpfad).
+- [x] `docs/decisions/021-vorschaubilder.md`: Zeile in den Konsequenzen ergänzt.
 - [ ] Smoke-Checkliste der README durchgehen (das macht der Nutzer am Bildschirm), dann Plan
       nach `docs/archive/2026-08/` verschieben und `STATE.md` auf den nächsten Plan zeigen
       lassen.
 
 ## Report-Back
+
+`npm run lint` und `npm run build` laufen grün. Beide Vorschau-Uploads (Karteneditor,
+Template-Editor) laufen jetzt über `CardRenderer.renderPng()` — ein Zeichenweg für Export **und**
+Vorschau, wie im Plan vorgesehen. `CardCanvas` hat keine `exportPng`-Methode mehr, die drei
+Kunstgriffe (Anfasser/aktive-Fläche ausblenden, Maßstab aus gemessener Breite) sind mit ihr
+verschwunden — der Motor braucht sie nie, weil seine Bühne unsichtbar und fest ist.
+
+**Unsicherste Stelle:** keine — reines Umverdrahten auf einen bereits in Phase 1–4 geprüften
+Zeichenweg, kein neuer Code-Pfad. Der offene Punkt ist nicht Code, sondern der noch nie
+gefahrene Bildschirm-Rundlauf (Smoke-Checkliste unten) — das ist der eigentliche Prüfpunkt vor
+dem Archivieren.
