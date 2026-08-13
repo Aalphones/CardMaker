@@ -19,8 +19,11 @@ committen**:
 setx CM_TOKEN "cmpat_xxxxx"     # persistent für alle künftigen Terminals
 ```
 
-Ausweichweg ohne Umgebungsvariable: den Token in eine Datei `.cm_token` legen
-(Arbeitsverzeichnis oder `cardmaker_mcp/`). Beide Namen stehen in `.gitignore`.
+Ausweichweg ohne Umgebungsvariable: den Token in eine Datei `.cm_token` legen. **Für den
+von Claude Code gestarteten Server gehört sie nach `cardmaker_mcp/`**, nicht ins
+Arbeitsverzeichnis — worauf `cwd` dort zeigt, ist nicht verlässlich, und der Start bricht
+ohne Token ab (die Begründung dazu steht nur auf der Fehlerausgabe, die Claude Code nicht
+anzeigt: sichtbar wird das als „Connection closed"). Beide Namen stehen in `.gitignore`.
 
 Andere Basisadresse als `https://quantum-canvas.de/api` (z.B. lokaler Server): `CM_BASE`
 setzen.
@@ -37,11 +40,9 @@ Token, kommt genau eine Zeile mit dem, was zu tun ist, und der Start bricht ab.
 ## Registrierung in Claude Code
 
 `.mcp.json` im Repo-Root ist bereits eingerichtet — hier nur zum Nachlesen. Kein
-Token-Literal darin und bewusst **kein `env`-Block**: der Serverprozess erbt `CM_TOKEN`
-ohnehin aus der Umgebung, und ein `"CM_TOKEN": "${CM_TOKEN}"` würde bei nicht gesetzter
-Variable den Platzhaltertext als Token durchreichen — damit wäre der Ausweichweg über
-`.cm_token` tot. Der `command`-Pfad zeigt bewusst auf den venv-Interpreter statt auf bares
-`python`, sonst greift auf Windows der Store-Platzhalter.
+Token-Literal darin, `CM_TOKEN` kommt aus der Umgebung. Der `command`-Pfad zeigt bewusst
+auf den venv-Interpreter statt auf bares `python`, sonst greift auf Windows der
+Store-Platzhalter.
 
 ```json
 {
@@ -49,7 +50,8 @@ Variable den Platzhaltertext als Token durchreichen — damit wäre der Ausweich
     "cardmaker": {
       "command": "mcp/.venv/Scripts/python.exe",
       "args": ["-m", "cardmaker_mcp"],
-      "cwd": "mcp"
+      "cwd": "mcp",
+      "env": { "CM_TOKEN": "${CM_TOKEN}" }
     }
   }
 }

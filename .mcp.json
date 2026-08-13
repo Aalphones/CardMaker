@@ -3,7 +3,8 @@
     "cardmaker": {
       "command": "mcp/.venv/Scripts/python.exe",
       "args": ["-m", "cardmaker_mcp"],
-      "cwd": "mcp"
+      "cwd": "mcp",
+      "env": { "CM_TOKEN": "${CM_TOKEN}" }
     }
   }
 }
