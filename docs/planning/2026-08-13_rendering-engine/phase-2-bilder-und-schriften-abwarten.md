@@ -32,28 +32,57 @@ Schrift ausgemessen. Diese Phase baut das Warten ein.
 
 ## Checkliste
 
-- [ ] `shared/canvas/render-resources.service.ts` anlegen (`providedIn: 'root'`), mit einer
+- [x] `shared/canvas/render-resources.service.ts` anlegen (`providedIn: 'root'`), mit einer
       Methode `await collect(input: CardRenderInput): Promise<RenderResources>`, wobei
       `RenderResources = { images, cardImages, loadedFonts, missing }` — genau die drei Felder,
       die der `DrawContext` braucht, plus die Fehlliste.
-- [ ] Anfordern (nicht warten): `requestedAssetIds(input.layers, input.content)` an
+- [x] Anfordern (nicht warten): `requestedAssetIds(input.layers, input.content)` an
       `AssetImageLoader.load()`, jede `CardImagePlacement` aus `input.content.images` an
       `CardImageLoader.load()`, `requestedFontFamilies(input.layers)` an `FontLoader.load()`.
       Die Lader ignorieren Doppelaufträge von sich aus.
-- [ ] Warten: ein `computed()` bauen, das „fertig" meldet, sobald **jeder** angeforderte
+- [x] Warten: ein `computed()` bauen, das „fertig" meldet, sobald **jeder** angeforderte
       Schlüssel entweder in `images` steht oder in `failedKeys` — und jede angeforderte Schrift
       in `FontLoader.loaded`. Daraus per `toObservable(…, { injector })` ein Observable,
       `filter(...)`, `first()`, `timeout({ first: 10_000, with: () => of(true) })`,
       `firstValueFrom`. Den `Injector` im Konstruktor injizieren, da `toObservable` außerhalb
       des Aufbau-Kontexts läuft.
-  - [ ] Kommentar dazu, **warum** gewartet wird (Platzhalter und Ersatzschrift brennen sich
+  - [x] Kommentar dazu, **warum** gewartet wird (Platzhalter und Ersatzschrift brennen sich
         sonst ins Bild) — das ist die Sorte Warum, die man dem Code nicht ansieht.
-- [ ] `missing` füllen: für jeden gescheiterten oder nach Ablauf fehlenden Schlüssel den
+- [x] `missing` füllen: für jeden gescheiterten oder nach Ablauf fehlenden Schlüssel den
       **Ebenennamen** nachschlagen (`input.layers`), nicht die Kennung — der Aufrufer zeigt das
       dem Nutzer.
-- [ ] `CardRenderer.renderPng()` umbauen: vor dem Zeichnen `collect()` aufrufen und die drei
+- [x] `CardRenderer.renderPng()` umbauen: vor dem Zeichnen `collect()` aufrufen und die drei
       Felder in den `DrawContext` geben; `missing` in das `RenderResult` durchreichen.
-- [ ] `docs/code-map.md`: `render-resources.service.ts` unter `shared/canvas/` eintragen, mit
+- [x] `docs/code-map.md`: `render-resources.service.ts` unter `shared/canvas/` eintragen, mit
       einem Halbsatz, wozu sie da ist.
 
 ## Report-Back
+
+**Status: complete.** `npm run lint` und `npm run build` grün.
+
+### Zwei Abweichungen von der Checkliste — beide gegen dieselbe Falle
+
+Die Checkliste wollte auf **jede** angeforderte Schrift in `FontLoader.loaded` warten. Das
+wäre in genau zwei Fällen eine garantierte 10-Sekunden-Wartezeit vor jedem Export gewesen:
+
+1. **Systemschriften.** `FontLoader.load()` lehnt alles ab, was nicht als eigene Datei
+   ausgeliefert wird (`isSelfHostedFont`) — Arial, Verdana, Impact kommen vom Gerät. Sie
+   landen nie in `loaded`. Der Wartesatz filtert deshalb auf selbst ausgelieferte Schriften.
+   Ohne diesen Filter hätte **jede Karte mit Standardschrift** volle zehn Sekunden gewartet.
+2. **Gescheiterte Schriften.** Der Schriftlader kannte bisher nur „geladen", kein
+   Gegenstück zu `failedKeys` der Bild-Lader. Eine kaputte oder fehlende Schriftdatei hätte
+   den Export ebenfalls in die Wartezeit laufen lassen. `FontLoader` bekommt daher ein
+   `failed`-Signal, gefüllt an beiden Fehlerpfaden (Datei kommt nicht an / Browser kann sie
+   nicht lesen).
+
+Dazu Kleinkram: `AssetImageLoader` gab seine Fehlliste bisher nicht nach außen (der
+gemeinsame Unterbau führte sie längst) — jetzt schon, sonst hätte ein fehlendes Icon
+denselben Effekt gehabt.
+
+### Wo es noch wackelt
+
+`toObservable` hängt an einem Angular-Effect. Feuert der nicht (kein Change-Detection-Lauf
+nach dem Aufruf), greift nach 10 Sekunden die Notbremse und es wird trotzdem gezeichnet —
+kein Hänger, aber langsam. Ob der Effect verlässlich sofort läuft, entscheidet erst der
+Export im echten Browser (Smoke-Punkt 2: ein Export direkt nach F5 muss **sofort** kommen,
+nicht nach zehn Sekunden). Die Wartezeit ist damit auch der Prüfstein für den Filter oben.

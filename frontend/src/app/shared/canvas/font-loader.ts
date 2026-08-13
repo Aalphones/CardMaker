@@ -42,9 +42,16 @@ export class FontLoader {
   private readonly api = inject(Api);
   private readonly requestedFamilies = new Set<string>();
   private readonly loadedFamilies = signal<ReadonlySet<string>>(new Set());
+  private readonly failedFamilies = signal<ReadonlySet<string>>(new Set());
 
   /** Die Schriften, die fertig geladen sind — bis dahin zeichnet `draw-items` die Ersatzschrift. */
   readonly loaded: Signal<ReadonlySet<string>> = this.loadedFamilies.asReadonly();
+
+  /**
+   * Schriften, deren Datei nicht ankam oder unlesbar war. Wer auf eine Schrift wartet, braucht
+   * das — sonst wartet er auf eine, die nie kommt (siehe `render-resources.service.ts`).
+   */
+  readonly failed: Signal<ReadonlySet<string>> = this.failedFamilies.asReadonly();
 
   load(family: FontFamily): void {
     if (!isSelfHostedFont(family) || this.requestedFamilies.has(family)) {
@@ -103,6 +110,7 @@ export class FontLoader {
           'die Ersatzschrift bleibt stehen.',
         error,
       );
+      this.publishFailure(family);
     }
   }
 
@@ -110,6 +118,7 @@ export class FontLoader {
     // Nicht erneut anfordern: Bleibt die Datei weg, bleibt die Ersatzschrift stehen —
     // ein Wiederholungsversuch pro Neuzeichnen würde nur das Netz vollmachen.
     console.warn(`Schriftart "${family}" konnte nicht geladen werden.`, error);
+    this.publishFailure(family);
   }
 
   private publish(family: FontFamily): void {
@@ -117,5 +126,12 @@ export class FontLoader {
 
     withNewFamily.add(family);
     this.loadedFamilies.set(withNewFamily);
+  }
+
+  private publishFailure(family: FontFamily): void {
+    const withNewFamily = new Set(this.failedFamilies());
+
+    withNewFamily.add(family);
+    this.failedFamilies.set(withNewFamily);
   }
 }

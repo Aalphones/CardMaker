@@ -19,7 +19,16 @@ Erledigte Punkte abhaken, nicht löschen.
       bekommt gleich die Zielgröße in Bildpunkten. Konva rechnet die Skalierung der Bühne beim
       Ausgeben nicht mit, die der Ebene schon. Wer `renderPng` erweitert, darf das nicht auf
       `pixelRatio` umstellen, ohne die Maße neu zu messen.
-- [ ] → Phase 2: `renderPng` gibt heute `missing: []` zurück und bekommt leere Bild-/
+- [x] → Phase 2: `renderPng` gibt heute `missing: []` zurück und bekommt leere Bild-/
       Schriftvorräte. Genau drei Zeilen in `exportContext()` sind die Nahtstelle.
+- [ ] → Phase 4: `RenderResult.missing` ist ab jetzt echt gefüllt — Klartext-Ebenennamen der
+      Bilder, die nicht geladen werden konnten. Der Herunterladen-Knopf muss das dem Nutzer
+      sagen (Hinweismeldung), sonst lädt er still eine Karte mit Löchern herunter.
+- [ ] → Phase 4/5: Ein Export wartet jetzt auf Bilder und Schriften — im schlechtesten Fall
+      10 Sekunden. Der Knopf braucht also einen Wartezustand (gesperrt/„wird erzeugt"), und
+      Phase 5 darf das Vorschaubild nicht synchron im Speicher-Ablauf erwarten.
+- [ ] → Phase 5: Der Schriftlader meldet jetzt auch Fehlschläge (`FontLoader.failed`), der
+      Vorratslader seine Fehlliste (`AssetImageLoader.failedKeys`). Wer sonst noch auf Bilder
+      wartet, kann sich daran hängen statt an einer eigenen Zeitschaltung.
 - [ ] → Phase 5: Der Renderer erzeugt Bilder in jeder Zielbreite (`targetWidthPx`), die
       Kachel-Vorschaubilder können ihn also ohne Sonderweg benutzen.

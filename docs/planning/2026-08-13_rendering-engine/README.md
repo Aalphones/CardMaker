@@ -32,7 +32,7 @@ des Templates, nicht aus einer neuen Sortierung.
 | # | Phase | Rating | Status |
 |---|---|---|---|
 | 1 | [Der Render-Motor](phase-1-render-motor.md) | heikel | complete |
-| 2 | [Bilder und Schriften abwarten](phase-2-bilder-und-schriften-abwarten.md) | heikel | pending |
+| 2 | [Bilder und Schriften abwarten](phase-2-bilder-und-schriften-abwarten.md) | heikel | complete |
 | 3 | [Eine gespeicherte Karte ohne Editor rendern](phase-3-karte-ohne-editor.md) | standard | pending |
 | 4 | [Als Bild herunterladen](phase-4-herunterladen.md) | standard | pending |
 | 5 | [Vorschaubilder auf denselben Motor legen](phase-5-vorschaubilder.md) | standard | pending |
@@ -116,8 +116,10 @@ war (siehe „Wackelstellen" unten).
   ist Konva-Verhalten, das ich nicht aus dem Code ablesen kann. *Check:* Punkt 3 der
   Smoke-Checkliste.
 - 🟡 **Zeitpunkt der Schriften.** Das automatische Verkleinern misst mit `Konva.Text` — misst
-  es, bevor die Schrift da ist, sitzt die Textgröße dauerhaft falsch im Bild. Phase 2 baut
-  das Warten ein. *Check:* Punkt 2 der Smoke-Checkliste.
+  es, bevor die Schrift da ist, sitzt die Textgröße dauerhaft falsch im Bild. Phase 2 hat das
+  Warten eingebaut, im Browser belegt ist es noch nicht. *Check:* Punkt 2 der
+  Smoke-Checkliste — dabei zusätzlich auf die **Dauer** achten: Der Export muss sofort
+  kommen. Zehn Sekunden hieße, dass auf etwas gewartet wird, das nie eintrifft.
 
 ## Risiken und Alternativen
 

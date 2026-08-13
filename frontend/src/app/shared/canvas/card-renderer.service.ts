@@ -5,6 +5,7 @@ import { DrawContext, buildDrawItems } from './card-canvas/draw-items';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from './rendering/layer';
 import { CardRenderInput } from './rendering/render-input';
 import { drawItemsToStage } from './render-stage';
+import { RenderResourceLoader, RenderResources } from './render-resources.service';
 
 export interface RenderResult {
   /** Das fertige Bild, immer PNG. */
@@ -23,8 +24,12 @@ export interface RenderResult {
 })
 export class CardRenderer {
   private readonly document = inject(DOCUMENT);
+  private readonly resources = inject(RenderResourceLoader);
 
   async renderPng(input: CardRenderInput, targetWidthPx: number): Promise<RenderResult> {
+    // Erst die Vorräte, dann zeichnen: Wer sofort zeichnet, brennt Platzhalter und
+    // Ersatzschriften ins Bild (siehe `render-resources.service.ts`).
+    const resources = await this.resources.collect(input);
     const scale = targetWidthPx / CANVAS_WIDTH;
 
     // Die Bühne bekommt gleich die Zielgröße in Bildpunkten, der Maßstab sitzt auf der
@@ -38,7 +43,11 @@ export class CardRenderer {
     });
 
     try {
-      drawItemsToStage(stage, buildDrawItems(input.layers, this.exportContext(input)), scale);
+      drawItemsToStage(
+        stage,
+        buildDrawItems(input.layers, exportContext(input, resources)),
+        scale,
+      );
 
       const exported = await stage.toBlob({ mimeType: 'image/png', pixelRatio: 1 });
 
@@ -47,30 +56,27 @@ export class CardRenderer {
         throw new Error('Der Browser hat kein Bild geliefert.');
       }
 
-      return { image: exported, missing: [] };
+      return { image: exported, missing: resources.missing };
     } finally {
       stage.destroy();
     }
   }
+}
 
-  /**
-   * Beim Export gibt es niemanden, der etwas auswählen könnte: Ohne Auswahl und ohne
-   * Bildbearbeitung erzeugt `buildDrawItems` von sich aus weder Auswahlrahmen noch den Rahmen
-   * einer aktiven Bildfläche — es muss nichts nachträglich ausgeblendet werden.
-   *
-   * Bilder und Schriften sind hier noch leer; Phase 2 lädt sie und ersetzt genau diese drei
-   * Zeilen.
-   */
-  private exportContext(input: CardRenderInput): DrawContext {
-    return {
-      images: new Map(),
-      cardImages: new Map(),
-      loadedFonts: new Set(),
-      content: input.content,
-      selectedLayerId: null,
-      interactive: false,
-      imageEditing: false,
-      activeImageLayerId: null,
-    };
-  }
+/**
+ * Beim Export gibt es niemanden, der etwas auswählen könnte: Ohne Auswahl und ohne
+ * Bildbearbeitung erzeugt `buildDrawItems` von sich aus weder Auswahlrahmen noch den Rahmen
+ * einer aktiven Bildfläche — es muss nichts nachträglich ausgeblendet werden.
+ */
+function exportContext(input: CardRenderInput, resources: RenderResources): DrawContext {
+  return {
+    images: resources.images,
+    cardImages: resources.cardImages,
+    loadedFonts: resources.loadedFonts,
+    content: input.content,
+    selectedLayerId: null,
+    interactive: false,
+    imageEditing: false,
+    activeImageLayerId: null,
+  };
 }

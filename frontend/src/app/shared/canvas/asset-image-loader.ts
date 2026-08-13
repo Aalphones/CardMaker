@@ -22,6 +22,9 @@ export class AssetImageLoader {
 
   readonly images: Signal<ReadonlyMap<number, HTMLImageElement>> = this.cache.images;
 
+  /** Bilder, die nicht geholt werden konnten — der Export wartet sonst auf sie. */
+  readonly failedKeys: Signal<ReadonlySet<number>> = this.cache.failedKeys;
+
   constructor() {
     inject(DestroyRef).onDestroy(() => this.cache.releaseObjectUrls());
   }

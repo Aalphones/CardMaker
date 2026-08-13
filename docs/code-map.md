@@ -131,6 +131,11 @@ frontend/src/app/
                            offen ist: Bühne auf einem nie eingehängten `div`, PNG raus, Bühne
                            abgeräumt (ADR-022). Grundlage für „Als Bild herunterladen" und die
                            Druckbögen
+      render-resources.service.ts ← besorgt für den Renderer alle Bilder und Schriften einer
+                           Karte und **wartet** auf sie, bevor gezeichnet wird (in der Vorschau
+                           darf ein Bild nachkommen, im Export brennt sich sonst der
+                           Platzhalter bzw. die Ersatzschrift ein). Nach spätestens 10 Sekunden
+                           wird trotzdem gezeichnet; was fehlt, kommt als Ebenenname zurück
       render-stage.ts   ← die eine Stelle, die die Zeichenliste ohne Angular in Konva-Knoten
                            übersetzt — Gegenstück zu `card-canvas.html`, muss mit ihr
                            gleichziehen
@@ -138,7 +143,7 @@ frontend/src/app/
                            Bildelement bauen, alles in einem Signal halten, Objekt-Adressen
                            beim Zerstören freigeben
       asset-image-loader.ts ← lädt Bilder aus dem Vorrat (`/assets/{id}/file`), Schlüssel ist
-                           die Bild-Kennung
+                           die Bild-Kennung; meldet auch, welche nicht geholt werden konnten
       card-image-loader.ts ← lädt die Motivbilder einer Karte
                            (`/cards/{id}/images/{layerId}/file`), Schlüssel `cardId:layerId`;
                            `reload()`/`forget()` nach Austausch oder Entfernen eines Bildes
@@ -154,7 +159,9 @@ frontend/src/app/
                            Schriftverwendung, ohne diese Anforderung bliebe still die
                            Ersatzschrift stehen). Zwei Wege: mitgelieferte Schriften über
                            `document.fonts.load`, hochgeladene als Blob hinter der Anmeldung →
-                           `FontFace` (wie `asset-image-loader.ts`)
+                           `FontFace` (wie `asset-image-loader.ts`). Meldet neben den geladenen
+                           auch die gescheiterten Schriften — sonst wartete der Export auf eine,
+                           die nie kommt
       rendering/        ← reine Zeichenregeln ohne Konva-Abhängigkeit: `layer.ts` (die fünf
                            Ebenentypen + Fabrikfunktionen), `fonts.ts` (die eingebauten
                            Schriften samt Sorte und Ersatzschrift — Gegenstück zur Prüfliste
