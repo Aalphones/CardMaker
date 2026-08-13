@@ -173,6 +173,18 @@ class Client:
     def get_cards(self) -> list:
         return self.request("GET", "cards")  # type: ignore[return-value]
 
+    def get_template(self, template_id: int) -> dict:
+        return self.request("GET", f"templates/{template_id}")  # type: ignore[return-value]
+
+    def get_card(self, card_id: int) -> dict:
+        return self.request("GET", f"cards/{card_id}")  # type: ignore[return-value]
+
+    def get_assets(self, kind: str | None = None) -> list:
+        path = "assets"
+        if kind:
+            path += f"?{urllib.parse.urlencode({'kind': kind})}"
+        return self.request("GET", path)  # type: ignore[return-value]
+
 
 def _to_api_error(error: urllib.error.HTTPError) -> ApiError:
     """Fehlerkörper `{ error, message, fields? }` auslesen, sonst auf den HTTP-Grund zurückfallen."""

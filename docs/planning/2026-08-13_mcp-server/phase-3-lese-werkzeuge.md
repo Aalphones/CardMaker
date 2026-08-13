@@ -45,20 +45,30 @@ Groß-/Kleinschreibung egal) — das Backend hat keine Suchroute, und die Listen
 
 ## Checkliste
 
-- [ ] `client.py` um die Einzelabrufe erweitern: `get_template(id)`, `get_card(id)`,
+- [x] `client.py` um die Einzelabrufe erweitert: `get_template(id)`, `get_card(id)`,
       `get_assets(kind=None)`.
-- [ ] `mcp/cardmaker_mcp/card_fields.py` anlegen: `describe_card_fields(layers)` als reine
+- [x] `mcp/cardmaker_mcp/card_fields.py` angelegt: `describe_card_fields(layers)` als reine
       Funktion, 1:1 nach `card-fields.ts` (Reihenfolge der Ebenen bleibt erhalten,
-      Doppel-Schlüssel einmal, nur `source: "user"`). Kommentar mit Verweis auf die
-      TypeScript-Fassung als Gegenstück.
-- [ ] Suchhelfer in `state_cache.py` bzw. einem `search.py`: Teilzeichenketten-Suche über die
-      zwischengespeicherten Kurzfassungen, Filter nach Template und Kartengruppe.
-- [ ] Die sieben Werkzeuge in `server.py` registrieren, jedes mit typisierten Parametern und
+      Doppel-Schlüssel einmal, nur `source: "user"` bei text/icon — `image` ohne
+      `source`-Feld zählt immer). Kommentar mit Verweis auf die TypeScript-Fassung.
+- [x] Suchhelfer in `mcp/cardmaker_mcp/search.py`: Teilzeichenketten-Suche über die
+      zwischengespeicherten Kurzfassungen, Filter nach Template und Kartengruppe in `find_card`.
+- [x] Die sieben Werkzeuge in `server.py` registriert, jedes mit typisierten Parametern und
       einer Beschreibung im Sinne von AK 5.
-- [ ] Antworten kompakt halten: Suchergebnisse als Liste flacher Objekte, keine Ebenen-Dumps
+- [x] Antworten kompakt gehalten: Suchergebnisse als Liste flacher Objekte, keine Ebenen-Dumps
       in `find_*` — Ebenen gibt es nur über `get_template`.
-- [ ] Doku: `docs/conventions/mcp.md` — Werkzeug-Tabelle um diese Phase ergänzen, plus die
+- [x] Doku: `docs/conventions/mcp.md` — Werkzeug-Tabelle um diese Phase ergänzt, plus die
       Zeile, dass `card_fields.py` und `card-fields.ts` deckungsgleich bleiben müssen.
-- [ ] Doku: `docs/code-map.md` — MCP-Abschnitt um `card_fields.py`/`search.py` ergänzen.
+- [x] Doku: `docs/code-map.md` — MCP-Abschnitt um `card_fields.py`/`search.py` ergänzt.
 
 ## Report-Back
+
+- Syntax-Check (`py -3 -m py_compile`) über alle fünf berührten Module ist grün — echte
+  MCP-Werkzeugaufrufe gegen die laufende API sind **nicht** geprüft (Route `GET /api/meta`
+  nicht deployed, `CM_TOKEN` lokal nicht gesetzt — dieselbe offene Stelle wie in Phase 2,
+  siehe STATE.md „Offen technisch").
+- `find_card`/`find_template`/`find_card_group` liefern bei keinem Treffer einen erklärenden
+  Satz statt einer leeren Liste (AK 1).
+- `describe_card_fields` liest `image`-Ebenen ohne `source`-Filter (die TS-Vorlage prüft
+  dort kein `source`, weil `ImageLayer` das Feld gar nicht hat) — nur `text`/`icon` filtern
+  auf `source: "user"`.

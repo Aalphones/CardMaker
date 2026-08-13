@@ -1,8 +1,10 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-13_mcp-server/`
-**Phase:** 2/5 — MCP-Gerüst (complete)
-**Nächster Schritt:** Phase 3 (Such- und Lese-Werkzeuge) starten — `/implement`.
+**Phase:** 3/5 — Such- und Lese-Werkzeuge (complete)
+**Nächster Schritt:** Phase 4 (Schreib-Werkzeuge) starten — `/implement`. Vor Beginn: Phase 4
+ist als **heikel** geratet, `/model opusplan` empfohlen (aktuell läuft die Session mutmaßlich
+auf Sonnet für Phase 3 = mechanisch, das war richtig).
 
 **Offen beim Nutzer:** Bildschirm-Rundlauf gegen die Smoke-Checklisten von Meilenstein 3
 (`docs/archive/2026-08/2026-08-10_karteneditor/phase-9-abschluss.md`), Meilenstein 4

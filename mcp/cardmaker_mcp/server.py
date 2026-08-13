@@ -13,7 +13,7 @@ from typing import Any, TypeVar
 
 from mcp.server.mcpserver import MCPServer
 
-from cardmaker_mcp import state_cache
+from cardmaker_mcp import card_fields, search, state_cache
 from cardmaker_mcp.client import ApiError, Client, MissingTokenError
 
 # Ab SDK 2.0 heißt die ergonomische Server-Klasse MCPServer; in 1.x war es FastMCP
@@ -94,6 +94,84 @@ def get_state(refresh: bool = False) -> dict:
         refresh: Zwischenspeicher übergehen und frisch laden.
     """
     return state_cache.load_state(get_client(), refresh=refresh)
+
+
+@mcp.tool()
+@api_tool
+def find_template(query: str) -> list[dict] | str:
+    """Templates nach Namensteil suchen (Kurzfassungen), Groß-/Kleinschreibung egal."""
+    templates = state_cache.load_state(get_client())["templates"]
+    matches = search.search_by_name(templates, query)
+    return matches if matches else search.no_match_message("Templates", query)
+
+
+@mcp.tool()
+@api_tool
+def find_card(
+    query: str, template_id: int | None = None, card_group_id: int | None = None
+) -> list[dict] | str:
+    """Karten nach Namensteil suchen, optional nach Template oder Kartengruppe gefiltert.
+
+    Args:
+        query: Teilzeichenkette im Kartennamen.
+        template_id: Nur Karten dieses Templates.
+        card_group_id: Nur Karten dieser Kartengruppe.
+    """
+    cards = state_cache.load_state(get_client())["cards"]
+    matches = search.search_by_name(cards, query)
+
+    if template_id is not None:
+        matches = [card for card in matches if card.get("templateId") == template_id]
+    if card_group_id is not None:
+        matches = [card for card in matches if card.get("cardGroupId") == card_group_id]
+
+    return matches if matches else search.no_match_message("Karten", query)
+
+
+@mcp.tool()
+@api_tool
+def find_card_group(query: str) -> list[dict] | str:
+    """Kartengruppen nach Namensteil suchen, Groß-/Kleinschreibung egal."""
+    card_groups = state_cache.load_state(get_client())["cardGroups"]
+    matches = search.search_by_name(card_groups, query)
+    return matches if matches else search.no_match_message("Kartengruppen", query)
+
+
+@mcp.tool()
+@api_tool
+def get_template(template_id: int) -> dict:
+    """Template vollständig, inklusive Ebenen. Nur lesend — das Layout entsteht im Editor."""
+    return get_client().get_template(template_id)
+
+
+@mcp.tool()
+@api_tool
+def get_card(card_id: int) -> dict:
+    """Karte vollständig: Werte, Icon-Auswahl, Text-Abweichungen vom Template, Bilder."""
+    return get_client().get_card(card_id)
+
+
+@mcp.tool()
+@api_tool
+def describe_card_fields(template_id: int) -> dict:
+    """Was an diesem Template pro Karte befüllt wird: Text-, Bild- und Icon-Felder.
+
+    Textfelder tragen die Vorgaben aus dem Template (Schriftgröße, Farbe, Fett/Kursiv) —
+    das sind Startwerte, keine Zwänge; `textOverrides` auf der Karte kann sie überschreiben.
+    """
+    template = get_client().get_template(template_id)
+    return card_fields.describe_card_fields(template.get("layers", []))
+
+
+@mcp.tool()
+@api_tool
+def list_assets(kind: str | None = None) -> list[dict]:
+    """Bildvorrat (Rahmen/Icons) — Kennungen für die Icon-Auswahl an einer Karte.
+
+    Args:
+        kind: `"frame"` oder `"icon"`, weglassen für beide.
+    """
+    return get_client().get_assets(kind)
 
 
 def main() -> None:
