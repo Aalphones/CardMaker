@@ -52,22 +52,41 @@ Kartengruppen anlegen/ändern und das Duplizieren.
 
 ## Checkliste
 
-- [ ] `client.py`: Schreibmethoden ergänzen (`post_card_group`, `patch_card_group`,
+- [x] `client.py`: Schreibmethoden ergänzt (`post_card_group`, `patch_card_group`,
       `post_card`, `patch_card`, `post_card_duplicate`).
-- [ ] `mcp/cardmaker_mcp/meta.py`: Meta einmalig laden und zwischenspeichern; eine Funktion
-      `validate_card_payload(meta, payload)`, die Schlüsselmuster, Wertlängen,
-      `textOverrides`-Bereiche und Farbmuster prüft und bei Verstoß eine `ValueError` mit
-      Klartext wirft.
-- [ ] Warnung nach AK 3: Werkzeug lädt über `describe_card_fields` die Feldschlüssel des
-      Templates und vergleicht sie mit den gesendeten — Abweichung wird gemeldet, nicht
-      erzwungen. Bei `update_card` kommt das Template über die Karte (`templateId`).
-- [ ] Zwischenspeicher-Verfall: **jedes** dieser Werkzeuge ruft am Ende das Verwerfen aus
-      `state_cache.py`. Als Regel im Modulkopf-Kommentar festhalten (Drift-Regel aus
-      `docs/conventions/mcp.md`).
-- [ ] Werkzeuge in `server.py` registrieren, typisierte Parameter, sprechende Beschreibungen.
-- [ ] Antworttexte: gespeicherter Stand kompakt + der Vorschaubild-Hinweis aus AK 6.
-- [ ] Doku: `docs/conventions/mcp.md` — Werkzeug-Tabelle ergänzen, Regel „jedes neue
-      Schreib-Werkzeug verwirft den Zwischenspeicher" als Pflicht festhalten, das fehlende
-      Löschwerkzeug als bewusste Auslassung notieren.
+- [x] `mcp/cardmaker_mcp/meta.py`: `validate_card_payload` und
+      `validate_card_group_payload` prüfen Schlüsselmuster, Wertlängen,
+      `textOverrides`-Bereiche und Farbmuster und werfen `ValueError` mit Klartext.
+      Zwischengespeichert wird die Auskunft weiterhin in `state_cache.load_meta` — ein
+      zweiter Speicher daneben wäre eine zweite Wahrheit gewesen.
+- [x] Warnung nach AK 3: `_unknown_field_warnings` in `server.py` lädt die Feldschlüssel
+      über `card_fields.describe_card_fields` und vergleicht; bei `update_card` kommt das
+      Template über `get_card(...)["templateId"]`.
+- [x] Zwischenspeicher-Verfall: alle fünf Werkzeuge tragen `@invalidates_state`; die Regel
+      steht im Modulkopf von `server.py` und in `docs/conventions/mcp.md`.
+- [x] Werkzeuge in `server.py` registriert, typisierte Parameter, deutsche Beschreibungen.
+- [x] Antworten: `{ "card"|"cardGroup": <gespeicherter Stand>, "hinweise": [...] }` —
+      Warnungen zuerst, der Vorschaubild-Hinweis immer als letzter Eintrag.
+- [x] Doku: `docs/conventions/mcp.md` (Werkzeug-Tabelle, vier Pflichtregeln für
+      Schreib-Werkzeuge, bewusste Auslassungen), `mcp/README.md`, `docs/code-map.md`.
 
 ## Report-Back
+
+**Umgesetzt.** Fünf Schreib-Werkzeuge, `meta.py` als Prüfung vor dem Senden, Doku nachgezogen.
+`server.mcp.list_tools()` zeigt 14 Werkzeuge; die Prüfregeln wurden gegen eine nachgebaute
+Meta-Antwort trocken durchgespielt (Schlüsselmuster, Wertlänge, Schriftgröße, Farbe,
+unbekannte Angabe in `textOverrides`, Icon-Kennung, Namenslänge — jede lehnt mit Klartext ab).
+
+**Zwei Festlegungen, die im Plan offen waren:**
+
+1. **Muster mit Trennzeichen.** `/api/meta` liefert `"/^[a-z]…$/"` mitsamt der
+   PHP-Trennzeichen, weil `MetaService` die Konstanten unverändert durchreicht. Ohne
+   Abstreifen lehnt jedes Muster jeden Wert ab — `meta.compile_pattern` erledigt das, die
+   Kontrakt-Beschreibung in der Plan-README ist korrigiert.
+2. **Unbekannte Angabe in `textOverrides` wird abgelehnt** (z.B. `fontWeight`), obwohl das
+   Backend sie stillschweigend verwirft. Eine still verworfene Abweichung sieht gespeichert
+   aus und ist es nicht; das ist die schlimmere Sorte Nachsicht.
+
+**Noch nicht belegt:** kein einziger echter Schreibvorgang gegen die API — `GET /api/meta`
+ist nicht hochgeladen und lokal läuft das Backend nicht (PHP-Versionskonflikt, siehe
+STATE.md). Der Durchstich aus AK 3 der Plan-README ist der erste echte Beleg.

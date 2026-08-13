@@ -20,7 +20,7 @@ Auskunfts-Route `GET /api/meta`.
 | 1 | [Auskunfts-Route](phase-1-meta-route.md) | `GET /api/meta` — Prüfregeln und Enums der laufenden API als eine Antwort | standard | complete |
 | 2 | [MCP-Gerüst](phase-2-mcp-geruest.md) | `mcp/`-Subprojekt, HTTP-Client, Serverstart, `.mcp.json`, Werkzeuge `get_meta`/`get_state` | standard | complete |
 | 3 | [Such- und Lese-Werkzeuge](phase-3-lese-werkzeuge.md) | `find_*`, `get_card`, `get_template`, `describe_card_fields` | mechanisch | complete |
-| 4 | [Schreib-Werkzeuge](phase-4-schreib-werkzeuge.md) | Karten anlegen/ändern/duplizieren, Kartengruppen, Meta-Prüfung, Zwischenspeicher-Verfall | heikel | pending |
+| 4 | [Schreib-Werkzeuge](phase-4-schreib-werkzeuge.md) | Karten anlegen/ändern/duplizieren, Kartengruppen, Meta-Prüfung, Zwischenspeicher-Verfall | heikel | complete |
 | 5 | [Bilder & Abschluss](phase-5-bilder-und-abschluss.md) | Motivbild hochladen/platzieren/entfernen, Doku, ADRs, Meilenstein-Abschluss | standard | pending |
 
 ## Kontrakt: `GET /api/meta`
@@ -63,6 +63,11 @@ wie überall: camelCase. Hinter der Anmeldung, mit Zugriffstoken erreichbar.
 zweiten Abschrift** — die Werte oben sind der erwartete Stand, verbindlich ist die Quelle
 (Phase 1 nennt sie pro Feld). Weicht ein Wert beim Bauen ab, gilt die Prüfklasse und die
 Beispielzeile hier wird korrigiert.
+
+**Korrektur nach Phase 4:** Alle `*Pattern`-Felder kommen mit ihren PHP-Trennzeichen, also
+`"/^[a-z][a-z0-9_]{0,39}$/"` statt `"^[a-z][a-z0-9_]{0,39}$"` — `MetaService` reicht die
+Konstanten der Prüfklassen unverändert durch, und genau das war so gewollt. Jeder Nutzer der
+Auskunft muss die Trennzeichen abstreifen (im MCP-Server: `meta.compile_pattern`).
 
 ## Finale Abnahmekriterien
 

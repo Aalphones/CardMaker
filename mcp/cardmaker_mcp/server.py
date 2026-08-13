@@ -1,8 +1,12 @@
 """Aufbau des MCP-Servers für CardMaker.
 
 Stellt die CardMaker-REST-API über stdio als typisierte Werkzeuge bereit. Hier leben
-die Server-Instanz, die gemeinsame Fehlerabbildung und die Werkzeuge dieser Phase
-(`get_meta`, `get_state`); die weiteren kommen in den Folgephasen dazu.
+die Server-Instanz, die gemeinsame Fehlerabbildung und die Werkzeuge selbst.
+
+**Regel für jedes schreibende Werkzeug** (Drift-Regel aus `docs/conventions/mcp.md`):
+es trägt `@invalidates_state`, prüft seine Nutzlast vorher mit `meta.validate_*` und
+hängt den Vorschaubild-Hinweis an die Antwort. Fehlt eins davon, antwortet der Server
+später aus veralteten Daten oder verschweigt eine Grenze — beides still.
 """
 from __future__ import annotations
 
@@ -13,8 +17,14 @@ from typing import Any, TypeVar
 
 from mcp.server.mcpserver import MCPServer
 
-from cardmaker_mcp import card_fields, search, state_cache
+from cardmaker_mcp import card_fields, meta, search, state_cache
 from cardmaker_mcp.client import ApiError, Client, MissingTokenError
+
+PREVIEW_HINT = (
+    "Hinweis: Karten, die über MCP entstehen oder geändert werden, bekommen ihr "
+    "Vorschaubild erst, wenn sie einmal im Editor gespeichert wurden — das Bild entsteht "
+    "im Browser, nicht im Backend. Bis dahin bleibt die Kachel in der Kartenliste leer."
+)
 
 # Ab SDK 2.0 heißt die ergonomische Server-Klasse MCPServer; in 1.x war es FastMCP
 # (so noch in der Referenz-Umsetzung von Promptigofant). Gleiche Bedienung, neuer Name.
@@ -172,6 +182,203 @@ def list_assets(kind: str | None = None) -> list[dict]:
         kind: `"frame"` oder `"icon"`, weglassen für beide.
     """
     return get_client().get_assets(kind)
+
+
+@mcp.tool()
+@api_tool
+@invalidates_state
+def create_card_group(name: str, description: str | None = None) -> dict:
+    """Kartengruppe anlegen.
+
+    Args:
+        name: Anzeigename der Gruppe.
+        description: Freitext, optional.
+    """
+    payload = _payload(name=name, description=description)
+    meta.validate_card_group_payload(state_cache.load_meta(get_client()), payload)
+
+    return _with_hints(get_client().post_card_group(payload), "cardGroup")
+
+
+@mcp.tool()
+@api_tool
+@invalidates_state
+def update_card_group(
+    card_group_id: int, name: str | None = None, description: str | None = None
+) -> dict:
+    """Kartengruppe umbenennen oder ihre Beschreibung ändern.
+
+    Nur übergebene Felder ändern sich. Eine Beschreibung wieder zu leeren, geht hier
+    bewusst nicht — das bleibt der Oberfläche vorbehalten.
+
+    Args:
+        card_group_id: Kennung der Gruppe (`find_card_group`).
+        name: Neuer Name, weglassen heißt unverändert.
+        description: Neue Beschreibung, weglassen heißt unverändert.
+    """
+    payload = _payload(name=name, description=description)
+
+    if not payload:
+        raise ValueError("Nichts zu ändern: weder Name noch Beschreibung übergeben.")
+
+    meta.validate_card_group_payload(state_cache.load_meta(get_client()), payload)
+
+    return _with_hints(get_client().patch_card_group(card_group_id, payload), "cardGroup")
+
+
+@mcp.tool()
+@api_tool
+@invalidates_state
+def create_card(
+    name: str,
+    template_id: int,
+    values: dict[str, str] | None = None,
+    card_group_id: int | None = None,
+    icon_choices: dict[str, int] | None = None,
+    text_overrides: dict[str, dict] | None = None,
+) -> dict:
+    """Karte zu einem Template anlegen und ihre Felder befüllen.
+
+    Welche Felder das Template kennt, sagt `describe_card_fields(template_id)`.
+
+    Args:
+        name: Name der Karte.
+        template_id: Template, auf dem die Karte beruht.
+        values: Textfelder als `{"feldschluessel": "Text"}`.
+        card_group_id: Kartengruppe, weglassen heißt „keine".
+        icon_choices: Icon-Wahl als `{"ebenenkennung": bildKennung}` (`list_assets`).
+        text_overrides: Abweichungen vom Template je Feld, z.B.
+            `{"titel": {"fontSize": 42, "color": "#1a2b3c", "bold": true}}`.
+    """
+    payload = _payload(
+        name=name,
+        templateId=template_id,
+        values=values,
+        cardGroupId=card_group_id,
+        iconChoices=icon_choices,
+        textOverrides=text_overrides,
+    )
+    meta.validate_card_payload(state_cache.load_meta(get_client()), payload)
+    warnings = _unknown_field_warnings(template_id, values, icon_choices, text_overrides)
+
+    return _with_hints(get_client().post_card(payload), "card", warnings)
+
+
+@mcp.tool()
+@api_tool
+@invalidates_state
+def update_card(
+    card_id: int,
+    name: str | None = None,
+    values: dict[str, str] | None = None,
+    card_group_id: int | None = None,
+    icon_choices: dict[str, int] | None = None,
+    text_overrides: dict[str, dict] | None = None,
+) -> dict:
+    """Karte ändern — nur die übergebenen Felder.
+
+    Weggelassenes bleibt unangetastet. `values`, `icon_choices` und `text_overrides`
+    ersetzen jeweils den **ganzen** Satz: wer ein einzelnes Feld ändern will, holt sich
+    mit `get_card` den aktuellen Stand und schickt ihn samt Änderung zurück. Eine Karte
+    aus ihrer Gruppe zu lösen, geht hier bewusst nicht — das bleibt der Oberfläche.
+
+    Args:
+        card_id: Kennung der Karte (`find_card`).
+        name: Neuer Name, weglassen heißt unverändert.
+        values: Vollständiger Satz Textfelder.
+        card_group_id: Andere Kartengruppe.
+        icon_choices: Vollständige Icon-Wahl.
+        text_overrides: Vollständiger Satz Abweichungen vom Template.
+    """
+    payload = _payload(
+        name=name,
+        values=values,
+        cardGroupId=card_group_id,
+        iconChoices=icon_choices,
+        textOverrides=text_overrides,
+    )
+
+    if not payload:
+        raise ValueError("Nichts zu ändern: kein einziges Feld übergeben.")
+
+    meta.validate_card_payload(state_cache.load_meta(get_client()), payload)
+
+    warnings: list[str] = []
+    if values is not None or icon_choices is not None or text_overrides is not None:
+        # Das Template steht nicht in der Nutzlast — es hängt an der Karte.
+        template_id = get_client().get_card(card_id).get("templateId")
+        if isinstance(template_id, int):
+            warnings = _unknown_field_warnings(
+                template_id, values, icon_choices, text_overrides
+            )
+
+    return _with_hints(get_client().patch_card(card_id, payload), "card", warnings)
+
+
+@mcp.tool()
+@api_tool
+@invalidates_state
+def duplicate_card(card_id: int) -> dict:
+    """Karte kopieren — Name mit „ (Kopie)", Werte und Abweichungen übernommen.
+
+    Args:
+        card_id: Kennung der Vorlage (`find_card`).
+    """
+    return _with_hints(get_client().post_card_duplicate(card_id), "card")
+
+
+def _payload(**candidates: Any) -> dict:
+    """Nutzlast aus dem bauen, was wirklich übergeben wurde.
+
+    Weggelassene Werkzeug-Argumente sind `None` und dürfen **nicht** als Nullwert ans
+    Backend gehen: die PATCH-Routen ändern genau die Schlüssel, die im Rumpf stehen.
+    """
+    return {key: value for key, value in candidates.items() if value is not None}
+
+
+def _with_hints(saved: dict, kind: str, warnings: list[str] | None = None) -> dict:
+    """Gespeicherten Stand mit Warnungen und dem Vorschaubild-Hinweis ausliefern."""
+    return {kind: saved, "hinweise": [*(warnings or []), PREVIEW_HINT]}
+
+
+def _unknown_field_warnings(
+    template_id: int,
+    values: dict | None,
+    icon_choices: dict | None,
+    text_overrides: dict | None,
+) -> list[str]:
+    """Meldet Schlüssel, die das Template nicht kennt — als Warnung, nicht als Ablehnung.
+
+    Das Backend gleicht Kartenwerte bewusst nie gegen das Template ab (Grundsatz in
+    `docs/routes.md`), sonst würde jede Template-Änderung bestehende Karten
+    unspeicherbar machen. Strenger als die App zu sein, wäre hier ein Fehler — schweigen
+    bei einem Tippfehler im Feldschlüssel allerdings auch.
+    """
+    if values is None and icon_choices is None and text_overrides is None:
+        return []
+
+    layers = get_client().get_template(template_id).get("layers", [])
+    fields = card_fields.describe_card_fields(layers)
+    known_text_keys = {field["key"] for field in fields["texts"]}
+    known_icon_layers = {field["layerId"] for field in fields["icons"]}
+
+    warnings = []
+    for given, known, subject in (
+        (values, known_text_keys, "Textfelder"),
+        (text_overrides, known_text_keys, "Abweichungen"),
+        (icon_choices, known_icon_layers, "Icon-Wahl"),
+    ):
+        if given is None:
+            continue
+
+        unknown = sorted(set(given) - known)
+        if unknown:
+            warnings.append(
+                f"{subject}: {unknown} kennt das Template nicht — gespeichert wird es "
+                f"trotzdem (die App prüft das auch nicht). Bekannt sind: {sorted(known)}."
+            )
+
+    return warnings
 
 
 def main() -> None:

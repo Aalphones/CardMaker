@@ -8,7 +8,7 @@ nichts (einzige Ausnahme: die Auskunftsroute `GET /api/meta`).
 Einrichtung, Token setzen und die vollständige Werkzeugliste: `mcp/README.md`.
 Aufbau in der Landkarte: `docs/code-map.md` → „MCP-Server".
 
-## Stand (Phase 3 von `docs/planning/2026-08-13_mcp-server/`)
+## Stand (Phase 4 von `docs/planning/2026-08-13_mcp-server/`)
 
 - **Paket** `cardmaker_mcp`, Projektname `cardmaker-mcp`, Abhängigkeit `mcp[cli]>=2.0.0`,
   `requires-python >=3.10`, Build über `hatchling`.
@@ -33,8 +33,45 @@ Aufbau in der Landkarte: `docs/code-map.md` → „MCP-Server".
 | `get_card(card_id)` | 3 | Karte vollständig |
 | `describe_card_fields(template_id)` | 3 | Kartenfelder eines Templates: Text, Bild, Icon |
 | `list_assets(kind)` | 3 | Bildvorrat (Rahmen/Icons) |
+| `create_card_group(name, description)` | 4 | Kartengruppe anlegen |
+| `update_card_group(card_group_id, name, description)` | 4 | Umbenennen/Beschreibung ändern |
+| `create_card(name, template_id, values, card_group_id, icon_choices, text_overrides)` | 4 | Karte anlegen und befüllen |
+| `update_card(card_id, …)` | 4 | Karte ändern — nur übergebene Felder |
+| `duplicate_card(card_id)` | 4 | Karte kopieren |
 
-Schreiben und Bilder (Phasen 4–5) kommen hier dazu, sobald umgesetzt.
+Bilder (Phase 5) kommen hier dazu, sobald umgesetzt.
+
+### Bewusst nicht vorhanden
+
+- **Kein `delete_*`.** Ein Zugriffstoken kann alles, was der Nutzer kann; ein irrtümliches
+  Löschen über einen Assistenten ist unumkehrbar und nicht der Zweck des Servers. Entfernt
+  wird im Frontend.
+- **Kein Weg, eine Zuordnung zu leeren.** `update_card` kann eine Karte in eine andere
+  Gruppe schieben, aber nicht aus ihrer Gruppe lösen; `update_card_group` kann eine
+  Beschreibung nicht wieder leeren. Grund: ein weggelassenes Argument heißt „unverändert",
+  ein Nullwert bräuchte ein zweites, verwirrendes Sonderzeichen an derselben Stelle.
+  Beides ist in der Oberfläche ein Klick.
+- **Kein Abgleich der Feldschlüssel gegen das Template.** Das Backend gleicht bewusst nicht
+  ab (Grundsatz in `docs/routes.md`) — der Server ist deshalb nicht strenger als die App,
+  sondern **warnt** nur im Antworttext und nennt die bekannten Schlüssel.
+
+## Regeln für jedes schreibende Werkzeug
+
+Alle vier gehören zusammen; fehlt eine, ist der Fehler still:
+
+1. `@invalidates_state` — sonst antworten `find_*`/`get_state` bis zum Prozess-Neustart aus
+   veralteten Daten.
+2. **Nutzlast vorher gegen `/api/meta` prüfen** (`meta.validate_card_payload` /
+   `validate_card_group_payload`) — Klartext-Meldung statt eines `422` nach der Fahrt.
+3. **Weggelassene Argumente gehören nicht in die Nutzlast** (`server._payload`). Die
+   PATCH-Routen ändern genau die Schlüssel, die im Rumpf stehen — ein Nullwert für ein
+   nicht übergebenes Feld löscht Daten.
+4. **Vorschaubild-Hinweis anhängen** (`server._with_hints`): über MCP angelegte Karten
+   haben keine Kachel, bis sie einmal im Editor gespeichert wurden (ADR-026).
+
+Die Muster aus `/api/meta` tragen ihre **PHP-Trennzeichen** (`/^…$/`), weil sie unverändert
+aus den Prüfklassen stammen — vor dem Übersetzen nach Python durch `meta.compile_pattern`
+schicken, sonst lehnt jedes Muster jeden Wert ab.
 
 ## Drift-Regeln (was still veralten kann)
 

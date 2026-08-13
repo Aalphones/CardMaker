@@ -185,6 +185,30 @@ class Client:
             path += f"?{urllib.parse.urlencode({'kind': kind})}"
         return self.request("GET", path)  # type: ignore[return-value]
 
+    # --- Schreiben -----------------------------------------------------------
+    #
+    # Die Nutzlasten sind camelCase — das ist das Wire-Format der API; das Backend wandelt
+    # an seiner Grenze nach snake_case (`Request::body()`). Weggelassene Schlüssel bleiben
+    # bei den PATCH-Methoden unangetastet, deshalb bauen die Werkzeuge ihre Nutzlast aus
+    # dem, was übergeben wurde — nie aus Nullwerten für Weggelassenes.
+
+    def post_card_group(self, payload: dict) -> dict:
+        return self.request("POST", "card-groups", payload)  # type: ignore[return-value]
+
+    def patch_card_group(self, card_group_id: int, payload: dict) -> dict:
+        return self.request(  # type: ignore[return-value]
+            "PATCH", f"card-groups/{card_group_id}", payload
+        )
+
+    def post_card(self, payload: dict) -> dict:
+        return self.request("POST", "cards", payload)  # type: ignore[return-value]
+
+    def patch_card(self, card_id: int, payload: dict) -> dict:
+        return self.request("PATCH", f"cards/{card_id}", payload)  # type: ignore[return-value]
+
+    def post_card_duplicate(self, card_id: int) -> dict:
+        return self.request("POST", f"cards/{card_id}/duplicate")  # type: ignore[return-value]
+
 
 def _to_api_error(error: urllib.error.HTTPError) -> ApiError:
     """Fehlerkörper `{ error, message, fields? }` auslesen, sonst auf den HTTP-Grund zurückfallen."""

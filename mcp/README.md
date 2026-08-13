@@ -56,7 +56,9 @@ Store-Platzhalter.
 
 macOS/Linux: `command` auf `mcp/.venv/bin/python` ändern.
 
-## Werkzeuge (Stand Phase 3)
+## Werkzeuge (Stand Phase 4)
+
+### Lesen
 
 | Werkzeug | Wofür |
 |---|---|
@@ -70,8 +72,26 @@ macOS/Linux: `command` auf `mcp/.venv/bin/python` ändern.
 | `describe_card_fields(template_id)` | Was an diesem Template pro Karte befüllt wird: Text-, Bild- und Icon-Felder. |
 | `list_assets(kind)` | Bildvorrat (Rahmen/Icons) — Kennungen für die Icon-Auswahl. |
 
-Weitere Werkzeuge (Schreiben, Bilder) kommen in den Phasen 4–5 dazu
-(`docs/planning/2026-08-13_mcp-server/`).
+### Schreiben
+
+| Werkzeug | Wofür |
+|---|---|
+| `create_card_group(name, description)` | Kartengruppe anlegen. |
+| `update_card_group(card_group_id, name, description)` | Umbenennen oder Beschreibung ändern. |
+| `create_card(name, template_id, values, card_group_id, icon_choices, text_overrides)` | Karte zu einem Template anlegen und ihre Felder befüllen. |
+| `update_card(card_id, name, values, card_group_id, icon_choices, text_overrides)` | Karte ändern — nur die übergebenen Felder. |
+| `duplicate_card(card_id)` | Karte kopieren (Name mit „ (Kopie)"). |
+
+Drei Dinge, die beim Schreiben gelten:
+
+- **Vorschaubild:** Eine über MCP angelegte Karte hat keine Kachel, bis sie einmal im Editor
+  gespeichert wurde — das Bild entsteht im Browser, nicht im Backend. Jede Antwort sagt das.
+- **Ganze Sätze:** `values`, `icon_choices` und `text_overrides` ersetzen den kompletten Satz.
+  Ein einzelnes Feld ändern heißt: `get_card`, ergänzen, zurückschicken.
+- **Kein Löschen:** Karten, Gruppen und Zuordnungen werden in der Oberfläche entfernt, nicht
+  hier (Begründung: `docs/conventions/mcp.md`).
+
+Bild-Werkzeuge kommen in Phase 5 dazu (`docs/planning/2026-08-13_mcp-server/`).
 
 ## Aufbau
 
@@ -87,4 +107,6 @@ Claude Code ──MCP/stdio── lokaler Server (Python) ──HTTPS + Zugriffs
   das Backend hat keine Suchroute).
 - `card_fields.py` — leitet aus den Ebenen eines Templates die Kartenfelder ab, 1:1 nach
   `card-fields.ts` im Frontend.
+- `meta.py` — prüft eine Nutzlast gegen die Regeln aus `GET /api/meta`, bevor sie rausgeht.
+  Keine zweite Wahrheit: geprüft wird nur, was die Auskunft beschreibt.
 - `server.py` — Server-Instanz, Fehlerabbildung, Werkzeug-Registrierung, Start.
