@@ -13,7 +13,7 @@ zu wenig Bildpunkte haben.
 
 | # | Phase | Rating | Status |
 |---|---|---|---|
-| 1 | [Backend: Druckprojekt speichern](phase-1-backend.md) | standard | pending |
+| 1 | [Backend: Druckprojekt speichern](phase-1-backend.md) | standard | **complete** |
 | 2 | [Store, Route, Seitenspalte](phase-2-store-und-navigation.md) | standard | pending |
 | 3 | [Der Druckprojekt-Bildschirm](phase-3-bildschirm.md) | standard | pending |
 | 4 | [Bogen-Aufbau und Vorschau](phase-4-bogen-aufbau.md) | heikel | pending |

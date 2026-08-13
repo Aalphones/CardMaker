@@ -100,3 +100,28 @@ Prüfregeln (`CardValidator`, Existenzprüfungen in `CardService`):
 **Grundsatz:** Werte werden nie gegen das aktuelle Template abgeglichen. Ein Feldschlüssel,
 den das Template (noch oder nicht mehr) kennt, ist kein Fehler — sonst würde jede
 Template-Änderung bestehende Karten unspeicherbar machen.
+
+## Druckprojekt (`/api/print-project`)
+
+Kontrakt (Typen): `docs/planning/2026-08-13_druckprojekt-und-export/README.md`.
+Es gibt genau ein Druckprojekt, deshalb trägt kein Pfad eine Projekt-Kennung (ADR-024).
+
+| Methode | Pfad | Zweck |
+|---|---|---|
+| GET | `/api/print-project` | `{ options, items }` — legt das Projekt beim ersten Zugriff an, antwortet auch ohne gespeicherte Daten (leere Liste, `cutMarks: true`, `bleed: false`) |
+| PUT | `/api/print-project/options` | Druckoptionen setzen (`cutMarks`, `bleed` — beide Pflicht), Antwort ist dasselbe Objekt |
+| POST | `/api/print-project/items` | Karte aufnehmen (`cardId`, optional `quantity`) — `201` bei neuer Position, `200` mit erhöhter Anzahl, wenn die Karte schon drin ist |
+| PATCH | `/api/print-project/items/{id}` | Anzahl setzen (`quantity`) |
+| DELETE | `/api/print-project/items/{id}` | Position entfernen |
+| DELETE | `/api/print-project/items` | Alles entfernen |
+
+Eine Position liefert `{ id, cardId, cardName, quantity, previewUpdatedAt }` — Name und
+Vorschau-Zeitstempel kommen aus dem Verbund mit `cards`, damit die Liste Namen und Kachelbild
+zeigen kann, ohne alle Karten nachzuladen.
+
+Prüfregeln (`PrintProjectValidator`, Existenzprüfung in `PrintProjectService`):
+
+- `cutMarks`/`bleed`: echte Wahrheitswerte, beide Pflicht
+- `cardId`: ganze Zahl > 0 und eine existierende Karte, sonst 422 mit `fields.cardId`
+- `quantity`: ganze Zahl 1–99; beim Aufnehmen weglassbar (dann 1)
+- „Karte schon drin" erhöht die Anzahl um 1, gedeckelt bei 99

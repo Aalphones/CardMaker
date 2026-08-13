@@ -11,6 +11,7 @@ use App\Controllers\CardPreviewController;
 use App\Controllers\FontController;
 use App\Controllers\HealthController;
 use App\Controllers\MigrateController;
+use App\Controllers\PrintProjectController;
 use App\Controllers\SetupController;
 use App\Controllers\TemplateController;
 use App\Controllers\TemplatePreviewController;
@@ -26,6 +27,7 @@ use App\Repositories\CardGroupRepository;
 use App\Repositories\CardImageRepository;
 use App\Repositories\CardRepository;
 use App\Repositories\FontRepository;
+use App\Repositories\PrintProjectRepository;
 use App\Repositories\SessionRepository;
 use App\Repositories\TemplateRepository;
 use App\Repositories\UserRepository;
@@ -38,6 +40,7 @@ use App\Services\CardPreviewService;
 use App\Services\CardService;
 use App\Services\FontService;
 use App\Services\PreviewImageStorage;
+use App\Services\PrintProjectService;
 use App\Services\TemplatePreviewService;
 use App\Services\TemplateService;
 use App\Services\TokenService;
@@ -143,6 +146,7 @@ $cardService = null;
 $cardImageService = null;
 $templatePreviewService = null;
 $cardPreviewService = null;
+$printProjectService = null;
 
 if ($database instanceof PDO) {
     $tokenService = new TokenService();
@@ -207,6 +211,10 @@ if ($database instanceof PDO) {
         $assetRepository,
         $cardImageService,
         $cardPreviewService
+    );
+    $printProjectService = new PrintProjectService(
+        new PrintProjectRepository($database),
+        $cardRepository
     );
 }
 
@@ -281,6 +289,13 @@ $dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes
     $routes->addRoute('GET', '/api/templates/{id:\d+}/preview/file', [TemplatePreviewController::class, 'file']);
     $routes->addRoute('POST', '/api/cards/{id:\d+}/preview', [CardPreviewController::class, 'upload']);
     $routes->addRoute('GET', '/api/cards/{id:\d+}/preview/file', [CardPreviewController::class, 'file']);
+    $routes->addRoute('GET', '/api/print-project', [PrintProjectController::class, 'show']);
+    $routes->addRoute('PUT', '/api/print-project/options', [PrintProjectController::class, 'updateOptions']);
+    $routes->addRoute('POST', '/api/print-project/items', [PrintProjectController::class, 'addItem']);
+    // Der feste Pfad steht vor dem mit Kennung: „alles entfernen" darf nicht als Position „items" gelesen werden.
+    $routes->addRoute('DELETE', '/api/print-project/items', [PrintProjectController::class, 'clear']);
+    $routes->addRoute('PATCH', '/api/print-project/items/{id:\d+}', [PrintProjectController::class, 'updateItem']);
+    $routes->addRoute('DELETE', '/api/print-project/items/{id:\d+}', [PrintProjectController::class, 'destroyItem']);
 });
 
 $migrationsDirectory = $backendRoot . '/src/Migrations';
@@ -301,7 +316,8 @@ $makeController = static function (string $controllerClass) use (
     $cardService,
     $cardImageService,
     $templatePreviewService,
-    $cardPreviewService
+    $cardPreviewService,
+    $printProjectService
 ): object {
     return match ($controllerClass) {
         HealthController::class => new HealthController($database),
@@ -323,6 +339,7 @@ $makeController = static function (string $controllerClass) use (
         CardImageController::class => new CardImageController($request, $cardImageService),
         TemplatePreviewController::class => new TemplatePreviewController($request, $templatePreviewService),
         CardPreviewController::class => new CardPreviewController($request, $cardPreviewService),
+        PrintProjectController::class => new PrintProjectController($request, $printProjectService),
         default => throw new RuntimeException('Kein Bauplan für Controller: ' . $controllerClass),
     };
 };

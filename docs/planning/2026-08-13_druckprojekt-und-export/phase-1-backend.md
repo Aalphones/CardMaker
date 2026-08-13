@@ -27,7 +27,7 @@ Rating: **standard**
 
 ## Checkliste
 
-- [ ] `backend/src/Migrations/M011CreatePrintProject.php`:
+- [x] `backend/src/Migrations/M011CreatePrintProject.php`:
   - Tabelle `print_projects`: `id`, `cut_marks TINYINT(1) NOT NULL DEFAULT 1`,
     `bleed TINYINT(1) NOT NULL DEFAULT 0`, `created_at`, `updated_at`. Kommentar im Kopf:
     genau eine Zeile, weil es genau ein Druckprojekt gibt (ADR-024) — die Tabelle existiert,
@@ -37,24 +37,24 @@ Rating: **standard**
     `ON DELETE CASCADE`, `quantity SMALLINT UNSIGNED NOT NULL DEFAULT 1`,
     `sort_order INT NOT NULL DEFAULT 0`, `created_at`, `updated_at`,
     `UNIQUE KEY uq_print_project_items_card (print_project_id, card_id)`.
-- [ ] `backend/src/Repositories/PrintProjectRepository.php` — `findOrCreateProject()` (legt die
+- [x] `backend/src/Repositories/PrintProjectRepository.php` — `findOrCreateProject()` (legt die
       eine Zeile beim ersten Zugriff an), `updateOptions()`, `listItems()` (Verbund mit `cards`
       für `name` und `preview_updated_at`, sortiert nach `sort_order, id`), `findItemByCard()`,
       `insertItem()`, `updateQuantity()`, `deleteItem()`, `deleteAllItems()`.
-- [ ] `backend/src/Validators/PrintProjectValidator.php` — `validateOptions()` (beide Felder
+- [x] `backend/src/Validators/PrintProjectValidator.php` — `validateOptions()` (beide Felder
       Pflicht, Wahrheitswerte), `validateNewItem()` (`cardId` Pflicht, ganze Zahl > 0;
       `quantity` optional, 1–99), `validateQuantity()` (Pflicht, 1–99).
-- [ ] `backend/src/Services/PrintProjectService.php` — `get()`, `setOptions()`, `addItem()`
+- [x] `backend/src/Services/PrintProjectService.php` — `get()`, `setOptions()`, `addItem()`
       (vorhandene Position → Anzahl +1, gedeckelt bei 99; Rückgabe zusätzlich, ob sie neu war),
       `setQuantity()`, `removeItem()`, `clear()`. Prüft, dass die `cardId` existiert — sonst
       Fehler `422` mit `fields.cardId`.
-- [ ] `backend/src/Controllers/PrintProjectController.php` — dünn, wie `CardGroupController`;
+- [x] `backend/src/Controllers/PrintProjectController.php` — dünn, wie `CardGroupController`;
       `addItem` gibt 201 oder 200 je nach Rückmeldung des Service.
-- [ ] Routen in `backend/public/index.php` registrieren (Reihenfolge beachten:
+- [x] Routen in `backend/public/index.php` registrieren (Reihenfolge beachten:
       `DELETE /api/print-project/items` vor `DELETE /api/print-project/items/{id}`).
-- [ ] `docs/models.md`: zwei Tabellen-Abschnitte ergänzen (Muster der bestehenden).
-- [ ] `docs/routes.md`: Abschnitt „Druckprojekt (`/api/print-project`)" ergänzen.
-- [ ] `docs/decisions/024-ein-druckprojekt-statt-vieler.md` schreiben: Kontext (Konzept sagt
+- [x] `docs/models.md`: zwei Tabellen-Abschnitte ergänzen (Muster der bestehenden).
+- [x] `docs/routes.md`: Abschnitt „Druckprojekt (`/api/print-project`)" ergänzen.
+- [x] `docs/decisions/024-ein-druckprojekt-statt-vieler.md` schreiben: Kontext (Konzept sagt
       „Druckprojekte", Design zeigt einen Warenkorb), betrachtete Optionen (mehrere benannte
       Projekte / ein Warenkorb im Backend / Warenkorb nur im Browser), Entscheidung, Folgen
       (die Ablage trägt schon einen Projekt-Schlüssel, eine spätere Erweiterung kostet nur
@@ -62,4 +62,16 @@ Rating: **standard**
 
 ## Report-Back
 
-_(beim Abschluss der Phase füllen)_
+**Status: complete (2026-08-13).**
+
+Gebaut wie geplant, ohne Abweichung vom Kontrakt. Zwei Punkte, die der Plan offen ließ:
+
+- Die `sort_order` einer neuen Position ist `MAX(sort_order) + 1` innerhalb des Projekts,
+  vergeben in derselben Anweisung wie das Einfügen — keine Vorab-Abfrage.
+- Beim „schon drin → +1" wird die Anzahl bei 99 **gedeckelt** statt abgewiesen. Der Validator
+  weist nur ab, wenn eine Anzahl außerhalb 1–99 ausdrücklich gesetzt wird.
+
+**Nicht geprüft:** Migrationslauf und die sechs Endpunkte konnten lokal nicht laufen — das
+örtliche PHP ist 8.3, `vendor/` ist gegen 8.5 gebaut (`composer.json` → platform), und das
+Backend lebt auf Strato. Belegt ist nur die Syntax: `php -l` über alle berührten Dateien,
+sauber. Der erste echte Beleg ist der nächste Deploy mit `POST /api/migrate`.

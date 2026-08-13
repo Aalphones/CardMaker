@@ -156,3 +156,35 @@ Gespeichert wird immer die Originaldatei, nie ein beschnittenes Bild — der Aus
 sich aus Verschiebung und Maßstab (ADR-018). `layer_id` zeigt in einen JSON-Block und ist
 deshalb nicht per Fremdschlüssel absicherbar; verschwindet die Ebene aus dem Template, bleibt
 die Zeile stehen und wird nicht gezeichnet.
+
+## `print_projects` (M011)
+
+Das Druckprojekt — der Warenkorb, in dem Karten fürs Drucken gesammelt werden. Die Tabelle
+trägt **genau eine Zeile**; die App kennt nur ein Druckprojekt (ADR-024). Die Zeile entsteht
+beim ersten Zugriff, kein Setup-Schritt legt sie an.
+
+| Spalte | Typ | Anmerkung |
+|---|---|---|
+| `id` | INT UNSIGNED | Primärschlüssel |
+| `cut_marks` | TINYINT(1), Standard 1 | Schnittmarken drucken |
+| `bleed` | TINYINT(1), Standard 0 | Karten 2 mm größer drucken (Beschnitt) |
+| `created_at` / `updated_at` | DATETIME | |
+
+## `print_project_items` (M011)
+
+Eine Position im Druckprojekt: welche Karte, wie viele Exemplare.
+
+| Spalte | Typ | Anmerkung |
+|---|---|---|
+| `id` | INT UNSIGNED | Primärschlüssel |
+| `print_project_id` | INT UNSIGNED | → `print_projects.id`, `ON DELETE CASCADE` |
+| `card_id` | INT UNSIGNED | → `cards.id`, `ON DELETE CASCADE` |
+| `quantity` | SMALLINT UNSIGNED, Standard 1 | 1–99, geprüft im Validator |
+| `sort_order` | INT, Standard 0 | Reihenfolge in der Positionsliste |
+| `created_at` / `updated_at` | DATETIME | |
+
+Eindeutiger Schlüssel auf (`print_project_id`, `card_id`): Eine Karte steht höchstens einmal
+im Projekt — mehrere Exemplare zählt `quantity`, nicht mehrere Zeilen. Sonst würde derselbe
+Kartenentwurf beim Export mehrfach gezeichnet.
+
+Wird eine Karte gelöscht, verschwindet ihre Position im Druckprojekt mit.
