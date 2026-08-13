@@ -25,6 +25,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { CardCanvas } from '../../../shared/canvas/card-canvas/card-canvas';
 import { CardImageLoader, cardImageKey } from '../../../shared/canvas/card-image-loader';
+import { CardRenderer } from '../../../shared/canvas/card-renderer.service';
 import {
   PREVIEW_WIDTH_PX,
   PreviewUploadService,
@@ -40,9 +41,12 @@ import {
   zoomPlacementAt,
 } from '../../../shared/canvas/rendering/card-content';
 import { Geometry, Layer } from '../../../shared/canvas/rendering/layer';
+import { PRINT_WIDTH_PX } from '../../../shared/canvas/rendering/print';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { FieldHint } from '../../../shared/components/field-hint/field-hint';
 import { ComponentWithUnsavedChanges } from '../../../shared/guards/pending-changes-guard';
+import { cardFileName } from '../../../shared/services/card-file-name';
+import { downloadBlob } from '../../../shared/services/download-file';
 import { Notification } from '../../../shared/services/notification';
 import { Asset } from '../../../store/assets/assets.actions';
 import { AssetsFacade } from '../../../store/assets/assets.facade';
@@ -98,6 +102,11 @@ const PREVIEW_FAILED_MESSAGE = 'Das Vorschaubild konnte nicht gespeichert werden
 
 const PLACEMENT_HINT = 'Ziehen verschiebt das Bild, das Mausrad zoomt.';
 
+const DOWNLOAD_HINT =
+  'Ergibt ein PNG mit 744 × 1039 Bildpunkten — das ist die Kartengröße 63 × 88 mm bei ' +
+  '300 Bildpunkten je Zoll, der übliche Wert fürs Drucken.';
+const DOWNLOAD_FAILED_MESSAGE = 'Das Bild konnte nicht erzeugt werden.';
+
 /**
  * Eine Mausbewegung ist keine Speicherung wert: erst wenn so lange nichts mehr passiert,
  * geht der neue Ausschnitt zum Server. Beim Verlassen des Editors sofort.
@@ -125,6 +134,7 @@ export class CardEditor implements ComponentWithUnsavedChanges {
   private readonly dialog = inject(Dialog);
   private readonly cardImages = inject(CardImageLoader);
   private readonly cardPreview = inject(PreviewUploadService);
+  private readonly cardRenderer = inject(CardRenderer);
   private readonly notification = inject(Notification);
   protected readonly cards = inject(CardsFacade);
   protected readonly templates = inject(TemplatesFacade);
@@ -147,6 +157,7 @@ export class CardEditor implements ComponentWithUnsavedChanges {
   protected readonly orphanHint = ORPHAN_HINT;
   protected readonly templateHint = TEMPLATE_HINT;
   protected readonly placementHint = PLACEMENT_HINT;
+  protected readonly downloadHint = DOWNLOAD_HINT;
   protected readonly minScale = MIN_CARD_IMAGE_SCALE;
   protected readonly maxScale = MAX_CARD_IMAGE_SCALE;
 
@@ -168,6 +179,7 @@ export class CardEditor implements ComponentWithUnsavedChanges {
   protected readonly selectedTemplateId = signal<number | null>(null);
   protected readonly submitting = signal(false);
   protected readonly formError = signal<string | null>(null);
+  protected readonly downloadingImage = signal(false);
 
   /** Ein Template-Wechsel ist eine Änderung, die kein Formular-Control mitbekommt. */
   private readonly templateChanged = signal(false);
@@ -735,6 +747,35 @@ export class CardEditor implements ComponentWithUnsavedChanges {
     // Der Server-Stand darf nach dem Speichern wieder ins Formular zurückfließen.
     this.loadedCardId = null;
     this.cards.save(id, input);
+  }
+
+  /** Zeichnet die Live-Vorschau in Druckauflösung und legt sie als PNG auf die Platte. */
+  protected async downloadImage(): Promise<void> {
+    if (this.downloadingImage()) {
+      return;
+    }
+
+    this.downloadingImage.set(true);
+
+    try {
+      const result = await this.cardRenderer.renderPng(
+        { layers: this.previewLayers(), content: this.previewContent() },
+        PRINT_WIDTH_PX,
+      );
+
+      downloadBlob(result.image, cardFileName(this.form.controls.name.value || this.title()));
+
+      if (result.missing.length > 0) {
+        this.notification.show(
+          `Fertig — aber diese Bilder fehlen im Bild: ${result.missing.join(', ')}.`,
+          'info',
+        );
+      }
+    } catch {
+      this.notification.show(DOWNLOAD_FAILED_MESSAGE, 'error');
+    } finally {
+      this.downloadingImage.set(false);
+    }
   }
 
   private activeImageArea(): Geometry | null {

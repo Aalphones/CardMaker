@@ -187,6 +187,17 @@
 
     <div class="card-editor__actions">
       <a class="btn btn--secondary" routerLink="/cards">Abbrechen</a>
+      <div class="card-editor__label-row">
+        <button
+          type="button"
+          class="btn btn--secondary"
+          [disabled]="downloadingImage()"
+          (click)="downloadImage()"
+        >
+          {{ downloadingImage() ? 'Wird erzeugt …' : 'Als Bild herunterladen' }}
+        </button>
+        <app-field-hint [text]="downloadHint" />
+      </div>
       <button type="submit" class="btn btn--primary" [disabled]="submitting()">
         Karte speichern
       </button>

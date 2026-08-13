@@ -4,13 +4,21 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } 
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
+import { CardRenderSource } from '../../../shared/canvas/card-render-source.service';
+import { CardRenderer } from '../../../shared/canvas/card-renderer.service';
 import { PreviewImageLoader } from '../../../shared/canvas/preview-image-loader';
+import { PRINT_WIDTH_PX } from '../../../shared/canvas/rendering/print';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { cardFileName } from '../../../shared/services/card-file-name';
+import { downloadBlob } from '../../../shared/services/download-file';
+import { Notification } from '../../../shared/services/notification';
 import { CardGroup } from '../../../store/card-groups/card-groups.actions';
 import { CardGroupsFacade } from '../../../store/card-groups/card-groups.facade';
 import { CardSummary } from '../../../store/cards/cards.actions';
 import { CardsFacade } from '../../../store/cards/cards.facade';
 import { TemplatesFacade } from '../../../store/templates/templates.facade';
+
+const DOWNLOAD_FAILED_MESSAGE = 'Das Bild konnte nicht erzeugt werden.';
 
 type GroupFilter = 'all' | 'none' | number;
 type SortMode = 'recent' | 'name' | 'group';
@@ -34,6 +42,9 @@ const cardCountPluralRules = new Intl.PluralRules('de');
 export class CardsList {
   private readonly dialog = inject(Dialog);
   private readonly previewImages = inject(PreviewImageLoader);
+  private readonly cardRenderSource = inject(CardRenderSource);
+  private readonly cardRenderer = inject(CardRenderer);
+  private readonly notification = inject(Notification);
   private readonly route = inject(ActivatedRoute);
   protected readonly cards = inject(CardsFacade);
   protected readonly cardGroups = inject(CardGroupsFacade);
@@ -44,6 +55,9 @@ export class CardsList {
   protected readonly groupFilter = signal<GroupFilter>('all');
   protected readonly sortMode = signal<SortMode>('recent');
   protected readonly view = signal<ViewMode>('grid');
+
+  /** Karten, deren Bild gerade erzeugt wird — pro Karte, damit ein Export nicht die ganze Liste sperrt. */
+  private readonly downloadingCardIds = signal<ReadonlySet<number>>(new Set());
 
   /** Von Suche und Template gefiltert, aber noch nicht vom Gruppen-Chip — die Chips zählen darauf. */
   private readonly searchAndTemplateFiltered = computed(() => {
@@ -146,6 +160,51 @@ export class CardsList {
 
   duplicate(item: CardSummary): void {
     this.cards.duplicate(item.id);
+  }
+
+  protected isDownloading(item: CardSummary): boolean {
+    return this.downloadingCardIds().has(item.id);
+  }
+
+  /** Rendert die gespeicherte Karte in Druckauflösung, ohne den Editor zu öffnen (Phase 3). */
+  protected async download(item: CardSummary): Promise<void> {
+    if (this.isDownloading(item)) {
+      return;
+    }
+
+    this.setDownloading(item.id, true);
+
+    try {
+      const input = await this.cardRenderSource.inputForCard(item.id);
+      const result = await this.cardRenderer.renderPng(input, PRINT_WIDTH_PX);
+
+      downloadBlob(result.image, cardFileName(item.name));
+
+      if (result.missing.length > 0) {
+        this.notification.show(
+          `Fertig — aber diese Bilder fehlen im Bild: ${result.missing.join(', ')}.`,
+          'info',
+        );
+      }
+    } catch {
+      this.notification.show(DOWNLOAD_FAILED_MESSAGE, 'error');
+    } finally {
+      this.setDownloading(item.id, false);
+    }
+  }
+
+  private setDownloading(cardId: number, value: boolean): void {
+    this.downloadingCardIds.update((current: ReadonlySet<number>) => {
+      const next = new Set(current);
+
+      if (value) {
+        next.add(cardId);
+      } else {
+        next.delete(cardId);
+      }
+
+      return next;
+    });
   }
 
   async remove(item: CardSummary): Promise<void> {

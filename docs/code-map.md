@@ -58,17 +58,23 @@ frontend/src/app/
     cards/
       cards-list/          ← Route /cards: „Alle Karten" — Raster/Tabelle-Umschalter, Suche,
                              Template-Filter, Gruppen-Chips, Sortierung, Kachel zeigt das
-                             Vorschaubild (`shared/canvas/preview-image-loader.ts`)
+                             Vorschaubild (`shared/canvas/preview-image-loader.ts`). Je Karte ein
+                             Herunterladen-Knopf (Raster: Icon, Tabelle: Text) — rendert über
+                             `CardRenderSource` + `CardRenderer` ohne offenen Editor, Ladezustand
+                             pro Karte (ein Export sperrt nicht die ganze Liste)
       card-editor/         ← Routen /cards/new und /cards/:id: linke Formularspalte (Name,
                              Template-Auswahl, je Bildfläche ein Ablagefeld, je Textfeld ein
                              Block mit Größe/Farbe/Fett/Kursiv als Abweichung, Icon-Auswahl als
-                             Tags, Kartengruppe) und rechts die mitlaufende Live-Vorschau
+                             Tags, Kartengruppe, Fußzeile mit Abbrechen/„Als Bild
+                             herunterladen"/Speichern) und rechts die mitlaufende Live-Vorschau
                              (dieselbe Zeichenfläche wie im Template-Editor, gefüttert aus
                              Formular + Entwurfsstand; nach dem Speichern entsteht daraus das
-                             Vorschaubild der Kachel). `card-fields.ts` leitet ohne Angular aus den
-                             Template-Ebenen ab, welche Felder das Formular zeigt — dieselbe
-                             Ableitung benutzt die Vorschau. `image-drop/` ist das Ablagefeld
-                             (Ziehen-und-Ablegen, Ersetzen, Entfernen, Klartext-Fehler)
+                             Vorschaubild der Kachel, der Herunterladen-Knopf rendert denselben
+                             Stand über `CardRenderer` in Druckauflösung). `card-fields.ts`
+                             leitet ohne Angular aus den Template-Ebenen ab, welche Felder das
+                             Formular zeigt — dieselbe Ableitung benutzt die Vorschau.
+                             `image-drop/` ist das Ablagefeld (Ziehen-und-Ablegen, Ersetzen,
+                             Entfernen, Klartext-Fehler)
     prompts/
       prompt-texts.ts       ← die Prompt-Texte als Konstanten (Zweitschrift der Doku)
       prompts-page/          ← Route /prompts: drei Reiter (Rahmen/Icons/Artwork), je
@@ -113,6 +119,11 @@ frontend/src/app/
                          aufklappbarem Klartext-Hinweis; not-found; notification-list)
     guards/            ← wiederverwendbare Route-Guards (u.a. pending-changes-guard —
                           canDeactivate bei ungespeicherten Formularen)
+    services/          ← kleine, Angular-freie Helfer ohne eigenen Zustand: `notification.ts`
+                          (globaler Meldungsdienst, angezeigt von `notification-list`),
+                          `download-file.ts` (`downloadBlob()` — Objekt-Adresse, unsichtbarer
+                          `<a download>`-Klick, Freigabe), `card-file-name.ts`
+                          (`cardFileName()` — Kartenname → Dateiname, Umlaute ausgeschrieben)
     canvas/            ← alles, was mit Konva zeichnet — Feature-Komponenten binden nur Daten
       card-canvas/      ← die Kartenvorschau: `card-canvas.*` (Bühne, Maßstab, Schachbrett,
                            Auswahl-Umriss, ab Phase 7 der Konva-Transformer als Anfasser,
@@ -193,7 +204,6 @@ frontend/src/app/
                            Linien-Punkte verschieben) — ADR-005, damit Meilenstein 4 (Drucken)
                            sie wiederverwendet. Einzige Ausnahme: `measure-text.ts`, die
                            Messbrücke zu `Konva.Text`
-    services/
   store/               ← NgRx Classic Store Slices (auth, card-groups, cards, templates, assets,
                           fonts, tokens — Facade Pflicht pro Domain-Slice, `auth` bislang ohne, da
                           es keine eigene Domain-UI mit Zwischen-Zustand hat). `cards` hält

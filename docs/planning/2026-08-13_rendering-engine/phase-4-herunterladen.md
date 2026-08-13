@@ -40,21 +40,30 @@ Kartenliste (der gespeicherte Stand).
 
 ## Checkliste
 
-- [ ] `shared/services/download-file.ts` anlegen: `downloadBlob(blob: Blob, fileName: string)`
+- [x] `shared/services/download-file.ts` anlegen: `downloadBlob(blob: Blob, fileName: string)`
       — Objekt-Adresse erzeugen, unsichtbares `<a download>` klicken, Adresse per
       `URL.revokeObjectURL` wieder freigeben (sonst bleibt der Blob im Speicher hängen).
-- [ ] `shared/services/card-file-name.ts` (oder als Funktion daneben): `cardFileName(name:
+- [x] `shared/services/card-file-name.ts` (oder als Funktion daneben): `cardFileName(name:
       string): string` nach der Regel oben. Umlaute: `ä→ae`, `ö→oe`, `ü→ue`, `ß→ss`.
-- [ ] `card-editor.ts`: Methode `downloadImage()` — `CardRenderer.renderPng({ layers:
+- [x] `card-editor.ts`: Methode `downloadImage()` — `CardRenderer.renderPng({ layers:
       previewLayers(), content: previewContent() }, PRINT_WIDTH_PX)`, dann `downloadBlob`.
       Ladezustand als `signal<boolean>`, Fehler über den vorhandenen Meldungsdienst.
-- [ ] `card-editor.html`: Knopf + Fragezeichen-Hinweis wie in den Abnahmekriterien.
-- [ ] `cards-list`: Menüeintrag, der `CardRenderSource.inputForCard(id)` (Phase 3) und dann
+- [x] `card-editor.html`: Knopf + Fragezeichen-Hinweis wie in den Abnahmekriterien.
+- [x] `cards-list`: Menüeintrag, der `CardRenderSource.inputForCard(id)` (Phase 3) und dann
       denselben Weg benutzt. Ladezustand pro Karte, nicht global — sonst sperrt ein Export die
       ganze Liste.
-- [ ] Bewegung: hat der Knopf einen Übergang, gehört ein `prefers-reduced-motion`-Zweig dazu
-      (`docs/conventions/css.md`).
-- [ ] `docs/code-map.md`: die beiden neuen `shared/services/`-Dateien und den neuen Knopf bei
+- [x] Bewegung: hat der Knopf einen Übergang, gehört ein `prefers-reduced-motion`-Zweig dazu
+      (`docs/conventions/css.md`). Kein neuer Übergang eingeführt — nur vorhandene
+      `.btn`/`.icon-button`-Bausteinklassen wiederverwendet, also entfällt der Zweig.
+- [x] `docs/code-map.md`: die beiden neuen `shared/services/`-Dateien und den neuen Knopf bei
       `cards` eintragen.
 
 ## Report-Back
+
+Kein Aktionsmenü existierte in `cards-list` (nur zwei nackte Icon-/Ghost-Knöpfe je Karte) —
+der neue Knopf reiht sich als drittes Element ein (Icon im Raster, Text in der Tabelle), nicht
+als Menüeintrag. Der Herunterladen-Knopf im Karteneditor sitzt in der Fußzeile
+(`card-editor__actions`) links neben „Karte speichern" — eine eigene Kopfzeile mit „Speichern"
+gibt es in diesem Editor nicht, die Fußzeile ist die einzig sinnvolle Entsprechung.
+
+`npm run lint` und `npm run build` laufen grün.

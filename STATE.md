@@ -3,13 +3,14 @@
 **Aktiver Plan:** `docs/planning/2026-08-13_rendering-engine/` — Meilenstein 4,
 Rendering-Engine. Freigegeben am 2026-08-13.
 
-**Phase:** 3/5 — Eine gespeicherte Karte ohne Editor rendern (complete). `buildRenderInput()`
-übersetzt Karte + Template in einen `CardRenderInput`, `CardRenderSource.inputForCard(cardId)`
-besorgt beides über die Facades — ohne dass ein Editor offen sein muss.
+**Phase:** 4/5 — Als Bild herunterladen (complete). Knopf „Als Bild herunterladen" im
+Karteneditor (Fußzeile, links neben „Karte speichern") und in der Kartenliste (Raster: Icon,
+Tabelle: Text) — rendert über `CardRenderer`/`CardRenderSource` in Druckauflösung, lädt als
+PNG herunter, Ladezustand pro Knopf/Karte.
 
-**Nächster Schritt:** Phase 4 — `phase-4-herunterladen.md`: der Knopf „Als Bild herunterladen"
-im Karteneditor und in der Kartenliste. Phase 4 ist als **standard** eingestuft — `sonnet`
-reicht.
+**Nächster Schritt:** Phase 5 — `phase-5-vorschaubilder.md`: die Kachel-Vorschaubilder auf
+denselben Render-Motor legen statt auf die sichtbare Bühne des offenen Editors. Phase 5 ist
+als **standard** eingestuft — `sonnet` reicht.
 
 **Offen beim Nutzer (aus Meilenstein 3):** Der vollständige Bildschirm-Rundlauf gegen die
 acht Abnahmekriterien des Karteneditor-Plans ist nie gefahren worden. Prüfliste in
