@@ -15,5 +15,12 @@ acht Abnahmekriterien des Karteneditor-Plans ist nie gefahren worden. Prüfliste
 hochgeladenes Motiv genug Bildpunkte für 300 DPI hat (zu kleine Bilder werden im Druck
 unscharf, am Bildschirm sieht man das nie). Bewusst nicht eingeplant — Entscheidung steht aus.
 
-**Nächster Schritt:** Meilenstein 5 (Druckprojekt & Export) planen, sobald gewünscht —
-`/plan`.
+**Nächster Schritt:** Der Plan für Meilenstein 5 (Druckprojekt & Export) liegt fertig im
+Backlog: `docs/planning/2026-08-13_druckprojekt-und-export/` — sechs Phasen, freigegeben am
+13.08.2026, noch nicht angefangen. Umsetzung startet mit `/implement`.
+
+Entschieden bei der Planung: genau **ein** Druckprojekt (Warenkorb im Backend, ADR-024),
+PDF über jsPDF (ADR-023, nur dynamisch nachladen — sonst verdoppelt sich das Start-Bundle),
+Karten als JPEG auf weißem Grund, damit Druckbögen für Netzwerkdrucker klein genug bleiben.
+Die offene Frage zur Druckauflösung aus Meilenstein 4 ist damit beantwortet: Ein Hinweis vor
+dem Export nennt zu grobe Motive, blockiert aber nichts.
