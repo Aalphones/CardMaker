@@ -56,7 +56,7 @@
         <app-image-drop
           [label]="image.label"
           [imageUrl]="imageUrlFor(image.layerId)"
-          [busy]="submitting()"
+          [busy]="imageBusy(image.layerId) || submitting()"
           (fileChosen)="onImageChosen(image.layerId, $event)"
           (removed)="onImageRemoved(image.layerId)"
         />

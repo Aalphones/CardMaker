@@ -413,6 +413,36 @@ export class CardEditor implements ComponentWithUnsavedChanges {
     return this.cardImages.images().get(cardImageKey(id, layerId))?.src ?? null;
   }
 
+  /**
+   * Wartet die Bildfläche noch? Erst wenn die Datei beim Server ist **und** das fertige Bild
+   * im Zwischenspeicher liegt, ist die Sache durch — dazwischen läge sonst ein Augenblick, in
+   * dem die Fläche leer aussieht, obwohl gerade ein Bild ankommt.
+   */
+  protected imageBusy(layerId: string): boolean {
+    if (this.cards.uploadingImageLayerIds().includes(layerId)) {
+      return true;
+    }
+
+    const id = this.cardId();
+
+    if (id === null) {
+      // Ohne Karte gibt es noch kein Bild: das Warten gilt dem Anlegen, das gerade läuft.
+      return this.submitting();
+    }
+
+    const isStored = (this.card()?.images ?? []).some(
+      (image: CardImagePlacement) => image.layerId === layerId,
+    );
+
+    if (!isStored) {
+      return false;
+    }
+
+    const key = cardImageKey(id, layerId);
+
+    return !this.cardImages.images().has(key) && !this.cardImages.failedKeys().has(key);
+  }
+
   protected valueControl(key: string): FormControl<string> | null {
     return this.valueControls.controls[key] ?? null;
   }

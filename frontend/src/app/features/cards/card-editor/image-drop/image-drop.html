@@ -6,6 +6,7 @@
     class="image-drop__zone"
     [class.image-drop__zone--active]="dragActive()"
     [disabled]="busy()"
+    [attr.aria-busy]="busy()"
     (dragover)="onDragOver($event)"
     (dragleave)="onDragLeave()"
     (drop)="onDrop($event)"
@@ -13,8 +14,15 @@
   >
     @if (imageUrl(); as url) {
       <img class="image-drop__preview" [src]="url" alt="" />
-    } @else {
+    } @else if (!busy()) {
       <span class="image-drop__placeholder">Bild ablegen</span>
+    }
+
+    @if (busy()) {
+      <span class="image-drop__busy">
+        <span class="image-drop__spinner"></span>
+        <span class="visually-hidden">Bild wird verarbeitet …</span>
+      </span>
     }
   </button>
 

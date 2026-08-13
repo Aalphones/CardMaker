@@ -155,7 +155,7 @@ export class CardsEffects {
         return this.api.postForm<CardImage>(`/cards/${cardId}/images`, formData).pipe(
           map((image: CardImage) => CardsActions.uploadImageSuccess({ cardId, image })),
           catchError((error: unknown) =>
-            of(CardsActions.uploadImageFailure({ message: resolveErrorMessage(error) })),
+            of(CardsActions.uploadImageFailure({ layerId, message: resolveErrorMessage(error) })),
           ),
         );
       }),

@@ -22,6 +22,9 @@ export class CardsFacade {
   readonly summariesLoading = this.store.selectSignal(cardsFeature.selectSummariesLoading);
   readonly current = this.store.selectSignal(cardsFeature.selectCurrent);
   readonly currentLoading = this.store.selectSignal(cardsFeature.selectCurrentLoading);
+  readonly uploadingImageLayerIds = this.store.selectSignal(
+    cardsFeature.selectUploadingImageLayerIds,
+  );
   readonly error = this.store.selectSignal(cardsFeature.selectError);
 
   ensureLoaded(): void {

@@ -26,6 +26,9 @@ export class CardImageLoader {
   /** Alle geladenen Kartenbilder, Schlüssel `cardId:layerId`. */
   readonly images: Signal<ReadonlyMap<string, HTMLImageElement>> = this.cache.images;
 
+  /** Bilder, die nicht geholt werden konnten — Schlüssel wie oben. */
+  readonly failedKeys: Signal<ReadonlySet<string>> = this.cache.failedKeys;
+
   constructor() {
     inject(DestroyRef).onDestroy(() => this.cache.releaseObjectUrls());
   }

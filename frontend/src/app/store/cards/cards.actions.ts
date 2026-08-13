@@ -99,7 +99,7 @@ export const CardsActions = createActionGroup({
     'Duplicate Failure': props<{ message: string }>(),
     'Upload Image': props<{ cardId: number; layerId: string; file: File }>(),
     'Upload Image Success': props<{ cardId: number; image: CardImage }>(),
-    'Upload Image Failure': props<{ message: string }>(),
+    'Upload Image Failure': props<{ layerId: string; message: string }>(),
     'Update Image Placement': props<{
       cardId: number;
       layerId: string;

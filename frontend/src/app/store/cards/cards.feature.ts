@@ -8,6 +8,8 @@ export interface CardsState {
   summariesLoading: boolean;
   current: Card | null;
   currentLoading: boolean;
+  /** Bildflächen, deren Datei gerade zum Server unterwegs ist. */
+  uploadingImageLayerIds: string[];
   error: string | null;
 }
 
@@ -17,8 +19,13 @@ const initialState: CardsState = {
   summariesLoading: false,
   current: null,
   currentLoading: false,
+  uploadingImageLayerIds: [],
   error: null,
 };
+
+function withoutLayerId(layerIds: string[], layerId: string): string[] {
+  return layerIds.filter((existing: string) => existing !== layerId);
+}
 
 /**
  * Bilder gehören zur geöffneten Karte, nicht zu einer beliebigen — deshalb bewegt jede
@@ -95,10 +102,25 @@ export const cardsFeature = createFeature({
     ),
     on(CardsActions.deleteFailure, (state, { message }): CardsState => ({ ...state, error: message })),
     on(CardsActions.duplicateFailure, (state, { message }): CardsState => ({ ...state, error: message })),
-    on(CardsActions.uploadImageSuccess, (state, { cardId, image }): CardsState =>
-      withImage(state, cardId, image),
+    on(
+      CardsActions.uploadImage,
+      (state, { layerId }): CardsState => ({
+        ...state,
+        uploadingImageLayerIds: [...withoutLayerId(state.uploadingImageLayerIds, layerId), layerId],
+      }),
     ),
-    on(CardsActions.uploadImageFailure, (state, { message }): CardsState => ({ ...state, error: message })),
+    on(CardsActions.uploadImageSuccess, (state, { cardId, image }): CardsState => ({
+      ...withImage(state, cardId, image),
+      uploadingImageLayerIds: withoutLayerId(state.uploadingImageLayerIds, image.layerId),
+    })),
+    on(
+      CardsActions.uploadImageFailure,
+      (state, { layerId, message }): CardsState => ({
+        ...state,
+        uploadingImageLayerIds: withoutLayerId(state.uploadingImageLayerIds, layerId),
+        error: message,
+      }),
+    ),
     on(CardsActions.updateImagePlacementSuccess, (state, { cardId, image }): CardsState =>
       withImage(state, cardId, image),
     ),
@@ -129,5 +151,6 @@ export const {
   selectSummariesLoading,
   selectCurrent,
   selectCurrentLoading,
+  selectUploadingImageLayerIds,
   selectError,
 } = cardsFeature;

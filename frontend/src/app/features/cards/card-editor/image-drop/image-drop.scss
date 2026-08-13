@@ -4,10 +4,12 @@
 
 .image-drop {
   &__zone {
+    position: relative;
     display: grid;
     place-items: center;
     width: 100%;
     block-size: 10.625rem;
+    overflow: hidden;
     padding: var(--space-sm);
     border: 1px dashed var(--color-border);
     border-radius: var(--radius-md);
@@ -28,11 +30,37 @@
     }
   }
 
+  /* Feste Höhe statt `max-block-size: 100%`: der Knopf wickelt seinen Inhalt in eine anonyme
+     Box ohne feste Höhe, an der sich Prozentwerte nicht auflösen — das Bild wuchs dadurch auf
+     seine Originalgröße und lief über die ganze Seite. */
   &__preview {
     max-inline-size: 100%;
-    max-block-size: 100%;
+    max-block-size: 9.5rem;
     border-radius: var(--radius-sm);
     object-fit: contain;
+  }
+
+  &__busy {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  }
+
+  &__spinner {
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    border: 3px solid var(--color-divider);
+    border-block-start-color: var(--color-accent);
+    border-radius: 50%;
+    animation: image-drop-spin 0.8s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__spinner {
+      animation-duration: 2.4s;
+    }
   }
 
   &__placeholder {
@@ -57,5 +85,11 @@
     margin-block-start: var(--space-xs);
     color: var(--color-danger);
     font-size: var(--font-size-sm);
+  }
+}
+
+@keyframes image-drop-spin {
+  to {
+    transform: rotate(1turn);
   }
 }
