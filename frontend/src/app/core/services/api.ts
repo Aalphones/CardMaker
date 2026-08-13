@@ -23,6 +23,10 @@ export class Api {
     return this.http.post<T>(`${this.baseUrl}${path}`, body);
   }
 
+  put<T>(path: string, body: unknown): Observable<T> {
+    return this.http.put<T>(`${this.baseUrl}${path}`, body);
+  }
+
   patch<T>(path: string, body: unknown): Observable<T> {
     return this.http.patch<T>(`${this.baseUrl}${path}`, body);
   }

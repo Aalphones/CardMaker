@@ -28,7 +28,7 @@ backend/src/Validators/<Feature>Validator.php
 | `fonts` | Schriftvorrat — hochgeladene Schriftdateien (WOFF2/TTF/OTF, max. 2 MB), hinter der Anmeldung ausgeliefert. Der Name für CSS ist immer `cmfont-<Kennung>` und wird berechnet, nie gespeichert; der Wunschname des Nutzers ist reine Beschriftung. Backend und Speicher stehen, noch keine Oberfläche |
 | `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste, Kartenvorschau, Ebenenliste, Eigenschaftenspalte und direkte Bearbeitung im Bild (Anfasser zum Verschieben/Skalieren/Drehen) stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Die Schrift einer Textebene (`font_family`) ist dabei entweder eine eingebaute Schrift oder `cmfont-<Kennung>` einer hochgeladenen — welche hochgeladenen es gibt, holt `TemplateService` einmal pro Speichervorgang und reicht es dem Prüfer durch. Eine Textebene kennt zusätzlich `font_bold`/`font_italic` (Wahrheitswerte, künstlich vom Browser gerechnet statt aus einer zweiten Schriftdatei geladen). Vorschaubild-Ablage steht (`TemplatePreviewController`/`TemplatePreviewService`, gemeinsamer Baustein `PreviewImageStorage`, Endpunkte `/api/templates/{id}/preview*`, ADR-021). Der Editor erzeugt das Bild nach jedem erfolgreichen Speichern selbst: `CardRenderer.renderPng()` zeichnet die Ebenen ohne Editor-Bühne in ein PNG fester Breite (Motor aus Meilenstein 4, kein `CardCanvas.exportPng()` mehr), `PreviewUploadService` lädt es hoch — schlägt das fehl, bleibt es bei einer Hinweismeldung. Meilenstein 2 ist abgeschlossen |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zurechtschieben/zoomen, Schriftgröße/-farbe/Fett/Kursiv überschreiben, Kartengruppe zuordnen. Backend komplett: Kartendaten (`CardController`/`CardService`/`CardRepository`/`CardValidator`), Kartenbilder (`CardImageController`/`CardImageService`/`CardImageRepository`/`CardImageValidator`, eigener Ordner `backend/uploads/cards/`, ADR-017) und Vorschaubild-Ablage (`CardPreviewController`/`CardPreviewService`, derselbe `PreviewImageStorage`-Baustein wie bei Templates, Endpunkte `/api/cards/{id}/preview*`, ADR-021). Frontend komplett: Liste (`cards-list/`, mit Suche/Filter/Sortierung/Duplizieren/Löschen) und Editor (`card-editor/`, Formular + Live-Vorschau + Bild ziehen/zoomen). Meilenstein 3 ist abgeschlossen |
-| `print-projects` | Druckprojekt-Verwaltung, Druckbogen-Export (PDF/PNG) |
+| `print-project` | Druckprojekt-Verwaltung (genau ein Projekt, ADR-024), Druckbogen-Export (PDF/PNG). Backend (Meilenstein 5, Phase 1) und Store/Route/Seitenspalten-Eintrag (Phase 2) stehen; der eigentliche Bildschirm kommt in Phase 3 |
 | `prompts` | Reine Anzeigeseite unter `/prompts`: die ChatGPT-Bild-Prompts für Rahmen, Icons und Artwork in drei Reitern, je mit Kopieren-Knopf. Kein Backend, kein Store — die Texte stehen als Konstanten in `features/prompts/prompt-texts.ts` und müssen deckungsgleich zu `docs/design/prompts-chatgpt/` bleiben |
 
 ## Globale Styles
@@ -75,6 +75,10 @@ frontend/src/app/
                              Formular zeigt — dieselbe Ableitung benutzt die Vorschau.
                              `image-drop/` ist das Ablagefeld (Ziehen-und-Ablegen, Ersetzen,
                              Entfernen, Klartext-Fehler)
+    print-project/
+      print-project-page/    ← Route /print-project: bislang nur Gerüst mit Überschrift, lädt
+                               den Stand über die Facade — der eigentliche Bildschirm (Positions-
+                               liste, Druckoptionen, Bogen-Vorschau) kommt in Phase 3
     prompts/
       prompt-texts.ts       ← die Prompt-Texte als Konstanten (Zweitschrift der Doku)
       prompts-page/          ← Route /prompts: drei Reiter (Rahmen/Icons/Artwork), je
@@ -203,10 +207,12 @@ frontend/src/app/
                            sie wiederverwendet. Einzige Ausnahme: `measure-text.ts`, die
                            Messbrücke zu `Konva.Text`
   store/               ← NgRx Classic Store Slices (auth, card-groups, cards, templates, assets,
-                          fonts, tokens — Facade Pflicht pro Domain-Slice, `auth` bislang ohne, da
-                          es keine eigene Domain-UI mit Zwischen-Zustand hat). `cards` hält
-                          Kurzfassungen + die geöffnete Karte; die Bilddateien selbst nicht
-                          (die liegen im Render-Zwischenspeicher, s. `canvas/`)
+                          fonts, tokens, print-project — Facade Pflicht pro Domain-Slice, `auth`
+                          bislang ohne, da es keine eigene Domain-UI mit Zwischen-Zustand hat).
+                          `cards` hält Kurzfassungen + die geöffnete Karte; die Bilddateien selbst
+                          nicht (die liegen im Render-Zwischenspeicher, s. `canvas/`).
+                          `print-project` hält Optionen + Positionen des einen Warenkorbs
+                          (`selectTotalQuantity` speist die Seitenspalten-Plakette)
   signal-stores/        ← NgRx Signal Stores für UI-Zustand. `template-editor.ts`: Arbeitskopie
                           der Ebenenliste, Auswahl, `dirty`, der Verlauf (zwei Stapel mit
                           Momentaufnahmen für Rückgängig/Wiederherstellen) und der Ansichts-Zustand der Bühne
@@ -215,14 +221,16 @@ frontend/src/app/
                           Aufruf neu, `providers: [TemplateEditorStore]`), nicht `root`
   layout/
     shell/               ← App-Shell: Kopfzeile (Wortmarke, Konto-E-Mail, Zugriffstoken-Link,
-                           Abmelden) + Seitenspalte mit vier Einträgen (Alle Karten,
-                           Kartengruppen, Templates, Druckprojekte) — nur „Druckprojekte" ist
-                           noch gesperrt (aria-disabled, kein Link), bis Meilenstein 5
+                           Abmelden) + Seitenspalte mit fünf Einträgen (Alle Karten,
+                           Kartengruppen, Templates, Bild-Prompts, Druckprojekte). „Druckprojekte"
+                           trägt eine Plakette mit der Gesamtzahl der Exemplare (0 → keine
+                           Plakette), gespeist aus `PrintProjectFacade.totalQuantity`, deren
+                           Stand die Shell selbst beim Start lädt
 ```
 
-`print-projects/` und `admin/` aus der Tabelle oben existieren noch nicht — sie
-entstehen erst mit den jeweiligen Folgeplänen. `cards/` und `templates/` sind beide
-vollständig (Liste, Editor, Vorschau).
+`admin/` aus der Tabelle oben existiert noch nicht — es entsteht erst mit einem Folgeplan.
+`print-project/` steht als Gerüst (Store + Route + Plakette), der Bildschirm selbst kommt in
+Phase 3. `cards/` und `templates/` sind beide vollständig (Liste, Editor, Vorschau).
 
 ## Backend-Layout (steht)
 

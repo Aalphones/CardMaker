@@ -84,6 +84,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'print-project',
+        loadComponent: () =>
+          import('./features/print-project/print-project-page/print-project-page').then(
+            (module) => module.PrintProjectPage,
+          ),
+      },
+      {
         path: '**',
         loadComponent: () =>
           import('./shared/components/not-found/not-found').then((module) => module.NotFound),

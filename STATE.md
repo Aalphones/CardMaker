@@ -1,8 +1,8 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-13_druckprojekt-und-export/`
-**Phase:** 1/6 — Backend: Druckprojekt speichern (complete)
-**Nächster Schritt:** Phase 2 — Store, Route, Seitenspalte (`phase-2-store-und-navigation.md`).
+**Phase:** 2/6 — Store, Route, Seitenspalte (complete)
+**Nächster Schritt:** Phase 3 — Der Druckprojekt-Bildschirm (`phase-3-bildschirm.md`).
 
 **Offen aus Phase 1:** Migration und Endpunkte sind lokal nicht lauffähig (örtliches PHP 8.3,
 `vendor/` gegen 8.5 gebaut). Erster echter Beleg ist der nächste Deploy mit `POST /api/migrate`.

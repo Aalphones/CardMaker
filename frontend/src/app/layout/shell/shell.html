@@ -132,10 +132,10 @@
           </a>
         </li>
         <li>
-          <span
-            class="shell__nav-link shell__nav-link--disabled"
-            aria-disabled="true"
-            title="kommt mit dem Druckprojekt"
+          <a
+            class="shell__nav-link"
+            routerLink="/print-project"
+            routerLinkActive="shell__nav-link--active"
           >
             <svg
               width="15"
@@ -155,7 +155,10 @@
               <rect x="6" y="14" width="12" height="8" rx="1" />
             </svg>
             Druckprojekte
-          </span>
+            @if (printProject.totalQuantity() > 0) {
+              <span class="shell__nav-badge">{{ printProject.totalQuantity() }}</span>
+            }
+          </a>
         </li>
       </ul>
     </nav>

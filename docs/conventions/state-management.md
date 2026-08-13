@@ -70,7 +70,7 @@ die Effect-Regel.
 | `templates` | Classic Store + Facade | Server-State — Layer-Struktur lebt hier |
 | `fonts` | Classic Store + Facade | Server-State — Liste der hochgeladenen Schriften (die Dateien selbst nicht, siehe oben) |
 | `cards` | Classic Store + Facade | Server-State — Karteninstanzen |
-| `print-projects` | Classic Store + Facade | Server-State |
+| `print-project` | Classic Store + Facade | Server-State — genau ein Druckprojekt (ADR-024) |
 | `template-editor` | SignalStore | UI-State: Arbeitskopie der Ebenenliste, aktive Auswahl, `dirty`-Flag. Component-scoped statt `root` — Kein Rückgängig-Stapel (bewusst zurückgestellt, siehe Plan-README) |
 | `card-editor` | SignalStore | UI-State: Crop-Rechteck-Entwurf, ungespeicherte Textänderungen |
 

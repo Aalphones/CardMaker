@@ -25,25 +25,43 @@ Rating: **standard**
 
 ## Checkliste
 
-- [ ] `frontend/src/app/store/print-project/print-project.actions.ts` — laden, Optionen setzen,
+- [x] `frontend/src/app/store/print-project/print-project.actions.ts` — laden, Optionen setzen,
       Position hinzufügen/ändern/entfernen, leeren, je mit Erfolg/Fehlschlag.
-- [ ] `.../print-project.feature.ts` — Zustand `{ options, items, loaded, saving, error }`,
+- [x] `.../print-project.feature.ts` — Zustand `{ options, items, loaded, saving, error }`,
       Selektoren inkl. `selectTotalQuantity` (Summe der Anzahlen).
-- [ ] `.../print-project.effects.ts` — Aufrufe gegen die sechs Endpunkte, Fehler als Meldung
+- [x] `.../print-project.effects.ts` — Aufrufe gegen die sechs Endpunkte, Fehler als Meldung
       über `shared/services/notification.ts` (Muster: `cards.effects.ts`).
-- [ ] `.../print-project.facade.ts` — Signale + Kommandos, das einzige öffentliche Gesicht.
-- [ ] Die Slice in der App-Konfiguration registrieren (wie `cards`).
-- [ ] Route `print-project` in `app.routes.ts` (lazy `loadComponent`, Platzhalter-Komponente
+- [x] `.../print-project.facade.ts` — Signale + Kommandos, das einzige öffentliche Gesicht.
+- [x] Die Slice in der App-Konfiguration registrieren (wie `cards`).
+- [x] Route `print-project` in `app.routes.ts` (lazy `loadComponent`, Platzhalter-Komponente
       aus Phase 3 — in dieser Phase reicht das Gerüst mit Überschrift).
-- [ ] `shell.html`/`shell.ts`: Eintrag entsperren, Plakette anbinden, Stand beim Start der
+- [x] `shell.html`/`shell.ts`: Eintrag entsperren, Plakette anbinden, Stand beim Start der
       Shell einmal laden (damit die Zahl vor dem ersten Öffnen des Bildschirms stimmt).
-- [ ] Plaketten-Optik nach `docs/design/handoff-organic/README.md` → Sidebar (min-width 20 px,
+- [x] Plaketten-Optik nach `docs/design/handoff-organic/README.md` → Sidebar (min-width 20 px,
       Höhe 20 px, Radius 999 px).
-- [ ] `docs/code-map.md`: Zeile `print-projects` in der Feature-Tabelle auf den Ist-Stand
+- [x] `docs/code-map.md`: Zeile `print-projects` in der Feature-Tabelle auf den Ist-Stand
       bringen, Frontend-Layout-Block um `features/print-project/` und
       `store/print-project/` ergänzen, den Satz „nur ‚Druckprojekte' ist noch gesperrt"
       in der Shell-Beschreibung streichen.
 
 ## Report-Back
 
-_(beim Abschluss der Phase füllen)_
+**Status: complete (2026-08-13).**
+
+Gebaut wie geplant, zwei Abweichungen/Ergänzungen:
+
+- Der Ordner-/Slice-Name ist überall **`print-project`** (Singular) statt `print-projects` —
+  der Kontrakt in der Plan-README nutzt durchgängig `/print-project` (Singular, ein
+  Warenkorb, ADR-024). Die ältere Planungs-Tabelle in `docs/conventions/state-management.md`
+  hatte noch den Plural stehen — auf Singular korrigiert, damit Doku und Code
+  deckungsgleich bleiben.
+- `core/services/api.ts` kannte kein `put()` — für `PUT /api/print-project/options` ergänzt
+  (Muster wie `patch()`).
+
+Gates: `tsc --noEmit`, `eslint` auf allen berührten Dateien und `ng build --configuration
+production` liefen sauber durch.
+
+**Nicht geprüft (folgt aus Phase 1):** Die sechs Endpunkte laufen serverseitig noch nicht
+gegen echte Daten — lokal kein passendes PHP, siehe Phase 1. Die Plakette und
+`ensureLoaded()` sind also nur gegen die Store-Logik getestet, nicht gegen einen echten
+Server-Roundtrip.

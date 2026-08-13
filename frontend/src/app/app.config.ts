@@ -25,6 +25,8 @@ import { cardsFeature } from './store/cards/cards.feature';
 import { CardsEffects } from './store/cards/cards.effects';
 import { fontsFeature } from './store/fonts/fonts.feature';
 import { FontsEffects } from './store/fonts/fonts.effects';
+import { printProjectFeature } from './store/print-project/print-project.feature';
+import { PrintProjectEffects } from './store/print-project/print-project.effects';
 import { templatesFeature } from './store/templates/templates.feature';
 import { TemplatesEffects } from './store/templates/templates.effects';
 import { tokensFeature } from './store/tokens/tokens.feature';
@@ -43,6 +45,7 @@ export const appConfig: ApplicationConfig = {
     provideState(templatesFeature),
     provideState(assetsFeature),
     provideState(fontsFeature),
+    provideState(printProjectFeature),
     provideEffects(
       AuthEffects,
       TokensEffects,
@@ -51,6 +54,7 @@ export const appConfig: ApplicationConfig = {
       TemplatesEffects,
       AssetsEffects,
       FontsEffects,
+      PrintProjectEffects,
     ),
     provideAppInitializer(() => inject(Store).dispatch(AuthActions.restoreSession())),
     ...(environment.production ? [] : [provideStoreDevtools({ maxAge: 25 })]),
