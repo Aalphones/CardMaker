@@ -15,7 +15,7 @@ zu wenig Bildpunkte haben.
 |---|---|---|---|
 | 1 | [Backend: Druckprojekt speichern](phase-1-backend.md) | standard | **complete** |
 | 2 | [Store, Route, Seitenspalte](phase-2-store-und-navigation.md) | standard | **complete** |
-| 3 | [Der Druckprojekt-Bildschirm](phase-3-bildschirm.md) | standard | pending |
+| 3 | [Der Druckprojekt-Bildschirm](phase-3-bildschirm.md) | standard | **complete** |
 | 4 | [Bogen-Aufbau und Vorschau](phase-4-bogen-aufbau.md) | heikel | pending |
 | 5 | [Export als PDF und PNG](phase-5-export.md) | heikel | pending |
 | 6 | [Schärfe-Hinweis und Abschluss](phase-6-schaerfe-und-abschluss.md) | standard | pending |

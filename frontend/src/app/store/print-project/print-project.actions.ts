@@ -1,5 +1,8 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 
+/** Deckel aus dem Backend-Validator — Anzahl je Position darf nicht darüber hinaus. */
+export const PRINT_ITEM_MAX_QUANTITY = 99;
+
 export interface PrintOptions {
   cutMarks: boolean;
   bleed: boolean;

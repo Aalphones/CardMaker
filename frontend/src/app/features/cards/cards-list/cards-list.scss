@@ -171,6 +171,15 @@
     &--delete {
       color: var(--color-accent-700);
     }
+
+    &--in-print {
+      color: var(--color-accent-text);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
   }
 
   &__no-results {

@@ -105,6 +105,31 @@
               <button
                 type="button"
                 class="icon-button cards-list__icon-btn"
+                [class.cards-list__icon-btn--in-print]="printQuantity(item) > 0"
+                [disabled]="printQuantity(item) >= printMaxQuantity"
+                [attr.aria-label]="printLabel(item) + ': ' + item.name"
+                [title]="printLabel(item)"
+                (click)="addToPrint(item)"
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M6 9V2h12v7" />
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                  <rect width="12" height="8" x="6" y="14" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                class="icon-button cards-list__icon-btn"
                 [attr.aria-label]="'Karte ' + item.name + ' duplizieren'"
                 (click)="duplicate(item)"
               >
@@ -197,6 +222,14 @@
               <td>{{ item.templateName }}</td>
               <td>{{ item.updatedAt | date: 'medium' }}</td>
               <td class="cards-list__table-actions">
+                <button
+                  type="button"
+                  class="btn btn--ghost"
+                  [disabled]="printQuantity(item) >= printMaxQuantity"
+                  (click)="addToPrint(item)"
+                >
+                  {{ printLabel(item) }}
+                </button>
                 <button type="button" class="btn btn--ghost" (click)="duplicate(item)">Duplizieren</button>
                 <button
                   type="button"

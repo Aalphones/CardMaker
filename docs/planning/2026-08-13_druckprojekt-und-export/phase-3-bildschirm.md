@@ -39,20 +39,31 @@ Bereich mit der Beschriftung „Vorschau folgt".
 
 ## Checkliste
 
-- [ ] `frontend/src/app/features/print-project/print-project-page/` — Komponente, Vorlage,
+- [x] `frontend/src/app/features/print-project/print-project-page/` — Komponente, Vorlage,
       Stylesheet (BEM-Block `print-project`), an die Facade gebunden.
-- [ ] Zusammenfassungstext aus Positionen + Bogenzahl ableiten; die Bogenzahl bis Phase 4
+- [x] Zusammenfassungstext aus Positionen + Bogenzahl ableiten; die Bogenzahl bis Phase 4
       schlicht `Math.ceil(summe / 9)`.
-- [ ] Positionsliste, Mengensteuerung, Entfernen, „Alles entfernen" mit Rückfrage.
-- [ ] Druckoptionen-Karte mit den beiden Umschaltern + Fragezeichen-Hinweisen; Änderung geht
+- [x] Positionsliste, Mengensteuerung, Entfernen, „Alles entfernen" mit Rückfrage.
+- [x] Druckoptionen-Karte mit den beiden Umschaltern + Fragezeichen-Hinweisen; Änderung geht
       direkt an die Facade (kein Speichern-Knopf).
-- [ ] Platzhalterbereich rechts für die Bogen-Vorschau.
-- [ ] `cards-list`: Knopf je Karte (Raster: Icon mit `aria-label`, Tabelle: Text), Zustand aus
+- [x] Platzhalterbereich rechts für die Bogen-Vorschau.
+- [x] `cards-list`: Knopf je Karte (Raster: Icon mit `aria-label`, Tabelle: Text), Zustand aus
       `selectItems` der Druckprojekt-Slice, Aufruf über deren Facade.
-- [ ] Route in `app.routes.ts` auf die echte Komponente umstellen.
-- [ ] `docs/code-map.md`: den Frontend-Layout-Block um `features/print-project/` mit einer
+- [x] Route in `app.routes.ts` auf die echte Komponente umstellen. (War bereits aus Phase 2 so
+      verdrahtet — nur das Gerüst dahinter war noch leer.)
+- [x] `docs/code-map.md`: den Frontend-Layout-Block um `features/print-project/` mit einer
       kurzen Beschreibung ergänzen.
 
 ## Report-Back
 
-_(beim Abschluss der Phase füllen)_
+- Mengendeckel (Finding, Phase 2/3): Backend deckelt jede Position auf 99 — sowohl der
+  „+"-Stepper im Bildschirm als auch der „Drucken"-Knopf in der Kartenliste stoppen client-seitig
+  bei 99, bevor ein 422 provoziert wird (`PRINT_ITEM_MAX_QUANTITY` in
+  `print-project.actions.ts`, einzige Quelle für den Wert).
+- Kachelbild-Finding (Phase 2/3) betrifft diese Phase noch nicht: Die Positionsliste zeigt laut
+  Entwurf nur den Kartennamen, kein Bild — Vorschaubilder über `preview-image-loader.ts` werden
+  erst für die Bogen-Vorschau in Phase 4 gebraucht. Bleibt als offener Finding-Punkt stehen.
+- Abweichung vom Entwurf: Für „Im Druckprojekt" / „Druckoptionen" wurde die vorhandene
+  `.card__kicker`-Bausteinklasse wiederverwendet statt einer neuen Titel-Klasse — trifft exakt
+  das Aussehen aus dem Handoff (Großschrift, Sperrung, Akzentfarbe) ohne Duplikat.
+- Build (`ng build`) und Lint (`ng lint`) laufen grün.

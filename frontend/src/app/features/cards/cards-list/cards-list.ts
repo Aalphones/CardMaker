@@ -16,6 +16,8 @@ import { CardGroup } from '../../../store/card-groups/card-groups.actions';
 import { CardGroupsFacade } from '../../../store/card-groups/card-groups.facade';
 import { CardSummary } from '../../../store/cards/cards.actions';
 import { CardsFacade } from '../../../store/cards/cards.facade';
+import { PRINT_ITEM_MAX_QUANTITY, PrintItem } from '../../../store/print-project/print-project.actions';
+import { PrintProjectFacade } from '../../../store/print-project/print-project.facade';
 import { TemplatesFacade } from '../../../store/templates/templates.facade';
 
 const DOWNLOAD_FAILED_MESSAGE = 'Das Bild konnte nicht erzeugt werden.';
@@ -49,6 +51,8 @@ export class CardsList {
   protected readonly cards = inject(CardsFacade);
   protected readonly cardGroups = inject(CardGroupsFacade);
   protected readonly templates = inject(TemplatesFacade);
+  protected readonly printProject = inject(PrintProjectFacade);
+  protected readonly printMaxQuantity = PRINT_ITEM_MAX_QUANTITY;
 
   protected readonly searchTerm = signal('');
   protected readonly templateFilter = signal<number | 'all'>('all');
@@ -107,6 +111,7 @@ export class CardsList {
     this.cards.ensureLoaded();
     this.cardGroups.ensureLoaded();
     this.templates.ensureLoaded();
+    this.printProject.ensureLoaded();
 
     const groupParam = this.route.snapshot.queryParamMap.get('group');
     const groupId = groupParam === null ? NaN : Number(groupParam);
@@ -164,6 +169,23 @@ export class CardsList {
 
   protected isDownloading(item: CardSummary): boolean {
     return this.downloadingCardIds().has(item.id);
+  }
+
+  protected printQuantity(item: CardSummary): number {
+    return this.printProject.items().find((entry: PrintItem) => entry.cardId === item.id)?.quantity ?? 0;
+  }
+
+  protected printLabel(item: CardSummary): string {
+    return this.printQuantity(item) > 0 ? 'Im Druckprojekt +1' : 'Drucken';
+  }
+
+  /** Backend deckelt die Anzahl je Position — der Knopf zählt darüber hinaus nicht weiter. */
+  protected addToPrint(item: CardSummary): void {
+    if (this.printQuantity(item) >= PRINT_ITEM_MAX_QUANTITY) {
+      return;
+    }
+
+    this.printProject.addItem(item.id);
   }
 
   /** Rendert die gespeicherte Karte in Druckauflösung, ohne den Editor zu öffnen (Phase 3). */

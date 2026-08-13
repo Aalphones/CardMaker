@@ -1,1 +1,106 @@
-<h1>Druckprojekt</h1>
+<section class="print-project">
+  <div class="print-project__heading">
+    <div class="print-project__heading-text">
+      <h1 class="print-project__title">Druckprojekt</h1>
+      <p class="print-project__subtitle">{{ summary() }}</p>
+    </div>
+    <div class="print-project__heading-actions">
+      <button type="button" class="btn btn--secondary" [disabled]="cartEmpty()">PNG exportieren</button>
+      <button type="button" class="btn btn--primary" [disabled]="cartEmpty()">Als PDF drucken</button>
+    </div>
+  </div>
+
+  @if (cartEmpty()) {
+    <div class="card print-project__empty">
+      <p class="print-project__empty-text">
+        Noch keine Karten im Druckprojekt. Füge über „Alle Karten" fertige Karten hinzu — hier
+        wird dann nur noch gedruckt.
+      </p>
+      <a class="btn btn--primary" routerLink="/cards">Zu allen Karten</a>
+    </div>
+  } @else {
+    <div class="print-project__layout">
+      <div class="print-project__sidebar">
+        <div class="card print-project__cart">
+          <h3 class="card__kicker">Im Druckprojekt</h3>
+          @for (item of printProject.items(); track item.id) {
+            <div class="print-project__cart-row">
+              <span class="print-project__cart-name">{{ item.cardName }}</span>
+              <div class="print-project__stepper">
+                <button
+                  type="button"
+                  class="print-project__stepper-btn"
+                  [disabled]="item.quantity <= 1"
+                  (click)="decrement(item)"
+                  aria-label="Anzahl verringern"
+                >
+                  −
+                </button>
+                <span class="print-project__stepper-value">{{ item.quantity }}</span>
+                <button
+                  type="button"
+                  class="print-project__stepper-btn"
+                  [disabled]="item.quantity >= maxQuantity"
+                  (click)="increment(item)"
+                  aria-label="Anzahl erhöhen"
+                >
+                  +
+                </button>
+              </div>
+              <button
+                type="button"
+                class="icon-button print-project__remove"
+                [attr.aria-label]="'Karte ' + item.cardName + ' aus dem Druckprojekt entfernen'"
+                (click)="removeItem(item)"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          }
+          <button type="button" class="btn btn--ghost print-project__clear" (click)="clearAll()">
+            Alles entfernen
+          </button>
+        </div>
+
+        <div class="card print-project__options">
+          <h3 class="card__kicker">Druckoptionen</h3>
+          <div class="print-project__option">
+            <label class="radio">
+              <input type="checkbox" [checked]="printProject.options().cutMarks" (change)="setCutMarks($event)" />
+              <span class="radio__dot"></span>
+              Schnittmarken
+            </label>
+            <app-field-hint text="Dünne Hilfslinien am Blattrand zeigen, wo geschnitten wird." />
+          </div>
+          <div class="print-project__option">
+            <label class="radio">
+              <input type="checkbox" [checked]="printProject.options().bleed" (change)="setBleed($event)" />
+              <span class="radio__dot"></span>
+              Beschnitt
+            </label>
+            <app-field-hint
+              text="Jede Karte wird 2 mm größer gedruckt. Beim Schneiden entstehen dann auch bei
+              leichtem Verrutschen keine weißen Ränder — dafür fällt am Rand etwas vom Motiv weg."
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="print-project__preview">
+        <p class="print-project__preview-text">Vorschau folgt</p>
+      </div>
+    </div>
+  }
+</section>
