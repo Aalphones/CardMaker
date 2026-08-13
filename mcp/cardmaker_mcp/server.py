@@ -111,7 +111,7 @@ def get_state(refresh: bool = False) -> dict:
 @api_tool
 def find_template(query: str) -> list[dict] | str:
     """Templates nach Namensteil suchen (Kurzfassungen), Groß-/Kleinschreibung egal."""
-    templates = state_cache.load_state(get_client())["templates"]
+    templates = state_cache.load_state(get_client())["templates"]["items"]
     matches = search.search_by_name(templates, query)
     return matches if matches else search.no_match_message("Templates", query)
 
@@ -128,7 +128,7 @@ def find_card(
         template_id: Nur Karten dieses Templates.
         card_group_id: Nur Karten dieser Kartengruppe.
     """
-    cards = state_cache.load_state(get_client())["cards"]
+    cards = state_cache.load_state(get_client())["cards"]["items"]
     matches = search.search_by_name(cards, query)
 
     if template_id is not None:
@@ -143,7 +143,7 @@ def find_card(
 @api_tool
 def find_card_group(query: str) -> list[dict] | str:
     """Kartengruppen nach Namensteil suchen, Groß-/Kleinschreibung egal."""
-    card_groups = state_cache.load_state(get_client())["cardGroups"]
+    card_groups = state_cache.load_state(get_client())["cardGroups"]["items"]
     matches = search.search_by_name(card_groups, query)
     return matches if matches else search.no_match_message("Kartengruppen", query)
 
