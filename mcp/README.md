@@ -37,9 +37,11 @@ Token, kommt genau eine Zeile mit dem, was zu tun ist, und der Start bricht ab.
 ## Registrierung in Claude Code
 
 `.mcp.json` im Repo-Root ist bereits eingerichtet — hier nur zum Nachlesen. Kein
-Token-Literal darin, `CM_TOKEN` kommt aus der Umgebung. Der `command`-Pfad zeigt bewusst
-auf den venv-Interpreter statt auf bares `python`, sonst greift auf Windows der
-Store-Platzhalter.
+Token-Literal darin und bewusst **kein `env`-Block**: der Serverprozess erbt `CM_TOKEN`
+ohnehin aus der Umgebung, und ein `"CM_TOKEN": "${CM_TOKEN}"` würde bei nicht gesetzter
+Variable den Platzhaltertext als Token durchreichen — damit wäre der Ausweichweg über
+`.cm_token` tot. Der `command`-Pfad zeigt bewusst auf den venv-Interpreter statt auf bares
+`python`, sonst greift auf Windows der Store-Platzhalter.
 
 ```json
 {
@@ -47,8 +49,7 @@ Store-Platzhalter.
     "cardmaker": {
       "command": "mcp/.venv/Scripts/python.exe",
       "args": ["-m", "cardmaker_mcp"],
-      "cwd": "mcp",
-      "env": { "CM_TOKEN": "${CM_TOKEN}" }
+      "cwd": "mcp"
     }
   }
 }

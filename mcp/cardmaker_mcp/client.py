@@ -71,7 +71,9 @@ class MissingTokenError(RuntimeError):
 def load_token() -> str:
     """Zugriffstoken aus Umgebung oder Ausweichdatei holen."""
     token = os.environ.get(TOKEN_ENV_NAME)
-    if token and token.strip():
+    # Ein nicht ersetztes "${CM_TOKEN}" aus .mcp.json käme sonst als echter Token durch
+    # und brächte statt dieser Anleitung ein nacktes 401 von der API.
+    if token and token.strip() and not token.strip().startswith("${"):
         return token.strip()
 
     for directory in (Path.cwd(), Path(__file__).resolve().parent):
