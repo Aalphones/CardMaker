@@ -1,29 +1,27 @@
 # STATE
 
-**Aktiver Plan:** `docs/planning/2026-08-13_mcp-server/`
-**Phase:** 5/5 — Bilder & Abschluss (complete, Doku nachgezogen)
-**Nächster Schritt:** Nutzer fährt die Smoke-Checkliste am Ende von
-`docs/planning/2026-08-13_mcp-server/phase-5-bilder-und-abschluss.md`. Danach Plan nach
-`docs/archive/2026-08/2026-08-13_mcp-server/` verschieben und STATE.md auf „kein aktiver
-Plan" setzen.
+**Aktiver Plan:** (kein aktiver Plan)
 
-**Offen beim Nutzer:** Bildschirm-Rundlauf gegen die Smoke-Checklisten von Meilenstein 3
-(`docs/archive/2026-08/2026-08-10_karteneditor/phase-9-abschluss.md`), Meilenstein 4
-(`docs/archive/2026-08/2026-08-13_rendering-engine/README.md`), Meilenstein 5
-(`docs/archive/2026-08/2026-08-13_druckprojekt-und-export/README.md`) und jetzt Meilenstein 6
-(`docs/planning/2026-08-13_mcp-server/phase-5-bilder-und-abschluss.md` → Smoke-Checkliste)
-ist nie gefahren worden.
+Meilenstein 6 (MCP-Server) ist am 2026-08-13 abgenommen und archiviert unter
+`docs/archive/2026-08/2026-08-13_mcp-server/`. Die Abnahme lief über echte
+MCP-Werkzeugaufrufe gegen die laufende API; das Ergebnis samt der beiden dabei behobenen
+Fehler steht am Ende von `phase-5-bilder-und-abschluss.md` in diesem Archivordner.
 
-**Deploy & Migration (2026-08-13):** `deploy.cmd all` gelaufen (Backend + Frontend live),
-`POST /api/migrate` aufgerufen → `{"applied":[]}` (keine ausstehenden Migrationen). Live
-gegengeprüft: `GET /api/health` → `200`, `GET /api/meta` ohne Token → `401`, mit Token →
-`200` mit exakt dem Vertrag aus der Plan-README (inklusive PHP-Trennzeichen in den
-Mustern). Damit ist `GET /api/meta` (Phase 1) erstmals live belegt.
+**Offen beim Nutzer:**
 
-**Offen technisch:** Der stdio-Handschlag des MCP-Servers und die Fehlermeldung ohne Token
-sind belegt, ein echter Werkzeugaufruf **über den MCP-Server** gegen die jetzt laufende API
-noch nicht (lokal kein `CM_TOKEN` gesetzt) — die Bausteine darunter (`client.py`, `meta.py`-
-Prüfregeln) sind einzeln gegen die reale Antwort von `/api/meta` verifizierbar, aber der
-Durchstich über ein MCP-Werkzeug ist noch offen. Alle Schreib- und Bild-Werkzeuge
-(Phase 4 + 5) sind nur syntaktisch geprüft und gegen `meta.py`-Regeln trocken durchgespielt
-(`.venv` läuft lokal) — kein einziger echter Schreibvorgang oder Bild-Upload ist gelaufen.
+- Karte „Zwischenspeicher-Probe" (Essenskarte) stammt aus der Abnahme und kann weg —
+  Löschen geht nur über die Oberfläche, nicht über MCP.
+- Ein Blick in den Browser auf diese Karte: Werte und Motivbild stehen, die Kachel zeigt
+  erwartungsgemäß noch kein Vorschaubild; nach einmal Speichern im Editor schon.
+- Die Bildschirm-Rundläufe zu Meilenstein 3
+  (`docs/archive/2026-08/2026-08-10_karteneditor/phase-9-abschluss.md`), Meilenstein 4
+  (`docs/archive/2026-08/2026-08-13_rendering-engine/README.md`) und Meilenstein 5
+  (`docs/archive/2026-08/2026-08-13_druckprojekt-und-export/README.md`) sind weiterhin nie
+  gefahren worden.
+
+**Offener Befund:** Fett/Kursiv an Textebenen — gespeichert als `fontBold`/`fontItalic`,
+gelesen überall als `bold`/`italic`. Beschrieben in `docs/PROJECT.md` → Offene Fragen.
+
+**Nicht am echten Template geprüft:** die Feldableitung bei zwei Textebenen mit demselben
+Feldschlüssel und bei einer festen (`static`) Textebene. Der Code ist deckungsgleich mit der
+Frontend-Vorlage, ein passendes Template gibt es aber nicht — es entstünde nur im Editor.

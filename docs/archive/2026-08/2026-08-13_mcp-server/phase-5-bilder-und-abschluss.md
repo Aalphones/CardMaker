@@ -56,8 +56,8 @@ tut, und ohne Bild ist die Karte weiterhin vollständig.
       Drift-Regeln auf den gebauten Stand), `docs/routes.md`, `docs/code-map.md`,
       `mcp/README.md`, `AGENTS.md` (Stack-Zeile: `mcp/` existiert jetzt wirklich).
 - [x] `docs/PROJECT.md`: Meilenstein 6 als **erledigt** markieren mit Datum und Archivpfad.
-- [ ] Smoke-Checkliste unten abarbeiten lassen (macht der Nutzer), dann Plan nach
-      `docs/archive/2026-08/2026-08-13_mcp-server/` verschieben und `STATE.md` aktualisieren.
+- [x] Smoke-Checkliste unten abgearbeitet (2026-08-13, Ergebnis darunter), Plan archiviert
+      und `STATE.md` aktualisiert.
 
 ## Smoke-Checkliste für den Nutzer (am Plan-Ende)
 
@@ -76,5 +76,37 @@ Wacklige Stellen zuerst — dort prüfen, wo die Umsetzung am ehesten danebenlie
    Werte und Bild stehen, Kachel zeigt (erwartungsgemäß) noch kein Vorschaubild; nach einmal
    Speichern im Editor schon.
 5. `GET /api/meta` ohne Anmeldung im Browser aufrufen → `401`.
+
+## Ergebnis der Abnahme (2026-08-13)
+
+Gefahren über echte MCP-Werkzeugaufrufe gegen die laufende API. Vorher war **kein einziges
+Werkzeug** je gegen das Backend aufgerufen worden — die Abnahme hat entsprechend etwas
+gefunden.
+
+**Zwei Fehler gefunden und behoben:**
+
+1. `find_card`, `find_template` und `find_card_group` reichten die Hülle `{"items": […]}`
+   der Listenrouten an die Suche weiter statt der Liste darin. Alle drei brachen mit
+   `'str' object has no attribute 'get'` ab — unbenutzbar seit ihrer Einführung in Phase 3.
+2. Der Ausweichweg für den Zugriffstoken suchte `.cm_token` im Arbeitsverzeichnis. Beim von
+   Claude Code gestarteten Prozess ist darauf kein Verlass; ohne Token bricht der Start ab,
+   und die Begründung geht nach stderr — sichtbar wird nur „Connection closed". Ablageort
+   ist jetzt der Paketordner, dokumentiert in `mcp/README.md`.
+
+**Ein Befund offen** (in `docs/PROJECT.md` → Offene Fragen): gespeicherte Textebenen tragen
+`fontBold`/`fontItalic`, gelesen wird überall `bold`/`italic` — `describe_card_fields` meldet
+Fett/Kursiv deshalb immer als `false`. Bewusst nicht im Rahmen der Abnahme geändert, weil
+unklar ist, welche Seite die richtige Schreibweise hat.
+
+**Punkt für Punkt:**
+
+| # | Prüfung | Ergebnis |
+|---|---|---|
+| 1 | Feldschlüssel-Ableitung | ⚠️ nur auf Codeebene belegt — `card_fields.py` ist zeilenweise deckungsgleich mit `describeCardFields` (gleiche Reihenfolge, gleiche Entdopplung, gleicher `source`-Filter). Ein Template mit doppeltem Feldschlüssel **oder** einer `static`-Textebene existiert nicht; beides entsteht nur im Editor. Am echten Template ungeprüft. |
+| 2 | Schriftgröße 3 abgefangen | ✅ vor dem Senden, Meldung nennt die Grenze `4 bis 200` aus `/api/meta` |
+| 2b | Falsche Bildebene abgefangen | ✅ nennt die vorhandene Bildfläche samt Beschriftung |
+| 3 | Zwischenspeicher | ✅ Karte angelegt und im selben Prozess gefunden, ohne Neustart |
+| 4 | Karte + Bild über MCP | ✅ angelegt, befüllt, Motivbild mehrteilig hochgeladen, Maßstab einzeln geändert; Kachel bleibt ohne Vorschaubild samt Hinweis (ADR-026) |
+| 5 | `/api/meta` ohne Anmeldung → 401 | ✅ beim Deploy live belegt |
 
 ## Report-Back

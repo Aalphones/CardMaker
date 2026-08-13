@@ -137,7 +137,16 @@ Detail-Phasen entstehen im ersten Plan (`/plan`), nicht hier.
 
 ## Offene Fragen
 
-- _(keine offenen Fragen)_
+- **Fett/Kursiv an Textebenen: welcher Feldname gilt?** Die gespeicherten Template-Ebenen
+  tragen `fontBold`/`fontItalic` (nachgeprüft an der laufenden API, Templates 4 und 5). Gelesen
+  wird im Projekt aber überall `bold`/`italic` — im Frontend-Ebenenmodell
+  (`frontend/src/app/shared/canvas/rendering/layer.ts`) wie im MCP-Server
+  (`mcp/cardmaker_mcp/card_fields.py`). Die Zeichenkette `fontBold` kommt im Repository
+  nirgends vor. Folge: `describe_card_fields` meldet Fett/Kursiv immer als `false`. Heute
+  unauffällig, weil in beiden Templates nichts fett gesetzt ist. Zu klären ist, welche
+  Schreibweise die richtige ist, bevor eine Seite angepasst wird — sonst zieht der Fix die
+  beiden Seiten auseinander statt zusammen. Gefunden bei der Abnahme von Meilenstein 6
+  (2026-08-13).
 
 Zuletzt geschlossen: Bild-Crop/Zoom-Interaktion im Karteneditor — Ziehen und Zoomen direkt in
 der Live-Vorschau, ohne eigene Zuschneide-Oberfläche
