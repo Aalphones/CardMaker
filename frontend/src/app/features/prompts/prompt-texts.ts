@@ -492,113 +492,719 @@ Then generate the image directly.
 
 Do not ask for confirmation.`;
 
-const ICONS_STILBLATT_PROMPT = `Du bist Icon-Designer für ein Sammelkartenspiel.
+const ICONS_STILBLATT_PROMPT = `You are an expert **icon designer for premium collectible card games**.
 
-Thema / Stilwelt: {THEMA — z.B. "Piraten und offene See"}
-Icon-Set: {LISTE, z.B. "Feuer, Wasser, Erde, Luft, Blitz, Eis"}
+Create a complete, cohesive set of game icons based on the following theme.
 
-=== ANALYSE (nicht ausgeben) ===
-Leite aus dem Thema eine gemeinsame Formensprache ab: Silhouettentyp,
-Linienstärke, Materialanmutung, Farbfamilie. Alle Icons des Sets teilen diese
-Sprache.
+## CREATIVE DIRECTION
 
-=== VORGABEN ===
-- Ein Bild, darin ein sauberes Raster mit {ANZAHL} Feldern, ein Icon je Feld,
-  in genau der oben genannten Reihenfolge
-- Jedes Icon sitzt mittig in seinem Feld, mit gleichem Abstand zum Feldrand,
-  und alle Icons wirken optisch gleich groß
-- Kräftige, sofort erkennbare Silhouette; das Icon bleibt lesbar, wenn es auf
-  Daumennagelgröße verkleinert wird
-- Wenige, große Formen statt feiner Binnenzeichnung; klare Innenabstände
-- Einheitliche Beleuchtung über alle Icons hinweg
-- Alle Flächen sind frei von Schrift, Zahlen und Signaturen
-- Keine Rahmen, keine Kreise, keine Plaketten um die Icons herum — nur das
-  Symbol selbst
+**Theme / Visual World:**
+{THEME — e.g. "pirates and the open sea"}
 
-=== HINTERGRUND ===
-Der gesamte Hintergrund inklusive der Rasterfelder ist eine vollkommen
-gleichmäßige Chroma-Magenta-Fläche in #FF00FF — one single flat value, glatt
-und matt, ohne Verlauf, ohne Schatten, ohne Leuchten, ohne sichtbare
-Rasterlinien. Magenta kommt ausschließlich im Hintergrund vor, nirgends in den
-Icons.
+**Icon Set:**
+{LIST — e.g. "fire, water, earth, air, lightning, ice"}
 
-=== FORMAT ===
-Quadratisch, erzeuge das Bild in 1024x1024.
+Create exactly one icon for each item, in the exact order provided.
 
-=== AUSGABE ===
-1. Kurzbeschreibung der gemeinsamen Formensprache (wenige Sätze)
-2. Farbpalette als Hex-Werte
-3. Der Bildprompt in gegliederter Form (Scene / Subject / Details /
-   Constraints) in einem Codeblock
-Danach erzeuge das Bild direkt in diesem Chat.`;
+---
 
-const ICONS_EINZELN_PROMPT = `Erzeuge jetzt das Icon "{NAME}" aus diesem Set als einzelnes Bild in
-1024x1024. Formensprache, Linienstärke, Farbpalette und Beleuchtung bleiben
-exakt wie im Stilblatt — geändert wird nichts außer der Bildgröße und dass nur
-dieses eine Symbol zu sehen ist.
+## 1. ICON SYSTEM
 
-Das Symbol sitzt mittig und füllt etwa 80 Prozent der Bildfläche. Der gesamte
-übrige Hintergrund ist eine vollkommen gleichmäßige Chroma-Magenta-Fläche in
-#FF00FF, one single flat value, glatt und matt, ohne Verlauf und ohne Schatten.
-Keine Schrift, keine Signatur, kein Rahmen.`;
+Before generating the image, establish a **single visual language** for the entire icon set.
 
-const ARTWORK_STICHWORTE_PROMPT = `Du bist Illustrator für Sammelkarten-Artwork.
+Derive the following from the theme:
 
-Motiv: {STICHWORTE — z.B. "Rotfuchs, Herbstwald, aufmerksam, Abendlicht"}
-Stimmung: {STIMMUNG — z.B. "warm und heroisch" | "düster und still"}
-Stil: {STIL — z.B. "malerische Illustration mit weichem Cel-Shading, klare
-      Linienführung, warme gesättigte Farben"}
+* silhouette language
+* geometric language
+* line and edge treatment
+* material impression
+* level of detail
+* color palette
+* lighting style
+* degree of dimensionality
 
-=== VORGABEN ===
-- Genau ein Hauptmotiv, mittig, es füllt den größten Teil des Bildes
-- Um das Motiv bleibt auf allen vier Seiten ein ruhiger Rand, damit das Bild
-  später in einer Kartenfläche verschoben und gezoomt werden kann, ohne dass
-  Wesentliches anschneidet
-- Der Bildschwerpunkt liegt in der {SCHWERPUNKT: "oberen Hälfte" |
-  "Bildmitte"}, weil der untere Teil der Karte später von Text überdeckt wird
-- Hintergrund: {HINTERGRUND — z.B. "weicher radialer Schimmer, von hellem Gold
-  in der Mitte zu tiefem Indigo an den Ecken" | "unscharfer Herbstwald"}
-- Licht: {LICHT — Quelle, Richtung, Charakter, Farbtemperatur}
-- Jede Fläche im Bild ist frei von Schrift, Signaturen, Wasserzeichen und Logos
+Every icon must clearly belong to the **same icon family**.
 
-=== FORMAT ===
-{FORMAT: "Hochkant 63:88, erzeuge in 1024x1440" | "Quadratisch, erzeuge in
-1024x1024"} — das Format der Bildfläche im Kartentemplate.
+The icons should feel as though they were designed by the same artist, for the same game, at the same time.
 
-=== AUSGABE ===
-1. Zwei bis drei Sätze, wie du das Motiv anlegst
-2. Der Bildprompt in gegliederter Form (Scene / Subject / Style / Light /
-   Composition / Constraints) in einem Codeblock
-Danach erzeuge das Bild direkt in diesem Chat.`;
+Do not create each icon as an unrelated standalone illustration.
 
-const ARTWORK_REFERENZ_PROMPT = `Du bist Illustrator für Sammelkarten-Artwork. Ich hänge Referenzbilder an.
+---
 
-Bild 1 — {ROLLE, z.B. "Motivreferenz"}: übernimm daraus {WAS GENAU, z.B.
-"Körperbau, Fellzeichnung und Farbgebung des Tieres"}.
-Bild 2 — {ROLLE, z.B. "Stilreferenz"}: übernimm daraus ausschließlich
-{WAS GENAU, z.B. "Malweise, Linienführung und Farbstimmung"}, nicht den
-Bildinhalt.
-{Weitere Bilder analog — höchstens drei, sonst mischt sich alles.}
+## 2. ICON DESIGN
 
-Nicht übernehmen: {WAS NICHT, z.B. "Bildausschnitt, Pose und Hintergrund von
-Bild 1"}.
+Each icon must represent its assigned concept **immediately and unambiguously**.
 
-Neu ist: {ÄNDERUNG — z.B. "das Tier steht aufrecht und blickt nach links,
-Hintergrund ein abendlicher Herbstwald"}.
+Prioritize:
 
-=== VORGABEN ===
-- Genau ein Hauptmotiv, mittig, es füllt den größten Teil des Bildes
-- Ringsum bleibt ein ruhiger Rand, damit das Bild später in der Kartenfläche
-  verschoben und gezoomt werden kann
-- Bildschwerpunkt in der {SCHWERPUNKT}, der untere Teil wird später von Text
-  überdeckt
-- Jede Fläche im Bild ist frei von Schrift, Signaturen, Wasserzeichen und Logos
+* strong, recognizable silhouette
+* simple primary shapes
+* clear negative space
+* consistent visual weight
+* consistent level of detail
+* consistent perspective
+* consistent rendering style
 
-=== FORMAT ===
+Use **fewer, larger shapes rather than fine internal details**.
+
+The icons must remain recognizable when reduced to **very small display sizes, approximately thumbnail or fingernail size**.
+
+Avoid:
+
+* tiny decorative details
+* unnecessary textures
+* overly complex silhouettes
+* excessive highlights
+* fragile thin lines
+* details that disappear when scaled down
+
+### Optical Size
+
+All icons must appear **visually equal in size**, not merely occupy the same mathematical bounding box.
+
+Adjust the scale and visual mass of individual symbols where necessary.
+
+For example, a compact symbol may need to be slightly larger than a thin or elongated symbol to achieve the same perceived visual weight.
+
+Maintain consistent padding and visual breathing room around every icon.
+
+---
+
+## 3. GRID AND LAYOUT
+
+Create **one single image containing a clean grid of {NUMBER} cells**.
+
+Place the icons in exactly this order:
+
+{LIST}
+
+Rules:
+
+* one icon per cell
+* exact order must be preserved
+* every icon centered within its cell
+* equal spacing between cells
+* equal visual padding around every icon
+* consistent optical size
+* consistent alignment
+* no overlapping icons
+* no clipped icons
+* no icon touching the image edge
+
+The grid exists only as a **layout structure**.
+
+Do not draw visible grid lines, borders, separators, or cell outlines.
+
+---
+
+## 4. ICON RENDERING
+
+All icons share:
+
+* the same lighting direction
+* the same light intensity
+* the same shadow logic
+* the same material treatment
+* the same dimensionality
+* the same edge treatment
+* the same rendering quality
+
+Use a unified lighting setup across the entire set.
+
+If the chosen style uses shading or highlights, apply them consistently to every icon.
+
+Do not make one icon glossy, another flat, and another metallic unless this difference is explicitly required by the concept.
+
+---
+
+## 5. BACKGROUND — CHROMA MAGENTA
+
+The **entire background and every grid cell must be one single perfectly uniform chroma-magenta color**:
+
+**#FF00FF**
+
+This is a strict technical requirement.
+
+The background must be:
+
+* completely flat
+* perfectly uniform
+* matte
+* texture-free
+* shadow-free
+* highlight-free
+* glow-free
+* gradient-free
+
+There must be **no visible grid lines or cell boundaries**.
+
+Use exactly **#FF00FF** throughout the entire background.
+
+**Magenta must appear exclusively in the background.**
+
+Do not use #FF00FF, or visually similar magenta, anywhere inside the icons.
+
+Do not allow background-colored reflections, glow, rim lighting, transparency, or color spill to contaminate the icon artwork.
+
+The icons must have clean, clearly defined edges against the magenta background.
+
+---
+
+## 6. CLEAN ICON REQUIREMENTS
+
+Do not include:
+
+* text
+* letters
+* numbers
+* labels
+* symbols unrelated to the requested concepts
+* signatures
+* watermarks
+* logos
+* frames
+* circles
+* badges
+* medallions
+* plaques
+* decorative containers
+* card borders
+
+Each cell must contain **only the icon itself**.
+
+---
+
+## 7. QUALITY STANDARD
+
+The final result should look like a **professionally designed icon sheet for a high-quality collectible card game**.
+
+Prioritize:
+
+1. recognizability
+2. consistency across the icon set
+3. optical balance
+4. clean silhouettes
+5. small-size legibility
+6. technical separation from the chroma background
+7. polished professional rendering
+
+The icons should work both individually and as a visually coherent collection.
+
+---
+
+## 8. FORMAT
+
+**Canvas:**
+Square, 1024×1024 pixels.
+
+Use the entire canvas efficiently while maintaining sufficient padding around the grid and each icon.
+
+---
+
+## OUTPUT
+
+Before generating the image:
+
+1. Briefly describe the **shared visual language** of the icon set in 2–4 sentences.
+2. Provide the planned **color palette as HEX values**.
+3. Provide a concise structured image specification using these headings:
+
+   * **Scene**
+   * **Icon System**
+   * **Layout**
+   * **Details**
+   * **Background**
+   * **Constraints**
+
+Then **generate the image directly in this chat**.
+
+Do not ask for confirmation unless required information is missing or genuinely ambiguous.
+`;
+
+const ICONS_EINZELN_PROMPT = `Create the icon **"{NAME}"** from the previously defined icon set as a **single standalone image**.
+
+Use the existing **style sheet / icon set as the authoritative visual reference**.
+
+## STYLE CONSISTENCY
+
+The new icon must match the established icon system **exactly**.
+
+Preserve without modification:
+
+* overall shape language
+* silhouette design
+* line weight
+* edge treatment
+* geometric language
+* level of detail
+* material appearance
+* dimensionality
+* color palette
+* lighting direction
+* lighting intensity
+* shading style
+* highlight style
+* visual weight
+* overall rendering quality
+
+**Do not reinterpret or redesign the established style.**
+
+The only intentional changes are:
+
+1. Generate only the single icon **"{NAME}"**.
+2. Use a standalone 1024×1024 canvas.
+
+The new icon must look as though it was taken directly from the original icon sheet and exported as an individual asset.
+
+---
+
+## ICON COMPOSITION
+
+* Place the icon exactly in the center of the canvas.
+* The icon should occupy approximately **80% of the available image area**.
+* Scale the icon according to its **optical visual weight**, not merely its mathematical bounding box.
+* Keep the complete silhouette visible.
+* Do not crop, clip, or cut off any part of the icon.
+* Maintain balanced breathing room on all four sides.
+* Keep the icon vertically and horizontally centered.
+
+Do not add any additional objects or decorative elements.
+
+---
+
+## BACKGROUND
+
+The entire background must be a **single, perfectly uniform chroma-magenta color**:
+
+**#FF00FF**
+
+The background must be:
+
+* completely flat
+* perfectly uniform
+* matte
+* texture-free
+* shadow-free
+* highlight-free
+* glow-free
+* gradient-free
+
+Use exactly **#FF00FF** throughout the entire background.
+
+**Magenta must appear exclusively in the background and nowhere inside the icon.**
+
+Do not add:
+
+* color spill
+* magenta rim lighting
+* reflections
+* transparency
+* shadows cast onto the background
+* glow around the icon
+* atmospheric effects
+
+The boundary between icon and background must be clean and clearly defined.
+
+---
+
+## CLEAN OUTPUT
+
+The image must contain only:
+
+**1. The requested icon "{NAME}"**
+**2. The uniform #FF00FF background**
+
+Do not include:
+
+* text
+* letters
+* numbers
+* labels
+* signatures
+* watermarks
+* logos
+* frames
+* borders
+* circles
+* badges
+* plaques
+* decorative elements
+* additional symbols
+* other objects
+
+---
+
+## FORMAT
+
+**Canvas:** 1024×1024 pixels, square.
+
+Generate the image directly in this chat.
+
+Do not change the established icon style, palette, lighting, or visual language.
+`;
+
+const ARTWORK_STICHWORTE_PROMPT = `You are an expert in **premium collectible card artwork and visual composition**.
+
+Create a polished, professional image based on the following creative direction.
+
+## CREATIVE DIRECTION
+
+**Subject:**
+{KEYWORDS — e.g. "red fox, autumn forest, alert, evening light"}
+
+**Mood:**
+{MOOD — e.g. "warm and heroic" | "dark and quiet"}
+
+**Art Style:**
+{STYLE — e.g. "painterly illustration with subtle cel shading, clean linework, warm saturated colors"}
+
+---
+
+## SCENE AND ENVIRONMENT
+
+Create a complete, visually intentional scene around the main subject.
+
+**Background / Environment:**
+{BACKGROUND — e.g. "an atmospheric autumn forest at dusk with warm foliage, distant trees, subtle mist, and depth between foreground and background"}
+
+The background should feel **specific to the scene**, not generic.
+
+Avoid simple gradients, empty backgrounds, or purely decorative color fields unless explicitly requested.
+
+Build a convincing environment using appropriate:
+
+* foreground elements
+* midground elements
+* background elements
+* atmospheric depth
+* environmental details
+* textures and shapes
+* perspective
+
+The environment should support the subject and mood without becoming a competing focal point.
+
+---
+
+## MAIN SUBJECT
+
+Create **exactly one dominant main subject**.
+
+* The main subject is the clear visual focus.
+* Place it approximately in the center unless the composition requires a slightly different position.
+* It should occupy a large portion of the image.
+* Keep the subject clearly readable at collectible-card size.
+* Preserve the important characteristics described in the creative direction.
+* Do not add additional characters, creatures, or competing focal subjects.
+
+---
+
+## COMPOSITION
+
+Compose the image specifically for later use inside a **collectible card template**.
+
+* Keep a comfortable, relatively quiet margin around the subject on all four sides.
+* Leave enough surrounding space to allow later cropping, repositioning, and zooming.
+* Do not place important parts of the subject directly against the image edges.
+* Avoid cutting off ears, heads, hands, limbs, tails, weapons, or other important features.
+* The primary visual focus should remain in the **{FOCAL AREA: "upper half" | "center"}**.
+* The lower portion of the card will later contain text, so avoid placing critical visual information in the lower area.
+* Maintain a strong and readable silhouette.
+* Use depth and perspective to create a polished, cinematic composition.
+
+The composition should feel intentional rather than like a centered object placed on a background.
+
+---
+
+## LIGHTING
+
+**Lighting:**
+{LIGHTING — source, direction, character, color temperature}
+
+Apply the lighting consistently to the entire scene.
+
+The main subject, environment, shadows, highlights, and atmospheric effects must share the same lighting logic.
+
+Use light to reinforce:
+
+* the mood
+* the focal point
+* depth
+* subject separation
+* the overall color harmony
+
+---
+
+## ART DIRECTION
+
+Follow the specified art style consistently across the entire image.
+
+Prioritize:
+
+* professional collectible-card quality
+* strong composition
+* clear visual hierarchy
+* coherent color palette
+* detailed but controlled rendering
+* atmospheric depth
+* polished edges and materials
+* consistent perspective
+* consistent lighting
+
+Do not introduce unrelated visual styles or random decorative effects.
+
+---
+
+## CLEAN IMAGE REQUIREMENTS
+
+The artwork itself must contain **no**:
+
+* text
+* captions
+* letters
+* numbers
+* logos
+* signatures
+* watermarks
+* UI elements
+* card borders
+* card frames
+
+Keep the entire image clean so it can be placed directly into a card template.
+
+---
+
+## FORMAT
+
+**Canvas:**
+{FORMAT: "Portrait 63:88, generate at 1024×1440" | "Square, generate at 1024×1024"}
+
+The specified format is the **artwork canvas**, not a complete card design.
+
+---
+
+## OUTPUT
+
+First, give a concise explanation in **2–3 sentences** describing how you will interpret the subject, environment, mood, and composition.
+
+Then provide a concise structured summary with these headings:
+
+* **Scene**
+* **Subject**
+* **Style**
+* **Light**
+* **Composition**
+* **Constraints**
+
+Immediately after that, **generate the image in this chat**.
+
+Do not ask for confirmation unless a required placeholder is missing or genuinely ambiguous.
+`;
+
+const ARTWORK_REFERENZ_PROMPT = `You are an expert in **collectible card image creation, professional photography, digital compositing, and illustrated card artwork**.
+
+I will attach one or more reference images.
+
+## 1. DETERMINE THE VISUAL MODE FIRST
+
+Before generating the image, determine whether the main subject should be **photorealistic or illustrated**.
+
+### If the main subject is a real person or I provide a photo of a person:
+
+**Keep the person photorealistic.**
+
+Do NOT turn the person into:
+
+* a drawing
+* a painting
+* an illustration
+* a comic character
+* an anime character
+* a stylized artwork
+* a 3D render
+
+Preserve the person's **identity, facial features, skin texture, hair, body proportions, and natural physical details**.
+
+The result should look like a **professional photograph or cinematic professional photoshoot**, not like an artwork based on a photograph.
+
+You may creatively redesign the **environment, lighting, atmosphere, composition, and background**, while keeping the person itself convincingly photographic.
+
+### If the main subject is an animal, creature, object, fantasy character, or other non-human subject:
+
+Use the requested **illustration or artwork style**.
+
+The visual style may influence:
+
+* rendering technique
+* line work
+* color palette
+* lighting
+* texture
+* atmosphere
+* level of detail
+
+Do not automatically apply an illustration style to a photographic subject.
+
+**When uncertain, prefer photorealism for real people.**
+
+---
+
+## 2. REFERENCE IMAGES
+
+Image 1 — {ROLE, e.g. "Subject Reference"}:
+Use it for {WHAT TO TAKE, e.g. "body shape, fur pattern, and coloration"}.
+
+Image 2 — {ROLE, e.g. "Style Reference"}:
+Use it only for {WHAT TO TAKE, e.g. "color palette, lighting, rendering style, and overall visual mood"}.
+Do NOT copy its subject matter or composition.
+
+{Add additional references in the same format — maximum three references whenever possible.}
+
+### Do NOT copy:
+
+{WHAT NOT TO TAKE, e.g. "pose, framing, background, and camera angle from Image 1"}
+
+### New creative direction:
+
+{CHANGE, e.g. "The creature is standing upright and looking to the left. The scene takes place in an atmospheric autumn forest at sunset."}
+
+---
+
+## 3. MAIN SUBJECT
+
+Create **one clearly identifiable main subject**.
+
+* Keep the main subject visually dominant.
+* Place it approximately in the center unless the creative direction specifies otherwise.
+* The subject should occupy most of the image.
+* Preserve important recognizable characteristics from the reference.
+* Keep the visual hierarchy clear.
+* Do not add unnecessary secondary characters or competing focal points.
+
+For people, maintain **realistic photographic anatomy, skin, hair, facial structure, and proportions**.
+
+---
+
+## 4. BACKGROUND AND ENVIRONMENT
+
+The background must be a **fully designed environment**, not a simple gradient.
+
+Do NOT use:
+
+* a plain color background
+* a simple gradient
+* an empty studio backdrop
+* an obviously generic background
+* an unmotivated blur
+* random decorative elements
+
+Instead, create a background that is **specifically appropriate to the subject and scene**.
+
+The environment should:
+
+* support the story and character of the main subject
+* match the requested setting
+* have convincing depth and spatial structure
+* contain meaningful environmental details
+* use appropriate foreground, midground, and background elements
+* have coherent lighting and shadows
+* complement the subject without competing with it
+* feel intentionally designed for a premium collectible card
+
+For a person, the environment should look like a **professional photographic location, cinematic set, or believable real-world environment**.
+
+The background may be creatively generated or substantially redesigned, but its **perspective, lighting, shadows, reflections, depth of field, and color temperature must remain physically and visually consistent with the subject**.
+
+Keep the background slightly less visually dominant than the main subject so the subject remains the clear focal point.
+
+---
+
+## 5. COMPOSITION
+
+Design the image specifically for use as a **collectible card illustration**.
+
+* One dominant main subject.
+* Strong central visual hierarchy.
+* Leave enough breathing room around the subject for later cropping, repositioning, and zooming.
+* Keep the primary visual focus in the **{FOCAL AREA}**.
+* The lower portion of the image will later be partially covered by card text, so avoid placing critical facial features, hands, objects, or important environmental details there.
+* Maintain a convincing sense of depth.
+* Use a deliberate camera angle and perspective.
+* Keep lighting consistent across the entire scene.
+
+---
+
+## 6. VISUAL QUALITY
+
+Create a **premium, professionally composed collectible card image**.
+
+### For photographic subjects:
+
+Aim for:
+
+* professional photography
+* realistic skin and hair
+* natural facial detail
+* realistic materials and textures
+* physically believable lighting
+* cinematic but credible depth of field
+* realistic shadows and reflections
+* high-end editorial or cinematic photography
+
+Avoid:
+
+* plastic-looking skin
+* excessive beauty retouching
+* artificial facial features
+* painterly textures
+* illustration-like edges
+* cartoon aesthetics
+* obvious AI-art artifacts
+
+### For illustrated subjects:
+
+Aim for:
+
+* high-end collectible card artwork
+* sophisticated composition
+* strong visual storytelling
+* detailed rendering
+* coherent lighting
+* atmospheric depth
+* deliberate color design
+* polished professional finish
+
+---
+
+## 7. CLEAN IMAGE REQUIREMENTS
+
+Do not include:
+
+* text
+* captions
+* letters
+* numbers
+* logos
+* signatures
+* watermarks
+* UI elements
+* borders
+* card frames
+
+The entire image area must remain clean and usable as the artwork itself.
+
+---
+
+## 8. OUTPUT FORMAT
+
 {FORMAT}
 
-Zeige mir zuerst in zwei Sätzen, was du aus welchem Bild übernimmst, dann
-erzeuge das Bild.`;
+Before generating the image, briefly explain in **exactly two sentences**:
+
+1. Which elements you are taking from each reference image.
+2. Whether you are using **photorealistic photography or illustrated artwork**, and why.
+
+Then generate the image according to all instructions above.
+`;
 
 export const PROMPT_TABS: readonly PromptTab[] = [
   {
