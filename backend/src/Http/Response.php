@@ -36,23 +36,68 @@ final class Response
      */
     public static function file(string $absolutePath, string $mimeType): void
     {
+        $byteSize = filesize($absolutePath);
+        $entityTag = self::entityTag($absolutePath, $byteSize);
+
+        // Bilder liegen unter einer festen Adresse, ihr Inhalt wechselt aber (Bild ersetzen,
+        // Vorschau neu erzeugt). Ein Ablaufdatum würde die alte Datei weiter ausliefern —
+        // deshalb Rückfrage bei jedem Abruf und nur bei unverändertem Kennzeichen 304.
+        if (!headers_sent()) {
+            header('Content-Type: ' . $mimeType);
+            header('X-Content-Type-Options: nosniff');
+            header('Cache-Control: private, no-cache, max-age=0, must-revalidate');
+
+            if ($entityTag !== null) {
+                header('ETag: ' . $entityTag);
+            }
+        }
+
+        if ($entityTag !== null && self::matchesRequestedTag($entityTag)) {
+            http_response_code(304);
+            exit;
+        }
+
         http_response_code(200);
 
-        if (!headers_sent()) {
-            $byteSize = filesize($absolutePath);
-
-            header('Content-Type: ' . $mimeType);
-
-            if ($byteSize !== false) {
-                header('Content-Length: ' . $byteSize);
-            }
-
-            header('X-Content-Type-Options: nosniff');
-            header('Cache-Control: private, max-age=86400');
+        if ($byteSize !== false && !headers_sent()) {
+            header('Content-Length: ' . $byteSize);
         }
 
         readfile($absolutePath);
         exit;
+    }
+
+    /** Kennzeichnet den Dateistand über Änderungszeit und Größe. */
+    private static function entityTag(string $absolutePath, int|false $byteSize): ?string
+    {
+        $modifiedAt = filemtime($absolutePath);
+
+        if ($modifiedAt === false || $byteSize === false) {
+            return null;
+        }
+
+        return '"' . dechex($modifiedAt) . '-' . dechex($byteSize) . '"';
+    }
+
+    private static function matchesRequestedTag(string $entityTag): bool
+    {
+        $requested = $_SERVER['HTTP_IF_NONE_MATCH'] ?? '';
+
+        if (!is_string($requested) || $requested === '') {
+            return false;
+        }
+
+        foreach (explode(',', $requested) as $candidate) {
+            // Ein Zwischenspeicher darf das Kennzeichen als schwach markieren („W/") —
+            // für den Vergleich zählt nur der Teil dahinter.
+            $normalized = ltrim(trim($candidate), 'W/');
+
+            if ($normalized === $entityTag) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** @param array<string, string> $fields */
