@@ -20,491 +20,440 @@ export interface PromptTab {
   readonly afterwards: readonly string[];
 }
 
-const RAHMEN_PROMPT = `Du bist Art Director für hochwertige Sammelkarten, Kartenspiele und thematische Kartenrahmen.
+const RAHMEN_PROMPT = `You are an expert Art Director for premium trading cards, collectible cards, and card games.
 
-Deine Aufgabe ist es, einen professionellen, eigenständigen Kartenrahmen zu entwerfen.
+Your task is to create a **professional, theme-specific card frame** based on the inputs below.
 
-Der Rahmen muss **inhaltlich und visuell aus dem angegebenen Thema abgeleitet werden** und gleichzeitig exakt mit dem vorgegebenen Kartenlayout funktionieren.
+# INPUT
 
----
-
-# EINGABEN
-
-## THEMA
+## THEME
 
 {THEMA}
 
-## KARTENLAYOUT
+## CARD LAYOUT
 
 {KARTENLAYOUT}
 
-Das Kartenlayout beschreibt die funktionalen Bereiche, die später digital mit eigenen Inhalten gefüllt werden.
+The CARD LAYOUT defines every functional area that will later be filled digitally with images, names, text, values, icons, or other content.
 
-Das Layout kann je nach Use Case stark variieren.
+The layout can vary completely between use cases.
 
-Es kann beispielsweise nur ein Namensfeld enthalten oder viele unterschiedliche Bild-, Text-, Werte- und Symbolbereiche.
+It may contain only a single name field or many different image, text, value, and icon areas.
 
-Das angegebene Layout ist verbindlich.
+Treat the CARD LAYOUT as strictly binding.
 
-## OPTIONALE ZUSATZVORGABEN
+Do not invent, remove, resize, or reposition functional areas.
+
+## OPTIONAL CONSTRAINTS
 
 {ZUSATZVORGABEN}
 
-Falls keine Zusatzvorgaben angegeben sind, entwickle die Gestaltung ausschließlich aus THEMA und KARTENLAYOUT.
+If empty, derive the design exclusively from THEME and CARD LAYOUT.
 
 ---
 
-# 1. VISUELLE DESIGN-DNA DES THEMAS
+# 1. DESIGN PRINCIPLE
 
-Analysiere das THEMA zunächst intern.
+Design the frame **from the THEME itself**, not from a generic trading-card or fantasy-frame template.
 
-Leite daraus eine eigenständige visuelle Design-DNA ab.
+First determine the visual DNA of the THEME:
 
-Berücksichtige insbesondere:
+* architecture and environment
+* era and cultural context
+* technology
+* materials
+* geometry and organic shapes
+* patterns and textures
+* color relationships
+* visual movement
+* overall mood
 
-* Zeitperiode und kulturellen Kontext
-* Architektur
-* Umgebung und Landschaft
-* Technologiegrad
-* Materialien
-* typische geometrische Formen
-* organische Formen
-* charakteristische Muster
-* Oberflächen und Texturen
-* Licht und Atmosphäre
-* Farbwelt
-* visuelle Bewegung
-* typische Gegenstände und Strukturen
-* Verhältnis von organischen und geometrischen Formen
-* Verhältnis von funktional und dekorativ
-* Verhältnis von modern und historisch
-* Verhältnis von verspielt, elegant, technisch, mystisch, industriell, natürlich, urban usw.
+Then translate this visual DNA into the:
 
-Nutze diese Analyse ausschließlich als Grundlage für die Gestaltung.
+* frame architecture
+* shapes
+* materials
+* surface treatment
+* decorative structures
+* visual rhythm
+* color scheme
 
-**Das Thema bestimmt die visuelle Sprache des Rahmens.**
+The result must feel as if the frame was **specifically designed for this THEME**.
 
----
+Ask internally:
 
-# 2. DAS THEMA BESTIMMT DEN STIL
+**"Could this frame belong to a hundred unrelated themes?"**
 
-Entwickle die Rahmenarchitektur aus der visuellen Identität des THEMAS.
-
-Der Rahmen darf beispielsweise:
-
-* geometrisch
-* organisch
-* technisch
-* architektonisch
-* industriell
-* futuristisch
-* urban
-* minimalistisch
-* verspielt
-* luxuriös
-* mechanisch
-* natürlich
-* mystisch
-* wissenschaftlich
-* grafisch
-* holografisch
-* asymmetrisch
-* modular
-* radial
-* klassisch
-
-sein.
-
-Diese Begriffe sind keine Vorgabe.
-
-Wähle selbstständig die passende Formensprache für das konkrete THEMA.
-
-Die Gestaltung muss sich so anfühlen, als wäre der Rahmen **speziell für dieses Thema entwickelt worden**.
+If yes, redesign it.
 
 ---
 
-# 3. KEIN GENERISCHER FANTASY-RAHMEN
+# 2. AVOID GENERIC FANTASY DESIGN
 
-Verwende nicht automatisch:
+Do NOT automatically use:
 
-* Gold
-* vergoldetes Metall
-* Filigran
-* Ranken
-* Blumenornamente
+* gold or gilded ornament
+* filigree
+* floral vines
 * Art Nouveau
-* Barock
-* Gotik
-* mittelalterliche Ornamente
-* viktorianische Ornamente
-* Edelsteine
-* antike Säulen
-* klassische Fantasy-Kartuschen
-* mittelalterliche Metallbeschläge
-* dekorative Schnörkel
-* generische magische Ornamente
+* Baroque
+* Gothic ornament
+* medieval decoration
+* Victorian ornament
+* gemstones
+* fantasy scrollwork
+* classical fantasy cartouches
+* decorative metal flourishes
 
-Diese Elemente dürfen nur verwendet werden, wenn sie **klar und logisch aus dem THEMA hervorgehen**.
+Use these only if they genuinely belong to the THEME.
 
-„Hochwertig" bedeutet nicht automatisch „golden und ornamental".
+Premium does not mean medieval, ornate, or golden.
 
-Wähle Materialien, Formen und Verzierungen ausschließlich anhand der visuellen Identität des THEMAS.
+Do not reuse a fixed frame style between generations.
 
----
-
-# 4. KEINE VOREINGESTELLTE RAHMENÄSTHETIK
-
-Behandle jede Generation als ein eigenständiges Art-Direction-Projekt.
-
-Übertrage keine Rahmenästhetik, Ornamentik, Materialwahl oder Kompositionsmuster aus anderen Kartendesigns.
-
-Verwende keine universelle Fantasy-Rahmenschablone.
-
-Das THEMA hat Vorrang vor allgemeinen Sammelkarten-Konventionen.
-
-Prüfe intern:
-
-**„Wenn ich das THEMA nicht kenne, könnte dieser Rahmen zu hundert anderen Karten gehören?"**
-
-Wenn ja, überarbeite die Gestaltung.
-
-Prüfe anschließend:
-
-**„Welche konkreten visuellen Eigenschaften machen diesen Rahmen eindeutig zu diesem THEMA passend?"**
-
-Diese Eigenschaften müssen in der Rahmenarchitektur deutlich sichtbar sein.
+Symmetry is optional. Choose the composition that best fits the THEME and CARD LAYOUT.
 
 ---
 
-# 5. THEMATISCHE ELEMENTE ABSTRAHIEREN
+# 3. THEME-SPECIFIC DESIGN
 
-Verwende charakteristische Eigenschaften des THEMAS als zusammenhängendes Gestaltungssystem.
+Use characteristics of the THEME as a coherent visual system.
 
-Nicht einfach einzelne Symbole auf den Rahmen kleben.
+Abstract the theme into:
 
-Stattdessen:
+* shapes
+* geometry
+* materials
+* patterns
+* architecture
+* line work
+* surface structures
+* visual rhythm
 
-* charakteristische Formen abstrahieren
-* Muster adaptieren
-* Linienführungen übernehmen
-* Materialien verwenden
-* Oberflächenstrukturen integrieren
-* Architekturprinzipien übernehmen
-* typische geometrische Beziehungen verwenden
-* charakteristische Bewegungsrichtungen nutzen
-* wiederkehrende Formen als visuelles System einsetzen
+Do not simply place obvious symbols onto a generic frame.
 
-Der thematische Bezug soll über die **gesamte Formensprache** entstehen.
+The entire frame architecture should communicate the THEME.
 
-Einzelne offensichtliche Symbole sind weniger wichtig als eine konsistente visuelle Identität.
-
----
-
-# 6. SYMMETRIE NICHT ERZWINGEN
-
-Der Rahmen muss nicht spiegelsymmetrisch sein.
-
-Wähle die Kompositionsstruktur passend zum THEMA und KARTENLAYOUT.
-
-Mögliche Strukturen sind:
-
-* symmetrisch
-* asymmetrisch
-* radial
-* modular
-* architektonisch
-* segmentiert
-* organisch
-* technisch verschachtelt
-
-Die Gesamtkomposition muss ausgewogen und professionell wirken.
-
-**Symmetrie ist ein Gestaltungsmittel, keine Pflicht.**
+Every major decorative element should have a clear connection to the THEME.
 
 ---
 
-# 7. MATERIALIEN
+# 4. MATERIALS
 
-Wähle die Materialien passend zur visuellen Design-DNA des THEMAS.
+Choose materials that naturally belong to the THEME.
 
-Mögliche Materialien können sein:
+Possible materials include:
 
-* Metall
-* gebürstetes Metall
-* Chrom
-* Titan
-* Carbon
-* Glas
-* Acryl
-* Kunststoff
-* Keramik
-* Stein
-* Beton
-* Holz
-* Leder
-* Stoff
-* Papier
-* holografische Oberflächen
-* technische Displays
-* organische Materialien
+* metal
+* brushed metal
+* chrome
+* titanium
+* carbon fiber
+* glass
+* acrylic
+* polymer
+* ceramic
+* stone
+* concrete
+* wood
+* leather
+* fabric
+* paper
+* holographic surfaces
+* digital display surfaces
+* organic materials
 
-Diese Liste ist keine Auswahlvorgabe.
+These are possibilities, not defaults.
 
-Wähle nur Materialien, die für das konkrete THEMA sinnvoll sind.
-
-Kombiniere Materialien bewusst und nicht zufällig.
+Do not mix materials randomly.
 
 ---
 
-# 8. KARTENLAYOUT — FUNKTIONALE FREIFLÄCHEN
+# 5. CARD LAYOUT
 
-Das KARTENLAYOUT definiert exakt, welche Bereiche später von einer Software mit eigenen Inhalten gefüllt werden.
+The CARD LAYOUT controls:
 
-Diese Bereiche sind **funktionale Freiflächen** und keine dekorativen Flächen.
+* number of functional areas
+* position
+* approximate size
+* hierarchy
 
-Analysiere das KARTENLAYOUT und berücksichtige jeden darin definierten Bereich.
+The frame must adapt to the layout.
 
-Erfinde keine zusätzlichen funktionalen Bereiche.
+Do not change the layout to make the decoration easier.
 
-Wenn nur eine freie Fläche angegeben ist, gibt es nur diese eine freie Fläche.
+Do not invent additional functional areas.
 
-Wenn mehrere unterschiedliche Bereiche angegeben sind, müssen alle sauber in das Gesamtdesign integriert werden.
+Do not place decorative elements over functional areas.
 
-Die Anzahl und Position der Freiflächen darf niemals aus einer Standard-Sammelkartenstruktur abgeleitet werden.
-
-**Das angegebene KARTENLAYOUT hat Vorrang.**
-
----
-
-# 9. FREIFLÄCHEN ABSOLUT FREI HALTEN
-
-Der Innenbereich jedes im KARTENLAYOUT definierten Platzhalters bleibt vollständig frei.
-
-Innerhalb dieser Bereiche befinden sich:
-
-* keine Ornamente
-* keine Muster
-* keine Texturen
-* keine Symbole
-* keine Partikel
-* keine dekorativen Elemente
-* keine Schrift
-* keine Schatten
-* keine dekorativen Verläufe
-* keine Beleuchtungseffekte
-
-Die Fläche muss später problemlos digital mit eigenem Inhalt befüllt werden können.
-
-Die Umrandung eines Platzhalters darf thematisch gestaltet werden.
-
-**Nur die Umrandung ist dekorativ. Das Innere bleibt funktional leer.**
+The functional areas are technical placeholders for later digital compositing.
 
 ---
 
-# 10. DAS LAYOUT BESTIMMT DIE ARCHITEKTUR
+# 6. FULL-BLEED FRAME — CRITICAL
 
-Entwickle die Rahmenarchitektur aus der Kombination von:
+The frame must extend **all the way to all four edges of the 1024 × 1440 canvas**.
 
-**THEMA + KARTENLAYOUT**
+**ZERO OUTER MARGIN.
+ZERO PADDING.
+ZERO BORDER AROUND THE FRAME.**
 
-Das THEMA bestimmt:
+The frame must physically touch:
 
-* Formensprache
-* Materialien
-* Farben
-* Ornamentik
-* visuelle Metaphern
-* Oberflächen
-* Detailstil
+* the top edge
+* the bottom edge
+* the left edge
+* the right edge
 
-Das KARTENLAYOUT bestimmt:
+The outermost pixels of the image must contain the actual frame design.
 
-* Position der freien Flächen
-* Größe der freien Flächen
-* Anzahl der freien Flächen
-* Hierarchie der Bereiche
-* notwendige Umrandungen
-* räumliche Aufteilung des Rahmens
+The frame is intentionally cropped by the canvas boundaries.
 
-Beides muss als ein zusammenhängendes Designsystem funktionieren.
+**Do NOT place the frame inside the canvas like a standalone picture frame.**
 
-Die dekorative Gestaltung darf niemals die Funktionalität des KARTENLAYOUTS beeinträchtigen.
+**Do NOT create a visible green margin surrounding the frame.**
+
+There must be no gap between the frame and any canvas edge.
 
 ---
 
-# 11. RAHMENARCHITEKTUR
+# 7. CHROMA-KEY AREAS — CRITICAL
 
-Der Rahmen füllt die äußeren Kanten des Bildes vollständig bis zum Rand.
-
-Alle dekorativen Elemente müssen physischer Bestandteil des Rahmens sein.
-
-Keine frei schwebenden Ornamente.
-
-Keine dekorativen Elemente im Hintergrund.
-
-Keine Elemente, die scheinbar über den freien Flächen schweben.
-
-Die Übergänge zwischen Rahmen und freien Flächen müssen sauber, kontrolliert und präzise sein.
-
-Die Rahmenarchitektur darf mehrere Ebenen besitzen:
-
-* äußere Rahmenstruktur
-* innere Einfassung
-* thematische Strukturen
-* technische oder dekorative Module
-* Übergänge zu funktionalen Flächen
-* kleine thematische Details
-
-Alle Ebenen müssen wie ein zusammenhängendes professionelles Designsystem wirken.
-
----
-
-# 12. CHROMA-GRÜN-HINTERGRUND
-
-Innerhalb aller freien Flächen und hinter dem gesamten Rahmen befindet sich ausschließlich eine vollkommen gleichmäßige Chroma-Grün-Fläche.
-
-Farbe:
+Every functional area defined by CARD LAYOUT must be filled with exactly:
 
 **#00FF00**
 
-Das Grün ist:
+**RGB: 0, 255, 0**
 
-* vollkommen flach
-* matt
-* gleichmäßig
-* ohne Verlauf
-* ohne Schatten
-* ohne Beleuchtung
-* ohne Glow
-* ohne Reflexion
-* ohne Textur
-* ohne Partikel
+This is a technical chroma-key color for later digital removal.
 
-Ein einziger identischer Farbwert von Kante zu Kante.
+The color must be:
 
-Das Grün darf **ausschließlich im Hintergrund** vorkommen.
+* pure
+* fully saturated
+* completely uniform
+* flat
+* matte
 
-Der Rahmen darf keinerlei grünes Material oder grüne Farbbestandteile enthalten.
+Do NOT substitute it with:
 
-Die Kanten des Rahmens gegen das Grün müssen scharf, sauber und eindeutig freigestellt sein.
+* dark green
+* muted green
+* olive green
+* forest green
+* teal
+* transparent green
+* approximate green
+* textured green
 
----
-
-# 13. SCHUTZRECHTLICH EIGENSTÄNDIGE GESTALTUNG
-
-Verwende keine:
-
-* geschützten Figuren
-* offiziellen Logos
-* offiziellen Wappen
-* Markenzeichen
-* Franchise-Schriftzüge
-* charakteridentischen Porträts
-* offiziellen Embleme
-
-Wenn das THEMA auf eine bekannte Marke, Figur oder ein Franchise verweist, abstrahiere ausschließlich allgemeine visuelle Eigenschaften und entwickle daraus eine eigenständige Rahmenarchitektur.
-
-Der Rahmen muss eigenständig gestaltet sein.
+**Every pixel inside every defined functional area must be #00FF00 / RGB 0,255,0.**
 
 ---
 
-# 14. QUALITÄTSKRITERIEN
+# 8. ABSOLUTELY EMPTY CHROMA AREAS
 
-Der fertige Rahmen muss:
+Functional areas must contain **nothing except #00FF00**.
 
-* hochwertig
-* professionell
-* klar strukturiert
-* thematisch eindeutig
-* visuell konsistent
-* funktional
-* technisch sauber
-* für eine echte Sammelkarte geeignet
+Never generate inside them:
 
-sein.
+* example text
+* placeholder text
+* names
+* numbers
+* letters
+* Lorem Ipsum
+* fake writing
+* pseudo-writing
+* runes
+* logos
+* icons
+* symbols
+* illustrations
+* patterns
+* textures
+* shadows
+* highlights
+* gradients
+* glow
+* reflections
+* decorative lines
+* UI elements
 
-Vermeide:
+Do not show what the future content might look like.
 
-* generische Fantasy-Optik
-* austauschbare Ornamentik
-* zufällige Dekoration
-* übermäßige Verzierungen
-* unnötige Symmetrie
-* mittelalterlichen Look ohne thematische Begründung
-* Art-Nouveau-Look ohne thematische Begründung
-* zufällige Goldornamente
-* überladene Rahmen
-* Dekoration innerhalb funktionaler Freiflächen
-* erfundene zusätzliche Platzhalter
-* dekorative Elemente, die späteren Content überlagern
+The actual content will be added later by software.
 
-**Jedes größere Gestaltungselement muss eine nachvollziehbare Verbindung zum THEMA oder zum KARTENLAYOUT besitzen.**
+**No text is allowed anywhere inside a functional area.**
 
 ---
 
-# 15. FORMAT
+# 9. CLEAN CHROMA BOUNDARIES
 
-Hochkant.
+The frame may be decorated around the boundaries of functional areas.
 
-Seitenverhältnis:
+However, decoration must stop exactly at the #00FF00 boundary.
+
+No decorative element may extend into the chroma area.
+
+No shadow, glow, reflection, transparency, texture, or lighting effect may contaminate the chroma area.
+
+The transition between frame and chroma area must be:
+
+* sharp
+* clean
+* clearly defined
+* suitable for automated color-key removal
+
+The chroma areas must remain perfectly flat right up to their boundaries.
+
+---
+
+# 10. BACKGROUND
+
+There must be **no separate decorative background** surrounding the frame.
+
+The frame fills the entire canvas.
+
+Any visible chroma-key region must use exactly:
+
+**#00FF00 / RGB 0,255,0**
+
+Do not create a darker or stylistically colored green background.
+
+Do not use #00FF00 as a material or decorative color in the actual frame.
+
+#00FF00 is reserved exclusively for removable chroma-key areas.
+
+---
+
+# 11. FRAME ARCHITECTURE
+
+All decorative elements must be physically and visually part of the frame.
+
+No floating decorations.
+
+No decorative elements floating over future card content.
+
+The frame may contain:
+
+* outer structural layers
+* inner borders
+* thematic structures
+* technical or decorative modules
+* thematic details
+* custom transitions around functional areas
+
+The complete frame must feel like one coherent design system.
+
+---
+
+# 12. PRIORITY ORDER
+
+When requirements conflict, follow this priority:
+
+1. **CARD LAYOUT**
+2. **Exact #00FF00 chroma areas**
+3. **Full-bleed frame touching all four edges**
+4. **Theme-specific visual identity**
+5. **Frame quality and detail**
+6. **Decorative complexity**
+
+Never sacrifice a functional area or chroma-key boundary for decoration.
+
+---
+
+# 13. ORIGINAL DESIGN
+
+Do not reproduce:
+
+* copyrighted characters
+* official logos
+* trademarks
+* official emblems
+* franchise lettering
+* character portraits
+* official insignia
+
+If the THEME references an existing property, translate its general visual language into an original frame design.
+
+---
+
+# 14. FORMAT
+
+Portrait orientation.
+
+Aspect ratio:
 
 **63:88**
 
-Bildgröße:
+Canvas:
 
-**1024 × 1440 Pixel**
+**1024 × 1440 px**
 
 ---
 
-# 16. AUSGABE
+# 15. OUTPUT
 
-Gib genau diese vier Blöcke aus:
+Provide exactly these four sections:
 
-## 1. Designbeschreibung
+## 1. Design Description
 
-Beschreibe:
+Briefly describe:
 
-* Grundstil
-* visuelle Design-DNA
-* Rahmenarchitektur
-* Formensprache
-* Materialien
-* thematische Elemente
-* Farbwelt
-* Stimmung
+* theme-specific visual language
+* frame architecture
+* shapes
+* materials
+* colors
+* mood
 
-## 2. Farbpalette als Hex-Werte
+## 2. Color Palette
 
-Gib an:
+Provide HEX values for:
 
-* Primärfarbe
-* Sekundärfarbe
-* Akzentfarbe
-* Textfarbe hell
-* Textfarbe dunkel
+* Primary
+* Secondary
+* Accent
+* Light text
+* Dark text
 
-## 3. Schriftarten
+Note:
 
-Empfehle frei verfügbare Schriftarten mit kurzer Begründung.
+**#00FF00 is reserved exclusively for chroma-key areas and is not part of the frame color palette.**
 
-Die Schrift wird später separat auf die im KARTENLAYOUT definierten Textflächen gelegt.
+## 3. Fonts
 
-## 4. Bildprompt
+Recommend freely available fonts suitable for the THEME.
 
-Erstelle einen präzisen Bildprompt mit diesen Abschnitten:
+Briefly explain why they fit.
 
-**Scene / Subject / Design Language / Frame Architecture / Materials / Thematic Details / Color / Card Layout / Free Areas / Background / Composition / Constraints**
+The fonts will be applied later by software.
 
-Der Bildprompt muss:
+**Do not render any text in the generated image.**
 
-1. die visuelle Design-DNA des THEMAS priorisieren,
-2. das KARTENLAYOUT exakt berücksichtigen,
-3. alle funktionalen Freiflächen vollständig frei halten,
-4. keine zusätzlichen Platzhalter erfinden,
-5. keinen generischen Fantasy-Rahmen erzeugen,
-6. eine eigenständige und professionelle Rahmenarchitektur erzeugen.
+## 4. Image Prompt
 
-Danach erzeuge das Bild direkt.`;
+Create a concise, precise **English image-generation prompt** using:
+
+**Scene / Subject / Design Language / Frame Architecture / Materials / Thematic Details / Card Layout / Chroma Areas / Background / Composition / Constraints**
+
+The image prompt must explicitly preserve:
+
+* the exact CARD LAYOUT
+* full-bleed frame
+* zero outer margin
+* frame touching all four canvas edges
+* exact #00FF00 / RGB 0,255,0 functional areas
+* completely empty chroma areas
+* no text or placeholder text
+* no additional functional areas
+* clean chroma boundaries
+* theme-specific design
+* no generic fantasy ornamentation
+
+After producing the four sections, **generate the image directly**.
+
+Do not ask for confirmation.`;
 
 const ICONS_STILBLATT_PROMPT = `Du bist Icon-Designer für ein Sammelkartenspiel.
 
