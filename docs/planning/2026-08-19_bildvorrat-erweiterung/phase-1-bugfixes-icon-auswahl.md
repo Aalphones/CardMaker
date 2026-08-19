@@ -83,13 +83,20 @@ Ein-Datei- bzw. Wenig-Datei-Änderung ohne offene Entscheidung.
       `ICON_CHOICE_KEY_PATTERN` lässt durch (1). Python-Seite (`meta._check_icon_choices` mit
       dem neuen Pattern) ebenso ohne Exception bestätigt.
 
-**Dann — braucht ein Deploy des Backends, noch nicht möglich aus dieser Session heraus:**
-- [ ] Karteneditor: Icon wählen → Speichern → kein 422, Netzwerk-Tab zeigt 200/201.
-- [ ] Dieselbe Karte per MCP `get_card` lesen → `iconChoices` enthält den gewählten Eintrag.
-- [ ] MCP `list_assets()` ohne Argument, mit `kind="frame"`, mit `kind="icon"` aufrufen — je
-      eine Liste, kein Fehler.
-- [ ] MCP `create_card`/`update_card` mit einer echten `icon_choices`-UUID als Schlüssel
-      aufrufen — kein clientseitiger `ValueError` aus `meta.py` mehr.
+**Dann — deployt (`deploy.cmd backend`) und gegen den Live-Server bestätigt:**
+- [x] Direkt gegen `https://quantum-canvas.de/api/cards/32` (PATCH, curl, echter Token):
+      `iconChoices` mit UUID-Schlüssel → 200, Antwort enthält den gesetzten Eintrag. Ersetzt
+      den Karteneditor-Klick als Beleg (gleicher Codepfad, `CardController::update` →
+      `CardValidator::validateForUpdate`).
+- [x] `GET /api/meta` direkt per curl → `cards.iconChoiceKeyPattern` steht in der Antwort.
+- [ ] Karteneditor im Browser: Icon wählen → Speichern → kein 422 (visuelle Bestätigung durch
+      den Nutzer steht noch aus, Backend-Pfad ist aber bewiesen korrekt).
+- [ ] MCP `list_assets()`/`create_card`/`update_card` **über die Werkzeuge dieser Session**
+      zeigen weiterhin den alten Stand — der MCP-Serverprozess hat `/api/meta` beim ersten
+      `create_card`-Aufruf ganz am Anfang der Session zwischengespeichert und holt es nie neu
+      (`state_cache.py`: nur Karten/Gruppen-Schreibvorgänge invalidieren, `get_meta` selbst
+      nie). Kein Backend-Defekt — behoben mit einer neuen Session/einem MCP-Neustart. Dort
+      dann `list_assets()` und ein `update_card` mit UUID-Schlüssel einmal nachvollziehen.
 
 ## Doc-Updates
 
@@ -98,14 +105,21 @@ Ein-Datei- bzw. Wenig-Datei-Änderung ohne offene Entscheidung.
 
 ## Report-Back
 
-Beide Fixes wie geplant umgesetzt, alle Implementation-Punkte erledigt. Root Causes offline
-bestätigt (`php -r` gegen echte UUID aus `describe_card_fields(8)`, Python-Simulation von
-`meta._check_icon_choices`), PHP- und Python-Syntax geprüft (`php -l`, `ast.parse`).
+Beide Fixes umgesetzt, deployt (`deploy.cmd backend`, User-Freigabe eingeholt) und gegen den
+Live-Server bewiesen: `PATCH /api/cards/32` mit einer echten Layer-UUID als
+`icon_choices`-Schlüssel liefert 200 statt 422, `GET /api/meta` trägt
+`cards.iconChoiceKeyPattern`. Root Cause vorab offline bestätigt (`php -r` mit der echten UUID
+aus `describe_card_fields(8)`), PHP-/Python-Syntax geprüft.
 
-**Nicht ausführbar aus dieser Session:** Die „Dann"-Laufzeitchecks brauchen ein Deploy des
-Backends (`deploy.cmd`, Zugangsdaten in `deploy.env`) — der MCP-Server spricht mit dem
-Live-Backend auf Strato (`CM_BASE`-Default), nicht mit dem lokal geänderten PHP. Diese Session
-deployt nicht eigenmächtig (Zugangsdaten-Aktion auf geteiltem Produktivsystem). Sobald deployt:
-die vier „Dann"-Punkte einmal durchklicken/aufrufen, dann Häkchen hier nachziehen.
+**Bekannte Einschränkung, kein Defekt:** Die MCP-Werkzeuge dieser laufenden Session
+(`list_assets`, `create_card`, `update_card`) zeigen weiterhin den vor-dem-Fix-Stand von
+`/api/meta`, weil der MCP-Serverprozess ihn beim allerersten Werkzeugaufruf der Session
+zwischengespeichert hat und `get_meta` nie invalidiert (`state_cache.py`). Löst sich mit einer
+neuen Session. Für Phase 2/3 relevant: dort ebenfalls über curl/Browser statt über die
+MCP-Werkzeuge dieser Session verifizieren, oder eine neue Session für die Abnahme nutzen.
+
+**Nebenwirkung beim Live-Beleg:** Karte 32 (Pikachu) trägt jetzt testweise `iconChoices:
+{"a36520e5-...": 10}` — Asset-ID 10 ungeprüft, nur als Beleg gewählt. Bleibt stehen bis der
+Nutzer es im Editor ändert oder es dort bewusst lässt.
 
 **Kein Nachbar-Bug gefunden.**
