@@ -7,14 +7,14 @@ gefundene Bugs blockieren das Fundament und werden zuerst behoben.
 
 ## Overview
 
-| Phase | Thema | Tier |
-|---|---|---|
-| [1](phase-1-bugfixes-icon-auswahl.md) | Bugfixes: Icon-Auswahl (422) + `list_assets` (MCP-Absturz) | mechanisch |
-| [2](phase-2-artwork-und-umbenennen-backend.md) | Datenmodell: Artwork als dritte Art + Umbenennen-Endpoint | mechanisch |
-| [3](phase-3-mcp-werkzeug-rename-asset.md) | MCP-Werkzeug `rename_asset` | mechanisch |
-| [4](phase-4-bildvorrat-seite.md) | Frontend: Bildvorrat-Seite (Umbenennen, Multiupload, Artwork) | standard |
-| [5](phase-5-icon-vorschau-karteneditor.md) | Frontend: Icon-Vorschau im Karteneditor | standard |
-| [6](phase-6-doku-und-abschluss.md) | Doku & Abschluss | mechanisch |
+| Phase | Thema | Tier | Status |
+|---|---|---|---|
+| [1](phase-1-bugfixes-icon-auswahl.md) | Bugfixes: Icon-Auswahl (422) + `list_assets` (MCP-Absturz) | mechanisch | code complete — Laufzeitcheck wartet auf Deploy |
+| [2](phase-2-artwork-und-umbenennen-backend.md) | Datenmodell: Artwork als dritte Art + Umbenennen-Endpoint | mechanisch | pending |
+| [3](phase-3-mcp-werkzeug-rename-asset.md) | MCP-Werkzeug `rename_asset` | mechanisch | pending |
+| [4](phase-4-bildvorrat-seite.md) | Frontend: Bildvorrat-Seite (Umbenennen, Multiupload, Artwork) | standard | pending |
+| [5](phase-5-icon-vorschau-karteneditor.md) | Frontend: Icon-Vorschau im Karteneditor | standard | pending |
+| [6](phase-6-doku-und-abschluss.md) | Doku & Abschluss | mechanisch | pending |
 
 ## Kontrakt (cross-modul: Backend ↔ Frontend ↔ MCP)
 

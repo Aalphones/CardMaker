@@ -182,7 +182,7 @@ def list_assets(kind: str | None = None) -> list[dict]:
     Args:
         kind: `"frame"` oder `"icon"`, weglassen für beide.
     """
-    return get_client().get_assets(kind)
+    return get_client().get_assets(kind).get("items", [])
 
 
 @mcp.tool()

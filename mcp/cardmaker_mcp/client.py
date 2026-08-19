@@ -181,7 +181,10 @@ class Client:
     def get_card(self, card_id: int) -> dict:
         return self.request("GET", f"cards/{card_id}")  # type: ignore[return-value]
 
-    def get_assets(self, kind: str | None = None) -> list:
+    def get_assets(self, kind: str | None = None) -> dict:
+        """Liefert die rohe Backend-Antwort `{"items": [...]}` — Aufrufer ziehen `["items"]`
+        selbst (wie bei `get_card_groups()`/`get_templates()`/`get_cards()`, konsumiert über
+        `state_cache.py`)."""
         path = "assets"
         if kind:
             path += f"?{urllib.parse.urlencode({'kind': kind})}"

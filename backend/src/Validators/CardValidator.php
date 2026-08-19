@@ -17,6 +17,13 @@ final class CardValidator
 {
     /** Von {@see \App\Services\MetaService} als `cards.valueKeyPattern` verwendet. */
     public const KEY_PATTERN = '/^[a-z][a-z0-9_]{0,39}$/';
+    /**
+     * Für `icon_choices`-Schlüssel: das sind rohe Layer-Kennungen (Konva-UUIDs wie
+     * `a36520e5-2edf-4c86-a65f-255e7d3aea4e`), keine Feldschlüssel — `KEY_PATTERN` erlaubt
+     * keine Bindestriche und würde jede Icon-Auswahl ablehnen. Von
+     * {@see \App\Services\MetaService} als `cards.iconChoiceKeyPattern` verwendet.
+     */
+    public const ICON_CHOICE_KEY_PATTERN = '/^.{1,191}$/';
     /** Von {@see \App\Services\MetaService} als `cards.textOverrides.colorPattern` verwendet. */
     public const HEX_PATTERN = '/^#[0-9a-fA-F]{6}$/';
     /** Von {@see \App\Services\MetaService} als `cards.nameMaxLength` verwendet. */
@@ -214,7 +221,7 @@ final class CardValidator
         $result = [];
 
         foreach ($value as $key => $assetId) {
-            if (!is_string($key) || preg_match(self::KEY_PATTERN, $key) !== 1) {
+            if (!is_string($key) || preg_match(self::ICON_CHOICE_KEY_PATTERN, $key) !== 1) {
                 $fields['iconChoices'] = 'Mindestens eine Ebenen-Kennung ist ungültig.';
 
                 return [];

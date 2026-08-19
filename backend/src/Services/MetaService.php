@@ -63,6 +63,7 @@ final class MetaService
             'cards' => [
                 'nameMaxLength' => CardValidator::NAME_MAX_LENGTH,
                 'valueKeyPattern' => CardValidator::KEY_PATTERN,
+                'iconChoiceKeyPattern' => CardValidator::ICON_CHOICE_KEY_PATTERN,
                 'valueMaxLength' => CardValidator::VALUE_MAX_LENGTH,
                 'textOverrides' => [
                     'fontSizeMin' => CardValidator::TEXT_OVERRIDE_FONT_SIZE_MIN,

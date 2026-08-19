@@ -47,28 +47,28 @@ Ein-Datei- bzw. Wenig-Datei-Änderung ohne offene Entscheidung.
 
 ## Implementation
 
-- [ ] `backend/src/Validators/CardValidator.php`: neue Konstante
+- [x] `backend/src/Validators/CardValidator.php`: neue Konstante
       `ICON_CHOICE_KEY_PATTERN = '/^.{1,191}$/'` (permissiv — nichtleer, ≤191 Zeichen, wie
       jede andere Kennungsspalte in diesem Projekt; UUIDs mit 36 Zeichen passen mühelos).
       `validatedIconChoices()`: `preg_match(self::KEY_PATTERN, $key)` →
       `preg_match(self::ICON_CHOICE_KEY_PATTERN, $key)` ersetzen (zwei Fundstellen:
       `validate()`-Pfad und `validateForUpdate()`-Pfad laufen beide durch dieselbe private
       Methode, also nur eine Änderung nötig).
-- [ ] `backend/src/Services/MetaService.php`: im `'cards'`-Block (Zeile ~63–79) neuen Eintrag
+- [x] `backend/src/Services/MetaService.php`: im `'cards'`-Block (Zeile ~63–79) neuen Eintrag
       `'iconChoiceKeyPattern' => CardValidator::ICON_CHOICE_KEY_PATTERN,` ergänzen (neben
       `valueKeyPattern`, nicht ersetzen — `values`/`textOverrides` behalten das strenge
       Feldschlüssel-Muster).
-- [ ] `mcp/cardmaker_mcp/meta.py`: `validate_card_payload()` — dort wo `_check_icon_choices`
+- [x] `mcp/cardmaker_mcp/meta.py`: `validate_card_payload()` — dort wo `_check_icon_choices`
       aufgerufen wird (Zeile ~66–67), einen zweiten kompilierten Pattern aus
       `rules.get("iconChoiceKeyPattern")` bauen und an `_check_icon_choices` durchreichen
       (Signatur bekommt einen zweiten Pattern-Parameter statt des bisherigen gemeinsamen
       `key_pattern`). Fällt `iconChoiceKeyPattern` in der Auskunft, weil ein Aufrufer gegen ein
       älteres Backend spricht: mit dem bisherigen `key_pattern` weiterlaufen (kein harter
       Fehler) — kleiner Rückfall, kein neuer Fehlerpfad.
-- [ ] `mcp/cardmaker_mcp/server.py` Zeile 179–185: `list_assets()` →
+- [x] `mcp/cardmaker_mcp/server.py` Zeile 179–185: `list_assets()` →
       `return get_client().get_assets(kind).get("items", [])` (die Backend-Antwort ist immer
       `{"items": [...]}`, siehe `AssetController::index()`).
-- [ ] `mcp/cardmaker_mcp/client.py` Zeile 184–188: Kommentar/Type-Hint von `get_assets()`
+- [x] `mcp/cardmaker_mcp/client.py` Zeile 184–188: Kommentar/Type-Hint von `get_assets()`
       korrigieren — die Methode liefert weiterhin die **rohe** Antwort (`dict` mit `items`),
       der Docstring/Type-Hint `-> list` ist irreführend; auf `-> dict` ändern, Aufrufer
       (`server.py::list_assets`) zieht `["items"]` selbst. Nicht die Methode selbst ändern,
@@ -78,11 +78,12 @@ Ein-Datei- bzw. Wenig-Datei-Änderung ohne offene Entscheidung.
 ## Manuelle Abnahme-Checkliste (private — kein automatisierter Test)
 
 **Zuerst prüfen (Wackelstelle aus dem Konfidenz-Ausweis):**
-- [ ] `describe_card_fields(<echte Template-Id>)` per MCP aufrufen, eine der gelieferten
-      `layerId`-Werte gegen `ICON_CHOICE_KEY_PATTERN` von Hand denken/prüfen (36-stellige UUID
-      mit Bindestrichen muss durchgehen).
+- [x] Offline bestätigt (`php -r`): echte `layerId` aus `describe_card_fields(8)`
+      (`a36520e5-2edf-4c86-a65f-255e7d3aea4e`) — altes `KEY_PATTERN` lehnt ab (0), neues
+      `ICON_CHOICE_KEY_PATTERN` lässt durch (1). Python-Seite (`meta._check_icon_choices` mit
+      dem neuen Pattern) ebenso ohne Exception bestätigt.
 
-**Dann:**
+**Dann — braucht ein Deploy des Backends, noch nicht möglich aus dieser Session heraus:**
 - [ ] Karteneditor: Icon wählen → Speichern → kein 422, Netzwerk-Tab zeigt 200/201.
 - [ ] Dieselbe Karte per MCP `get_card` lesen → `iconChoices` enthält den gewählten Eintrag.
 - [ ] MCP `list_assets()` ohne Argument, mit `kind="frame"`, mit `kind="icon"` aufrufen — je
@@ -97,4 +98,14 @@ Ein-Datei- bzw. Wenig-Datei-Änderung ohne offene Entscheidung.
 
 ## Report-Back
 
-(wird beim Umsetzen ausgefüllt)
+Beide Fixes wie geplant umgesetzt, alle Implementation-Punkte erledigt. Root Causes offline
+bestätigt (`php -r` gegen echte UUID aus `describe_card_fields(8)`, Python-Simulation von
+`meta._check_icon_choices`), PHP- und Python-Syntax geprüft (`php -l`, `ast.parse`).
+
+**Nicht ausführbar aus dieser Session:** Die „Dann"-Laufzeitchecks brauchen ein Deploy des
+Backends (`deploy.cmd`, Zugangsdaten in `deploy.env`) — der MCP-Server spricht mit dem
+Live-Backend auf Strato (`CM_BASE`-Default), nicht mit dem lokal geänderten PHP. Diese Session
+deployt nicht eigenmächtig (Zugangsdaten-Aktion auf geteiltem Produktivsystem). Sobald deployt:
+die vier „Dann"-Punkte einmal durchklicken/aufrufen, dann Häkchen hier nachziehen.
+
+**Kein Nachbar-Bug gefunden.**

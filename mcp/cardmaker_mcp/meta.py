@@ -64,7 +64,12 @@ def validate_card_payload(meta: dict, payload: dict[str, Any]) -> None:
         _check_values(payload["values"], key_pattern, rules.get("valueMaxLength"))
 
     if "iconChoices" in payload:
-        _check_icon_choices(payload["iconChoices"], key_pattern)
+        icon_key_pattern = (
+            compile_pattern(rules["iconChoiceKeyPattern"])
+            if "iconChoiceKeyPattern" in rules
+            else key_pattern
+        )
+        _check_icon_choices(payload["iconChoices"], icon_key_pattern)
 
     if "textOverrides" in payload:
         _check_text_overrides(payload["textOverrides"], key_pattern, rules.get("textOverrides", {}))
