@@ -84,6 +84,7 @@ final class MetaService
             ],
             'assets' => [
                 'kinds' => AssetValidator::KINDS,
+                'nameMaxLength' => AssetValidator::NAME_MAX_LENGTH,
             ],
             'uploads' => [
                 'imageMaxBytes' => $this->imageMaxBytes(),

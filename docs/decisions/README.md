@@ -31,3 +31,4 @@ Kurskorrektur bekommt eine neue ADR, die auf die alte verweist, statt die alte z
 | 024 | [Genau ein Druckprojekt statt vieler](024-ein-druckprojekt-statt-vieler.md) | Akzeptiert |
 | 025 | [Zustandsbild des MCP-Servers entsteht im Client](025-mcp-zustandsbild-im-client.md) | Akzeptiert |
 | 026 | [Keine Vorschaubilder über MCP](026-keine-vorschaubilder-ueber-mcp.md) | Akzeptiert |
+| 027 | [Artwork als dritte Art im Bildvorrat](027-artwork-als-dritte-asset-art.md) | Akzeptiert |

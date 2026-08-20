@@ -257,6 +257,7 @@ $dispatcher = FastRoute\simpleDispatcher(static function (RouteCollector $routes
     $routes->addRoute('GET', '/api/assets', [AssetController::class, 'index']);
     $routes->addRoute('POST', '/api/assets', [AssetController::class, 'create']);
     $routes->addRoute('GET', '/api/assets/{id:\d+}/file', [AssetController::class, 'file']);
+    $routes->addRoute('PATCH', '/api/assets/{id:\d+}', [AssetController::class, 'update']);
     $routes->addRoute('DELETE', '/api/assets/{id:\d+}', [AssetController::class, 'destroy']);
     $routes->addRoute('GET', '/api/fonts', [FontController::class, 'index']);
     $routes->addRoute('POST', '/api/fonts', [FontController::class, 'create']);

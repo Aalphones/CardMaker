@@ -64,6 +64,20 @@ final class AssetController
         Response::file($location['path'], $location['mimeType']);
     }
 
+    public function update(string $id): void
+    {
+        $data = AssetValidator::validateRename((array) $this->request->body());
+        $asset = $this->assets->rename((int) $id, $data['name']);
+
+        if ($asset === null) {
+            $this->notFound();
+
+            return;
+        }
+
+        Response::json($asset);
+    }
+
     public function destroy(string $id): void
     {
         if (!$this->assets->delete((int) $id)) {

@@ -43,31 +43,31 @@ siehe README → „Bewusst außen vor".
 
 ## Implementation
 
-- [ ] `backend/src/Migrations/M012ExtendAssetKind.php` (neue Datei, Namensschema wie
+- [x] `backend/src/Migrations/M012ExtendAssetKind.php` (neue Datei, Namensschema wie
       bestehende `M0xx...php`):
       ```php
       $pdo->exec("ALTER TABLE assets MODIFY kind ENUM('frame','icon','artwork') NOT NULL");
       ```
-- [ ] `backend/src/Validators/AssetValidator.php`:
+- [x] `backend/src/Validators/AssetValidator.php`:
   - `KINDS` → `['frame', 'icon', 'artwork']`
   - neue Konstante `NAME_MAX_LENGTH = 191` (mirrors `FontValidator`), `validate()` auf diese
     Konstante umstellen statt der eingebetteten `191`
   - neue Methode `validateRename(array $body): array{name: string}` — identisch zu
     `FontValidator::validate()`, nur Klassenname/Kommentar angepasst
-- [ ] `backend/src/Repositories/AssetRepository.php`: neue Methode `updateName(int $id, string
+- [x] `backend/src/Repositories/AssetRepository.php`: neue Methode `updateName(int $id, string
       $name): ?array` — 1:1 `FontRepository::updateName()`, Tabelle `assets` statt `fonts`.
-- [ ] `backend/src/Services/AssetService.php`: neue Methode `rename(int $id, string $name):
+- [x] `backend/src/Services/AssetService.php`: neue Methode `rename(int $id, string $name):
       ?array` — 1:1 `FontService::rename()`, liefert `AssetRepository::format($row)`.
-- [ ] `backend/src/Controllers/AssetController.php`: neue Methode `update(string $id): void` —
+- [x] `backend/src/Controllers/AssetController.php`: neue Methode `update(string $id): void` —
       1:1 `FontController::update()` (`AssetValidator::validateRename()` statt
       `FontValidator::validate()`, `$this->assets->rename(...)`, `$this->notFound()` bei
       `null`).
-- [ ] `backend/public/index.php`: nach Zeile 260 (`DELETE /api/assets/{id}`) einfügen:
+- [x] `backend/public/index.php`: nach Zeile 260 (`DELETE /api/assets/{id}`) einfügen:
       `$routes->addRoute('PATCH', '/api/assets/{id:\d+}', [AssetController::class,
       'update']);`
-- [ ] `backend/src/Services/MetaService.php`: `'assets'`-Block →
+- [x] `backend/src/Services/MetaService.php`: `'assets'`-Block →
       `['kinds' => AssetValidator::KINDS, 'nameMaxLength' => AssetValidator::NAME_MAX_LENGTH]`.
-- [ ] **Gegenlesen (Konfidenz-Ausweis-Punkt):** `LayerValidator`s Prüfung von
+- [x] **Gegenlesen (Konfidenz-Ausweis-Punkt):** `LayerValidator`s Prüfung von
       `choice_asset_ids` (Icon-Ebenen) und `asset_id` (Rahmen-Ebenen) läuft über
       `AssetRepository::existingIds()` — kind-agnostisch, prüft nur Existenz der Kennung.
       Bestätigen, dass ein `artwork`-Asset dort **nicht versehentlich** als gültige
@@ -75,7 +75,7 @@ siehe README → „Bewusst außen vor".
       an der Stelle, wo `choice_asset_ids`/`asset_id` geprüft werden, zusätzlich gegen
       `kind IN ('icon')` bzw. `kind IN ('frame')` filtern, nicht nur Existenz). Kurzer Blick in
       `backend/src/Validators/LayerValidator.php`, Suche nach `existingIds` reicht.
-- [ ] ADR: `docs/decisions/027-artwork-als-dritte-asset-art.md` — Kontext (Nutzer wollte
+- [x] ADR: `docs/decisions/027-artwork-als-dritte-asset-art.md` — Kontext (Nutzer wollte
       Artwork-Bilder verwalten wie Icons/Rahmen), Optionen (dritte `kind`-Ausprägung vs. neue
       Tabelle vs. Wiederverwendung `card_images`), Entscheidung (dritte `kind`-Ausprägung, da
       identisches Verhalten zu Rahmen/Icon — kein neuer Layer-Typ nötig), Konsequenzen (kein
@@ -98,9 +98,34 @@ siehe README → „Bewusst außen vor".
 
 ## Doc-Updates
 
-- [ ] `docs/models.md` → `assets`-Tabelle: `kind` ENUM-Werte um `artwork` ergänzen.
-- [ ] `docs/routes.md` → Bildvorrat-Abschnitt: `PATCH /api/assets/{id}` Zeile ergänzen.
+- [x] `docs/models.md` → `assets`-Tabelle: `kind` ENUM-Werte um `artwork` ergänzen.
+- [x] `docs/routes.md` → Bildvorrat-Abschnitt: `PATCH /api/assets/{id}` Zeile ergänzen.
 
 ## Report-Back
 
-(wird beim Umsetzen ausgefüllt)
+**Status:** complete (Code + Doku), manuelle Abnahme offen — läuft erst nach dem nächsten
+Deploy, weil die Migration `M012` über `POST /api/migrate` auf dem Server angewandt wird.
+
+Umgesetzt wie geplant, drei Abweichungen:
+
+1. **Fehlermeldungen aus `KINDS` erzeugt statt fest verdrahtet.** `AssetValidator` sagte
+   zweimal wörtlich „Bitte „frame“ oder „icon“ angeben." Mit einer dritten Art wären beide
+   Stellen still falsch geworden. Sie zählen die erlaubten Arten jetzt aus `KINDS` auf
+   (`kindMessage()`), die Namenslänge analog aus `NAME_MAX_LENGTH` (`nameMessage()`).
+2. **Gegenlese-Punkt: nichts verschärft, bewusst.** `AssetRepository::existingIds()` prüft nur
+   die Existenz, nicht die Art — genutzt von `TemplateService::guardReferencedAssetsExist()`
+   und `CardService::guardIconAssetsExist()`. Über die Oberfläche kann kein Artwork-Bild in
+   eine Icon-/Rahmen-Ebene geraten: der Auswahldialog filtert selbst nach `kind`
+   (`asset-picker.ts`, Zeile 28). Eine Prüfung auf die Art im Backend würde dagegen auch
+   **bestehende** Templates beim nächsten Speichern neu bewerten — eine Verschärfung mit
+   Regressionsrisiko für einen Weg, den die Oberfläche gar nicht anbietet. In ADR-027 als
+   bekannte Lücke festgehalten.
+3. **`validateRename()` ist nicht buchstäblich `FontValidator::validate()`** — es teilt sich
+   `nameMessage()` und `fail()` mit dem Upload-Prüfer derselben Klasse, statt die Meldung ein
+   zweites Mal hinzuschreiben.
+
+**Unsicherste Stelle:** `backend/src/Migrations/M012ExtendAssetKind.php:14` — das `ALTER
+TABLE … MODIFY` ist die einzige Zeile, die auf dem Server nicht wiederholbar geprüft wurde;
+lokal gibt es keine Datenbank, gelaufen ist nur die PHP-Syntaxprüfung. Klärender Check: nach
+dem Deploy `POST /api/migrate` aufrufen und sehen, dass `M012ExtendAssetKind` in `applied`
+steht.

@@ -58,6 +58,14 @@ final class AssetService
         return $this->store($temporaryPath, $byteSize, $dimensions, $data);
     }
 
+    /** @return array<string, mixed>|null */
+    public function rename(int $id, string $name): ?array
+    {
+        $row = $this->assets->updateName($id, $name);
+
+        return $row === null ? null : AssetRepository::format($row);
+    }
+
     /** Datensatz und Datei entfernen. Fehlt die Datei schon, ist das kein Fehler. */
     public function delete(int $id): bool
     {

@@ -58,15 +58,17 @@ Nicht-Ziel.
 | `description` | TEXT NULL | |
 | `created_at` / `updated_at` | DATETIME | |
 
-## `assets` (M005)
+## `assets` (M005, erweitert in M012)
 
-Der Bildvorrat: Rahmen und Icons, ausschließlich PNG, außerhalb des Webbereichs abgelegt
-(ADR-015). Motivbilder von Karten liegen **nicht** hier, sondern in `card_images` (ADR-017).
+Der Bildvorrat: Rahmen, Icons und Artwork, ausschließlich PNG, außerhalb des Webbereichs
+abgelegt (ADR-015). Artwork ist eine reine Verwaltungsart — es gibt bisher keine Ebene, die
+ein Artwork-Bild auf eine Karte zeichnet (ADR-027). Motivbilder von Karten liegen **nicht**
+hier, sondern in `card_images` (ADR-017).
 
 | Spalte | Typ | Anmerkung |
 |---|---|---|
 | `id` | INT UNSIGNED | Primärschlüssel |
-| `kind` | ENUM('frame','icon') | Index |
+| `kind` | ENUM('frame','icon','artwork') | Index |
 | `name` | VARCHAR(191) | Anzeigename, wie hochgeladen |
 | `file_name` | VARCHAR(191) | selbst erzeugter Ablagename in `backend/uploads/` |
 | `mime_type` | VARCHAR(64) | |

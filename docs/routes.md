@@ -49,6 +49,7 @@ MCP-Server ohne Codeänderung nach.
 | GET | `/api/assets` | Auflisten, optional nach `kind` gefiltert |
 | POST | `/api/assets` | Hochladen (mehrteilig: `kind`, `name`, `file`) |
 | GET | `/api/assets/{id}/file` | Bilddatei, hinter der Anmeldung |
+| PATCH | `/api/assets/{id}` | Umbenennen (`{"name": …}`) — Art und Datei bleiben unberührt |
 | DELETE | `/api/assets/{id}` | Löschen — 409, wenn ein Template das Bild noch benutzt |
 
 ## Schriftvorrat (`/api/fonts`)

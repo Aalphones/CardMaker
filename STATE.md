@@ -1,8 +1,10 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-08-19_bildvorrat-erweiterung/`
-**Phase:** 2/6 — Datenmodell: Artwork als dritte Art + Umbenennen-Endpoint (pending)
-**Nächster Schritt:** Migration `M012ExtendAssetKind.php` anlegen, dann `AssetValidator`
-(KINDS + NAME_MAX_LENGTH + validateRename), `AssetRepository::updateName`,
-`AssetService::rename`, `AssetController::update`, Route in `index.php`, `MetaService`.
-Phase 1 ist deployt und live bestätigt (siehe phase-1-Report-Back).
+**Phase:** 3/6 — MCP-Werkzeug `rename_asset` (pending)
+**Nächster Schritt:** `rename_asset(asset_id, name)` in `mcp/` nach dem Muster von
+`update_card_group` anlegen (ruft `PATCH /api/assets/{id}`), `kind`-Parameter von
+`list_assets` um `"artwork"` erweitern.
+Phase 2 ist im Code fertig; die Migration `M012ExtendAssetKind` ist noch **nicht angewandt** —
+das passiert beim nächsten Deploy über `POST /api/migrate`. Bis dahin schlägt jedes
+`kind=artwork` auf dem Server fehl.

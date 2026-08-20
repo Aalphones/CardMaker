@@ -82,6 +82,21 @@ final class AssetRepository
         return $this->find($id) ?? [];
     }
 
+    /** @return array<string, mixed>|null */
+    public function updateName(int $id, string $name): ?array
+    {
+        if ($this->find($id) === null) {
+            return null;
+        }
+
+        $statement = $this->database->prepare(
+            'UPDATE assets SET name = :name, updated_at = UTC_TIMESTAMP() WHERE id = :id'
+        );
+        $statement->execute(['name' => $name, 'id' => $id]);
+
+        return $this->find($id);
+    }
+
     public function delete(int $id): bool
     {
         $statement = $this->database->prepare('DELETE FROM assets WHERE id = :id');
