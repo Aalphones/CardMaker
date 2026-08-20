@@ -187,6 +187,20 @@ def list_assets(kind: str | None = None) -> list[dict]:
 
 @mcp.tool()
 @api_tool
+def rename_asset(asset_id: int, name: str) -> dict:
+    """Ein Bild im Vorrat (Rahmen/Icon/Artwork) umbenennen.
+
+    Args:
+        asset_id: Kennung des Bildes (`list_assets`).
+        name: Neuer Anzeigename.
+    """
+    payload = _payload(name=name)
+    meta.validate_asset_payload(state_cache.load_meta(get_client()), payload)
+    return get_client().patch_asset(asset_id, payload)
+
+
+@mcp.tool()
+@api_tool
 @invalidates_state
 def create_card_group(name: str, description: str | None = None) -> dict:
     """Kartengruppe anlegen.

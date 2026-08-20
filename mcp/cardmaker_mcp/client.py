@@ -205,6 +205,9 @@ class Client:
             "PATCH", f"card-groups/{card_group_id}", payload
         )
 
+    def patch_asset(self, asset_id: int, payload: dict) -> dict:
+        return self.request("PATCH", f"assets/{asset_id}", payload)  # type: ignore[return-value]
+
     def post_card(self, payload: dict) -> dict:
         return self.request("POST", "cards", payload)  # type: ignore[return-value]
 

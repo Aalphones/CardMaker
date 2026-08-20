@@ -34,13 +34,13 @@
 
 ## Implementation
 
-- [ ] `mcp/cardmaker_mcp/client.py`: neue Methode
+- [x] `mcp/cardmaker_mcp/client.py`: neue Methode
       ```python
       def patch_asset(self, asset_id: int, payload: dict) -> dict:
           return self.request("PATCH", f"assets/{asset_id}", payload)
       ```
       (nach `patch_card_group`, gleicher Stil).
-- [ ] `mcp/cardmaker_mcp/meta.py`: neue Funktion
+- [x] `mcp/cardmaker_mcp/meta.py`: neue Funktion
       ```python
       def validate_asset_payload(meta: dict, payload: dict[str, Any]) -> None:
           rules = meta.get("assets", {})
@@ -49,7 +49,7 @@
       (nutzt das bestehende private `_check_name` — dafür `_check_name` von `_check_name(...)`
       auf modulweit aufrufbar lassen, sie ist bereits ohne führenden Unterstrich-Schutz einer
       Klasse, nur Konvention; kein Zugriffsproblem, da alles im selben Modul).
-- [ ] `mcp/cardmaker_mcp/server.py`: neues Werkzeug nach `list_assets` (vor
+- [x] `mcp/cardmaker_mcp/server.py`: neues Werkzeug nach `list_assets` (vor
       `create_card_group`, um die Lesend/Schreibend-Reihenfolge zu halten):
       ```python
       @mcp.tool()
@@ -65,7 +65,7 @@
           meta.validate_asset_payload(state_cache.load_meta(get_client()), payload)
           return get_client().patch_asset(asset_id, payload)
       ```
-- [ ] `mcp/README.md`: Werkzeugliste um `rename_asset(asset_id, name)` ergänzen (gleiche
+- [x] `mcp/README.md`: Werkzeugliste um `rename_asset(asset_id, name)` ergänzen (gleiche
       Tabellenform wie die anderen Einträge).
 
 ## Manuelle Abnahme-Checkliste
@@ -78,11 +78,22 @@
 
 ## Doc-Updates
 
-- [ ] `docs/conventions/mcp.md` → Werkzeugtabelle (Zeile 23–44): `rename_asset(asset_id,
+- [x] `docs/conventions/mcp.md` → Werkzeugtabelle (Zeile 23–44): `rename_asset(asset_id,
       name)` als neue Zeile, Phase-Spalte auf die tatsächliche Meilenstein-/Plan-Referenz
       dieses Plans setzen (analog den bestehenden Einträgen).
-- [ ] `mcp/README.md` (siehe Implementation oben).
+- [x] `mcp/README.md` (siehe Implementation oben).
 
 ## Report-Back
 
-(wird beim Umsetzen ausgefüllt)
+- `rename_asset(asset_id, name)` 1:1 nach dem `update_card_group`-Muster angelegt: neue
+  `Client.patch_asset`, neue `meta.validate_asset_payload` (nutzt das bereits modulweite
+  `_check_name`), Werkzeug in `server.py` nach `list_assets` — ohne `@invalidates_state`
+  (Assets stehen nicht im Zustandsbild) und ohne `_with_hints` (kein Vorschaubild-Konzept
+  bei Assets), wie im Kontrakt festgelegt.
+  Beleg: `import cardmaker_mcp.server` lädt fehlerfrei, `rename_asset` und
+  `meta.validate_asset_payload` sind vorhanden (venv-Python-Check).
+- **Manuelle Live-Abnahme steht noch aus** — die AK 1–3 (Umbenennen klappt, leerer Name
+  scheitert clientseitig, unbekannte `asset_id` liefert lesbare 404) sind bisher nur durch
+  Codelesen abgedeckt, nicht durch einen echten MCP-Aufruf gegen das laufende Backend.
+  🟡 Dafür ist zusätzlich Voraussetzung: die Migration `M012ExtendAssetKind` muss auf dem
+  Server angewandt sein (`POST /api/migrate`) — laut STATE.md steht das noch aus.

@@ -49,6 +49,12 @@ def validate_card_group_payload(meta: dict, payload: dict[str, Any]) -> None:
         )
 
 
+def validate_asset_payload(meta: dict, payload: dict[str, Any]) -> None:
+    """Namenslänge eines Bildvorrat-Eintrags prüfen. Wirft `ValueError` mit Klartext."""
+    rules = meta.get("assets", {})
+    _check_name(payload, rules.get("nameMaxLength"), "Bild")
+
+
 def validate_card_payload(meta: dict, payload: dict[str, Any]) -> None:
     """Karten-Nutzlast gegen die Meta-Regeln prüfen. Wirft `ValueError` mit Klartext.
 

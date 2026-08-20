@@ -79,6 +79,7 @@ macOS/Linux: `command` auf `mcp/.venv/bin/python` ändern.
 
 | Werkzeug | Wofür |
 |---|---|
+| `rename_asset(asset_id, name)` | Bild im Vorrat (Rahmen/Icon/Artwork) umbenennen. |
 | `create_card_group(name, description)` | Kartengruppe anlegen. |
 | `update_card_group(card_group_id, name, description)` | Umbenennen oder Beschreibung ändern. |
 | `create_card(name, template_id, values, card_group_id, icon_choices, text_overrides)` | Karte zu einem Template anlegen und ihre Felder befüllen. |
