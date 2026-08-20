@@ -1,0 +1,114 @@
+<section class="asset-library">
+  <div class="asset-library__heading">
+    <h1 class="asset-library__title">Bildvorrat</h1>
+  </div>
+
+  <div class="seg asset-library__tabs" role="tablist" aria-label="Bildart">
+    @for (tab of tabs; track tab.value) {
+      <button
+        type="button"
+        class="seg__option"
+        role="tab"
+        [attr.aria-selected]="tab.value === activeKind()"
+        (click)="selectTab(tab.value)"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  @if (assets.error(); as message) {
+    <p class="asset-library__error" role="alert">{{ message }}</p>
+  }
+
+  <ul class="asset-library__list thin-scroll">
+    @for (asset of items(); track asset.id) {
+      <li class="asset-library__row hover-row">
+        @if (thumbUrl(asset.id); as url) {
+          <img class="asset-library__thumb" [src]="url" [alt]="asset.name" />
+        } @else {
+          <span class="asset-library__thumb-placeholder"></span>
+        }
+
+        <div class="asset-library__meta">
+          @if (isEditing(asset.id)) {
+            <input
+              class="input asset-library__name-input"
+              type="text"
+              [value]="asset.name"
+              (blur)="commitRename(asset, $event)"
+              (keydown.enter)="commitRename(asset, $event)"
+              (keydown.escape)="cancelRename()"
+            />
+            @if (assets.renameError(); as message) {
+              <span class="asset-library__rename-error" role="alert">{{ message }}</span>
+            }
+          } @else {
+            <button type="button" class="asset-library__name" (click)="startRename(asset)">
+              {{ asset.name }}
+            </button>
+          }
+          <span class="asset-library__details">{{ formatSize(asset.byteSize) }} · {{ asset.width }}×{{ asset.height }}</span>
+        </div>
+
+        <button
+          type="button"
+          class="icon-button asset-library__delete"
+          aria-label="Bild löschen"
+          (click)="remove(asset)"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3 6h18" />
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+          </svg>
+        </button>
+      </li>
+    } @empty {
+      <li class="asset-library__empty">Noch keine Bilder in dieser Art hochgeladen.</li>
+    }
+  </ul>
+
+  <div
+    class="asset-library__dropzone"
+    [class.asset-library__dropzone--active]="dragActive()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+  >
+    <label class="asset-library__dropzone-label" for="asset-library-file">
+      @if (batchActive()) {
+        Lädt Datei {{ currentFileIndex() }} von {{ totalInBatch() }} hoch …
+      } @else {
+        PNG-Dateien hierher ziehen oder auswählen (mehrere möglich)
+      }
+    </label>
+    <input
+      id="asset-library-file"
+      class="asset-library__file-input"
+      type="file"
+      accept="image/png"
+      multiple
+      [disabled]="batchActive()"
+      (change)="onFilesSelected($event)"
+    />
+
+    @if (uploadErrors().length > 0) {
+      <ul class="asset-library__upload-errors">
+        @for (message of uploadErrors(); track $index) {
+          <li role="alert">{{ message }}</li>
+        }
+      </ul>
+    }
+  </div>
+</section>

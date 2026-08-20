@@ -82,31 +82,31 @@ vorhanden (`asset-picker`, `font-manager` für Umbenennen-UI).
 
 ## Implementation
 
-- [ ] `frontend/src/app/store/assets/assets.actions.ts`: `AssetKind` →
+- [x] `frontend/src/app/store/assets/assets.actions.ts`: `AssetKind` →
       `'frame' | 'icon' | 'artwork'`; neue Events `Rename`, `'Rename Success'`,
       `'Rename Failure'` (Props analog `Upload`/`Delete`: `{ id: number; name: string }`,
       `{ asset: Asset }`, `{ message: string }`).
-- [ ] `frontend/src/app/store/assets/assets.feature.ts`: `on(rename, ...)` setzt kein eigenes
+- [x] `frontend/src/app/store/assets/assets.feature.ts`: `on(rename, ...)` setzt kein eigenes
       Uploading-Flag (eigenes `renaming: boolean` + `renameError: string | null` im State,
       analog `uploading`/`uploadFileError`); `on(renameSuccess, ...)` ersetzt das Element in
       `items` per `map((asset) => asset.id === updated.id ? updated : asset)`.
-- [ ] `frontend/src/app/store/assets/assets.effects.ts`: neuer `rename$`-Effect, Muster wie
+- [x] `frontend/src/app/store/assets/assets.effects.ts`: neuer `rename$`-Effect, Muster wie
       `delete$` (Zeile 60–70), aber `this.api.patch<Asset>('/assets/' + id, { name })`.
-- [ ] `frontend/src/app/store/assets/assets.facade.ts`: `rename(id, name)`-Methode +
+- [x] `frontend/src/app/store/assets/assets.facade.ts`: `rename(id, name)`-Methode +
       `renaming`/`renameError`-Signale ergänzen.
-- [ ] `frontend/src/app/features/assets/asset-library/asset-library.ts` (+ `.html` + `.scss`):
+- [x] `frontend/src/app/features/assets/asset-library/asset-library.ts` (+ `.html` + `.scss`):
       neue Komponente wie oben unter „Design-Entscheidungen" beschrieben. Reitersteuerung als
       lokales Signal `activeKind = signal<AssetKind>('frame')`.
-- [ ] `frontend/src/app/app.routes.ts`: neue Route `{ path: 'assets', loadComponent: () =>
+- [x] `frontend/src/app/app.routes.ts`: neue Route `{ path: 'assets', loadComponent: () =>
       import('./features/assets/asset-library/asset-library').then((m) => m.AssetLibrary) }`
       im geschützten Bereich, gleiche Ebene wie `templates`/`prompts`.
-- [ ] `frontend/src/app/layout/shell/shell.html`: neuer `<li>`-Eintrag „Bildvorrat" nach
+- [x] `frontend/src/app/layout/shell/shell.html`: neuer `<li>`-Eintrag „Bildvorrat" nach
       „Templates" (vor „Bild-Prompts", da inhaltlich näher an Templates) mit `routerLink=
       "/assets"`.
-- [ ] `frontend/src/app/features/templates/template-editor/asset-picker/asset-picker.ts`
-      Zeile 27–29 (`items`-`computed`): **keine Änderung nötig** — filtert schon nach
-      `this.data.kind`, das bleibt `'frame' | 'icon'` an jeder bestehenden Aufrufstelle. Nur
-      gegenlesen, dass niemand `data.kind` künftig versehentlich auf `'artwork'` setzt.
+- [x] `frontend/src/app/features/templates/template-editor/asset-picker/asset-picker.ts`
+      Zeile 27–29 (`items`-`computed`): **keine Änderung nötig** — gegengelesen, filtert schon
+      nach `this.data.kind`, das bleibt `'frame' | 'icon'` an jeder bestehenden Aufrufstelle
+      (`icon-properties.ts`, `frame-properties.ts`).
 
 ## Manuelle Abnahme-Checkliste
 
@@ -125,12 +125,26 @@ vorhanden (`asset-picker`, `font-manager` für Umbenennen-UI).
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md` → Zeile zu `assets` aktualisieren: „UI-Screen `features/assets/
+- [x] `docs/code-map.md` → Zeile zu `assets` aktualisiert: „UI-Screen `features/assets/
       asset-library/`, Route `/assets`, Sidebar-Eintrag „Bildvorrat"" statt „noch kein eigener
       UI-Screen".
-- [ ] `docs/code-map.md` → Frontend-Layout-Baum: neuen Ordner `features/assets/` an
-      passender Stelle (alphabetisch vor `auth/` oder nach Namensschema) eintragen.
+- [x] `docs/code-map.md` → Frontend-Layout-Baum: neuen Ordner `features/assets/` alphabetisch
+      vor `auth/` eingetragen.
 
 ## Report-Back
 
-(wird beim Umsetzen ausgefüllt)
+**Umgesetzt wie geplant**, keine Kontrakt-Abweichung. Store-Erweiterung (`Rename`-Actions,
+`renaming`/`renameError`) 1:1 nach dem `fonts`-Muster. Neue Komponente `AssetLibrary` unter
+`features/assets/asset-library/`, Route `/assets`, Sidebar-Eintrag „Bildvorrat" zwischen
+Templates und Bild-Prompts.
+
+**Wackelstelle laut Plan (sequenzielle Warteschlange):** Die lokale Warteschlange in
+`asset-library.ts` steuert genau eine Datei gleichzeitig über einen `effect()`, der
+`assets.uploading()` beobachtet — kein Store-Redesign, aber ungetestet gegen echte
+Netzwerklatenz/Race-Bedingungen. Das ist die Stelle aus der manuellen Abnahme-Checkliste
+unten, die zuerst geprüft werden sollte.
+
+**Nicht angefasst (bewusst):** kein Meta-Store für `assets.nameMaxLength` — siehe
+`FINDINGS.md`. Backend-Migration `M012ExtendAssetKind` ist laut `STATE.md` weiterhin nicht
+angewandt; Artwork-Uploads/-Umbenennungen laufen gegen den lokalen Dev-Server erst nach dem
+nächsten `POST /api/migrate`.

@@ -1,6 +1,6 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 
-export type AssetKind = 'frame' | 'icon';
+export type AssetKind = 'frame' | 'icon' | 'artwork';
 
 export interface Asset {
   id: number;
@@ -22,6 +22,9 @@ export const AssetsActions = createActionGroup({
     Upload: props<{ file: File; kind: AssetKind; name: string }>(),
     'Upload Success': props<{ asset: Asset }>(),
     'Upload Failure': props<{ message: string; fileError: string | null }>(),
+    Rename: props<{ id: number; name: string }>(),
+    'Rename Success': props<{ asset: Asset }>(),
+    'Rename Failure': props<{ message: string }>(),
     Delete: props<{ id: number }>(),
     'Delete Success': props<{ id: number }>(),
     'Delete Failure': props<{ message: string }>(),

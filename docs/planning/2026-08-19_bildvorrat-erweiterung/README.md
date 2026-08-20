@@ -12,7 +12,7 @@ gefundene Bugs blockieren das Fundament und werden zuerst behoben.
 | [1](phase-1-bugfixes-icon-auswahl.md) | Bugfixes: Icon-Auswahl (422) + `list_assets` (MCP-Absturz) | mechanisch | complete |
 | [2](phase-2-artwork-und-umbenennen-backend.md) | Datenmodell: Artwork als dritte Art + Umbenennen-Endpoint | mechanisch | complete |
 | [3](phase-3-mcp-werkzeug-rename-asset.md) | MCP-Werkzeug `rename_asset` | mechanisch | complete |
-| [4](phase-4-bildvorrat-seite.md) | Frontend: Bildvorrat-Seite (Umbenennen, Multiupload, Artwork) | standard | pending |
+| [4](phase-4-bildvorrat-seite.md) | Frontend: Bildvorrat-Seite (Umbenennen, Multiupload, Artwork) | standard | complete |
 | [5](phase-5-icon-vorschau-karteneditor.md) | Frontend: Icon-Vorschau im Karteneditor | standard | pending |
 | [6](phase-6-doku-und-abschluss.md) | Doku & Abschluss | mechanisch | pending |
 

@@ -10,6 +10,8 @@ export interface AssetsState {
   error: string | null;
   uploadFileError: string | null;
   lastUploaded: Asset | null;
+  renaming: boolean;
+  renameError: string | null;
 }
 
 const initialState: AssetsState = {
@@ -20,6 +22,8 @@ const initialState: AssetsState = {
   error: null,
   uploadFileError: null,
   lastUploaded: null,
+  renaming: false,
+  renameError: null,
 };
 
 export const assetsFeature = createFeature({
@@ -57,6 +61,21 @@ export const assetsFeature = createFeature({
       error: message,
       uploadFileError: fileError,
     })),
+    on(AssetsActions.rename, (state): AssetsState => ({
+      ...state,
+      renaming: true,
+      renameError: null,
+    })),
+    on(AssetsActions.renameSuccess, (state, { asset }): AssetsState => ({
+      ...state,
+      items: state.items.map((item: Asset) => (item.id === asset.id ? asset : item)),
+      renaming: false,
+    })),
+    on(AssetsActions.renameFailure, (state, { message }): AssetsState => ({
+      ...state,
+      renaming: false,
+      renameError: message,
+    })),
     on(AssetsActions.deleteSuccess, (state, { id }): AssetsState => ({
       ...state,
       items: state.items.filter((asset: Asset) => asset.id !== id),
@@ -73,4 +92,6 @@ export const {
   selectError,
   selectUploadFileError,
   selectLastUploaded,
+  selectRenaming,
+  selectRenameError,
 } = assetsFeature;

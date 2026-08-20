@@ -24,7 +24,7 @@ backend/src/Validators/<Feature>Validator.php
 |---|---|
 | `auth` | Login, Sitzungen und Zugriffstoken — beide als Zufallswerte in der Datenbank, kein JWT (ADR-008) |
 | `card-groups` | Kartengruppen — Organisationseinheit für gespeicherte Karten (z. B. „Spiderman-Serie"), keine Charakterverwaltung (ADR-011) |
-| `assets` | Bildvorrat — hochgeladene Rahmen- und Icon-Dateien, hinter der Anmeldung ausgeliefert (ADR-015). Backend und Speicher stehen, noch kein eigener UI-Screen (kommt mit dem Editor) |
+| `assets` | Bildvorrat — hochgeladene Rahmen-, Icon- und Artwork-Dateien, hinter der Anmeldung ausgeliefert (ADR-015). UI-Screen `features/assets/asset-library/`, Route `/assets`, Sidebar-Eintrag „Bildvorrat" |
 | `fonts` | Schriftvorrat — hochgeladene Schriftdateien (WOFF2/TTF/OTF, max. 2 MB), hinter der Anmeldung ausgeliefert. Der Name für CSS ist immer `cmfont-<Kennung>` und wird berechnet, nie gespeichert; der Wunschname des Nutzers ist reine Beschriftung. Backend und Speicher stehen, noch keine Oberfläche |
 | `templates` | Template-Editor: Layer-System, Konva-Canvas, Live-Vorschau. Backend, Speicher, Übersichtsliste, Kartenvorschau, Ebenenliste, Eigenschaftenspalte und direkte Bearbeitung im Bild (Anfasser zum Verschieben/Skalieren/Drehen) stehen — das Layout liegt als ein JSON-Datenblock in `templates.layers` (ADR-014), geprüft von `LayerValidator`, nicht von der Datenbank. Die Schrift einer Textebene (`font_family`) ist dabei entweder eine eingebaute Schrift oder `cmfont-<Kennung>` einer hochgeladenen — welche hochgeladenen es gibt, holt `TemplateService` einmal pro Speichervorgang und reicht es dem Prüfer durch. Eine Textebene kennt zusätzlich `font_bold`/`font_italic` (Wahrheitswerte, künstlich vom Browser gerechnet statt aus einer zweiten Schriftdatei geladen). Vorschaubild-Ablage steht (`TemplatePreviewController`/`TemplatePreviewService`, gemeinsamer Baustein `PreviewImageStorage`, Endpunkte `/api/templates/{id}/preview*`, ADR-021). Der Editor erzeugt das Bild nach jedem erfolgreichen Speichern selbst: `CardRenderer.renderPng()` zeichnet die Ebenen ohne Editor-Bühne in ein PNG fester Breite (Motor aus Meilenstein 4, kein `CardCanvas.exportPng()` mehr), `PreviewUploadService` lädt es hoch — schlägt das fehl, bleibt es bei einer Hinweismeldung. Meilenstein 2 ist abgeschlossen |
 | `cards` | Karteneditor: Karteninstanz erstellen/bearbeiten — Textfelder per Formular/MCP befüllen, Bild direkt an der Karte hochladen/zurechtschieben/zoomen, Schriftgröße/-farbe/Fett/Kursiv überschreiben, Kartengruppe zuordnen. Backend komplett: Kartendaten (`CardController`/`CardService`/`CardRepository`/`CardValidator`), Kartenbilder (`CardImageController`/`CardImageService`/`CardImageRepository`/`CardImageValidator`, eigener Ordner `backend/uploads/cards/`, ADR-017) und Vorschaubild-Ablage (`CardPreviewController`/`CardPreviewService`, derselbe `PreviewImageStorage`-Baustein wie bei Templates, Endpunkte `/api/cards/{id}/preview*`, ADR-021). Frontend komplett: Liste (`cards-list/`, mit Suche/Filter/Sortierung/Duplizieren/Löschen) und Editor (`card-editor/`, Formular + Live-Vorschau + Bild ziehen/zoomen). Meilenstein 3 ist abgeschlossen |
@@ -50,6 +50,11 @@ frontend/src/app/
     auth/           ← Guards, Interceptors, Token-Logik (ADR-008)
     services/        ← App-weite Services (api, http)
   features/
+    assets/
+      asset-library/       ← Route /assets „Bildvorrat": drei Reiter (Rahmen/Icons/Artwork),
+                             Liste mit Thumbnail + inline umbenennbarem Namen + Löschen,
+                             Dropzone mit sequenziellem Multiupload (Warteschlange lokal in der
+                             Komponente, Store kennt nur eine Datei gleichzeitig)
     auth/
       login/               ← Anmeldeseite
       tokens/tokens-page/  ← Zugriffstoken-Verwaltung (anlegen, auflisten, löschen)

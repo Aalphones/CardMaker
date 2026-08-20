@@ -57,6 +57,20 @@ export class AssetsEffects {
     );
   });
 
+  rename$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(AssetsActions.rename),
+      switchMap(({ id, name }) =>
+        this.api.patch<Asset>(`/assets/${id}`, { name }).pipe(
+          map((asset: Asset) => AssetsActions.renameSuccess({ asset })),
+          catchError((error: unknown) =>
+            of(AssetsActions.renameFailure({ message: resolveErrorMessage(error) })),
+          ),
+        ),
+      ),
+    );
+  });
+
   delete$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(AssetsActions.delete),

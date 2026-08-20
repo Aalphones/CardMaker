@@ -17,6 +17,8 @@ export class AssetsFacade {
   readonly error = this.store.selectSignal(assetsFeature.selectError);
   readonly uploadFileError = this.store.selectSignal(assetsFeature.selectUploadFileError);
   readonly lastUploaded = this.store.selectSignal(assetsFeature.selectLastUploaded);
+  readonly renaming = this.store.selectSignal(assetsFeature.selectRenaming);
+  readonly renameError = this.store.selectSignal(assetsFeature.selectRenameError);
 
   ensureLoaded(): void {
     this.store.dispatch(AssetsActions.load());
@@ -24,6 +26,10 @@ export class AssetsFacade {
 
   upload(file: File, kind: AssetKind, name: string): void {
     this.store.dispatch(AssetsActions.upload({ file, kind, name }));
+  }
+
+  rename(id: number, name: string): void {
+    this.store.dispatch(AssetsActions.rename({ id, name }));
   }
 
   remove(id: number): void {

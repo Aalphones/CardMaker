@@ -70,6 +70,13 @@ export const routes: Routes = [
         canDeactivate: [pendingChangesGuard],
       },
       {
+        path: 'assets',
+        loadComponent: () =>
+          import('./features/assets/asset-library/asset-library').then(
+            (module) => module.AssetLibrary,
+          ),
+      },
+      {
         path: 'prompts',
         loadComponent: () =>
           import('./features/prompts/prompts-page/prompts-page').then(
