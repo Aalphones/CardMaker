@@ -37,7 +37,7 @@ ist, sonst lässt sich das Ergebnis nicht sinnvoll abnehmen).
 
 ## Implementation
 
-- [ ] `frontend/src/app/features/cards/card-editor/card-editor.ts`:
+- [x] `frontend/src/app/features/cards/card-editor/card-editor.ts`:
   - `AssetImageLoader` importieren und injizieren (wie in `asset-picker.ts` Zeile 4, 25).
   - Neuer `effect()` im Konstruktor (neben bestehenden Effects): iteriert über
     `this.fields().icons` und deren `choiceAssetIds`, ruft für jede Kennung
@@ -49,7 +49,7 @@ ist, sonst lässt sich das Ergebnis nicht sinnvoll abnehmen).
     61–63, `thumbUrl` → `iconThumbUrl` umbenannt, um nicht mit einem eventuell gleichnamigen
     Kartenbild-Vorschau-Namen zu kollidieren — prüfen, ob `card-editor.ts` bereits ein
     `thumbUrl` kennt, dann diesen Namen beibehalten).
-- [ ] `frontend/src/app/features/cards/card-editor/card-editor.html` Zeile 157–169: Button-
+- [x] `frontend/src/app/features/cards/card-editor/card-editor.html` Zeile 157–169: Button-
       Inhalt um das Thumbnail ergänzen:
       ```html
       @if (iconThumbUrl(assetId); as url) {
@@ -62,7 +62,7 @@ ist, sonst lässt sich das Ergebnis nicht sinnvoll abnehmen).
       (`alt=""` — der sichtbare Name daneben ist bereits die zugängliche Beschriftung, ein
       zweiter Alt-Text wäre doppelte Ansage für Screenreader; die Radiogruppe hat schon
       `aria-labelledby`).
-- [ ] `frontend/src/app/features/cards/card-editor/card-editor.scss`: neue Klasse
+- [x] `frontend/src/app/features/cards/card-editor/card-editor.scss`: neue Klasse
       `.card-editor__icon-thumb` — `width: 20px; height: 20px; border-radius:
       var(--radius-sm); object-fit: contain; margin-right: var(--space-xs);` (Werte an
       bestehende Tokens aus `docs/design/handoff-organic/design-system/styles.css` angleichen,
@@ -84,9 +84,24 @@ ist, sonst lässt sich das Ergebnis nicht sinnvoll abnehmen).
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md` → Absatz zu `card-editor/` (Zeile 66–78): „Icon-Auswahl als Tags"
+- [x] `docs/code-map.md` → Absatz zu `card-editor/` (Zeile 66–78): „Icon-Auswahl als Tags"
       auf „Icon-Auswahl als Tags mit Vorschaubild" präzisieren.
 
 ## Report-Back
 
-(wird beim Umsetzen ausgefüllt)
+**Status:** complete (Code). Lint grün, Build grün. Manuelle Abnahme steht aus.
+
+**Geändert:**
+- `card-editor.ts`: `AssetImageLoader` als `assetImages` injiziert, neuer `effect()` lädt für
+  jedes Icon-Feld alle `choiceAssetIds`, neue Methode `iconThumbUrl(assetId)`.
+- `card-editor.html`: Icon-Tag zeigt Vorschaubild bzw. Platzhalter vor dem Namen, `alt=""`.
+- `card-editor.scss`: `.card-editor__icon-thumb` (1,25 rem, `object-fit: contain`).
+- `docs/code-map.md`: Beschreibung der Icon-Auswahl präzisiert.
+
+**Abweichung vom Plan:** Bild und Platzhalter teilen sich **eine** Klasse statt Klasse +
+`--placeholder`-Modifier. Grund: Der getönte Untergrund (`--color-accent-200`) soll in beiden
+Zuständen stehen — genau so macht es `asset-picker.scss` (`&__thumb, &__thumb-placeholder`
+mit identischem Regelblock). Ein Modifier hätte hier nichts unterschieden.
+
+**Kein neues Caching** im Karteneditor: `AssetImageLoader.load()` ist idempotent
+(`BlobImageCache`), der Effect darf beliebig oft laufen.

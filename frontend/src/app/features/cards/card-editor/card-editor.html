@@ -165,6 +165,11 @@
                 (keydown)="onIconKeydown($event, icon, index)"
                 (click)="chooseIcon(icon.layerId, assetId)"
               >
+                @if (iconThumbUrl(assetId); as url) {
+                  <img class="card-editor__icon-thumb" [src]="url" alt="" />
+                } @else {
+                  <span class="card-editor__icon-thumb"></span>
+                }
                 {{ iconAssetsById().get(assetId)?.name ?? 'Bild ' + assetId }}
               </button>
             }

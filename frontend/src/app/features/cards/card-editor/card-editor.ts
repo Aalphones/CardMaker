@@ -22,6 +22,7 @@ import {
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
+import { AssetImageLoader } from '../../../shared/canvas/asset-image-loader';
 import { CardCanvas } from '../../../shared/canvas/card-canvas/card-canvas';
 import { CardImageLoader, cardImageKey } from '../../../shared/canvas/card-image-loader';
 import { CardRenderer } from '../../../shared/canvas/card-renderer.service';
@@ -132,6 +133,7 @@ export class CardEditor implements ComponentWithUnsavedChanges {
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(Dialog);
   private readonly cardImages = inject(CardImageLoader);
+  private readonly assetImages = inject(AssetImageLoader);
   private readonly cardPreview = inject(PreviewUploadService);
   private readonly cardRenderer = inject(CardRenderer);
   private readonly notification = inject(Notification);
@@ -388,6 +390,16 @@ export class CardEditor implements ComponentWithUnsavedChanges {
       }
     });
 
+    // Vorschaubilder der Icon-Auswahl. Mehrfachaufrufe sind unkritisch — der Lader merkt
+    // sich bereits geholte und laufende Anfragen.
+    effect(() => {
+      for (const icon of this.fields().icons) {
+        for (const assetId of icon.choiceAssetIds) {
+          this.assetImages.load(assetId);
+        }
+      }
+    });
+
     effect(() => {
       if (this.cards.error()) {
         this.submitting.set(false);
@@ -472,6 +484,10 @@ export class CardEditor implements ComponentWithUnsavedChanges {
 
   protected chosenIconAssetId(layerId: string): number | null {
     return this.iconControls.controls[layerId]?.value ?? null;
+  }
+
+  protected iconThumbUrl(assetId: number): string | null {
+    return this.assetImages.images().get(assetId)?.src ?? null;
   }
 
   protected colorFor(text: CardTextField): string {

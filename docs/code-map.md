@@ -71,7 +71,7 @@ frontend/src/app/
       card-editor/         ← Routen /cards/new und /cards/:id: linke Formularspalte (Name,
                              Template-Auswahl, je Bildfläche ein Ablagefeld, je Textfeld ein
                              Block mit Größe/Farbe/Fett/Kursiv als Abweichung, Icon-Auswahl als
-                             Tags, Kartengruppe, Fußzeile mit Abbrechen/„Als Bild
+                             Tags mit Vorschaubild, Kartengruppe, Fußzeile mit Abbrechen/„Als Bild
                              herunterladen"/Speichern) und rechts die mitlaufende Live-Vorschau
                              (dieselbe Zeichenfläche wie im Template-Editor, gefüttert aus
                              Formular + Entwurfsstand; nach dem Speichern rendert `CardRenderer`

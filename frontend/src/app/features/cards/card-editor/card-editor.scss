@@ -100,6 +100,18 @@
     cursor: pointer;
   }
 
+  /* Platzhalter und Bild teilen sich die Klasse: gleiche Fläche, damit die Auswahl beim
+     Nachladen nicht springt. Der getönte Untergrund ist der Platzhalter. */
+  &__icon-thumb {
+    flex: none;
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    margin-inline-end: var(--space-xs);
+    border-radius: var(--radius-sm);
+    background: var(--color-accent-200);
+    object-fit: contain;
+  }
+
   &__icons {
     display: flex;
     flex-wrap: wrap;

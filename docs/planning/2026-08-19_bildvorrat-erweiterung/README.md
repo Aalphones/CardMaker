@@ -13,7 +13,7 @@ gefundene Bugs blockieren das Fundament und werden zuerst behoben.
 | [2](phase-2-artwork-und-umbenennen-backend.md) | Datenmodell: Artwork als dritte Art + Umbenennen-Endpoint | mechanisch | complete |
 | [3](phase-3-mcp-werkzeug-rename-asset.md) | MCP-Werkzeug `rename_asset` | mechanisch | complete |
 | [4](phase-4-bildvorrat-seite.md) | Frontend: Bildvorrat-Seite (Umbenennen, Multiupload, Artwork) | standard | complete |
-| [5](phase-5-icon-vorschau-karteneditor.md) | Frontend: Icon-Vorschau im Karteneditor | standard | pending |
+| [5](phase-5-icon-vorschau-karteneditor.md) | Frontend: Icon-Vorschau im Karteneditor | standard | complete |
 | [6](phase-6-doku-und-abschluss.md) | Doku & Abschluss | mechanisch | pending |
 
 ## Kontrakt (cross-modul: Backend ↔ Frontend ↔ MCP)
