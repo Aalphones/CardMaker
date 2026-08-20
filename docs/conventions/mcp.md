@@ -32,7 +32,7 @@ Aufbau in der Landkarte: `docs/code-map.md` → „MCP-Server".
 | `get_template(template_id)` | 3 | Template vollständig, inklusive Ebenen — nur lesend |
 | `get_card(card_id)` | 3 | Karte vollständig |
 | `describe_card_fields(template_id)` | 3 | Kartenfelder eines Templates: Text, Bild, Icon |
-| `list_assets(kind)` | 3 | Bildvorrat (Rahmen/Icons) |
+| `list_assets(kind)` | 3 | Bildvorrat (Rahmen/Icons/Artwork) |
 | `rename_asset(asset_id, name)` | Bildvorrat-Erw. 3 | Bild im Vorrat umbenennen |
 | `create_card_group(name, description)` | 4 | Kartengruppe anlegen |
 | `update_card_group(card_group_id, name, description)` | 4 | Umbenennen/Beschreibung ändern |

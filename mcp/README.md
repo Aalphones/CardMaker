@@ -73,7 +73,7 @@ macOS/Linux: `command` auf `mcp/.venv/bin/python` ändern.
 | `get_template(template_id)` | Template vollständig, inklusive Ebenen — nur lesend. |
 | `get_card(card_id)` | Karte vollständig: Werte, Icon-Auswahl, Text-Abweichungen, Bilder. |
 | `describe_card_fields(template_id)` | Was an diesem Template pro Karte befüllt wird: Text-, Bild- und Icon-Felder. |
-| `list_assets(kind)` | Bildvorrat (Rahmen/Icons) — Kennungen für die Icon-Auswahl. |
+| `list_assets(kind)` | Bildvorrat (Rahmen/Icons/Artwork) — Kennungen für die Icon-Auswahl. |
 
 ### Schreiben
 
