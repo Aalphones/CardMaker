@@ -1,6 +1,6 @@
 # 013 — Backend außerhalb des ausgelieferten Bereichs, Brücke im Webbereich
 
-**Status:** Akzeptiert (2026-08-01)
+**Status:** Akzeptiert (2026-08-01) · Ordnerlayout und Zugänge ergänzt durch [020](020-gemeinsamer-webroot-mit-pfaden.md)
 
 ## Kontext
 

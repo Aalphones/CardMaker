@@ -1,0 +1,15 @@
+# Wurzel des Webbereichs von quantum-canvas.de. Hier laufen drei Anwendungen nebeneinander:
+#   /card/     CardMaker (Oberflaeche)
+#   /api/      CardMaker (API-Bruecke)
+#   /scanner/  CamScanner
+# Jede hat einen eigenen Ordner mit eigener .htaccess; diese Datei regelt nur, was davor passiert.
+# Hochgeladen wird sie von CardMakers deploy.cmd (REMOTE_ROOT_PATH).
+Options -Indexes
+
+RewriteEngine On
+
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Die nackte Adresse fuehrt zu CardMaker.
+RewriteRule ^$ /card/ [L,R=302]

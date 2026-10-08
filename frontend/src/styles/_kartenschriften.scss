@@ -1,6 +1,8 @@
 // Schriften für die Karten selbst — nicht für die Oberfläche (die nutzt Caprasimo/Figtree
-// aus styles.scss). Die Dateien liegen unter frontend/public/fonts/ und werden mit
-// ausgeliefert; Herkunft und Lizenz stehen in frontend/public/fonts/LIZENZ.md.
+// aus styles.scss). Die Dateien liegen unter frontend/public/fonts/ und werden vom Build
+// mit gehashtem Namen eingebunden — der Pfad im url() ist bewusst relativ, damit die App
+// auch unter einem Unterpfad wie /card/ ihre Schriften findet; Herkunft und Lizenz stehen
+// in frontend/public/fonts/LIZENZ.md.
 //
 // Die Auswahlliste dazu steht in shared/canvas/rendering/fonts.ts — kommt hier eine Schrift
 // dazu, gehört sie dort und in backend/src/Validators/LayerValidator.php ebenfalls hinein,
@@ -26,6 +28,6 @@
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url('/fonts/#{$file}.woff2') format('woff2');
+    src: url('../../public/fonts/#{$file}.woff2') format('woff2');
   }
 }

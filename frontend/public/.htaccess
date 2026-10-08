@@ -1,0 +1,9 @@
+# Landet beim Deploy unter /card/. Neuladen auf einer Unterseite liefert die App aus,
+# statt 404 zu melden; echte Dateien und Ordner kommen unveraendert durch.
+Options -Indexes
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+RewriteRule ^ index.html [L]

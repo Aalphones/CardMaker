@@ -56,7 +56,19 @@ call :needValue PUBLIC_BASE_URL
 call :needValue UPLOAD_MAX_BYTES
 if defined MISSING goto :fail
 
-set "BRIDGE_PATH=!REMOTE_WEB_PATH!!API_URL_SEGMENT!/"
+rem Die Bruecke liegt standardmaessig im Webbereich der Oberflaeche. Laufen Oberflaeche und
+rem API unter getrennten Pfaden (z. B. /card/ und /api/), steht der Ordner der Bruecke in
+rem REMOTE_BRIDGE_PATH.
+if defined REMOTE_BRIDGE_PATH (
+    set "BRIDGE_PATH=!REMOTE_BRIDGE_PATH!"
+) else (
+    set "BRIDGE_PATH=!REMOTE_WEB_PATH!!API_URL_SEGMENT!/"
+)
+
+rem Das Backend kann unter einem eigenen Zugang liegen (eingesperrt in einen anderen
+rem Ordner als der Webbereich). Ohne eigene Angaben gilt der Hauptzugang.
+if not defined BACKEND_SFTP_USER set "BACKEND_SFTP_USER=!SFTP_USER!"
+if not defined BACKEND_SFTP_PASSWORD set "BACKEND_SFTP_PASSWORD=!SFTP_PASSWORD!"
 
 if exist "!WINSCP_PATH!" goto :winscpFound
 echo [FEHLER] WinSCP wurde nicht gefunden:
@@ -144,8 +156,11 @@ rem schon, meldet mkdir einen Fehler - deshalb laeuft das getrennt und ungepruef
 set "PREP_SCRIPT=%TEMP%\cardmaker-prep-%RANDOM%%RANDOM%.txt"
 call :writeSession "!PREP_SCRIPT!"
 >>"!PREP_SCRIPT!" echo option batch continue
-if defined DO_BACKEND >>"!PREP_SCRIPT!" echo mkdir !REMOTE_BACKEND_PATH!
 if defined DO_BACKEND >>"!PREP_SCRIPT!" echo mkdir !BRIDGE_PATH!
+if defined DO_FRONTEND >>"!PREP_SCRIPT!" echo mkdir !REMOTE_WEB_PATH!
+if defined DO_BACKEND >>"!PREP_SCRIPT!" echo close
+if defined DO_BACKEND call :writeOpen "!PREP_SCRIPT!" BACKEND_SFTP_USER BACKEND_SFTP_PASSWORD
+if defined DO_BACKEND >>"!PREP_SCRIPT!" echo mkdir !REMOTE_BACKEND_PATH!
 >>"!PREP_SCRIPT!" echo exit
 "!WINSCP_PATH!" /ini=nul /script="!PREP_SCRIPT!" >nul 2>&1
 del "!PREP_SCRIPT!" >nul 2>&1
@@ -154,13 +169,18 @@ set "WINSCP_SCRIPT=%TEMP%\cardmaker-deploy-%RANDOM%%RANDOM%.txt"
 call :writeSession "!WINSCP_SCRIPT!"
 
 if defined DO_BACKEND (
-    >>"!WINSCP_SCRIPT!" echo synchronize remote -delete -filemask="|uploads/;.env.example;storage/logs/" "backend" "!REMOTE_BACKEND_PATH!"
     >>"!WINSCP_SCRIPT!" echo synchronize remote -delete "api-bridge" "!BRIDGE_PATH!"
 )
 if defined DO_FRONTEND (
     >>"!WINSCP_SCRIPT!" echo synchronize remote -delete -filemask="|!API_URL_SEGMENT!/" "!FRONTEND_DIST!" "!REMOTE_WEB_PATH!"
+    if defined REMOTE_ROOT_PATH >>"!WINSCP_SCRIPT!" echo put "www-root\.htaccess" "!REMOTE_ROOT_PATH!.htaccess"
 )
 >>"!WINSCP_SCRIPT!" echo close
+if defined DO_BACKEND (
+    call :writeOpen "!WINSCP_SCRIPT!" BACKEND_SFTP_USER BACKEND_SFTP_PASSWORD
+    >>"!WINSCP_SCRIPT!" echo synchronize remote -delete -filemask="|uploads/;.env.example;storage/logs/" "backend" "!REMOTE_BACKEND_PATH!"
+    >>"!WINSCP_SCRIPT!" echo close
+)
 >>"!WINSCP_SCRIPT!" echo exit
 
 echo [4/5] Verbinden und hochladen ...
@@ -182,6 +202,7 @@ echo [5/5] Fertig, alles ist oben.
 if defined DO_BACKEND echo          Programmcode nach !REMOTE_BACKEND_PATH!
 if defined DO_BACKEND echo          Bruecke      nach !BRIDGE_PATH!
 if defined DO_FRONTEND echo          Oberflaeche  nach !REMOTE_WEB_PATH!
+if defined DO_FRONTEND if defined REMOTE_ROOT_PATH echo          Weiterleitung nach !REMOTE_ROOT_PATH!.htaccess
 echo.
 pause
 exit /b 0
@@ -197,11 +218,18 @@ rem im Passwort wuerde die Adresse zerschneiden, ein | sogar die Skriptzeile.
 > "%~1" echo option batch abort
 >>"%~1" echo option confirm off
 >>"%~1" echo option transfer binary
-if /i "!SFTP_PROTOCOL!"=="sftp" goto :writeSessionSftp
->>"%~1" echo open !SFTP_PROTOCOL!://!SFTP_HOST!/ -username="!SFTP_USER!" -password="!SFTP_PASSWORD!"
+call :writeOpen "%~1" SFTP_USER SFTP_PASSWORD
 exit /b 0
-:writeSessionSftp
->>"%~1" echo open sftp://!SFTP_HOST!/ -username="!SFTP_USER!" -password="!SFTP_PASSWORD!" -hostkey="!SFTP_HOSTKEY!"
+
+rem %1 = Skriptdatei, %2 = NAME der Variable mit dem Benutzer, %3 = NAME der Variable mit
+rem dem Passwort. Namen statt Werte, damit ein ! oder ^ im Passwort nicht ein zweites Mal
+rem ausgewertet wird.
+:writeOpen
+if /i "!SFTP_PROTOCOL!"=="sftp" goto :writeOpenSftp
+>>"%~1" echo open !SFTP_PROTOCOL!://!SFTP_HOST!/ -username="!%~2!" -password="!%~3!"
+exit /b 0
+:writeOpenSftp
+>>"%~1" echo open sftp://!SFTP_HOST!/ -username="!%~2!" -password="!%~3!" -hostkey="!SFTP_HOSTKEY!"
 exit /b 0
 
 :needValue
