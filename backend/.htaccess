@@ -1,19 +1,14 @@
-# Rückfallebene: greift nur, wenn die Web-Wurzel NICHT auf public/ gelegt werden kann
-# und damit .env, src/ und storage/ im öffentlich erreichbaren Bereich liegen.
+# Das Backend wird nie ueber eine Adresse aufgerufen: die Bruecke unter /api/ bindet es per
+# Dateizugriff ein, und das ist von dieser Sperre nicht betroffen. Liegt der Ordner im
+# ausgelieferten Bereich (ADR-020), sind damit .env, src/, vendor/, storage/ und uploads/
+# von aussen gesperrt.
 
 Options -Indexes
 
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteRule ^(src|storage|uploads|Migrations)/ - [F,L]
+<IfModule mod_authz_core.c>
+    Require all denied
 </IfModule>
-
-<FilesMatch "^\.env">
-    <IfModule mod_authz_core.c>
-        Require all denied
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order allow,deny
-        Deny from all
-    </IfModule>
-</FilesMatch>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
