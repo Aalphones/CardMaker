@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .templates-list {
   display: flex;
   flex-direction: column;
@@ -95,5 +97,20 @@
 
   &__no-results {
     color: var(--color-text-muted);
+  }
+
+  @include bp.phone {
+    &__heading {
+      flex-wrap: wrap;
+    }
+
+    &__search {
+      max-width: none;
+    }
+
+    &__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-sm);
+    }
   }
 }

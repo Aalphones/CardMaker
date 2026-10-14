@@ -29,8 +29,8 @@
 
 ### Alle Karten
 
-- [ ] `cards-list.ts`: `CdkMenuTrigger, CdkMenu, CdkMenuItem` aus `@angular/cdk/menu` in `imports` aufnehmen.
-- [ ] `cards-list.html`, in `.cards-list__card-footer`: die vier bestehenden Knöpfe in `<div class="cards-list__card-actions">…</div>` einschließen (unverändert). Daneben einfügen:
+- [x] `cards-list.ts`: `CdkMenuTrigger, CdkMenu, CdkMenuItem` aus `@angular/cdk/menu` in `imports` aufnehmen.
+- [x] `cards-list.html`, in `.cards-list__card-footer`: die vier bestehenden Knöpfe in `<div class="cards-list__card-actions">…</div>` einschließen (unverändert). Daneben einfügen:
 
 ```html
 <button
@@ -64,8 +64,8 @@
 ```
 
   (Prettier formatiert die Attribute danach auf eigene Zeilen — `npm run lint` bzw. das Pre-Commit-Format laufen lassen.)
-- [ ] Tabelle: `<table class="table">` → `<table class="table table--stack">`; `data-label` an die `<td>`: Kartengruppe → `data-label="Kartengruppe"`, Template → `data-label="Template"`, Geändert → `data-label="Geändert"`. Name- und Aktionen-Zelle **ohne** `data-label`.
-- [ ] `cards-list.scss`: `@use 'breakpoints' as bp;` und:
+- [x] Tabelle: `<table class="table">` → `<table class="table table--stack">`; `data-label` an die `<td>`: Kartengruppe → `data-label="Kartengruppe"`, Template → `data-label="Template"`, Geändert → `data-label="Geändert"`. Name- und Aktionen-Zelle **ohne** `data-label`.
+- [x] `cards-list.scss`: `@use 'breakpoints' as bp;` und:
   - `&__menu-trigger { display: none; }`, `&__card-actions { display: flex; gap: var(--space-xs); }`
   - `@include bp.phone { … }` innerhalb `.cards-list`:
     - `&__heading { flex-wrap: wrap; }` · `&__heading-actions { inline-size: 100%; } &__heading-actions > * { flex: 1; }`
@@ -78,7 +78,7 @@
 
 ### Templates
 
-- [ ] `templates-list.scss`: `@use 'breakpoints' as bp;` und in `.templates-list`:
+- [x] `templates-list.scss`: `@use 'breakpoints' as bp;` und in `.templates-list`:
 
 ```scss
   @include bp.phone {
@@ -99,11 +99,13 @@
 
 ### Kartengruppen
 
-- [ ] `card-groups-list.scss`: analog — `&__heading { flex-wrap: wrap; }`, `&__search { max-width: none; }`, `&__grid { grid-template-columns: 1fr; gap: var(--space-md); }`.
-- [ ] `card-groups-detail.scss`: `@include bp.phone { &__actions { flex-direction: column-reverse; } &__actions > * { inline-size: 100%; } }`. Vorher in `card-groups-detail.html` nachsehen, dass „Speichern" der **letzte** Knopf in `__actions` ist (dann landet er per `column-reverse` oben). Ist es anders → Reihenfolge so wählen, dass Speichern oben steht, und im Report-Back notieren.
+- [x] `card-groups-list.scss`: analog — `&__heading { flex-wrap: wrap; }`, `&__search { max-width: none; }`, `&__grid { grid-template-columns: 1fr; gap: var(--space-md); }`.
+- [x] `card-groups-detail.scss`: `@include bp.phone { &__actions { flex-direction: column-reverse; } &__actions > * { inline-size: 100%; } }`. Vorher in `card-groups-detail.html` nachsehen, dass „Speichern" der **letzte** Knopf in `__actions` ist (dann landet er per `column-reverse` oben). Ist es anders → Reihenfolge so wählen, dass Speichern oben steht, und im Report-Back notieren.
 
 ### Doc
 
-- [ ] `docs/code-map.md` → `cards-list/`: Satz ergänzen „Auf Smartphone-Breite zwei Spalten, die Kachel-Aktionen in einem Menü (`@angular/cdk/menu`), die Tabelle gestapelt".
+- [x] `docs/code-map.md` → `cards-list/`: Satz ergänzen „Auf Smartphone-Breite zwei Spalten, die Kachel-Aktionen in einem Menü (`@angular/cdk/menu`), die Tabelle gestapelt".
 
 ## Report-Back
+
+Umgesetzt wie geplant. `lint` grün, Produktions-`build` ohne Fehler (nur die bekannten CommonJS-Warnungen). „Speichern" ist in `card-groups-detail.html` der letzte Knopf, `column-reverse` setzt ihn also oben. Nicht im Browser geprüft (Gerätemodus steht für den Smoke am Plan-Ende aus).

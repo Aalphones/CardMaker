@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .cards-list {
   display: flex;
   flex-direction: column;
@@ -194,5 +196,74 @@
 
   &__table-delete {
     color: var(--color-accent-700);
+  }
+
+  &__menu-trigger {
+    display: none;
+  }
+
+  &__card-actions {
+    display: flex;
+    gap: var(--space-xs);
+  }
+
+  @include bp.phone {
+    &__heading {
+      flex-wrap: wrap;
+    }
+
+    &__heading-actions {
+      inline-size: 100%;
+    }
+
+    &__heading-actions > * {
+      flex: 1;
+    }
+
+    &__filters {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &__filter-search,
+    &__filter-template,
+    &__filter-sort {
+      width: 100%;
+    }
+
+    &__chips {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-block-end: 2px;
+    }
+
+    &__chip {
+      flex: none;
+    }
+
+    &__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-sm);
+    }
+
+    &__card-actions {
+      display: none;
+    }
+
+    &__menu-trigger {
+      display: inline-flex;
+    }
+
+    &__table-actions {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+  }
+
+  @include bp.touch {
+    &__chip {
+      min-block-size: var(--touch-target-min);
+    }
   }
 }

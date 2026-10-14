@@ -1,5 +1,5 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-10-14_smartphone-optimierung/`
-**Phase:** 3/8 — Listen (pending); Phase 2 complete
-**Nächster Schritt:** `phase-3-listen.md` abarbeiten (Alle Karten, Templates, Kartengruppen).
+**Phase:** 4/8 — Weitere Seiten (pending); Phase 3 complete
+**Nächster Schritt:** `phase-4-weitere-seiten.md` abarbeiten (Bildvorrat, Zugriffstoken, Bild-Prompts, Anmeldung, Druckprojekt).

@@ -1,6 +1,14 @@
 import { Dialog } from '@angular/cdk/dialog';
+import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
@@ -16,7 +24,10 @@ import { CardGroup } from '../../../store/card-groups/card-groups.actions';
 import { CardGroupsFacade } from '../../../store/card-groups/card-groups.facade';
 import { CardSummary } from '../../../store/cards/cards.actions';
 import { CardsFacade } from '../../../store/cards/cards.facade';
-import { PRINT_ITEM_MAX_QUANTITY, PrintItem } from '../../../store/print-project/print-project.actions';
+import {
+  PRINT_ITEM_MAX_QUANTITY,
+  PrintItem,
+} from '../../../store/print-project/print-project.actions';
 import { PrintProjectFacade } from '../../../store/print-project/print-project.facade';
 import { TemplatesFacade } from '../../../store/templates/templates.facade';
 
@@ -36,7 +47,7 @@ const cardCountPluralRules = new Intl.PluralRules('de');
 
 @Component({
   selector: 'app-cards-list',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, CdkMenuTrigger, CdkMenu, CdkMenuItem],
   templateUrl: './cards-list.html',
   styleUrl: './cards-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -172,7 +183,9 @@ export class CardsList {
   }
 
   protected printQuantity(item: CardSummary): number {
-    return this.printProject.items().find((entry: PrintItem) => entry.cardId === item.id)?.quantity ?? 0;
+    return (
+      this.printProject.items().find((entry: PrintItem) => entry.cardId === item.id)?.quantity ?? 0
+    );
   }
 
   protected printLabel(item: CardSummary): string {

@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .card-groups-detail {
   display: flex;
   flex-direction: column;
@@ -29,5 +31,15 @@
     display: flex;
     justify-content: flex-end;
     gap: var(--space-sm);
+  }
+
+  @include bp.phone {
+    &__actions {
+      flex-direction: column-reverse;
+    }
+
+    &__actions > * {
+      inline-size: 100%;
+    }
   }
 }

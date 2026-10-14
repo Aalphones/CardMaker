@@ -69,7 +69,9 @@ frontend/src/app/
                              Vorschaubild (`shared/canvas/preview-image-loader.ts`). Je Karte ein
                              Herunterladen-Knopf (Raster: Icon, Tabelle: Text) — rendert über
                              `CardRenderSource` + `CardRenderer` ohne offenen Editor, Ladezustand
-                             pro Karte (ein Export sperrt nicht die ganze Liste)
+                             pro Karte (ein Export sperrt nicht die ganze Liste). Auf
+                             Smartphone-Breite zwei Spalten, die Kachel-Aktionen in einem Menü
+                             (`@angular/cdk/menu`), die Tabelle gestapelt
       card-editor/         ← Routen /cards/new und /cards/:id: linke Formularspalte (Name,
                              Template-Auswahl, je Bildfläche ein Ablagefeld, je Textfeld ein
                              Block mit Größe/Farbe/Fett/Kursiv als Abweichung, Icon-Auswahl als
