@@ -102,4 +102,13 @@
 
 - [ ] `docs/code-map.md` → `layout/shell/`: Satz ergänzen „Auf Smartphone-Breite: Tab-Leiste unten (Karten, Gruppen, Templates, Druck, Mehr) und „Mehr"-Blatt mit Bildvorrat, Bild-Prompts, Zugriffstoken, Abmelden".
 
+## Status
+
+complete — alle Checklistenpunkte umgesetzt, `npm run lint` und `npm run build` grün (kein Budget-Hinweis).
+
 ## Report-Back
+
+- Abweichung (Projekt-Konvention schlägt Plan-Text): kein `@HostListener` und kein `.subscribe()` in Components. Escape läuft über `host: { '(document:keydown.escape)': 'closeMore()' }`, das Schließen bei Navigation über einen `effect()` auf dem `currentUrl`-Signal.
+- Hintergrund des Blatts ist ein `<button>` (Lint verlangt Tastatur-/Fokus-Verhalten für klickbare Elemente), `tabindex="-1"`, `aria-label`.
+- `.shell__more-link` teilt sich die Grundregel mit `.shell__nav-link` (Budget 4 kB war sonst um 54 Byte überschritten).
+- Unsicherste Stelle: `effect()` in `shell.ts` schreibt `moreOpen` bei jeder Navigation — nicht im Browser geprüft (Gerätemodus 360 px, „Mehr" öffnen → Eintrag antippen → Blatt muss zugehen).

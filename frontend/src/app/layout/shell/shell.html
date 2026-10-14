@@ -190,5 +190,169 @@
       <router-outlet />
     </main>
   </div>
+  <nav class="shell__tabbar" aria-label="Hauptnavigation">
+    <a class="shell__tab" routerLink="/cards" routerLinkActive="shell__tab--active">
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <rect width="7" height="7" x="3" y="3" rx="1" />
+        <rect width="7" height="7" x="14" y="3" rx="1" />
+        <rect width="7" height="7" x="14" y="14" rx="1" />
+        <rect width="7" height="7" x="3" y="14" rx="1" />
+      </svg>
+      <span class="shell__tab-label">Karten</span>
+    </a>
+    <a class="shell__tab" routerLink="/card-groups" routerLinkActive="shell__tab--active">
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path
+          d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+        />
+      </svg>
+      <span class="shell__tab-label">Gruppen</span>
+    </a>
+    <a class="shell__tab" routerLink="/templates" routerLinkActive="shell__tab--active">
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path
+          d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"
+        />
+        <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" />
+        <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" />
+      </svg>
+      <span class="shell__tab-label">Templates</span>
+    </a>
+    <a class="shell__tab" routerLink="/print-project" routerLinkActive="shell__tab--active">
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+        <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
+        <rect x="6" y="14" width="12" height="8" rx="1" />
+      </svg>
+      <span class="shell__tab-label">Druck</span>
+      @if (printProject.totalQuantity() > 0) {
+        <span class="shell__nav-badge shell__tab-badge">{{ printProject.totalQuantity() }}</span>
+      }
+    </a>
+    <button
+      type="button"
+      class="shell__tab"
+      [class.shell__tab--active]="moreActive() || moreOpen()"
+      aria-controls="shell-more"
+      [attr.aria-expanded]="moreOpen()"
+      (click)="toggleMore()"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <circle cx="5" cy="12" r="1.5" />
+        <circle cx="12" cy="12" r="1.5" />
+        <circle cx="19" cy="12" r="1.5" />
+      </svg>
+      <span class="shell__tab-label">Mehr</span>
+    </button>
+  </nav>
+  @if (moreOpen()) {
+    <button
+      type="button"
+      class="shell__more-backdrop"
+      tabindex="-1"
+      aria-label="Weitere Bereiche schließen"
+      (click)="closeMore()"
+    ></button>
+    <div id="shell-more" class="shell__more" role="dialog" aria-label="Weitere Bereiche">
+      <a class="shell__more-link" routerLink="/assets" routerLinkActive="shell__more-link--active">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+          <circle cx="9" cy="9" r="2" />
+          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+        </svg>
+        Bildvorrat
+      </a>
+      <a class="shell__more-link" routerLink="/prompts" routerLinkActive="shell__more-link--active">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 3 9.8 8.8 4 11l5.8 2.2L12 19l2.2-5.8L20 11l-5.8-2.2Z" />
+          <path d="M19 3v4" />
+          <path d="M21 5h-4" />
+        </svg>
+        Bild-Prompts
+      </a>
+      <a class="shell__more-link" routerLink="/tokens" routerLinkActive="shell__more-link--active">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="7.5" cy="15.5" r="5.5" />
+          <path d="m21 2-9.6 9.6" />
+          <path d="m15.5 7.5 3 3L22 7l-3-3" />
+        </svg>
+        Zugriffstoken
+      </a>
+      <p class="shell__more-email">{{ auth.user()?.email }}</p>
+      <button type="button" class="btn btn--secondary btn--block" (click)="logout()">
+        Abmelden
+      </button>
+    </div>
+  }
   <app-notification-list />
 </div>

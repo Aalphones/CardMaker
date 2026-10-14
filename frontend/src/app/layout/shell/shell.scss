@@ -5,6 +5,13 @@
   grid-template-rows: auto 1fr;
   min-height: 100vh;
 
+  // Nur auf Smartphone-Breite sichtbar (Block unten).
+  &__tabbar,
+  &__more,
+  &__more-backdrop {
+    display: none;
+  }
+
   &__header {
     display: flex;
     align-items: center;
@@ -80,7 +87,8 @@
     font-size: 11px;
   }
 
-  &__nav-link {
+  &__nav-link,
+  &__more-link {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -133,6 +141,102 @@
     &__nav-list {
       flex-direction: row;
       flex-wrap: wrap;
+    }
+  }
+
+  @include bp.phone {
+    &__header {
+      padding-inline: var(--space-lg);
+      padding-block: var(--space-sm);
+    }
+
+    &__account,
+    &__sidebar {
+      display: none;
+    }
+
+    // overflow: visible, damit sticky-Elemente der Seiten am Fenster kleben statt an diesem Kasten.
+    &__content {
+      padding: var(--space-lg);
+      padding-block-end: calc(
+        var(--shell-tabbar-height) + env(safe-area-inset-bottom) + var(--space-lg)
+      );
+      overflow: visible;
+    }
+
+    &__tabbar {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      position: fixed;
+      inset-inline: 0;
+      inset-block-end: 0;
+      z-index: 40;
+      block-size: calc(var(--shell-tabbar-height) + env(safe-area-inset-bottom));
+      padding-block-end: env(safe-area-inset-bottom);
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-divider);
+    }
+
+    &__tab {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      border: 0;
+      background: transparent;
+      color: var(--color-text-muted);
+      font: inherit;
+      font-size: var(--font-size-sm);
+      text-decoration: none;
+      cursor: pointer;
+
+      &--active {
+        color: var(--color-accent-text);
+      }
+    }
+
+    &__tab-badge {
+      position: absolute;
+      inset-block-start: var(--space-xs);
+      inset-inline-start: calc(50% + 6px);
+    }
+
+    &__more-backdrop {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 39;
+      padding: 0;
+      border: 0;
+      background: color-mix(in srgb, var(--color-neutral-900) 30%, transparent);
+    }
+
+    &__more {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      position: fixed;
+      inset-inline: 0;
+      inset-block-end: calc(var(--shell-tabbar-height) + env(safe-area-inset-bottom));
+      z-index: 41;
+      padding: var(--space-md) var(--space-lg) var(--space-lg);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      background: var(--color-surface);
+      box-shadow: var(--shadow-lg);
+    }
+
+    &__more-link {
+      min-block-size: var(--touch-target-min);
+      font-size: var(--font-size-md);
+    }
+
+    &__more-email {
+      margin: var(--space-sm) 0 0;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      overflow-wrap: anywhere;
     }
   }
 }

@@ -257,7 +257,9 @@ frontend/src/app/
                            Kartengruppen, Templates, Bild-Prompts, Druckprojekte). „Druckprojekte"
                            trägt eine Plakette mit der Gesamtzahl der Exemplare (0 → keine
                            Plakette), gespeist aus `PrintProjectFacade.totalQuantity`, deren
-                           Stand die Shell selbst beim Start lädt
+                           Stand die Shell selbst beim Start lädt. Auf Smartphone-Breite:
+                           Tab-Leiste unten (Karten, Gruppen, Templates, Druck, Mehr) und
+                           „Mehr"-Blatt mit Bildvorrat, Bild-Prompts, Zugriffstoken, Abmelden
 ```
 
 `admin/` aus der Tabelle oben existiert noch nicht — es entsteht erst mit einem Folgeplan.

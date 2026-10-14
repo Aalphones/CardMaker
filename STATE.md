@@ -1,5 +1,5 @@
 # STATE
 
 **Aktiver Plan:** `docs/planning/2026-10-14_smartphone-optimierung/`
-**Phase:** 2/8 — App-Shell (pending); Phase 1 complete
-**Nächster Schritt:** `phase-2-app-shell.md` abarbeiten (Tab-Leiste unten + „Mehr"-Blatt).
+**Phase:** 3/8 — Listen (pending); Phase 2 complete
+**Nächster Schritt:** `phase-3-listen.md` abarbeiten (Alle Karten, Templates, Kartengruppen).
