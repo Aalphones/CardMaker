@@ -181,6 +181,22 @@
   }
 }
 
+.card-editor__panes,
+.card-editor__download--in-preview {
+  display: none;
+}
+
+@include bp.touch {
+  .card-editor__swatch {
+    inline-size: var(--touch-target-min);
+    block-size: var(--touch-target-min);
+  }
+
+  .card-editor__preview-frame--editing {
+    touch-action: none;
+  }
+}
+
 @include bp.narrow {
   .card-editor__layout {
     grid-template-columns: 1fr;
@@ -189,5 +205,48 @@
   .card-editor__preview {
     position: static;
     order: -1;
+  }
+}
+
+@include bp.phone {
+  .card-editor__panes {
+    display: flex;
+    margin-block-end: var(--space-lg);
+
+    .seg__option {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+
+  // Formular-Reiter: Vorschau weg. Vorschau-Reiter: vom Formular bleibt nur die Aktionsleiste.
+  .card-editor__layout:not(.card-editor__layout--preview) .card-editor__preview {
+    display: none;
+  }
+
+  .card-editor__layout--preview .card-editor__form > :not(.card-editor__actions) {
+    display: none;
+  }
+
+  .card-editor__download--in-actions {
+    display: none;
+  }
+
+  .card-editor__download--in-preview {
+    display: flex;
+  }
+
+  // Klebt über der Tab-Leiste der Shell; `sticky` wirkt nur, weil .shell__content auf
+  // Smartphone-Breite kein eigener Bildlaufkasten mehr ist.
+  .card-editor__actions {
+    position: sticky;
+    inset-block-end: calc(var(--shell-tabbar-height) + env(safe-area-inset-bottom));
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-inline: calc(-1 * var(--space-lg));
+    padding: var(--space-sm) var(--space-lg);
+    border-top: 1px solid var(--color-divider);
+    background: var(--color-bg-base);
   }
 }

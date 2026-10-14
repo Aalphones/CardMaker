@@ -10,7 +10,28 @@
   <p class="card-editor__error" role="alert">{{ message }}</p>
 }
 
-<div class="card-editor__layout">
+<div class="seg card-editor__panes" role="tablist" aria-label="Ansicht">
+  <button
+    type="button"
+    role="tab"
+    class="seg__option"
+    [attr.aria-selected]="mobilePane() === 'form'"
+    (click)="mobilePane.set('form')"
+  >
+    Formular
+  </button>
+  <button
+    type="button"
+    role="tab"
+    class="seg__option"
+    [attr.aria-selected]="mobilePane() === 'preview'"
+    (click)="mobilePane.set('preview')"
+  >
+    Vorschau
+  </button>
+</div>
+
+<div class="card-editor__layout" [class.card-editor__layout--preview]="mobilePane() === 'preview'">
   <form class="card-editor__form" [formGroup]="form" (ngSubmit)="submit()">
     <div class="field">
       <label for="card-name">Kartenname</label>
@@ -192,7 +213,7 @@
 
     <div class="card-editor__actions">
       <a class="btn btn--secondary" routerLink="/cards">Abbrechen</a>
-      <div class="card-editor__label-row">
+      <div class="card-editor__label-row card-editor__download--in-actions">
         <button
           type="button"
           class="btn btn--secondary"
@@ -213,6 +234,7 @@
     <p class="card-editor__preview-label">Live-Vorschau</p>
     <div
       class="card-editor__preview-frame"
+      [class.card-editor__preview-frame--editing]="activeImageLayerId() !== null"
       role="group"
       tabindex="0"
       aria-label="Kartenvorschau — bei ausgewählter Bildfläche verschieben die Pfeiltasten das Bild"
@@ -256,5 +278,17 @@
         </div>
       </div>
     }
+
+    <div class="card-editor__label-row card-editor__download--in-preview">
+      <button
+        type="button"
+        class="btn btn--secondary"
+        [disabled]="downloadingImage()"
+        (click)="downloadImage()"
+      >
+        {{ downloadingImage() ? 'Wird erzeugt …' : 'Als Bild herunterladen' }}
+      </button>
+      <app-field-hint [text]="downloadHint" />
+    </div>
   </aside>
 </div>

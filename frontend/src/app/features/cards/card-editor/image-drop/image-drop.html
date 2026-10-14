@@ -15,7 +15,8 @@
     @if (imageUrl(); as url) {
       <img class="image-drop__preview" [src]="url" alt="" />
     } @else if (!busy()) {
-      <span class="image-drop__placeholder">Bild ablegen</span>
+      <span class="image-drop__placeholder image-drop__placeholder--pointer">Bild ablegen</span>
+      <span class="image-drop__placeholder image-drop__placeholder--touch">Bild wählen</span>
     }
 
     @if (busy()) {

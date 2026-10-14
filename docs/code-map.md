@@ -78,7 +78,9 @@ frontend/src/app/
                              Tags mit Vorschaubild, Kartengruppe, Fußzeile mit Abbrechen/„Als Bild
                              herunterladen"/Speichern) und rechts die mitlaufende Live-Vorschau
                              (dieselbe Zeichenfläche wie im Template-Editor, gefüttert aus
-                             Formular + Entwurfsstand; nach dem Speichern rendert `CardRenderer`
+                             Formular + Entwurfsstand; auf Smartphone-Breite Reiter
+                             Formular/Vorschau und eine am unteren Rand klebende Aktionsleiste;
+                             nach dem Speichern rendert `CardRenderer`
                              denselben Stand für das Vorschaubild der Kachel, der
                              Herunterladen-Knopf ruft ihn in Druckauflösung). `card-fields.ts`
                              leitet ohne Angular aus den Template-Ebenen ab, welche Felder das

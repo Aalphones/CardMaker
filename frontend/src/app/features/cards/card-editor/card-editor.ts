@@ -182,6 +182,9 @@ export class CardEditor implements ComponentWithUnsavedChanges {
   protected readonly formError = signal<string | null>(null);
   protected readonly downloadingImage = signal(false);
 
+  /** Welcher Reiter auf Smartphone-Breite sichtbar ist — rein darstellerisch. */
+  protected readonly mobilePane = signal<'form' | 'preview'>('form');
+
   /** Ein Template-Wechsel ist eine Änderung, die kein Formular-Control mitbekommt. */
   private readonly templateChanged = signal(false);
 

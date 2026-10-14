@@ -238,7 +238,14 @@ export class CardCanvas {
     });
 
     const sizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-      this.stageWidth.set(Math.round(entries[0]?.contentRect.width ?? 0));
+      const width = Math.round(entries[0]?.contentRect.width ?? 0);
+
+      // Ausgeblendet (z. B. Reiter „Formular" im Karteneditor) meldet der Kasten 0 —
+      // eine Bühne mit Breite 0 bringt Konva beim Zeichnen ins Stolpern. Die letzte echte
+      // Breite bleibt stehen, beim Wiedereinblenden kommt sofort die neue.
+      if (width > 0) {
+        this.stageWidth.set(width);
+      }
     });
 
     sizeObserver.observe(this.hostElement);

@@ -27,11 +27,11 @@
 
 ### Zustand
 
-- [ ] `card-editor.ts`: `protected readonly mobilePane = signal<'form' | 'preview'>('form');` — rein darstellerisch, keine Auswirkung auf Speichern/Formular.
+- [x] `card-editor.ts`: `protected readonly mobilePane = signal<'form' | 'preview'>('form');` — rein darstellerisch, keine Auswirkung auf Speichern/Formular.
 
 ### Vorlage `card-editor.html`
 
-- [ ] Direkt vor `<div class="card-editor__layout">` einfügen:
+- [x] Direkt vor `<div class="card-editor__layout">` einfügen:
 
 ```html
 <div class="seg card-editor__panes" role="tablist" aria-label="Ansicht">
@@ -56,9 +56,9 @@
 </div>
 ```
 
-- [ ] `<div class="card-editor__layout">` bekommt `[class.card-editor__layout--preview]="mobilePane() === 'preview'"`.
-- [ ] In `.card-editor__actions` den bestehenden `<div class="card-editor__label-row">` mit dem Herunterladen-Knopf zusätzlich mit der Klasse `card-editor__download--in-actions` versehen.
-- [ ] Am Ende von `<aside class="card-editor__preview">` (nach dem `@if (activePlacement(); …)`-Block) eine Kopie einfügen, nur für Smartphone-Breite:
+- [x] `<div class="card-editor__layout">` bekommt `[class.card-editor__layout--preview]="mobilePane() === 'preview'"`.
+- [x] In `.card-editor__actions` den bestehenden `<div class="card-editor__label-row">` mit dem Herunterladen-Knopf zusätzlich mit der Klasse `card-editor__download--in-actions` versehen.
+- [x] Am Ende von `<aside class="card-editor__preview">` (nach dem `@if (activePlacement(); …)`-Block) eine Kopie einfügen, nur für Smartphone-Breite:
 
 ```html
 <div class="card-editor__label-row card-editor__download--in-preview">
@@ -74,11 +74,11 @@
 </div>
 ```
 
-- [ ] `.card-editor__preview-frame` bekommt `[class.card-editor__preview-frame--editing]="activeImageLayerId() !== null"`.
+- [x] `.card-editor__preview-frame` bekommt `[class.card-editor__preview-frame--editing]="activeImageLayerId() !== null"`.
 
 ### Stylesheet `card-editor.scss`
 
-- [ ] `@use 'breakpoints' as bp;` steht seit Phase 1. Ergänzen:
+- [x] `@use 'breakpoints' as bp;` steht seit Phase 1. Ergänzen:
   - Standard (außerhalb Media): `.card-editor__panes { display: none; }` · `.card-editor__download--in-preview { display: none; }`
   - `@include bp.touch { .card-editor__swatch { inline-size: var(--touch-target-min); block-size: var(--touch-target-min); } .card-editor__preview-frame--editing { touch-action: none; } }`
   - `@include bp.phone { … }` (nach dem bestehenden `bp.narrow`-Block):
@@ -128,11 +128,11 @@
 }
 ```
 
-- [ ] Prüfen im Gerätemodus: der negative Außenrand der Aktionsleiste gleicht genau den seitlichen Innenabstand von `.shell__content` aus (Phase 2: `--space-lg`) — die Leiste geht von Rand zu Rand, ohne waagrechten Bildlauf.
+- [x] Prüfen im Gerätemodus: der negative Außenrand der Aktionsleiste gleicht genau den seitlichen Innenabstand von `.shell__content` aus (Phase 2: `--space-lg`) — die Leiste geht von Rand zu Rand, ohne waagrechten Bildlauf.
 
 ### Kartenfläche nach dem Wiedereinblenden
 
-- [ ] `card-canvas.ts`, im `ResizeObserver`: eine Breite von 0 nicht übernehmen.
+- [x] `card-canvas.ts`, im `ResizeObserver`: eine Breite von 0 nicht übernehmen.
 
 ```ts
     const sizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
@@ -151,11 +151,13 @@
 
 ### Bild-Ablagefeld
 
-- [ ] `image-drop.html`: `<span class="image-drop__placeholder">Bild ablegen</span>` → zwei Spannen `<span class="image-drop__placeholder image-drop__placeholder--pointer">Bild ablegen</span><span class="image-drop__placeholder image-drop__placeholder--touch">Bild wählen</span>`.
-- [ ] `image-drop.scss`: `@use 'breakpoints' as bp;`; `.image-drop__placeholder--touch { display: none; }`; `@include bp.touch { .image-drop__placeholder--pointer { display: none; } .image-drop__placeholder--touch { display: inline; } }`. Bestehende Regeln für `.image-drop__placeholder` gelten für beide weiter.
+- [x] `image-drop.html`: `<span class="image-drop__placeholder">Bild ablegen</span>` → zwei Spannen `<span class="image-drop__placeholder image-drop__placeholder--pointer">Bild ablegen</span><span class="image-drop__placeholder image-drop__placeholder--touch">Bild wählen</span>`.
+- [x] `image-drop.scss`: `@use 'breakpoints' as bp;`; `.image-drop__placeholder--touch { display: none; }`; `@include bp.touch { .image-drop__placeholder--pointer { display: none; } .image-drop__placeholder--touch { display: inline; } }`. Bestehende Regeln für `.image-drop__placeholder` gelten für beide weiter.
 
 ### Doc
 
-- [ ] `docs/code-map.md` → `card-editor/`: Satz ergänzen „Auf Smartphone-Breite Reiter Formular/Vorschau und eine am unteren Rand klebende Aktionsleiste".
+- [x] `docs/code-map.md` → `card-editor/`: Satz ergänzen „Auf Smartphone-Breite Reiter Formular/Vorschau und eine am unteren Rand klebende Aktionsleiste".
 
 ## Report-Back
+
+Umgesetzt wie geplant. Lint und Produktions-Build grün. Smoke (Gerätemodus, echtes Telefon) steht am Plan-Ende aus.
