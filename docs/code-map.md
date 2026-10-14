@@ -120,6 +120,7 @@ frontend/src/app/
                                Smartphone-Breite fahren sie als Blätter von unten herein,
                                gesteuert über eine Werkzeugleiste am unteren Rand (Ebenen,
                                Rückgängig, Wiederherstellen, Einpassen, Eigenschaften).
+                               Auf Touch-Geräten zoomen und verschieben zwei Finger die Bühne (`template-editor.ts`, Zeigerereignisse); ein zweiter Finger bricht das Ziehen einer Ebene ab (`card-canvas`).
                                Bedien-Zustand im Signal Store `signal-stores/template-editor.ts`
         layer-list/          ← linke Spalte: Ebenen umbenennen, Sichtbarkeit,
                                Drag-Reihenfolge (CDK, Index gedreht zum Array) und die

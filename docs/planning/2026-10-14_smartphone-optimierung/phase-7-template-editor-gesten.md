@@ -28,7 +28,7 @@
 
 ### Zwei-Finger-Geste (`template-editor.ts`)
 
-- [ ] Felder:
+- [x] Felder:
 
 ```ts
   /** Aufliegende Finger auf der Bühne (Zeigerkennung → Bildschirmpunkt). Nur `pointerType === 'touch'`. */
@@ -38,7 +38,7 @@
   private pinch: { startDistance: number; startZoom: number; lastMid: Point } | null = null;
 ```
 
-- [ ] `onStagePointerDown`, ganz am Anfang:
+- [x] `onStagePointerDown`, ganz am Anfang:
 
 ```ts
     if (event.pointerType === 'touch') {
@@ -52,7 +52,7 @@
     }
 ```
 
-- [ ] `onStagePointerMove`, ganz am Anfang:
+- [x] `onStagePointerMove`, ganz am Anfang:
 
 ```ts
     if (event.pointerType === 'touch') {
@@ -65,7 +65,7 @@
     }
 ```
 
-- [ ] `onStagePointerUp` (wird auch für `pointercancel` gerufen), ganz am Anfang:
+- [x] `onStagePointerUp` (wird auch für `pointercancel` gerufen), ganz am Anfang:
 
 ```ts
     if (event.pointerType === 'touch') {
@@ -80,7 +80,7 @@
     }
 ```
 
-- [ ] Neue private Methoden. `stagePoint` erwartet ein `MouseEvent` — für die gespeicherten Punkte eine Variante `clientToStage(point: Point): Point` daneben schreiben (gleiche Rechnung über `getBoundingClientRect()`) und `stagePoint` darauf umstellen.
+- [x] Neue private Methoden. `stagePoint` erwartet ein `MouseEvent` — für die gespeicherten Punkte eine Variante `clientToStage(point: Point): Point` daneben schreiben (gleiche Rechnung über `getBoundingClientRect()`) und `stagePoint` darauf umstellen.
 
 ```ts
   private startPinch(): void {
@@ -116,11 +116,11 @@
 ```
 
 - Beim Planen geprüft: `zoomTo` und `panBy` setzen beide `zoomMode: 'manual'` (`signal-stores/template-editor.ts`), die Bühne passt die Karte nach der Geste also nicht wieder selbst ein. Am Store ist nichts zu ändern.
-- [ ] Der dritte und jeder weitere Finger wird mitgezählt, aber nur die ersten zwei (Einfügereihenfolge der `Map`) gehen in die Rechnung ein — keine Sonderbehandlung nötig.
+- [x] Der dritte und jeder weitere Finger wird mitgezählt, aber nur die ersten zwei (Einfügereihenfolge der `Map`) gehen in die Rechnung ein — keine Sonderbehandlung nötig.
 
 ### Laufendes Ziehen abbrechen (`card-canvas.ts`)
 
-- [ ] Im Konstruktor einen Effekt ergänzen:
+- [x] Im Konstruktor einen Effekt ergänzen:
 
 ```ts
     // Setzt im Template-Editor ein zweiter Finger auf, wird `panning` wahr. Konva zieht die
@@ -135,17 +135,17 @@
     });
 ```
 
-- [ ] `stopActiveGesture()`: Bühne und Transformer genauso holen wie im bestehenden Transformer-Effekt; dann `if (transformer?.isTransforming()) { transformer.stopTransform(); }` und für den Knoten der ausgewählten Ebene (`stage.findOne('.' + selectedLayerId)`) `if (node?.isDragging()) { node.stopDrag(); }`. `stopDrag()` löst `dragend` aus — der bestehende Weg meldet dann den bis dahin gezogenen Versatz als `layerTransformed`; das ist gewollt (der Verlaufseintrag aus `gestureStart` liegt schon davor, Rückgängig stellt den Ausgangszustand her).
+- [x] `stopActiveGesture()`: Bühne und Transformer genauso holen wie im bestehenden Transformer-Effekt; dann `if (transformer?.isTransforming()) { transformer.stopTransform(); }` und für den Knoten der ausgewählten Ebene (`stage.findOne('.' + selectedLayerId)`) `if (node?.isDragging()) { node.stopDrag(); }`. `stopDrag()` löst `dragend` aus — der bestehende Weg meldet dann den bis dahin gezogenen Versatz als `layerTransformed`; das ist gewollt (der Verlaufseintrag aus `gestureStart` liegt schon davor, Rückgängig stellt den Ausgangszustand her).
 
 ### Anfasser auf Touch-Geräten (`card-canvas.ts`)
 
-- [ ] Konstanten ergänzen: `const TOUCH_ANCHOR_SIZE_PX = 20;` und `const TOUCH_ROTATE_ANCHOR_OFFSET_PX = 40;` (Kommentar: „Fingerkuppe statt Mauszeiger — 20px Anfasser + Abstand der Tippfläche").
-- [ ] Feld `private readonly coarsePointer = isCoarsePointer();`; in `transformerConfig` `anchorSize: (this.coarsePointer ? TOUCH_ANCHOR_SIZE_PX : ANCHOR_SIZE_PX) / scale` und `rotateAnchorOffset` entsprechend.
+- [x] Konstanten ergänzen: `const TOUCH_ANCHOR_SIZE_PX = 20;` und `const TOUCH_ROTATE_ANCHOR_OFFSET_PX = 40;` (Kommentar: „Fingerkuppe statt Mauszeiger — 20px Anfasser + Abstand der Tippfläche").
+- [x] Feld `private readonly coarsePointer = isCoarsePointer();`; in `transformerConfig` `anchorSize: (this.coarsePointer ? TOUCH_ANCHOR_SIZE_PX : ANCHOR_SIZE_PX) / scale` und `rotateAnchorOffset` entsprechend.
 
 ### Ebenenliste
 
-- [ ] `layer-list.html`: am Element mit `cdkDrag` ergänzen `[cdkDragStartDelay]="{ touch: 250, mouse: 0 }"`.
-- [ ] Direkt nach dem Namens-Knopf (bzw. dem Umbenennen-Feld) einfügen, nur für die ausgewählte, gerade nicht umbenannte Ebene — die Bedingung für „wird gerade umbenannt" aus der bestehenden `@if`-Verzweigung um Namensknopf/Eingabefeld übernehmen:
+- [x] `layer-list.html`: am Element mit `cdkDrag` ergänzen `[cdkDragStartDelay]="{ touch: 250, mouse: 0 }"`.
+- [x] Direkt nach dem Namens-Knopf (bzw. dem Umbenennen-Feld) einfügen, nur für die ausgewählte, gerade nicht umbenannte Ebene — die Bedingung für „wird gerade umbenannt" aus der bestehenden `@if`-Verzweigung um Namensknopf/Eingabefeld übernehmen:
 
 ```html
 <button
@@ -160,11 +160,16 @@
 </button>
 ```
 
-- [ ] `layer-list.scss`: `.layer-list__rename { display: none; flex: none; padding: 2px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--color-text-primary); }` und im `bp.touch`-Block aus Phase 6 `.layer-list__rename { display: inline-flex; }`.
-- [ ] Ist `startRename` in `layer-list.ts` `protected`, reicht das für die Vorlage; sonst nichts ändern.
+- [x] `layer-list.scss`: `.layer-list__rename { display: none; flex: none; padding: 2px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--color-text-primary); }` und im `bp.touch`-Block aus Phase 6 `.layer-list__rename { display: inline-flex; }`.
+- [x] Ist `startRename` in `layer-list.ts` `protected`, reicht das für die Vorlage; sonst nichts ändern.
 
 ### Doc
 
-- [ ] `docs/code-map.md` → `template-editor/` bzw. `signal-stores/`: Satz ergänzen „Auf Touch-Geräten zoomen und verschieben zwei Finger die Bühne (`template-editor.ts`, Zeigerereignisse); ein zweiter Finger bricht das Ziehen einer Ebene ab (`card-canvas`)".
+- [x] `docs/code-map.md` → `template-editor/` bzw. `signal-stores/`: Satz ergänzen „Auf Touch-Geräten zoomen und verschieben zwei Finger die Bühne (`template-editor.ts`, Zeigerereignisse); ein zweiter Finger bricht das Ziehen einer Ebene ab (`card-canvas`)".
 
 ## Report-Back
+
+- Status: **complete**. Lint grün, Produktions-Build ohne Fehler.
+- Abweichung: `startPinch`/`updatePinch` prüfen die zwei Punkte per Guard statt Destrukturieren ohne Prüfung (`noUncheckedIndexedAccess`). Der Stift-Knopf erhält im Touch-Block zusätzlich 44 px Tippfläche (AK 7), nicht nur `display: inline-flex`.
+- Nebenwirkung Desktop: Der Abbruch-Effekt in `card-canvas` hört auf den `panning`-Eingang, und der ist `panning() || spaceDown()`. Wer mitten im Ziehen einer Ebene die Leertaste drückt, beendet das Ziehen jetzt an der Stelle (vorher zog Konva weiter). Bewusst so gelassen.
+- Offen für das Gerät: ob `stopDrag()` beim zweiten Finger sauber einen Verlaufsschritt ergibt → Smoke-Punkt 1.

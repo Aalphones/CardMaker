@@ -14,7 +14,7 @@
 | [4](phase-4-weitere-seiten.md) | Bildvorrat, Zugriffstoken, Bild-Prompts, Anmeldung, Druckprojekt | standard | complete |
 | [5](phase-5-karteneditor.md) | Karteneditor: Reiter Formular/Vorschau, feste Aktionsleiste, Bildablage per Tippen | standard | complete |
 | [6](phase-6-template-editor-layout.md) | Template-Editor: Kopfzeile, Werkzeugleiste unten, Spalten als Blätter, Dialoge | standard | complete |
-| [7](phase-7-template-editor-gesten.md) | Template-Editor: Zwei-Finger-Zoom/-Verschieben, größere Anfasser, Ebenen per Touch | heikel | pending |
+| [7](phase-7-template-editor-gesten.md) | Template-Editor: Zwei-Finger-Zoom/-Verschieben, größere Anfasser, Ebenen per Touch | heikel | complete |
 | [8](phase-8-doku-und-abschluss.md) | Doku & Abschluss | mechanisch | pending |
 
 ## Begriffe (gelten in allen Phasen)

@@ -11,6 +11,7 @@ import {
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import Konva from 'konva';
@@ -34,6 +35,7 @@ import {
 import { FontFamily } from '../rendering/fonts';
 import { CANVAS_HEIGHT, CANVAS_WIDTH, Geometry, Layer, LayerPatch } from '../rendering/layer';
 import { Point } from '../rendering/units';
+import { isCoarsePointer } from '../../services/pointer';
 import { DrawItem, buildDrawItems, requestedAssetIds, requestedFontFamilies } from './draw-items';
 
 /** Bildschirmpunkte, nicht Canvas-Einheiten — werden unten durch den Bühnenmaßstab geteilt,
@@ -41,6 +43,10 @@ import { DrawItem, buildDrawItems, requestedAssetIds, requestedFontFamilies } fr
 const ANCHOR_SIZE_PX = 10;
 const BORDER_WIDTH_PX = 1.5;
 const ROTATE_ANCHOR_OFFSET_PX = 26;
+
+/** Fingerkuppe statt Mauszeiger — 20px Anfasser + Abstand der Tippfläche. */
+const TOUCH_ANCHOR_SIZE_PX = 20;
+const TOUCH_ROTATE_ANCHOR_OFFSET_PX = 40;
 
 /** Ein Mausrad-Rasterschritt vergrößert um ein Zehntel — fein genug, um zu treffen. */
 const WHEEL_ZOOM_FACTOR = 1.1;
@@ -75,6 +81,7 @@ export class CardCanvas {
   private readonly imageLoader = inject(AssetImageLoader);
   private readonly cardImageLoader = inject(CardImageLoader);
   private readonly fontLoader = inject(FontLoader);
+  private readonly coarsePointer = isCoarsePointer();
 
   readonly layers = input.required<Layer[]>();
   readonly selectedLayerId = input<string | null>(null);
@@ -203,15 +210,22 @@ export class CardCanvas {
   protected readonly transformerConfig: Signal<TransformerConfig> = computed(() => {
     const scale = this.canvasScale() || 1;
     const isLine = this.isSelectedLine();
+    let anchorSizePx = ANCHOR_SIZE_PX;
+    let rotateAnchorOffsetPx = ROTATE_ANCHOR_OFFSET_PX;
+
+    if (this.coarsePointer) {
+      anchorSizePx = TOUCH_ANCHOR_SIZE_PX;
+      rotateAnchorOffsetPx = TOUCH_ROTATE_ANCHOR_OFFSET_PX;
+    }
 
     return {
       rotateEnabled: !isLine,
       enabledAnchors: isLine ? [] : ALL_ANCHORS,
       keepRatio: false,
       ignoreStroke: true,
-      anchorSize: ANCHOR_SIZE_PX / scale,
+      anchorSize: anchorSizePx / scale,
       borderStrokeWidth: BORDER_WIDTH_PX / scale,
-      rotateAnchorOffset: ROTATE_ANCHOR_OFFSET_PX / scale,
+      rotateAnchorOffset: rotateAnchorOffsetPx / scale,
     };
   });
 
@@ -251,6 +265,17 @@ export class CardCanvas {
     sizeObserver.observe(this.hostElement);
     inject(DestroyRef).onDestroy(() => sizeObserver.disconnect());
 
+    // Setzt im Template-Editor ein zweiter Finger auf, wird `panning` wahr. Konva zieht die
+    // ausgewählte Ebene sonst mit dem ersten Finger weiter, denn `draggable` hängt nicht an
+    // `panning` (draw-items.ts) — also das laufende Ziehen bzw. Skalieren hier beenden.
+    effect(() => {
+      if (!this.panning()) {
+        return;
+      }
+
+      untracked(() => this.stopActiveGesture());
+    });
+
     // Der Anfasser wird imperativ an den ausgewählten Knoten gehängt, statt je Ebene einen
     // eigenen `ko-transformer` mitzuzeichnen (Wegwerf-Check aus dem Plan, siehe
     // README „Wo ich mir am wenigsten sicher bin"): Es kann ohnehin immer nur eine Ebene
@@ -279,6 +304,32 @@ export class CardCanvas {
 
       transformer.nodes(target ? [target] : []);
     });
+  }
+
+  /**
+   * `stopDrag()` löst `dragend` aus, `stopTransform()` entsprechend `transformend` — der
+   * bisherige Versatz geht also als `layerTransformed` raus. Gewollt: der Verlaufseintrag aus
+   * `gestureStart` liegt davor, Rückgängig stellt den Zustand vor dem Ziehen her.
+   */
+  private stopActiveGesture(): void {
+    const transformerComponent = this.transformerRef();
+    const layerId = this.selectedLayerId();
+
+    if (!transformerComponent) {
+      return;
+    }
+
+    const transformer = transformerComponent.getNode() as Konva.Transformer;
+
+    if (transformer.isTransforming()) {
+      transformer.stopTransform();
+    }
+
+    const node = layerId ? transformer.getStage()?.findOne(`.${layerId}`) : undefined;
+
+    if (node?.isDragging()) {
+      node.stopDrag();
+    }
   }
 
   protected selectLayer(layerId: string): void {

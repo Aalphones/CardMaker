@@ -113,6 +113,12 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
   private panPointerId: number | null = null;
   private lastPanClientPoint: Point | null = null;
 
+  /** Aufliegende Finger auf der Bühne (Zeigerkennung → Bildschirmpunkt). Nur `pointerType === 'touch'`. */
+  private readonly touchPoints = new Map<number, Point>();
+
+  /** Laufende Zwei-Finger-Geste: Fingerabstand und Maßstab beim Aufsetzen, letzter Mittelpunkt (Bühnenkoordinaten). */
+  private pinch: { startDistance: number; startZoom: number; lastMid: Point } | null = null;
+
   /** Die Karte hängt absolut in der Bühne — Breite aus dem Maßstab, Ecke aus Maßstab + Verschiebung. */
   protected readonly cardWidth: Signal<number> = computed(() => CANVAS_WIDTH * this.editor.zoom());
   protected readonly cardPosition: Signal<Point> = computed(() => cardOrigin(this.editor.view()));
@@ -220,6 +226,17 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
   }
 
   protected onStagePointerDown(event: PointerEvent): void {
+    // Ein einzelner Finger gehört der Ebene (Konva) — die Bühne bewegt sich nur mit zweien.
+    if (event.pointerType === 'touch') {
+      this.touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+      if (this.touchPoints.size === 2) {
+        this.startPinch();
+      }
+
+      return;
+    }
+
     const isMiddleButton = event.button === 1;
 
     if (!isMiddleButton && !this.editor.spaceDown()) {
@@ -236,6 +253,15 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
   }
 
   protected onStagePointerMove(event: PointerEvent): void {
+    if (event.pointerType === 'touch') {
+      if (this.touchPoints.has(event.pointerId)) {
+        this.touchPoints.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        this.updatePinch();
+      }
+
+      return;
+    }
+
     const canvasPoint = screenToCanvas(this.stagePoint(event), this.editor.view());
     this.editor.setCursorPos(isOverCard(canvasPoint) ? canvasPoint : null);
 
@@ -250,6 +276,19 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
   }
 
   protected onStagePointerUp(event: PointerEvent): void {
+    // Hebt einer von zwei Fingern ab, endet die Geste; der verbleibende bewirkt bis zum
+    // Abheben nichts, denn die Ebenen hören erst nach `panning = false` wieder zu.
+    if (event.pointerType === 'touch') {
+      this.touchPoints.delete(event.pointerId);
+
+      if (this.pinch !== null && this.touchPoints.size < 2) {
+        this.pinch = null;
+        this.panning.set(false);
+      }
+
+      return;
+    }
+
     if (event.pointerId === this.panPointerId) {
       this.endPan();
     }
@@ -259,15 +298,56 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
     this.editor.setCursorPos(null);
   }
 
+  private startPinch(): void {
+    const [first, second] = [...this.touchPoints.values()];
+
+    if (!first || !second) {
+      return;
+    }
+
+    // `panning` sperrt die Ebenen und bricht in card-canvas ein laufendes Ziehen ab.
+    this.panning.set(true);
+    this.pinch = {
+      startDistance: Math.max(1, Math.hypot(second.x - first.x, second.y - first.y)),
+      startZoom: this.editor.view().zoom,
+      lastMid: this.clientToStage({ x: (first.x + second.x) / 2, y: (first.y + second.y) / 2 }),
+    };
+  }
+
+  /** Mittelpunkt verschiebt die Karte, Fingerabstand zoomt um ihn — beides in einem Schritt. */
+  private updatePinch(): void {
+    const pinch = this.pinch;
+    const [first, second] = [...this.touchPoints.values()];
+
+    if (pinch === null || !first || !second) {
+      return;
+    }
+
+    const mid = this.clientToStage({ x: (first.x + second.x) / 2, y: (first.y + second.y) / 2 });
+    const distance = Math.hypot(second.x - first.x, second.y - first.y);
+
+    this.editor.panBy(mid.x - pinch.lastMid.x, mid.y - pinch.lastMid.y);
+
+    const view = this.editor.view();
+    const zoom = clampZoom(pinch.startZoom * (distance / pinch.startDistance));
+
+    this.editor.zoomTo(zoom, panKeepingAnchor(view, mid, zoom));
+    pinch.lastMid = mid;
+  }
+
   /** Zeigerposition relativ zur oberen linken Ecke der Bühne. */
   private stagePoint(event: MouseEvent): Point {
+    return this.clientToStage({ x: event.clientX, y: event.clientY });
+  }
+
+  private clientToStage(point: Point): Point {
     const bounds = this.stageRef()?.nativeElement.getBoundingClientRect();
 
     if (!bounds) {
       return { x: 0, y: 0 };
     }
 
-    return { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+    return { x: point.x - bounds.left, y: point.y - bounds.top };
   }
 
   private endPan(): void {

@@ -8,6 +8,7 @@
       <li
         class="layer-list__item hover-row"
         cdkDrag
+        [cdkDragStartDelay]="{ touch: 250, mouse: 0 }"
         [class.layer-list__item--selected]="layer.id === selectedLayerId()"
       >
         <button
@@ -58,6 +59,19 @@
           >
             {{ layer.name }}
           </button>
+
+          @if (layer.id === selectedLayerId()) {
+            <button
+              type="button"
+              class="icon-button layer-list__rename"
+              aria-label="Ebene umbenennen"
+              (click)="startRename(layer.id)"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+              </svg>
+            </button>
+          }
         }
 
         <span class="layer-list__type">{{ typeLabel(layer) }}</span>
