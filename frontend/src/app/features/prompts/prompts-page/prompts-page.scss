@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .prompts {
   display: flex;
   flex-direction: column;
@@ -89,5 +91,15 @@
     max-width: 48rem;
     padding-inline-start: var(--space-lg);
     color: var(--color-text-muted);
+  }
+
+  @include bp.phone {
+    &__code {
+      max-height: 60dvh;
+    }
+
+    &__tabs {
+      align-self: stretch;
+    }
   }
 }

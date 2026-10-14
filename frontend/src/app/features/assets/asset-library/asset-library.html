@@ -90,7 +90,12 @@
       @if (batchActive()) {
         Lädt Datei {{ currentFileIndex() }} von {{ totalInBatch() }} hoch …
       } @else {
-        PNG-Dateien hierher ziehen oder auswählen (mehrere möglich)
+        <span class="asset-library__dropzone-text asset-library__dropzone-text--pointer">
+          PNG-Dateien hierher ziehen oder auswählen (mehrere möglich)
+        </span>
+        <span class="asset-library__dropzone-text asset-library__dropzone-text--touch">
+          PNG-Dateien auswählen (mehrere möglich)
+        </span>
       }
     </label>
     <input

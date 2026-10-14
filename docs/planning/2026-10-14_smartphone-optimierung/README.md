@@ -11,7 +11,7 @@
 | [1](phase-1-fundament.md) | Fundament: Breakpoints, Touch-Größen der Bausteine, gestapelte Tabelle, Menü-Baustein, Dialog-Breite, ADR-028 | standard | complete |
 | [2](phase-2-app-shell.md) | App-Shell: Tab-Leiste unten + „Mehr"-Blatt, kompakte Kopfzeile, Meldungen | standard | complete |
 | [3](phase-3-listen.md) | Alle Karten, Templates, Kartengruppen (Liste + Formular) | standard | complete |
-| [4](phase-4-weitere-seiten.md) | Bildvorrat, Zugriffstoken, Bild-Prompts, Anmeldung, Druckprojekt | standard | pending |
+| [4](phase-4-weitere-seiten.md) | Bildvorrat, Zugriffstoken, Bild-Prompts, Anmeldung, Druckprojekt | standard | complete |
 | [5](phase-5-karteneditor.md) | Karteneditor: Reiter Formular/Vorschau, feste Aktionsleiste, Bildablage per Tippen | standard | pending |
 | [6](phase-6-template-editor-layout.md) | Template-Editor: Kopfzeile, Werkzeugleiste unten, Spalten als Blätter, Dialoge | standard | pending |
 | [7](phase-7-template-editor-gesten.md) | Template-Editor: Zwei-Finger-Zoom/-Verschieben, größere Anfasser, Ebenen per Touch | heikel | pending |

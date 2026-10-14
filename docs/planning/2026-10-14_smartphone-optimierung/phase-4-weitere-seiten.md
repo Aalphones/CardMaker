@@ -28,7 +28,7 @@
 
 ### Bildvorrat
 
-- [ ] `asset-library.html`, im `@else`-Zweig des Ablage-Labels den einen Text durch zwei Spannen ersetzen:
+- [x] `asset-library.html`, im `@else`-Zweig des Ablage-Labels den einen Text durch zwei Spannen ersetzen:
 
 ```html
 <span class="asset-library__dropzone-text asset-library__dropzone-text--pointer">
@@ -39,7 +39,7 @@
 </span>
 ```
 
-- [ ] `asset-library.scss`: `@use 'breakpoints' as bp;`; `&__dropzone-text--touch { display: none; }`;
+- [x] `asset-library.scss`: `@use 'breakpoints' as bp;`; `&__dropzone-text--touch { display: none; }`;
 
 ```scss
   @include bp.touch {
@@ -76,16 +76,16 @@
 
 ### Zugriffstoken
 
-- [ ] `tokens-page.html`: `<table class="table">` → `class="table table--stack"`; `data-label="Angelegt"` und `data-label="Zuletzt verwendet"` an die zweite und dritte `<td>`; Name- und Löschen-Zelle ohne.
-- [ ] `tokens-page.scss`: `@use 'breakpoints' as bp;` und `@include bp.phone { &__form { flex-direction: column; align-items: stretch; } &__reveal-actions { flex-wrap: wrap; } }` innerhalb `.tokens`.
+- [x] `tokens-page.html`: `<table class="table">` → `class="table table--stack"`; `data-label="Angelegt"` und `data-label="Zuletzt verwendet"` an die zweite und dritte `<td>`; Name- und Löschen-Zelle ohne.
+- [x] `tokens-page.scss`: `@use 'breakpoints' as bp;` und `@include bp.phone { &__form { flex-direction: column; align-items: stretch; } &__reveal-actions { flex-wrap: wrap; } }` innerhalb `.tokens`.
 
 ### Bild-Prompts
 
-- [ ] `prompts-page.scss`: `@include bp.phone { &__code { max-height: 60dvh; } &__tabs { align-self: stretch; } }` innerhalb `.prompts`. Bei 360 px im Gerätemodus prüfen, dass die Reiter „Rahmen / Icons / Artwork" in eine Zeile passen; tun sie es nicht → `.seg__option` dort `flex: 1; justify-content: center;` und Fund im Report-Back.
+- [x] `prompts-page.scss`: `@include bp.phone { &__code { max-height: 60dvh; } &__tabs { align-self: stretch; } }` innerhalb `.prompts`. Bei 360 px im Gerätemodus prüfen, dass die Reiter „Rahmen / Icons / Artwork" in eine Zeile passen; tun sie es nicht → `.seg__option` dort `flex: 1; justify-content: center;` und Fund im Report-Back.
 
 ### Anmeldung
 
-- [ ] `login.scss`: `@use 'breakpoints' as bp;` und
+- [x] `login.scss`: `@use 'breakpoints' as bp;` und
 
 ```scss
 @include bp.phone {
@@ -101,7 +101,7 @@
 
 ### Druckprojekt
 
-- [ ] `print-project-page.scss`: `@use 'breakpoints' as bp;` und innerhalb `.print-project`:
+- [x] `print-project-page.scss`: `@use 'breakpoints' as bp;` und innerhalb `.print-project`:
 
 ```scss
   @include bp.narrow {
@@ -128,6 +128,8 @@
   }
 ```
 
-- [ ] `print-blob.ts`: in `printsPdfInFrame()` vor dem Browser-Check `if (isCoarsePointer()) { return false; }` (Import aus `./pointer`). Kommentar über der Funktion um einen Satz ergänzen: „Auf Touch-Geräten ebenso: mobile Browser zeigen ein PDF im Rahmen gar nicht an, der Druckdialog bliebe leer."
+- [x] `print-blob.ts`: in `printsPdfInFrame()` vor dem Browser-Check `if (isCoarsePointer()) { return false; }` (Import aus `./pointer`). Kommentar über der Funktion um einen Satz ergänzen: „Auf Touch-Geräten ebenso: mobile Browser zeigen ein PDF im Rahmen gar nicht an, der Druckdialog bliebe leer."
 
 ## Report-Back
+
+Alles wie geplant umgesetzt; `npm run build` und `npm run lint` grün. Nicht im Gerätemodus geprüft: ob die drei Reiter der Bild-Prompts bei 360 px in eine Zeile passen (Fallback `.seg__option { flex: 1 }` steht in der Checkliste).

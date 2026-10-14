@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .asset-library {
   display: flex;
   flex-direction: column;
@@ -124,6 +126,10 @@
     cursor: pointer;
   }
 
+  &__dropzone-text--touch {
+    display: none;
+  }
+
   &__file-input {
     // Nur per Klick auf das Label erreichbar — das Ablagefeld selbst nimmt Drag&Drop an.
     position: absolute;
@@ -142,5 +148,36 @@
     gap: 2px;
     color: var(--color-danger);
     font-size: var(--font-size-xs);
+  }
+
+  @include bp.touch {
+    &__dropzone-text--pointer {
+      display: none;
+    }
+
+    &__dropzone-text--touch {
+      display: inline;
+    }
+
+    &__dropzone-label {
+      display: inline-flex;
+      align-items: center;
+      min-block-size: var(--touch-target-min);
+      padding-inline: var(--space-md);
+      border: 1px solid var(--color-divider);
+      border-radius: var(--radius-pill);
+      color: var(--color-text-primary);
+    }
+  }
+
+  @include bp.phone {
+    &__list {
+      max-height: none;
+      overflow-y: visible;
+    }
+
+    &__name-input {
+      max-width: none;
+    }
   }
 }

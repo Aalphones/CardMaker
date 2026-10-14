@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .login {
   display: flex;
   align-items: center;
@@ -59,4 +61,14 @@
   gap: var(--space-4);
   width: 100%;
   text-align: left;
+}
+
+@include bp.phone {
+  .login {
+    padding: var(--space-md);
+  }
+
+  .login__card {
+    padding: var(--space-6) var(--space-lg);
+  }
 }

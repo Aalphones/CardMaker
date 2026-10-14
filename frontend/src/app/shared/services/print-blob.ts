@@ -5,6 +5,8 @@
  * und der Aufrufer lädt herunter wie bisher.
  */
 
+import { isCoarsePointer } from './pointer';
+
 /** Ohne Ladeereignis in dieser Zeit gilt der Weg als gescheitert. */
 const FRAME_LOAD_TIMEOUT_MS = 10_000;
 
@@ -54,9 +56,14 @@ export function printPdfBlob(blob: Blob): Promise<boolean> {
 /**
  * Firefox und Safari zeigen PDFs im Rahmen über ihren eigenen Betrachter an, der auf einen
  * Druckbefehl von außen nicht reagiert — dort wird gar nicht erst versucht, sonst passiert
- * beim Klick sichtbar nichts.
+ * beim Klick sichtbar nichts. Auf Touch-Geräten ebenso: mobile Browser zeigen ein PDF im
+ * Rahmen gar nicht an, der Druckdialog bliebe leer.
  */
 function printsPdfInFrame(): boolean {
+  if (isCoarsePointer()) {
+    return false;
+  }
+
   const agent = navigator.userAgent;
   const isFirefox = agent.includes('Firefox');
   const isSafari =

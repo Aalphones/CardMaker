@@ -36,7 +36,7 @@
   </form>
 
   @if (tokens.items().length) {
-    <table class="table">
+    <table class="table table--stack">
       <thead>
         <tr>
           <th>Name</th>
@@ -49,8 +49,8 @@
         @for (item of tokens.items(); track item.id) {
           <tr>
             <td>{{ item.name }}</td>
-            <td>{{ item.createdAt | date: 'medium' }}</td>
-            <td>
+            <td data-label="Angelegt">{{ item.createdAt | date: 'medium' }}</td>
+            <td data-label="Zuletzt verwendet">
               @if (item.lastUsedAt) {
                 {{ item.lastUsedAt | date: 'medium' }}
               } @else {
