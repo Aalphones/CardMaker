@@ -38,8 +38,7 @@ backend/src/Validators/<Feature>Validator.php
 `docs/conventions/css.md`. `frontend/src/styles/_breakpoints.scss` — die einzige Stelle mit
 Breakpoint-Zahlen (Mixins `phone`/`narrow`/`editor-narrow`/`touch`, ADR-028).
 `frontend/src/styles/_bausteine.scss` — die gemeinsamen
-Bausteinklassen (Buttons, Felder, Karten, Tags, Dialog, Tabelle, Segment-Umschalter),
-per `@use` eingebunden; Komponenten bauen keine eigenen Button-/Feld-Grundregeln mehr.
+Bausteinklassen (Buttons, Felder, Karten, Tags, Dialog, Tabelle samt gestapelter Variante `.table--stack`, Aufklappmenü `.menu`, Segment-Umschalter, Tippflächen-Größen für Touch-Geräte), per `@use` eingebunden; Komponenten bauen keine eigenen Button-/Feld-Grundregeln mehr.
 `frontend/src/styles/_kartenschriften.scss` — die `@font-face`-Einträge der Schriften **für
 die Karten** (nicht für die Oberfläche); die Dateien liegen in `frontend/public/fonts/`,
 Herkunft und Lizenz in `frontend/public/fonts/LIZENZ.md`.
@@ -269,6 +268,8 @@ frontend/src/app/
                            Tab-Leiste unten (Karten, Gruppen, Templates, Druck, Mehr) und
                            „Mehr"-Blatt mit Bildvorrat, Bild-Prompts, Zugriffstoken, Abmelden
 ```
+
+Smartphone-Breite (ADR-028): außer Shell, Kartenliste, Karteneditor und Template-Editor (oben jeweils beschrieben) passen sich die übrigen Seiten (Kartengruppen, Templates-Liste, Bildvorrat, Zugriffstoken, Bild-Prompts, Anmeldung, Druckprojekt) im eigenen Stylesheet an, die Token-Tabelle zusätzlich als `.table--stack`. Einzige Logik-Änderung dabei: `print-blob.ts` meldet auf Touch-Geräten `false`, das PDF wird dort heruntergeladen statt gedruckt.
 
 `admin/` aus der Tabelle oben existiert noch nicht — es entsteht erst mit einem Folgeplan.
 `print-project/` ist mit Meilenstein 5 vollständig (Bildschirm, Bogen-Vorschau, Export als

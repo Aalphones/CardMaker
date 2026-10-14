@@ -42,7 +42,7 @@ Trading Cards) zu bauen, ohne für jeden Kartentyp neue Software zu schreiben.
   (ADR-011, löst ADR-007 ab).
 - Kein Multi-User-Betrieb / keine gleichzeitige Bearbeitung, kein Sharing zwischen Accounts
 - Kein i18n — Oberfläche fix in einer Sprache
-- Keine native Mobile-App (kein Capacitor/Cordova-Wrapper)
+- Keine native Mobile-App (kein Capacitor/Cordova-Wrapper) — die Web-App selbst ist ab 360 px Breite auf dem Smartphone bedienbar (ADR-028)
 - Keine automatische KI-Bildgenerierung im Tool selbst — Rahmen-/Motiv-Erzeugung bleibt ein
   manueller externer Schritt (Prompt-Vorlagen dafür: ChatGPT je einzeln für Rahmen, Icons
   und Artwork in [`docs/design/prompts-chatgpt/`](design/prompts-chatgpt/README.md), lokale
@@ -73,9 +73,7 @@ Begründung nicht-offensichtlicher Wahlen:
   Design-Editoren mit Layer-Modell — offizielles Angular-Binding, Scene-Graph mit
   eingebautem Hit-Testing/Transform-Handles. Fabric.js zielt stärker auf SVG-Export/Filter,
   PixiJS auf GPU-Performance/Games — beides am Bedarf hier vorbei.
-- **Kein Offline-Modus**: anders als Promptigofant ist CardMaker ein kreatives Desktop-Tool,
-  kein Nachschlagewerk für unterwegs — Online-only hält die Architektur ohne Sync-Layer
-  einfach.
+- **Kein Offline-Modus**: anders als Promptigofant ist CardMaker ein kreatives Werkzeug (seit ADR-028 auch auf dem Smartphone bedienbar, aber immer mit Netz), kein Nachschlagewerk für unterwegs — Online-only hält die Architektur ohne Sync-Layer einfach.
 - **Eigenständige App statt Promptigofant-Integration**: bewusste Entscheidung trotz
   konzeptioneller Nähe (siehe ADR-002) — getrennte Repos, getrennte Datenbanken, kein
   Kopplungsrisiko zwischen den Projekten. Eine Charakterverwaltung wie bei Promptigofant

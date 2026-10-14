@@ -20,12 +20,17 @@
 
 ## Checkliste
 
-- [ ] `css.md`-Abschnitt schreiben (AK 1).
-- [ ] `code-map.md` nachziehen (AK 2), grob halten — keine Zeilennummern.
-- [ ] Glossar prüfen und ggf. ergänzen (AK 3).
-- [ ] `PROJECT.md`: steht dort eine Aussage wie „nur Desktop" o. ä. (Grep `Desktop|mobil|Smartphone`)? Dann auf den neuen Stand bringen.
-- [ ] `npm run lint`, `npm run build` im Ordner `frontend/` (AK 4).
-- [ ] `FINDINGS.md` abarbeiten (AK 5).
-- [ ] Bottom-Sektionen der README füllen (AK 6).
+- [x] `css.md`-Abschnitt schreiben (AK 1).
+- [x] `code-map.md` nachziehen (AK 2), grob halten — keine Zeilennummern.
+- [x] Glossar prüfen und ggf. ergänzen (AK 3).
+- [x] `PROJECT.md`: steht dort eine Aussage wie „nur Desktop" o. ä. (Grep `Desktop|mobil|Smartphone`)? Dann auf den neuen Stand bringen.
+- [x] `npm run lint`, `npm run build` im Ordner `frontend/` (AK 4).
+- [x] `FINDINGS.md` abarbeiten (AK 5).
+- [x] Bottom-Sektionen der README füllen (AK 6).
 
 ## Report-Back
+
+- AK 3: Das Glossar führt neben Domänenbegriffen auch UI-Begriffe („Anfasser", „Ebenenreihenfolge") — die vier Begriffe sind deshalb ergänzt.
+- AK 4: Lint „All files pass linting". Build: Initial total 438,10 kB (Warnung 500 kB, Fehler 1 MB); einzige Budget-Meldung ist eine **Warnung** für `template-editor.scss` (4,85 kB, Warnung 4 kB, Fehler 8 kB) → Follow-up in der README.
+- AK 5: `FINDINGS.md` hatte keine Einträge.
+- `PROJECT.md`: zwei Stellen nachgezogen (Nicht-Ziel „native Mobile-App", Begründung „Desktop-Tool").

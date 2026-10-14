@@ -87,7 +87,7 @@ global wiederkehrenden Klassen: `.btn` (+ `--primary`, `--secondary`, `--ghost`,
 `--block`), `.tag` (+ `--accent`, `--accent-2`, `--neutral`, `--outline`), `.field`,
 `.input`, `.radio` + `.radio__dot`, `.seg` + `.seg__option`, `.card` (+ `__kicker`,
 `__title`, `__body`, `__meta`), `.table`, `.dialog` (+ `__title`, `__body`, `__actions`)
-und `.dialog-backdrop`. Dazu drei Zusatzklassen: `.icon-button` (Tönung beim Überfahren
+und `.dialog-backdrop`, `.table--stack` und `.menu` (+ `__item`, siehe „Breakpoints und Touch"). Dazu drei Zusatzklassen: `.icon-button` (Tönung beim Überfahren
 für nackte Icon-Schaltflächen), `.hover-row` (Zeilentönung für Listen/Menüs), `.thin-scroll`
 (schmale, eingefärbte Bildlaufleisten).
 
@@ -101,6 +101,27 @@ lokal nachgebaut.
 Die CDK-Dialoge (`@angular/cdk/dialog`, z. B. Löschbestätigung und Bildauswahl) bringen
 über `overlay-prebuilt.css` einen eigenen dunklen Standardhintergrund mit — der wird in
 `_bausteine.scss` global auf denselben Zweck-Token wie `.dialog-backdrop` umgestellt.
+
+## Breakpoints und Touch
+
+Grundsatz aus [ADR-028](../decisions/028-smartphone-bedienung.md): die **Fensterbreite** entscheidet über die Anordnung, die **Zeigerart** über die Größe der Tippflächen.
+
+Die Breakpoint-Zahlen stehen ausschließlich in `frontend/src/styles/_breakpoints.scss`. Komponenten binden die Mixins mit `@use 'breakpoints' as bp;` ein (möglich über `stylePreprocessorOptions.includePaths` in `angular.json`) und schreiben `@include bp.phone { … }`. **Keine nackten `@media (max-width: …)`-Zahlen in Komponenten** — fehlt ein Breakpoint, kommt er als Mixin in `_breakpoints.scss` dazu.
+
+| Mixin | Bedingung | Zweck |
+|---|---|---|
+| `bp.phone` | Breite ≤ 600 px | Smartphone-Breite: Tab-Leiste, Reiter, Blätter, einspaltige Listen |
+| `bp.narrow` | Breite ≤ 900 px | schmal: Shell und Karteneditor brechen um (Tablet, Telefon quer) |
+| `bp.editor-narrow` | Breite ≤ 999 px | Template-Editor: Spalten werden Schubladen |
+| `bp.touch` | `(pointer: coarse)` | Touch-Gerät, unabhängig von der Breite — nur Größen, keine Anordnung |
+
+In TypeScript fragt ausschließlich `shared/services/pointer.ts` (`isCoarsePointer()`) die Zeigerart ab.
+
+Auf Touch-Geräten gilt in den Bausteinen: jede Schaltfläche, jedes Eingabefeld und jeder Umschalter ist mindestens `var(--touch-target-min)` (44 px) groß; Eingabefelder haben **16 px Schrift** — darunter zoomt iOS Safari beim Antippen heran. Beides erledigt `_bausteine.scss`, Komponenten erben es über die Bausteinklassen.
+
+Zwei Bausteine gehören dazu: `.table--stack` stapelt eine `.table` auf Smartphone-Breite zu Zeilenblöcken, die Spaltenbeschriftung kommt aus `data-label` an jeder Zelle (die Kopfzeile bleibt für Screenreader). `.menu` + `.menu__item` (+ `--danger`) sind das Aufklappmenü für `@angular/cdk/menu` (`cdkMenu`/`cdkMenuItem`), jeder Eintrag in Tippflächen-Höhe.
+
+Zweck-Token für die festen Leisten: `--shell-tabbar-height` (Tab-Leiste der Shell) und `--editor-toolbar-height` (Werkzeugleiste des Template-Editors) — wer etwas über diesen Leisten festklebt, rechnet mit ihnen statt mit eigenen Zahlen.
 
 ## Canvas-Spezifisch
 

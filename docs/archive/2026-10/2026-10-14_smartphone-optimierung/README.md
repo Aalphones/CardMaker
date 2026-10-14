@@ -15,7 +15,7 @@
 | [5](phase-5-karteneditor.md) | Karteneditor: Reiter Formular/Vorschau, feste Aktionsleiste, Bildablage per Tippen | standard | complete |
 | [6](phase-6-template-editor-layout.md) | Template-Editor: Kopfzeile, Werkzeugleiste unten, Spalten als Blätter, Dialoge | standard | complete |
 | [7](phase-7-template-editor-gesten.md) | Template-Editor: Zwei-Finger-Zoom/-Verschieben, größere Anfasser, Ebenen per Touch | heikel | complete |
-| [8](phase-8-doku-und-abschluss.md) | Doku & Abschluss | mechanisch | pending |
+| [8](phase-8-doku-und-abschluss.md) | Doku & Abschluss | mechanisch | complete |
 
 ## Begriffe (gelten in allen Phasen)
 
@@ -76,10 +76,28 @@ Fehlerklassen geprüft: im Wissens-Vault gibt es keine Einträge zu Angular, Kon
 
 ## Summary
 
+Alle Bildschirme sind für Smartphone-Breite (ab 360 px) umgebaut: einheitliche Breakpoint-Mixins (ADR-028), 44-px-Tippflächen und 16-px-Eingabeschrift auf Touch-Geräten, Tab-Leiste unten mit „Mehr"-Blatt, Aktionsmenü an den Kartenkacheln, gestapelte Tabellen, Reiter und klebende Aktionsleiste im Karteneditor, Werkzeugleiste unten und Blätter im Template-Editor, Zwei-Finger-Zoom/-Verschieben der Bühne. `npm run lint` grün, `npm run build` ohne Budget-Fehler. Abnahme durch Sascha per Smoke-Checkliste steht aus — nichts davon wurde auf einem echten Gerät geprüft.
+
 ## Files touched
+
+- Fundament: `frontend/angular.json` (`includePaths`), `src/styles.scss` (zwei Leisten-Token), `src/styles/_breakpoints.scss` (neu), `src/styles/_bausteine.scss` (Touch-Größen, `.table--stack`, `.menu`, Dialog auf Smartphone), `src/app/app.config.ts` (Dialog-Vorgaben), `src/index.html`, `shared/services/pointer.ts` (neu), `shared/services/print-blob.ts`
+- Shell: `layout/shell/*`, `shared/components/notification-list/`
+- Seiten: `features/cards/cards-list/*`, `features/card-groups/*`, `features/templates/templates-list/`, `features/assets/asset-library/*`, `features/auth/login/`, `features/auth/tokens/tokens-page/*`, `features/prompts/prompts-page/`, `features/print-project/print-project-page/`
+- Karteneditor: `features/cards/card-editor/*` inkl. `image-drop/`
+- Template-Editor: `features/templates/template-editor/*` (Editor, `layer-list`, `stage-controls`, `add-layer-menu`, `asset-picker`, `font-manager`), `shared/canvas/card-canvas/card-canvas.ts`
+- Doku: ADR-028, `docs/conventions/css.md`, `docs/code-map.md`, `docs/glossary.md`, `docs/PROJECT.md`
 
 ## Commits
 
+`9ab92de` Plan · `e08c4e4` Phase 1 · `3a46eb3` Phase 2 · `ff51ab1` Phase 3 · `bc48f12` Phase 4 · `0992465` Phase 5 · `f6da8a0` Phase 6 · `b6bfcbe` Phase 7 · Phase 8 im Abschluss-Commit.
+
 ## Deviations from plan
 
+- Phase 2: Escape und Schließen bei Navigation des „Mehr"-Blatts über `host`-Bindung und `effect()` statt `@HostListener`/`.subscribe()` (Projekt-Konvention schlägt Plan-Text).
+- Phase 7: Zwei-Punkt-Prüfung per Guard statt ungeprüftem Destrukturieren (`noUncheckedIndexedAccess`); der Stift-Knopf bekommt auf Touch-Geräten zusätzlich 44 px Tippfläche.
+
 ## Follow-ups
+
+- `template-editor.scss` überschreitet die Warnschwelle für Komponenten-Stylesheets (4,85 kB bei 4 kB Warnung, 8 kB Fehler). Kein Build-Fehler, aber der nächste größere Umbau sollte die Smartphone-Regeln in eine Unterkomponente oder in Bausteine auslagern.
+- Doppelte ADR-Nummer 020 (siehe Nebenbefunde) weiterhin offen.
+- Sichtprüfung auf echtem Gerät steht aus (Smoke-Checkliste, Punkte 1–3 zuerst).

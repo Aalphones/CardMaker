@@ -1,5 +1,5 @@
 # STATE
 
-**Aktiver Plan:** `docs/planning/2026-10-14_smartphone-optimierung/`
-**Phase:** 8/8 — Doku & Abschluss (pending, mechanisch); Phase 7 complete
-**Nächster Schritt:** `phase-8-doku-und-abschluss.md` abarbeiten, danach Smoke-Checkliste an Sascha und Plan archivieren.
+**Aktiver Plan:** (kein aktiver Plan) — zuletzt archiviert: `docs/archive/2026-10/2026-10-14_smartphone-optimierung/`
+**Phase:** —
+**Nächster Schritt:** Smoke-Abnahme durch Sascha (Checkliste in der archivierten Plan-README); Befunde daraus als Folgeplan.
