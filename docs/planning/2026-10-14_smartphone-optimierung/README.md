@@ -8,7 +8,7 @@
 
 | Phase | Thema | Tier | Status |
 |---|---|---|---|
-| [1](phase-1-fundament.md) | Fundament: Breakpoints, Touch-Größen der Bausteine, gestapelte Tabelle, Menü-Baustein, Dialog-Breite, ADR-028 | standard | pending |
+| [1](phase-1-fundament.md) | Fundament: Breakpoints, Touch-Größen der Bausteine, gestapelte Tabelle, Menü-Baustein, Dialog-Breite, ADR-028 | standard | complete |
 | [2](phase-2-app-shell.md) | App-Shell: Tab-Leiste unten + „Mehr"-Blatt, kompakte Kopfzeile, Meldungen | standard | pending |
 | [3](phase-3-listen.md) | Alle Karten, Templates, Kartengruppen (Liste + Formular) | standard | pending |
 | [4](phase-4-weitere-seiten.md) | Bildvorrat, Zugriffstoken, Bild-Prompts, Anmeldung, Druckprojekt | standard | pending |

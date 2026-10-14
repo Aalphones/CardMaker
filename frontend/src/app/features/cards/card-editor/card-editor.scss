@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: block;
 }
@@ -179,7 +181,7 @@
   }
 }
 
-@media (max-width: 900px) {
+@include bp.narrow {
   .card-editor__layout {
     grid-template-columns: 1fr;
   }

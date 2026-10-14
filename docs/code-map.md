@@ -35,7 +35,9 @@ backend/src/Validators/<Feature>Validator.php
 ## Globale Styles
 
 `frontend/src/styles.scss` — Token-Schicht (`:root`) und Basis-Resets, siehe
-`docs/conventions/css.md`. `frontend/src/styles/_bausteine.scss` — die gemeinsamen
+`docs/conventions/css.md`. `frontend/src/styles/_breakpoints.scss` — die einzige Stelle mit
+Breakpoint-Zahlen (Mixins `phone`/`narrow`/`editor-narrow`/`touch`, ADR-028).
+`frontend/src/styles/_bausteine.scss` — die gemeinsamen
 Bausteinklassen (Buttons, Felder, Karten, Tags, Dialog, Tabelle, Segment-Umschalter),
 per `@use` eingebunden; Komponenten bauen keine eigenen Button-/Feld-Grundregeln mehr.
 `frontend/src/styles/_kartenschriften.scss` — die `@font-face`-Einträge der Schriften **für
@@ -143,7 +145,8 @@ frontend/src/app/
                          aufklappbarem Klartext-Hinweis; not-found; notification-list)
     guards/            ← wiederverwendbare Route-Guards (u.a. pending-changes-guard —
                           canDeactivate bei ungespeicherten Formularen)
-    services/          ← kleine, Angular-freie Helfer ohne eigenen Zustand: `notification.ts`
+    services/          ← kleine, Angular-freie Helfer ohne eigenen Zustand: `pointer.ts`
+                          (`isCoarsePointer()`), `notification.ts`
                           (globaler Meldungsdienst, angezeigt von `notification-list`),
                           `download-file.ts` (`downloadBlob()` — Objekt-Adresse, unsichtbarer
                           `<a download>`-Klick, Freigabe), `print-blob.ts` (`printPdfBlob()` —

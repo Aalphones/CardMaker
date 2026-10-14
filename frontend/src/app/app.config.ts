@@ -1,3 +1,4 @@
+import { DEFAULT_DIALOG_CONFIG, DialogConfig } from '@angular/cdk/dialog';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
@@ -36,6 +37,13 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
+    // Die CDK-Vorgabe 80vw ließe auf dem Smartphone links und rechts je 36px ungenutzt.
+    // Ausbreiten statt nur maxWidth übergeben: ein eigener DEFAULT_DIALOG_CONFIG ersetzt die
+    // Vorgaben komplett (dialog.mjs: `this._defaultOptions || new DialogConfig()`).
+    {
+      provide: DEFAULT_DIALOG_CONFIG,
+      useValue: { ...new DialogConfig(), maxWidth: 'calc(100vw - 1rem)' },
+    },
     provideHttpClient(withInterceptors([authTokenInterceptor, errorInterceptor])),
     provideStore(),
     provideState(authFeature),

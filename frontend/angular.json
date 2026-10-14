@@ -56,6 +56,9 @@
                 "ignore": ["fonts/*.woff2"]
               }
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": ["src/styles"]
+            },
             "styles": ["src/styles.scss", "@angular/cdk/overlay-prebuilt.css"]
           },
           "configurations": {

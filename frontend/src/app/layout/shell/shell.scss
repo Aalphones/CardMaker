@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .shell {
   display: grid;
   grid-template-rows: auto 1fr;
@@ -118,7 +120,7 @@
     }
   }
 
-  @media (max-width: 900px) {
+  @include bp.narrow {
     &__body {
       grid-template-columns: 1fr;
     }

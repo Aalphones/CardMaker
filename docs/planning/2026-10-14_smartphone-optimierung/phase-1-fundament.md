@@ -1,6 +1,7 @@
 # Phase 1 — Fundament
 
 **Tier:** standard
+**Status:** complete
 
 ## Kontext (vor dem Start lesen)
 
@@ -29,7 +30,7 @@
 
 ### Breakpoints
 
-- [ ] `frontend/src/styles/_breakpoints.scss` anlegen:
+- [x] `frontend/src/styles/_breakpoints.scss` anlegen:
 
 ```scss
 // Die einzige Stelle mit Breakpoint-Zahlen (ADR-028). Komponenten binden ein mit
@@ -65,10 +66,10 @@ $editor-narrow-max: 999px;
 }
 ```
 
-- [ ] `frontend/angular.json`: unter `projects.<app>.architect.build.options` ergänzen: `"stylePreprocessorOptions": { "includePaths": ["src/styles"] }`. `styles.scss` bindet weiterhin `@use 'styles/bausteine'` ein — **nicht** umschreiben, der relative Pfad bleibt gültig.
-- [ ] `shell.scss`: `@use 'breakpoints' as bp;` als erste Zeile; `@media (max-width: 900px) {` → `@include bp.narrow {`.
-- [ ] `card-editor.scss`: ebenso, `@media (max-width: 900px)` → `@include bp.narrow`.
-- [ ] `template-editor.scss`: ebenso, `@media (max-width: 999px)` → `@include bp.editor-narrow`. Die kombinierte Abfrage wird zu verschachtelten Blöcken:
+- [x] `frontend/angular.json`: unter `projects.<app>.architect.build.options` ergänzen: `"stylePreprocessorOptions": { "includePaths": ["src/styles"] }`. `styles.scss` bindet weiterhin `@use 'styles/bausteine'` ein — **nicht** umschreiben, der relative Pfad bleibt gültig.
+- [x] `shell.scss`: `@use 'breakpoints' as bp;` als erste Zeile; `@media (max-width: 900px) {` → `@include bp.narrow {`.
+- [x] `card-editor.scss`: ebenso, `@media (max-width: 900px)` → `@include bp.narrow`.
+- [x] `template-editor.scss`: ebenso, `@media (max-width: 999px)` → `@include bp.editor-narrow`. Die kombinierte Abfrage wird zu verschachtelten Blöcken:
 
 ```scss
 @include bp.editor-narrow {
@@ -82,7 +83,7 @@ $editor-narrow-max: 999px;
 
 ### Token und Viewport
 
-- [ ] `styles.scss` im SEMANTIC-Block direkt unter `--touch-target-min` ergänzen:
+- [x] `styles.scss` im SEMANTIC-Block direkt unter `--touch-target-min` ergänzen:
 
 ```scss
   /* SEMANTIC — Smartphone: feste Leisten am unteren Rand (ADR-028) */
@@ -90,12 +91,12 @@ $editor-narrow-max: 999px;
   --editor-toolbar-height: 3.5rem;
 ```
 
-- [ ] `index.html`: Viewport-Meta wird `width=device-width, initial-scale=1, viewport-fit=cover` — erst damit liefert `env(safe-area-inset-bottom)` auf iPhones einen Wert (Phase 2 und 6 brauchen ihn).
+- [x] `index.html`: Viewport-Meta wird `width=device-width, initial-scale=1, viewport-fit=cover` — erst damit liefert `env(safe-area-inset-bottom)` auf iPhones einen Wert (Phase 2 und 6 brauchen ihn).
 
 ### Touch-Größen in `_bausteine.scss`
 
-- [ ] Oben `@use 'breakpoints' as bp;` ergänzen.
-- [ ] Am Dateiende einen Block anfügen (Kommentar übernehmen — die 16 px sind ein Grenzwert, keine Geschmacksfrage):
+- [x] Oben `@use 'breakpoints' as bp;` ergänzen.
+- [x] Am Dateiende einen Block anfügen (Kommentar übernehmen — die 16 px sind ein Grenzwert, keine Geschmacksfrage):
 
 ```scss
 // — Touch-Geräte (ADR-028) —
@@ -136,11 +137,11 @@ $editor-narrow-max: 999px;
 }
 ```
 
-- [ ] Vorher prüfen (Grep über `frontend/src/app`, Muster `icon-button`): keine der Verwendungsstellen setzt im eigenen Stylesheet ein `::before` auf dasselbe Element. Stand beim Planen: 7 Vorlagen (`asset-library`, `print-project-page`, `cards-list`, `font-manager`, `layer-list`, `notification-list`, `field-hint`). Hat eine davon `::before` → Fund in `FINDINGS.md`, dort `::after` statt `::before` verwenden.
+- [x] Vorher prüfen (Grep über `frontend/src/app`, Muster `icon-button`): keine der Verwendungsstellen setzt im eigenen Stylesheet ein `::before` auf dasselbe Element. Stand beim Planen: 7 Vorlagen (`asset-library`, `print-project-page`, `cards-list`, `font-manager`, `layer-list`, `notification-list`, `field-hint`). Hat eine davon `::before` → Fund in `FINDINGS.md`, dort `::after` statt `::before` verwenden.
 
 ### Gestapelte Tabelle
 
-- [ ] In `_bausteine.scss` nach dem `.table`-Block:
+- [x] In `_bausteine.scss` nach dem `.table`-Block:
 
 ```scss
 // Tabelle als Stapel auf Smartphone-Breite: jede Zeile ein Block, jede Zelle zeigt ihre
@@ -185,7 +186,7 @@ $editor-narrow-max: 999px;
 
 ### Menü-Baustein
 
-- [ ] In `_bausteine.scss` nach dem Dialog-Block:
+- [x] In `_bausteine.scss` nach dem Dialog-Block:
 
 ```scss
 // — Aufklappmenü (@angular/cdk/menu: cdkMenu / cdkMenuItem) —
@@ -233,11 +234,11 @@ $editor-narrow-max: 999px;
 }
 ```
 
-- [ ] `styles.scss`: `@import '@angular/cdk/overlay-prebuilt.css';` ist für CDK-Menüs nötig — prüfen (Grep `overlay-prebuilt` in `frontend/src` und `angular.json`), ob er schon eingebunden ist (die CDK-Dialoge brauchen ihn auch). Ist er da → nichts tun.
+- [x] `styles.scss`: `@import '@angular/cdk/overlay-prebuilt.css';` ist für CDK-Menüs nötig — prüfen (Grep `overlay-prebuilt` in `frontend/src` und `angular.json`), ob er schon eingebunden ist (die CDK-Dialoge brauchen ihn auch). Ist er da → nichts tun.
 
 ### Dialoge
 
-- [ ] `app.config.ts`: Provider ergänzen (Imports aus `@angular/cdk/dialog`):
+- [x] `app.config.ts`: Provider ergänzen (Imports aus `@angular/cdk/dialog`):
 
 ```ts
 // Die CDK-Vorgabe 80vw ließe auf dem Smartphone links und rechts je 36px ungenutzt.
@@ -246,7 +247,7 @@ $editor-narrow-max: 999px;
 { provide: DEFAULT_DIALOG_CONFIG, useValue: { ...new DialogConfig(), maxWidth: 'calc(100vw - 1rem)' } },
 ```
 
-- [ ] `_bausteine.scss`, im Dialog-Abschnitt:
+- [x] `_bausteine.scss`, im Dialog-Abschnitt:
 
 ```scss
 @include bp.phone {
@@ -272,7 +273,7 @@ $editor-narrow-max: 999px;
 
 ### Hilfsfunktion für TypeScript
 
-- [ ] `frontend/src/app/shared/services/pointer.ts` anlegen:
+- [x] `frontend/src/app/shared/services/pointer.ts` anlegen:
 
 ```ts
 /**
@@ -287,6 +288,6 @@ export function isCoarsePointer(): boolean {
 
 ### ADR
 
-- [ ] `docs/decisions/028-smartphone-bedienung.md` (10–15 Zeilen): Kontext (kein Smartphone-Entwurf im Handoff, bisher drei verstreute Media-Queries), Optionen (a) nur Touch-Abfrage, (b) nur Breite, (c) Breite für die Anordnung + `pointer: coarse` für Tippflächen; Entscheidung (c) mit den Werten 600/900/999 px und 44 px Tippfläche, 16 px Eingabeschrift; Muster: Tab-Leiste unten, Aktionsmenü statt Icon-Reihe, Reiter statt Nebeneinander, Blätter statt Seitenspalten, zwei Finger für die Bühne; Konsequenz: neue Breakpoints nur in `_breakpoints.scss`.
+- [x] `docs/decisions/028-smartphone-bedienung.md` (10–15 Zeilen): Kontext (kein Smartphone-Entwurf im Handoff, bisher drei verstreute Media-Queries), Optionen (a) nur Touch-Abfrage, (b) nur Breite, (c) Breite für die Anordnung + `pointer: coarse` für Tippflächen; Entscheidung (c) mit den Werten 600/900/999 px und 44 px Tippfläche, 16 px Eingabeschrift; Muster: Tab-Leiste unten, Aktionsmenü statt Icon-Reihe, Reiter statt Nebeneinander, Blätter statt Seitenspalten, zwei Finger für die Bühne; Konsequenz: neue Breakpoints nur in `_breakpoints.scss`.
 
 ## Report-Back

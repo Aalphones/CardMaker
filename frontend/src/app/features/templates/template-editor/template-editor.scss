@@ -2,6 +2,8 @@
 // hinter ihm nicht sichtbar. Rohe Pixelwerte stehen nur dort, wo der Entwurf sie als
 // Bauteilmaß nennt (56px Kopfzeile, 250/308px Spalten, 10px Namensfeld, 7px Punkt).
 
+@use 'breakpoints' as bp;
+
 .template-editor {
   position: fixed;
   inset: 0;
@@ -170,7 +172,7 @@
   }
 }
 
-@media (max-width: 999px) {
+@include bp.editor-narrow {
   .template-editor__handle {
     display: block;
   }
@@ -203,8 +205,10 @@
   }
 }
 
-@media (max-width: 999px) and (prefers-reduced-motion: no-preference) {
-  .template-editor__panel {
-    transition: transform 160ms ease;
+@include bp.editor-narrow {
+  @media (prefers-reduced-motion: no-preference) {
+    .template-editor__panel {
+      transition: transform 160ms ease;
+    }
   }
 }

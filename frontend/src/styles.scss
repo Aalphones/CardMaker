@@ -115,6 +115,10 @@
 
   --touch-target-min: 2.75rem;
 
+  /* SEMANTIC — Smartphone: feste Leisten am unteren Rand (ADR-028) */
+  --shell-tabbar-height: 3.75rem;
+  --editor-toolbar-height: 3.5rem;
+
   /* SEMANTIC — Kartenvorschau: helles Schachbrett hinter der Karte macht Transparenz sichtbar */
   --color-canvas-checker-light: var(--color-neutral-200);
   --color-canvas-checker-dark: var(--color-neutral-400);

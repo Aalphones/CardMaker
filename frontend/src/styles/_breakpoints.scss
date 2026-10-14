@@ -1,0 +1,31 @@
+// Die einzige Stelle mit Breakpoint-Zahlen (ADR-028). Komponenten binden ein mit
+// `@use 'breakpoints' as bp;` und schreiben `@include bp.phone { … }`.
+// TypeScript fragt nur den Zeiger ab: shared/services/pointer.ts.
+
+$phone-max: 600px;
+$narrow-max: 900px;
+$editor-narrow-max: 999px;
+
+@mixin phone {
+  @media (max-width: $phone-max) {
+    @content;
+  }
+}
+
+@mixin narrow {
+  @media (max-width: $narrow-max) {
+    @content;
+  }
+}
+
+@mixin editor-narrow {
+  @media (max-width: $editor-narrow-max) {
+    @content;
+  }
+}
+
+@mixin touch {
+  @media (pointer: coarse) {
+    @content;
+  }
+}
