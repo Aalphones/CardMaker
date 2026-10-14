@@ -71,6 +71,12 @@
     opacity: 0.35;
   }
 
+  // Nur auf Smartphone-Breite sichtbar (siehe unten).
+  &__toolbar,
+  &__more {
+    display: none;
+  }
+
   &__body {
     display: flex;
     flex: 1;
@@ -209,6 +215,96 @@
   @media (prefers-reduced-motion: no-preference) {
     .template-editor__panel {
       transition: transform 160ms ease;
+    }
+  }
+}
+
+@include bp.phone {
+  .template-editor__topbar {
+    gap: var(--space-sm);
+    padding-inline: var(--space-sm);
+  }
+
+  .template-editor__back-label,
+  .template-editor__topbar-wide {
+    display: none;
+  }
+
+  .template-editor__more {
+    display: inline-flex;
+  }
+
+  .template-editor__name {
+    flex: 1;
+    min-inline-size: 0;
+    inline-size: auto;
+  }
+
+  // Als Streifen unter der Kopfzeile, sonst quetscht die Meldung das Namensfeld zusammen.
+  .template-editor__error {
+    position: absolute;
+    inset-block-start: 56px;
+    inset-inline: 0;
+    z-index: 4;
+    padding: var(--space-xs) var(--space-md);
+    background: var(--color-surface);
+    border-block-end: 1px solid var(--color-divider);
+  }
+
+  // Die Werkzeugleiste unten ersetzt Griffe und Maßstab-Pille.
+  .template-editor__handle,
+  .template-editor__stage app-stage-controls {
+    display: none;
+  }
+
+  .template-editor__toolbar {
+    display: grid;
+    flex: none;
+    grid-template-columns: repeat(5, 1fr);
+    block-size: calc(var(--editor-toolbar-height) + env(safe-area-inset-bottom));
+    padding-block-end: env(safe-area-inset-bottom);
+    border-block-start: 1px solid var(--color-divider);
+    background: var(--color-surface);
+  }
+
+  .template-editor__tool {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 11px;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.35;
+    }
+
+    &--active {
+      color: var(--color-accent-text);
+    }
+  }
+
+  // Blätter statt Schubladen: von unten, über der Werkzeugleiste, obere Bühnenhälfte frei.
+  .template-editor__panel {
+    inset-block: auto calc(var(--editor-toolbar-height) + env(safe-area-inset-bottom));
+    block-size: 55dvh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+
+    &--layers,
+    &--properties {
+      inset-inline: 0;
+      inline-size: auto;
+      border-inline: 0;
+      transform: translateY(100%);
+    }
+
+    &--open {
+      transform: none;
     }
   }
 }

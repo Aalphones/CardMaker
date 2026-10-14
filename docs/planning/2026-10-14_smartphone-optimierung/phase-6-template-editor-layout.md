@@ -29,15 +29,15 @@
 
 ### `template-editor.ts`
 
-- [ ] `CdkMenuTrigger, CdkMenu, CdkMenuItem` aus `@angular/cdk/menu` in `imports`.
-- [ ] `protected readonly zoomPercent = computed(() => Math.round(this.editor.zoom() * 100));` — vorher in `stage-controls.ts` nachsehen, wie dort `zoomPercent` gerechnet wird, und **dieselbe** Rechnung verwenden (gleiche Zahl in Pille und Leiste).
-- [ ] `toggleLayersPanel()`: nach dem Umschalten `if (this.layersPanelOpen()) { this.propertiesPanelOpen.set(false); }`; `togglePropertiesPanel()` spiegelbildlich.
+- [x] `CdkMenuTrigger, CdkMenu, CdkMenuItem` aus `@angular/cdk/menu` in `imports`.
+- [x] `protected readonly zoomPercent = computed(() => Math.round(this.editor.zoom() * 100));` — vorher in `stage-controls.ts` nachsehen, wie dort `zoomPercent` gerechnet wird, und **dieselbe** Rechnung verwenden (gleiche Zahl in Pille und Leiste).
+- [x] `toggleLayersPanel()`: nach dem Umschalten `if (this.layersPanelOpen()) { this.propertiesPanelOpen.set(false); }`; `togglePropertiesPanel()` spiegelbildlich.
 
 ### `template-editor.html`
 
-- [ ] Zurück-Link: Text „Templates" in `<span class="template-editor__back-label">Templates</span>` einschließen; am `<a>` `aria-label="Zurück zu den Templates"` ergänzen.
-- [ ] Rückgängig- und Wiederherstellen-Knopf der Kopfzeile sowie „Karte erstellen" zusätzlich mit Klasse `template-editor__topbar-wide` versehen; `<span class="template-editor__dirty">` ebenso.
-- [ ] Nach dem Speichern-Knopf einfügen:
+- [x] Zurück-Link: Text „Templates" in `<span class="template-editor__back-label">Templates</span>` einschließen; am `<a>` `aria-label="Zurück zu den Templates"` ergänzen.
+- [x] Rückgängig- und Wiederherstellen-Knopf der Kopfzeile sowie „Karte erstellen" zusätzlich mit Klasse `template-editor__topbar-wide` versehen; `<span class="template-editor__dirty">` ebenso.
+- [x] Nach dem Speichern-Knopf einfügen:
 
 ```html
 <button
@@ -60,7 +60,7 @@
 </ng-template>
 ```
 
-- [ ] Nach `</div>` von `.template-editor__body` (noch innerhalb des `@else if`-Zweigs) die Werkzeugleiste einfügen: `<nav class="template-editor__toolbar" aria-label="Werkzeuge">` mit fünf `<button type="button" class="template-editor__tool">`:
+- [x] Nach `</div>` von `.template-editor__body` (noch innerhalb des `@else if`-Zweigs) die Werkzeugleiste einfügen: `<nav class="template-editor__toolbar" aria-label="Werkzeuge">` mit fünf `<button type="button" class="template-editor__tool">`:
   1. Ebenen — `aria-controls="template-editor-layers"`, `[attr.aria-expanded]="layersPanelOpen()"`, `[class.template-editor__tool--active]="layersPanelOpen()"`, `(click)="toggleLayersPanel()"`; Icon: die drei Ebenen-Pfade aus der Shell-Navigation (Templates-Icon).
   2. Rückgängig — `[disabled]="!editor.canUndo()"`, `(click)="editor.undo()"`; Icon wie in der Kopfzeile.
   3. Wiederherstellen — `[disabled]="!editor.canRedo()"`, `(click)="editor.redo()"`; Icon wie in der Kopfzeile.
@@ -70,8 +70,8 @@
 
 ### `template-editor.scss`
 
-- [ ] Standard: `.template-editor__toolbar { display: none; }` · `.template-editor__more { display: none; }`
-- [ ] Neuer Block `@include bp.phone { … }` **nach** den bestehenden `bp.editor-narrow`-Blöcken:
+- [x] Standard: `.template-editor__toolbar { display: none; }` · `.template-editor__more { display: none; }`
+- [x] Neuer Block `@include bp.phone { … }` **nach** den bestehenden `bp.editor-narrow`-Blöcken:
 
 ```scss
 @include bp.phone {
@@ -163,17 +163,17 @@
 }
 ```
 
-- [ ] Die Zahl `56px` beim Fehlerstreifen ist die Kopfzeilenhöhe aus dem Entwurf (steht schon zweimal in dieser Datei) — Kommentar am Dateikopf gilt.
-- [ ] Prüfen, dass `.template-editor` (fest positioniert, Ebene 50) der Bezugskasten der Blätter ist: die Blätter enden sichtbar über der Werkzeugleiste, nicht am Fensterrand.
+- [x] Die Zahl `56px` beim Fehlerstreifen ist die Kopfzeilenhöhe aus dem Entwurf (steht schon zweimal in dieser Datei) — Kommentar am Dateikopf gilt.
+- [x] Prüfen, dass `.template-editor` (fest positioniert, Ebene 50) der Bezugskasten der Blätter ist: die Blätter enden sichtbar über der Werkzeugleiste, nicht am Fensterrand.
 
 ### Bühnen-Steuerung
 
-- [ ] `stage-controls.html`: den „?"-Knopf zusätzlich mit Klasse `stage-controls__button--shortcuts` versehen.
-- [ ] `stage-controls.scss`: `@use 'breakpoints' as bp;` und `@include bp.touch { .stage-controls__button--shortcuts, .stage-controls__status { display: none; } }`.
+- [x] `stage-controls.html`: den „?"-Knopf zusätzlich mit Klasse `stage-controls__button--shortcuts` versehen.
+- [x] `stage-controls.scss`: `@use 'breakpoints' as bp;` und `@include bp.touch { .stage-controls__button--shortcuts, .stage-controls__status { display: none; } }`.
 
 ### Ebenenliste und Hinzufügen-Menü
 
-- [ ] `layer-list.scss`: `@use 'breakpoints' as bp;` und
+- [x] `layer-list.scss`: `@use 'breakpoints' as bp;` und
 
 ```scss
 @include bp.touch {
@@ -190,14 +190,16 @@
 }
 ```
 
-- [ ] `add-layer-menu.scss`: `@include bp.touch { .add-layer-menu__item { min-block-size: var(--touch-target-min); } }`.
+- [x] `add-layer-menu.scss`: `@include bp.touch { .add-layer-menu__item { min-block-size: var(--touch-target-min); } }`.
 
 ### Dialoge
 
-- [ ] `asset-picker.scss` und `font-manager.scss`: `max-width: 90vw` → `max-width: 100%` und `max-height: 80vh` → `max-height: 80dvh`. Im Gerätemodus bei 360 px öffnen (Rahmen-Eigenschaft → Bild wählen; Text-Eigenschaft → Schriften verwalten) und prüfen: kein waagrechter Bildlauf.
+- [x] `asset-picker.scss` und `font-manager.scss`: `max-width: 90vw` → `max-width: 100%` und `max-height: 80vh` → `max-height: 80dvh`. Im Gerätemodus bei 360 px öffnen (Rahmen-Eigenschaft → Bild wählen; Text-Eigenschaft → Schriften verwalten) und prüfen: kein waagrechter Bildlauf.
 
 ### Doc
 
-- [ ] `docs/code-map.md` → `template-editor/`: den Satz „Unter 1000 px werden beide Spalten zu einklappbaren Schubladen." ergänzen um „; auf Smartphone-Breite fahren sie als Blätter von unten herein, gesteuert über eine Werkzeugleiste am unteren Rand (Ebenen, Rückgängig, Wiederherstellen, Einpassen, Eigenschaften)".
+- [x] `docs/code-map.md` → `template-editor/`: den Satz „Unter 1000 px werden beide Spalten zu einklappbaren Schubladen." ergänzen um „; auf Smartphone-Breite fahren sie als Blätter von unten herein, gesteuert über eine Werkzeugleiste am unteren Rand (Ebenen, Rückgängig, Wiederherstellen, Einpassen, Eigenschaften)".
 
 ## Report-Back
+
+Alle Punkte umgesetzt; `npm run build` und `npm run lint` grün. Nicht im Browser geprüft: die Blätter über der Werkzeugleiste und die Dialoge bei 360 px (Gerätemodus) — Sichtprüfung steht im Smoke am Plan-Ende. Keine Abweichungen, keine Findings für spätere Phasen.

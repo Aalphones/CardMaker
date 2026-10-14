@@ -2,6 +2,8 @@
 // Aktionen unten. Rohe Pixelwerte nur als Bauteilmaß aus dem Entwurf (7px Punkt,
 // 6px Innenabstand, 2px Zeilenabstand, 13px Name, 10px Typbezeichnung).
 
+@use 'breakpoints' as bp;
+
 .layer-list {
   display: flex;
   flex-direction: column;
@@ -137,5 +139,18 @@
     &--danger {
       color: var(--color-accent-text);
     }
+  }
+}
+
+@include bp.touch {
+  .layer-list__item {
+    min-block-size: var(--touch-target-min);
+  }
+
+  .layer-list__visibility {
+    align-items: center;
+    justify-content: center;
+    min-inline-size: var(--touch-target-min);
+    min-block-size: var(--touch-target-min);
   }
 }

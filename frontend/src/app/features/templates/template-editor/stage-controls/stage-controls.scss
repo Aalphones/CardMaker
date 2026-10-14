@@ -2,6 +2,8 @@
 // unten rechts. Der Wirt selbst fängt keine Klicks ab, sonst läge eine unsichtbare Fläche
 // über der Karte. Rohe Pixelwerte nur als Bauteilmaß aus dem Entwurf (11px Statusschrift).
 
+@use 'breakpoints' as bp;
+
 :host {
   position: absolute;
   inset: 0;
@@ -68,5 +70,13 @@
     color: var(--color-text-muted);
     font-size: 11px;
     box-shadow: var(--shadow-md);
+  }
+}
+
+// Ohne Tastatur und ohne Zeiger sind Kürzel-Hilfe und Zeigerposition nutzlos.
+@include bp.touch {
+  .stage-controls__button--shortcuts,
+  .stage-controls__status {
+    display: none;
   }
 }

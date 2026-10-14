@@ -116,7 +116,10 @@ frontend/src/app/
                                Ebene 50): Kopfzeile (Zurück, Name direkt bearbeitbar,
                                Rückgängig/Wiederherstellen, Speichern), linke Ebenenspalte,
                                dunkle Bühne mit der Karte, rechte Eigenschaftenspalte. Unter
-                               1000 px werden beide Spalten zu einklappbaren Schubladen.
+                               1000 px werden beide Spalten zu einklappbaren Schubladen; auf
+                               Smartphone-Breite fahren sie als Blätter von unten herein,
+                               gesteuert über eine Werkzeugleiste am unteren Rand (Ebenen,
+                               Rückgängig, Wiederherstellen, Einpassen, Eigenschaften).
                                Bedien-Zustand im Signal Store `signal-stores/template-editor.ts`
         layer-list/          ← linke Spalte: Ebenen umbenennen, Sichtbarkeit,
                                Drag-Reihenfolge (CDK, Index gedreht zum Array) und die

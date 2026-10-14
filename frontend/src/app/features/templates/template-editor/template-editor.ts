@@ -1,4 +1,5 @@
 import { Dialog } from '@angular/cdk/dialog';
+import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -54,7 +55,16 @@ const PREVIEW_FAILED_MESSAGE = 'Das Vorschaubild konnte nicht gespeichert werden
 
 @Component({
   selector: 'app-template-editor',
-  imports: [CardCanvas, RouterLink, LayerList, LayerProperties, StageControls],
+  imports: [
+    CardCanvas,
+    RouterLink,
+    LayerList,
+    LayerProperties,
+    StageControls,
+    CdkMenuTrigger,
+    CdkMenu,
+    CdkMenuItem,
+  ],
   templateUrl: './template-editor.html',
   styleUrl: './template-editor.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -106,6 +116,9 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
   /** Die Karte hängt absolut in der Bühne — Breite aus dem Maßstab, Ecke aus Maßstab + Verschiebung. */
   protected readonly cardWidth: Signal<number> = computed(() => CANVAS_WIDTH * this.editor.zoom());
   protected readonly cardPosition: Signal<Point> = computed(() => cardOrigin(this.editor.view()));
+
+  /** Dieselbe Rechnung wie in der Maßstab-Pille der Bühne — beide zeigen dieselbe Zahl. */
+  protected readonly zoomPercent: Signal<number> = computed(() => Math.round(this.editor.zoom() * 100));
 
   constructor() {
     // Der Editor deckt die App vollständig ab; die Seite darunter darf nicht mitscrollen.
@@ -178,12 +191,21 @@ export class TemplateEditor implements ComponentWithUnsavedChanges {
     return this.editor.dirty() || this.nameChanged();
   }
 
+  /** Höchstens eine Spalte offen: Auf schmalen Fenstern verdeckten zwei sich gegenseitig. */
   protected toggleLayersPanel(): void {
     this.layersPanelOpen.update((isOpen: boolean) => !isOpen);
+
+    if (this.layersPanelOpen()) {
+      this.propertiesPanelOpen.set(false);
+    }
   }
 
   protected togglePropertiesPanel(): void {
     this.propertiesPanelOpen.update((isOpen: boolean) => !isOpen);
+
+    if (this.propertiesPanelOpen()) {
+      this.layersPanelOpen.set(false);
+    }
   }
 
   /** Rad über der Bühne: stufenlos zum Zeiger hin, in den Grenzen 10 % bis 400 %. */

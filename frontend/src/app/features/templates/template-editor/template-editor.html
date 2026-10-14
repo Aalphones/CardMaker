@@ -3,7 +3,7 @@
     <p class="template-editor__status">Wird geladen …</p>
   } @else if (templates.current(); as template) {
     <header class="template-editor__topbar">
-      <a class="btn btn--ghost" routerLink="/templates">
+      <a class="btn btn--ghost" routerLink="/templates" aria-label="Zurück zu den Templates">
         <svg
           width="15"
           height="15"
@@ -18,7 +18,7 @@
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>
-        Templates
+        <span class="template-editor__back-label">Templates</span>
       </a>
 
       <input
@@ -30,7 +30,7 @@
       />
 
       @if (hasUnsavedChanges()) {
-        <span class="template-editor__dirty">Nicht gespeichert</span>
+        <span class="template-editor__dirty template-editor__topbar-wide">Nicht gespeichert</span>
       }
 
       @if (templates.error(); as message) {
@@ -41,7 +41,7 @@
 
       <button
         type="button"
-        class="btn btn--secondary btn--icon template-editor__history"
+        class="btn btn--secondary btn--icon template-editor__history template-editor__topbar-wide"
         [disabled]="!editor.canUndo()"
         title="Rückgängig (Strg+Z)"
         aria-label="Rückgängig"
@@ -65,7 +65,7 @@
 
       <button
         type="button"
-        class="btn btn--secondary btn--icon template-editor__history"
+        class="btn btn--secondary btn--icon template-editor__history template-editor__topbar-wide"
         [disabled]="!editor.canRedo()"
         title="Wiederherstellen (Umschalt+Strg+Z)"
         aria-label="Wiederherstellen"
@@ -89,7 +89,7 @@
 
       <button
         type="button"
-        class="btn btn--secondary"
+        class="btn btn--secondary template-editor__topbar-wide"
         [disabled]="!templates.current()"
         (click)="createCard()"
       >
@@ -99,6 +99,32 @@
       <button type="button" class="btn btn--primary" [disabled]="!canSave()" (click)="save()">
         {{ saving() ? 'Speichert …' : 'Speichern' }}
       </button>
+
+      <button
+        type="button"
+        class="btn btn--secondary btn--icon template-editor__more"
+        aria-label="Weitere Aktionen"
+        [cdkMenuTriggerFor]="editorMenu"
+      >
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <circle cx="5" cy="12" r="1.75" />
+          <circle cx="12" cy="12" r="1.75" />
+          <circle cx="19" cy="12" r="1.75" />
+        </svg>
+      </button>
+      <ng-template #editorMenu>
+        <div class="menu" cdkMenu>
+          <button
+            type="button"
+            class="menu__item"
+            cdkMenuItem
+            [disabled]="!templates.current()"
+            (cdkMenuItemTriggered)="createCard()"
+          >
+            Karte erstellen
+          </button>
+        </div>
+      </ng-template>
     </header>
 
     <div class="template-editor__body">
@@ -185,6 +211,139 @@
         <app-layer-properties [layer]="selectedLayer()" (patch)="onPatch($event)" />
       </aside>
     </div>
+
+    <nav class="template-editor__toolbar" aria-label="Werkzeuge">
+      <button
+        type="button"
+        class="template-editor__tool"
+        [class.template-editor__tool--active]="layersPanelOpen()"
+        aria-controls="template-editor-layers"
+        [attr.aria-expanded]="layersPanelOpen()"
+        (click)="toggleLayersPanel()"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path
+            d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"
+          />
+          <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" />
+          <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" />
+        </svg>
+        <span class="template-editor__tool-label">Ebenen</span>
+      </button>
+
+      <button
+        type="button"
+        class="template-editor__tool"
+        [disabled]="!editor.canUndo()"
+        (click)="editor.undo()"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M3 7v6h6" />
+          <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+        </svg>
+        <span class="template-editor__tool-label">Rückgängig</span>
+      </button>
+
+      <button
+        type="button"
+        class="template-editor__tool"
+        [disabled]="!editor.canRedo()"
+        (click)="editor.redo()"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M21 7v6h-6" />
+          <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+        </svg>
+        <span class="template-editor__tool-label">Wiederherstellen</span>
+      </button>
+
+      <button
+        type="button"
+        class="template-editor__tool"
+        aria-label="Karte einpassen"
+        (click)="editor.fitView()"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+          <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+          <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+        </svg>
+        <span class="template-editor__tool-label">{{ zoomPercent() }} %</span>
+      </button>
+
+      <button
+        type="button"
+        class="template-editor__tool"
+        [class.template-editor__tool--active]="propertiesPanelOpen()"
+        aria-controls="template-editor-properties"
+        [attr.aria-expanded]="propertiesPanelOpen()"
+        (click)="togglePropertiesPanel()"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <line x1="4" y1="21" x2="4" y2="14" />
+          <line x1="4" y1="10" x2="4" y2="3" />
+          <line x1="12" y1="21" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12" y2="3" />
+          <line x1="20" y1="21" x2="20" y2="16" />
+          <line x1="20" y1="12" x2="20" y2="3" />
+          <line x1="1" y1="14" x2="7" y2="14" />
+          <line x1="9" y1="8" x2="15" y2="8" />
+          <line x1="17" y1="16" x2="23" y2="16" />
+        </svg>
+        <span class="template-editor__tool-label">Eigenschaften</span>
+      </button>
+    </nav>
   } @else {
     <p class="template-editor__status">Dieses Template gibt es nicht.</p>
   }
