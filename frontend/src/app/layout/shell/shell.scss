@@ -2,6 +2,9 @@
 
 .shell {
   display: grid;
+  // minmax(0, …) statt 1fr/auto: sonst wächst die Spalte auf die Mindestbreite des Inhalts
+  // (z. B. die nicht umbrechende Chip-Leiste der Kartenliste) und ragt übers Fenster hinaus.
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   min-height: 100vh;
 
@@ -55,7 +58,7 @@
 
   &__body {
     display: grid;
-    grid-template-columns: 216px 1fr;
+    grid-template-columns: 216px minmax(0, 1fr);
     min-height: 0;
   }
 
@@ -130,7 +133,7 @@
 
   @include bp.narrow {
     &__body {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
 
     &__sidebar {
